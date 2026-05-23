@@ -24,16 +24,15 @@ function useIsMobile() {
 }
 
 function useClock() {
-  const [time, setTime] = useState(() => {
+  const fmt = () => {
     const d = new Date();
-    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-  });
+    return d.getHours().toString().padStart(2, '0') + ':' +
+           d.getMinutes().toString().padStart(2, '0') + ':' +
+           d.getSeconds().toString().padStart(2, '0');
+  };
+  const [time, setTime] = useState(fmt);
   useEffect(() => {
-    const tick = () => {
-      const d = new Date();
-      setTime(d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0'));
-    };
-    const id = setInterval(tick, 10000);
+    const id = setInterval(() => setTime(fmt()), 1000);
     return () => clearInterval(id);
   }, []);
   return time;

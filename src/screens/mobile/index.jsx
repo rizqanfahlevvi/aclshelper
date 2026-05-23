@@ -16,7 +16,7 @@ import {
 export function MobileHome({ nav, openSheet, openCPR }) {
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph"><Icons.user size={18} stroke={2}/></button>}/>
+      <NavBar/>
       <LargeTitle>ACLS Helper</LargeTitle>
 
       <div style={{ padding: "0 20px 12px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>

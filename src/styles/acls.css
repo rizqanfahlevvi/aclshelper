@@ -239,7 +239,7 @@ body {
   border-top: 0.5px solid var(--separator);
 }
 .acls-bottomnav .nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
   border: 0; background: transparent; cursor: pointer;
   color: var(--label-tertiary);
   font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
@@ -253,11 +253,19 @@ body {
   display: inline-flex; align-items: center; justify-content: center;
   color: #fff;
   border: 0; cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   box-shadow: 0 10px 24px rgba(255,59,48,0.42), 0 2px 4px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.20);
   transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
 }
 .acls-bottomnav .acls-fab:active {
   transform: translateX(-50%) scale(0.92);
+}
+.acls-bottomnav .acls-fab:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent), 0 10px 24px rgba(255,59,48,0.42);
 }
 
 /* ============================================================
