@@ -572,6 +572,259 @@ export function CPRTimer({ onClose, isMobile = true }) {
     );
   }
 
+  /* === ACTIVE CPR PHASE — DESKTOP 2-COLUMN === */
+  if (!isMobile) {
+    return (
+      <>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          {/* Header row — full width */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: '0.5px solid var(--separator)', flexShrink: 0, gap: 8 }}>
+            <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: 'var(--label-secondary)', fontSize: 15 }}>
+              <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Keluar</span>
+            </button>
+            <div className="t-caption-2" style={{ color: 'var(--danger)', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: 4, background: 'var(--danger)', marginRight: 5, verticalAlign: 'middle', animation: 'acls-blink 1s infinite' }}/>
+              CODE BLUE
+            </div>
+            <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'rgba(255,59,48,0.15)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
+                {soundOn ? `♩ ${CPR_BPM} BPM` : 'Metronome'}
+              </span>
+            </button>
+          </div>
+
+          {/* 2-column body */}
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 340px', overflow: 'hidden' }}>
+            {/* LEFT: step + timer + actions */}
+            <div style={{ overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <StepCard step={curStep} idx={safeIdx}/>
+
+              {/* Timer block */}
+              <div style={{ padding: '12px 16px', borderRadius: 14, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 10, alignItems: 'center' }}>
+                  <div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>SIKLUS 2 MNT</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 40, fontWeight: 700, color: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--label-primary)', lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: '-0.02em' }}>
+                      {fmtMs(cycleRemainingMs)}
+                    </div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>tersisa · siklus {cycles}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>TOTAL</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
+                  </div>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', marginTop: 10, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: cycleProgress * 100 + '%', background: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--success)', borderRadius: 3, transition: 'width 50ms linear, background var(--dur-fast)' }}/>
+                </div>
+              </div>
+
+              {/* Pause / Reset */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="ios-btn gray sm" style={{ height: 40, flex: 1 }} onClick={() => setRunning(r => !r)}>
+                  {running ? <><Icons.pause size={14}/> Jeda</> : <><Icons.play size={14}/> Lanjut</>}
+                </button>
+                <button className="ios-btn gray sm" style={{ height: 40, flex: 1 }} onClick={() => { setElapsedMs(0); lastCycleRef.current = 1; }}>
+                  <Icons.reset size={14}/> Reset
+                </button>
+              </div>
+
+              {/* Contextual actions */}
+              <div key={stepIdx} style={{ display: 'flex', flexDirection: 'column', gap: 8, animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
+                {curStep.kind === 'shock' && (
+                  <button className="cpr-action shock" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px' }}
+                    onClick={() => { setShocks(s => s + 1); addLog(`Defibrilasi ${shocks + 1} — 120-200J bifasik / 360J monofasik`, 'danger'); advanceStep(); }}>
+                    <Icons.boltFill size={32}/>
+                    <div style={{ textAlign: 'left' }}>
+                      <div className="t-title-3" style={{ color: '#fff' }}>Defibrilasi</div>
+                      <div className="t-caption-2" style={{ opacity: 0.88 }}>Bifasik 120–200J · Monofasik 360J</div>
+                      <div className="t-caption-2" style={{ opacity: 0.72, marginTop: 1 }}>{shocks > 0 ? `${shocks}× sudah · ` : ''}Tandai &amp; lanjut →</div>
+                    </div>
+                  </button>
+                )}
+                {curStep.kind === 'drug' && curStep.cta === 'epi' && (
+                  <button className={"cpr-action epi" + (curStep.urgent ? " epi-ready" : "")} style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 70, padding: '14px 18px' }}
+                    onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO — SEGERA`, 'warn'); advanceStep(); }}>
+                    <Icons.pill size={32} stroke={2}/>
+                    <div style={{ textAlign: 'left' }}>
+                      <div className="t-title-3" style={{ color: '#fff' }}>{curStep.urgent ? '⚡ Epinefrin ASAP' : 'Epinefrin 1 mg IV/IO'}</div>
+                      <div className="t-caption-2" style={{ opacity: 0.85 }}>1 mg IV/IO · Dosis #{epiDoses + 1} · Tandai &amp; lanjut →</div>
+                    </div>
+                  </button>
+                )}
+                {curStep.kind === 'cpr' && (
+                  <>
+                    <div style={{ padding: '9px 13px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 9, height: 9, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
+                      <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
+                      {epiNextMs != null && !epiReady && (
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
+                      )}
+                    </div>
+                    {curStep.actions?.includes('epi') && (
+                      <button className={"cpr-action epi" + (epiReady ? " epi-ready" : "")} style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px' }}
+                        onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO`, 'warn'); }}>
+                        <Icons.pill size={22} stroke={2}/>
+                        <div style={{ textAlign: 'left' }}>
+                          <div className="t-headline" style={{ color: '#fff' }}>Epinefrin 1 mg IV/IO</div>
+                          <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                            {epiNextMs == null ? 'Dosis pertama — berikan segera' : epiReady ? '⚠ Jatuh tempo — berikan segera!' : `Next: ${fmt(Math.ceil(epiRemainMs / 1000))} · dosis #${epiDoses + 1}`}
+                          </div>
+                        </div>
+                      </button>
+                    )}
+                    {curStep.actions?.includes('amio') && (
+                      <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
+                        onClick={() => { setAmio(a => a + 1); addLog(`Amiodarone ${amio === 0 ? '300mg' : '150mg'} IV/IO bolus`, 'info'); }}>
+                        <Icons.syringe size={22} stroke={2}/>
+                        <div style={{ textAlign: 'left' }}>
+                          <div className="t-headline" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
+                          <div className="t-caption-2" style={{ opacity: 0.85 }}>atau Lidokain 1–1.5 mg/kg bolus</div>
+                        </div>
+                      </button>
+                    )}
+                    {curStep.actions?.includes('airway') && !intubated && (
+                      <button className="cpr-action intubate" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px' }}
+                        onClick={() => { setIntubated(true); addLog('Intubasi ETT / SGA · konfirmasi EtCO₂ + auskultasi', 'info'); }}>
+                        <Icons.lungs size={22} stroke={2}/>
+                        <div style={{ textAlign: 'left' }}>
+                          <div className="t-headline" style={{ color: '#fff' }}>Intubasi ETT / SGA</div>
+                          <div className="t-caption-2" style={{ opacity: 0.85 }}>EtCO₂ · ventilasi 1×/6 dtk saat CPR kontinu</div>
+                        </div>
+                      </button>
+                    )}
+                    {curStep.actions?.includes('airway') && intubated && (
+                      <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 0.5px rgba(52,199,89,0.4)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Icons.check size={14} stroke={2.5} style={{ color: 'var(--success)', flexShrink: 0 }}/>
+                        <span className="t-caption-1" style={{ color: 'var(--success)', fontWeight: 600 }}>Airway lanjut terpasang · ventilasi 1×/6 dtk</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="cpr-action pulse" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+                    onClick={() => { addLog('Cek nadi & irama ≤ 10 dtk', 'info'); setPulseCheckOpen(true); }}>
+                    <Icons.heart size={18} stroke={2}/>
+                    <span className="t-caption-1" style={{ fontWeight: 600, color: '#fff', whiteSpace: 'nowrap' }}>Cek nadi</span>
+                  </button>
+                  <button className="cpr-action rosc" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+                    onClick={() => { addLog('ROSC tercapai · post-cardiac arrest', 'success'); setRunning(false); }}>
+                    <Icons.check size={18} stroke={2.6}/>
+                    <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: log — all entries, scrollable */}
+            <div style={{ borderLeft: '0.5px solid var(--separator)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ padding: '12px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '0.5px solid var(--separator)', flexShrink: 0 }}>
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>LOG KEJADIAN</div>
+                <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{log.length} item</span>
+              </div>
+              <div style={{ overflowY: 'auto', padding: '8px 12px 20px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                {[...log].reverse().map((e, i) => {
+                  const tc = { info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' }[e.tone];
+                  return (
+                    <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
+                      <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
+                      <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
+                        <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
+                        <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pulse Check Modal */}
+        {pulseCheckOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => setPulseCheckOpen(false)}>
+            <div style={{ width: '90%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: 16, padding: '24px', animation: 'acls-sheet-up 260ms var(--ease-out) both', display: 'flex', flexDirection: 'column', gap: 10 }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ padding: '9px 12px', borderRadius: 11, background: 'rgba(255,149,0,0.09)', boxShadow: 'inset 0 0 0 0.5px rgba(255,149,0,0.35)' }}>
+                <div className="t-caption-2" style={{ color: 'var(--warning)', fontWeight: 700, marginBottom: 2 }}>CEK NADI &amp; IRAMA ≤ 10 dtk</div>
+                <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Hentikan kompresi sebentar · raba karotis · lihat monitor</div>
+              </div>
+              {RHYTHM_OPTS.slice(0, 2).map(opt => (
+                <button key={opt.key} onClick={() => {
+                  addLog(`Cek nadi: ${opt.label} terdeteksi — lanjut CPR`, opt.key === 'shockable' ? 'danger' : 'info');
+                  if (opt.key !== rhythm) setRhythm(opt.key);
+                  setPulseCheckOpen(false);
+                }} style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: `var(--shadow-1), 0 0 0 0.5px ${opt.color}40`, border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 9, background: opt.color, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {opt.key === 'shockable' ? <Icons.boltFill size={18} style={{ color: '#fff' }}/> : <Icons.flatline size={18} stroke={2.2} style={{ color: '#fff' }}/>}
+                  </div>
+                  <div>
+                    <div className="t-headline" style={{ color: opt.color }}>{opt.label}</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Tidak ada nadi · lanjut CPR</div>
+                  </div>
+                </button>
+              ))}
+              <button onClick={() => {
+                addLog('ROSC tercapai · post-cardiac arrest care', 'success');
+                setRunning(false);
+                setPulseCheckOpen(false);
+              }} style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 1px rgba(52,199,89,0.4)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icons.check size={18} stroke={2.6} style={{ color: '#fff' }}/>
+                </div>
+                <div>
+                  <div className="t-headline" style={{ color: 'var(--success)' }}>Ada nadi — ROSC</div>
+                  <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Hentikan CPR · mulai post-cardiac arrest care</div>
+                </div>
+              </button>
+              <button onClick={() => { addLog('Cek nadi: tidak ada temuan baru · lanjut CPR', 'info'); setPulseCheckOpen(false); }}
+                style={{ height: 36, width: '100%', borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 13, fontWeight: 600, border: 0, cursor: 'pointer' }}>
+                Tutup — Lanjut CPR
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Log Modal */}
+        {logModalOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => setLogModalOpen(false)}>
+            <div style={{ width: '90%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: 16, maxHeight: '80dvh', display: 'flex', flexDirection: 'column', animation: 'acls-sheet-up 260ms var(--ease-out) both' }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ padding: '16px 20px 8px', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div className="t-title-3">Log Kejadian ({log.length})</div>
+                  <button onClick={() => setLogModalOpen(false)}
+                    style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--fill-tertiary)', border: 0, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--label-secondary)' }}>
+                    Tutup
+                  </button>
+                </div>
+              </div>
+              <div style={{ overflowY: 'auto', padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {[...log].reverse().map((e, i) => {
+                  const tc = { info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' }[e.tone];
+                  return (
+                    <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '8px 12px', borderRadius: 8, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
+                      <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
+                      <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
+                        <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
+                        <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
   /* === ACTIVE CPR PHASE === */
   return (
     <>
@@ -756,11 +1009,10 @@ export function CPRTimer({ onClose, isMobile = true }) {
 
     {/* === Pulse Check Modal === */}
     {pulseCheckOpen && (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onClick={() => setPulseCheckOpen(false)}>
-        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: isMobile ? '20px 20px 0 0' : 16, padding: isMobile ? `20px 20px calc(20px + env(safe-area-inset-bottom, 0px))` : '24px', animation: 'acls-sheet-up 260ms var(--ease-out) both', display: 'flex', flexDirection: 'column', gap: 10 }}
+        <div style={{ width: '90%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: 16, padding: '24px', animation: 'acls-sheet-up 260ms var(--ease-out) both', display: 'flex', flexDirection: 'column', gap: 10 }}
           onClick={e => e.stopPropagation()}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)', margin: '0 auto 6px' }}/>
           <div style={{ padding: '9px 12px', borderRadius: 11, background: 'rgba(255,149,0,0.09)', boxShadow: 'inset 0 0 0 0.5px rgba(255,149,0,0.35)' }}>
             <div className="t-caption-2" style={{ color: 'var(--warning)', fontWeight: 700, marginBottom: 2 }}>CEK NADI &amp; IRAMA ≤ 10 dtk</div>
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Hentikan kompresi sebentar · raba karotis · lihat monitor</div>
@@ -803,12 +1055,11 @@ export function CPRTimer({ onClose, isMobile = true }) {
 
     {/* === Full Log Modal === */}
     {logModalOpen && (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onClick={() => setLogModalOpen(false)}>
-        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: isMobile ? '20px 20px 0 0' : 16, maxHeight: isMobile ? '80dvh' : '70vh', display: 'flex', flexDirection: 'column', animation: 'acls-sheet-up 260ms var(--ease-out) both', paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 0px)' : 0 }}
+        <div style={{ width: '90%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: 16, maxHeight: '80dvh', display: 'flex', flexDirection: 'column', animation: 'acls-sheet-up 260ms var(--ease-out) both' }}
           onClick={e => e.stopPropagation()}>
           <div style={{ padding: '16px 20px 8px', flexShrink: 0 }}>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)', margin: '0 auto 12px' }}/>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div className="t-title-3">Log Kejadian ({log.length})</div>
               <button onClick={() => setLogModalOpen(false)}

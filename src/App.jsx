@@ -249,44 +249,49 @@ export default function App() {
   /* ── TABLET + DESKTOP ─────────────────────────────────────── */
   return (
     <div className="acls-app-desktop">
-      <DesktopSidebar
-        collapsed={bp === 'tablet'}
-        active={deskView.screen}
-        onChange={(screen, id) => setDeskView({ screen, id })}
-        onOpenCpr={() => setCprOpen(true)}/>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-        <DesktopTopbar crumb={
-          deskView.screen === 'algo'  ? ['ACLS Helper', 'Algoritma', algoLabel]
-          : deskView.screen === 'drugs' ? ['ACLS Helper', 'Obat']
-          : deskView.screen === 'ekg'   ? ['ACLS Helper', 'Pustaka EKG']
-          : deskView.screen === 'hsts'  ? ['ACLS Helper', 'Hs & Ts']
-          : ['ACLS Helper', 'Beranda']
-        }/>
-        {/* Content area — CPR panel renders here (absolute) so sidebar + topbar stay visible */}
-        <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
-          {renderDesktop()}
+      {/* Full-width topbar — same structure as mobile */}
+      <AppTopBar theme={theme} onToggleTheme={toggleTheme}/>
 
-          {cprOpen && (
-            <>
-              {/* Blur backdrop over content area */}
-              <div style={{ position: 'absolute', inset: 0, zIndex: 10,
-                background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)' }}
-                onClick={() => setCprOpen(false)}/>
-              {/* CPR panel — centered, max-width 640px */}
-              <div style={{ position: 'absolute', inset: 0, zIndex: 11,
-                display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-                <div style={{ width: 'min(640px, 100%)', height: '100%',
-                  background: 'var(--bg-secondary)', pointerEvents: 'all',
-                  animation: 'acls-overlay-in 280ms var(--ease-out) both',
-                  boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
-                  <CPRTimer isMobile={false} onClose={() => setCprOpen(false)}/>
+      <div className="acls-desktop-body">
+        <DesktopSidebar
+          collapsed={bp === 'tablet'}
+          active={deskView.screen}
+          onChange={(screen, id) => setDeskView({ screen, id })}
+          onOpenCpr={() => setCprOpen(true)}/>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+          <DesktopTopbar crumb={
+            deskView.screen === 'algo'  ? ['ACLS Helper', 'Algoritma', algoLabel]
+            : deskView.screen === 'drugs' ? ['ACLS Helper', 'Obat']
+            : deskView.screen === 'ekg'   ? ['ACLS Helper', 'Pustaka EKG']
+            : deskView.screen === 'hsts'  ? ['ACLS Helper', 'Hs & Ts']
+            : ['ACLS Helper', 'Beranda']
+          }/>
+          {/* Content area — CPR panel renders here (absolute) so sidebar + topbar stay visible */}
+          <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
+            {renderDesktop()}
+
+            {cprOpen && (
+              <>
+                {/* Blur backdrop over content area */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 10,
+                  background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)' }}
+                  onClick={() => setCprOpen(false)}/>
+                {/* CPR panel — centered, max-width 900px */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 11,
+                  display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+                  <div style={{ width: 'min(900px, 100%)', height: '100%',
+                    background: 'var(--bg-secondary)', pointerEvents: 'all',
+                    animation: 'acls-overlay-in 280ms var(--ease-out) both',
+                    boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
+                    <CPRTimer isMobile={false} onClose={() => setCprOpen(false)}/>
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-      </main>
+              </>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

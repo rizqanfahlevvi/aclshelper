@@ -50,8 +50,16 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--bg-secondary);
+}
+
+/* Sidebar + main row below the full-width AppTopBar */
+.acls-desktop-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 }
 
 /* Screen enter animation */
