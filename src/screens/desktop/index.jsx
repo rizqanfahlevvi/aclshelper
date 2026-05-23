@@ -5,6 +5,8 @@ import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_FLOW_ARREST, ACLS_FLOW_BRADY, ACLS_FLOW_TACHY,
   ACLS_FLOW_BHJD, ACLS_FLOW_SKA, ACLS_FLOW_ROSC,
+  ACLS_FLOW_OPIOID, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_PREGNANCY,
+  ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
 
 /* ============================================================
@@ -54,12 +56,17 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
           <>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
             {[
-              { key: "bhjd",  label: "BHJD Dewasa",   tint: "var(--accent)" },
-              { key: "vfvt",  label: "VF / pVT",       tint: "var(--danger)" },
-              { key: "pea",   label: "PEA / Asistol",  tint: "var(--info)" },
-              { key: "brady", label: "Bradikardi",     tint: "var(--warning)" },
-              { key: "tachy", label: "Takikardi",      tint: "var(--tint-neuro)" },
-              { key: "ska",   label: "SKA / STEMI",    tint: "var(--tint-vital)" },
+              { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
+              { key: "vfvt",        label: "VF / pVT",         tint: "var(--danger)" },
+              { key: "pea",         label: "PEA / Asistol",    tint: "var(--info)" },
+              { key: "brady",       label: "Bradikardi",       tint: "var(--warning)" },
+              { key: "tachy",       label: "Takikardi",        tint: "var(--tint-neuro)" },
+              { key: "ska",         label: "SKA / STEMI",      tint: "var(--tint-vital)" },
+              { key: "opioid",      label: "Overdosis Opioid", tint: "var(--tint-neuro)" },
+              { key: "anaphylaxis", label: "Anafilaksis",      tint: "var(--danger)" },
+              { key: "pregnancy",   label: "Henti Kehamilan",  tint: "var(--tint-vital)" },
+              { key: "drowning",    label: "Tenggelam",        tint: "var(--info)" },
+              { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
             ].map(it => (
               <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
                 <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
@@ -102,7 +109,7 @@ export function DesktopTopbar({ crumb }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span className="t-caption-2" style={{ color: "var(--label-secondary)" }}>
           <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "var(--success)", marginRight: 6 }}/>
-          PERKI 2021 · AHA 2020
+          PERKI 2025 · AHA 2025
         </span>
         <button className="nb-btn glyph" style={{ width: 30, height: 30, borderRadius: 8, background: "var(--fill-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
           <Icons.settings size={16}/>
@@ -219,7 +226,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <div style={{ marginTop: 24, padding: "10px 16px", display: "flex", justifyContent: "space-between", gap: 12 }}>
         <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>ACLS Helper · v1.1 · Bagian dari ekosistem MDKit · penilaian klinis tetap diperlukan.</div>
-        <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>Sumber: PERKI 2021 + AHA 2020 · terakhir diperbarui 2026-05</div>
+        <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>Sumber: PERKI 2025 + AHA 2025 · terakhir diperbarui 2026-05</div>
       </div>
     </div>
   );
@@ -230,7 +237,18 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
    ============================================================ */
 export function DesktopAlgorithm({ id, onPick }) {
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
-  const flow = id === "brady" ? ACLS_FLOW_BRADY : id === "tachy" ? ACLS_FLOW_TACHY : id === "bhjd" ? ACLS_FLOW_BHJD : id === "ska" ? ACLS_FLOW_SKA : id === "rosc" ? ACLS_FLOW_ROSC : ACLS_FLOW_ARREST;
+  const flow =
+    id === "brady"       ? ACLS_FLOW_BRADY :
+    id === "tachy"       ? ACLS_FLOW_TACHY :
+    id === "bhjd"        ? ACLS_FLOW_BHJD :
+    id === "ska"         ? ACLS_FLOW_SKA :
+    id === "rosc"        ? ACLS_FLOW_ROSC :
+    id === "opioid"      ? ACLS_FLOW_OPIOID :
+    id === "anaphylaxis" ? ACLS_FLOW_ANAPHYLAXIS :
+    id === "pregnancy"   ? ACLS_FLOW_PREGNANCY :
+    id === "drowning"    ? ACLS_FLOW_DROWNING :
+    id === "hypothermia" ? ACLS_FLOW_HYPOTHERMIA :
+    ACLS_FLOW_ARREST;
   const [selected, setSelected] = useState(0);
   useEffect(() => { setSelected(0); }, [id]);
   const step = flow[selected];
@@ -249,7 +267,7 @@ export function DesktopAlgorithm({ id, onPick }) {
           <h2 className="t-title-1" style={{ margin: "4px 0 4px" }}>{algo.label}</h2>
           <span className="ios-tag" style={{ background: algo.tint + "1F", color: algo.tint, textTransform: "uppercase" }}>{algo.tag}</span>
         </div>
-        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16 }}>{algo.sub} · sumber: {algo.source || "AHA 2020"}</div>
+        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16 }}>{algo.sub} · sumber: {algo.source || "AHA 2025"}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {flow.map((s, i) => {
             const active = selected === i;

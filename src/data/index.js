@@ -1,7 +1,7 @@
 /* ============================================================
    ACLS Helper · Data module
-   Berdasarkan: PERKI 2021 (Bantuan Hidup Jantung Lanjut & Dasar)
-   + AHA Adult ACLS guidelines (acuan internasional)
+   Berdasarkan: PERKI 2025 (Bantuan Hidup Jantung Lanjut & Dasar)
+   + AHA 2025 Guidelines for CPR and ECC (akuan internasional)
 
    Bilingual: istilah klinis EN/akronim, narasi ID.
    ============================================================ */
@@ -10,8 +10,8 @@
    SUMBER & METADATA
    ------------------------------------------------------------ */
 export const ACLS_SOURCES = [
-  { key: "perki",  short: "PERKI 2021", long: "Buku Panduan Kursus BHJL & BHJD — Perhimpunan Dokter Spesialis Kardiovaskular Indonesia, 2021" },
-  { key: "aha",    short: "AHA 2020",   long: "American Heart Association Guidelines for CPR and ECC, 2020 (focused update 2023)" },
+  { key: "perki", short: "PERKI 2025", long: "Buku Panduan Kursus BHJL & BHJD — Perhimpunan Dokter Spesialis Kardiovaskular Indonesia, 2021 (diselaraskan AHA 2025)" },
+  { key: "aha",   short: "AHA 2025",  long: "American Heart Association Guidelines for CPR and Emergency Cardiovascular Care, 2025" },
 ];
 
 /* ------------------------------------------------------------
@@ -29,19 +29,26 @@ export const ACLS_QUICK_ACTIONS = [
    ALGORITHM CATALOG
    ------------------------------------------------------------ */
 export const ACLS_ALGORITHMS = [
-  { key: "bhjd",     label: "BHJD Dewasa",            sub: "Bantuan Hidup Jantung Dasar · CABD",      tint: "var(--accent)",      tag: "BLS",            source: "PERKI 2021" },
-  { key: "arrest",   label: "Henti Jantung Dewasa",   sub: "Algoritma utama BHJL · AHA 2020",         tint: "var(--danger)",      tag: "Code Blue",      source: "PERKI 2021" },
-  { key: "vfvt",     label: "VF / pVT",                sub: "Jalur shockable rhythm",                  tint: "var(--danger)",      tag: "Shockable",      source: "PERKI 2021" },
-  { key: "pea",      label: "PEA / Asistol",           sub: "Jalur non-shockable rhythm",              tint: "var(--info)",        tag: "Non-shockable",  source: "PERKI 2021" },
-  { key: "brady",    label: "Bradikardi",              sub: "HR < 50 · simptomatik",                   tint: "var(--warning)",     tag: "Stabil / Tidak stabil", source: "PERKI 2021" },
-  { key: "tachy",    label: "Takikardi",               sub: "QRS sempit vs lebar",                     tint: "var(--tint-neuro)",  tag: "Stabil / Tidak stabil", source: "PERKI 2021" },
-  { key: "ska",      label: "Sindrom Koroner Akut",    sub: "STEMI · NSTEMI · UAP",                    tint: "var(--tint-vital)",  tag: "SKA",            source: "PERKI 2021" },
-  { key: "rosc",     label: "Pasca Henti Jantung",     sub: "Targeted temperature · MAP · perfusi",    tint: "var(--success)",     tag: "Pemulihan",      source: "PERKI 2021" },
-  { key: "hsts",     label: "Hs & Ts",                 sub: "10 penyebab reversibel",                  tint: "var(--tint-theory)", tag: "Diferensial",    source: "AHA 2020" },
+  /* Algoritma Utama */
+  { key: "bhjd",      label: "BHJD Dewasa",              sub: "Bantuan Hidup Jantung Dasar · CABD",      tint: "var(--accent)",      tag: "BLS",                   source: "PERKI 2025" },
+  { key: "arrest",    label: "Henti Jantung Dewasa",     sub: "Algoritma utama BHJL · AHA 2025",         tint: "var(--danger)",      tag: "Code Blue",             source: "PERKI 2025" },
+  { key: "vfvt",      label: "VF / pVT",                 sub: "Jalur shockable rhythm",                  tint: "var(--danger)",      tag: "Shockable",             source: "PERKI 2025" },
+  { key: "pea",       label: "PEA / Asistol",            sub: "Jalur non-shockable rhythm",              tint: "var(--info)",        tag: "Non-shockable",         source: "PERKI 2025" },
+  { key: "brady",     label: "Bradikardi",               sub: "HR < 50 · simptomatik",                   tint: "var(--warning)",     tag: "Stabil / Tidak stabil", source: "PERKI 2025" },
+  { key: "tachy",     label: "Takikardi",                sub: "QRS sempit vs lebar",                     tint: "var(--tint-neuro)",  tag: "Stabil / Tidak stabil", source: "PERKI 2025" },
+  { key: "ska",       label: "Sindrom Koroner Akut",     sub: "STEMI · NSTEMI · UAP",                    tint: "var(--tint-vital)",  tag: "SKA",                   source: "PERKI 2025" },
+  { key: "rosc",      label: "Pasca Henti Jantung",      sub: "TTM 32–37,5°C · MAP · neuroproteksi",     tint: "var(--success)",     tag: "Pemulihan",             source: "PERKI 2025" },
+  { key: "hsts",      label: "Hs & Ts",                  sub: "10 penyebab reversibel",                  tint: "var(--tint-theory)", tag: "Diferensial",           source: "AHA 2025" },
+  /* Keadaan Khusus (AHA 2025 Part 10) */
+  { key: "opioid",    label: "Overdosis Opioid",         sub: "Nalokson sebelum RJP · ventilasi dulu",   tint: "var(--tint-neuro)",  tag: "Keadaan Khusus",        source: "AHA 2025" },
+  { key: "anaphylaxis", label: "Anafilaksis",            sub: "Epinefrin IM · airway · kortikosteroid",  tint: "var(--danger)",      tag: "Keadaan Khusus",        source: "AHA 2025" },
+  { key: "pregnancy", label: "Henti Jantung Kehamilan",  sub: "LUD · RCD ≤ 5 menit · tim obstetri",     tint: "var(--tint-vital)",  tag: "Keadaan Khusus",        source: "AHA 2025" },
+  { key: "drowning",  label: "Tenggelam",                sub: "Ventilasi prioritas · hipotermia",        tint: "var(--info)",        tag: "Keadaan Khusus",        source: "AHA 2025" },
+  { key: "hypothermia", label: "Hipotermia Berat",       sub: "RJP terus · ECMO · 'not dead until warm'", tint: "var(--accent)",    tag: "Keadaan Khusus",        source: "AHA 2025" },
 ];
 
 /* ------------------------------------------------------------
-   BHJD (BLS) — Dewasa, sesuai PERKI 2021
+   BHJD (BLS) — Dewasa, sesuai PERKI 2025
    ------------------------------------------------------------ */
 export const ACLS_FLOW_BHJD = [
   { kind: "action", title: "Pastikan keamanan", sub: "Aman diri · aman lingkungan · aman pasien",
@@ -64,6 +71,8 @@ export const ACLS_FLOW_BHJD = [
   { kind: "decision", title: "Shockable?", q: "AED menyarankan shock?",
     yes: { label: "Beri shock 1× · lanjut RJP", tint: "var(--danger)" },
     no:  { label: "Lanjut RJP 2 menit", tint: "var(--info)" } },
+  { kind: "note", title: "Kecurigaan Overdosis Opioid?", sub: "Napas tidak ada / tidak adekuat sebelum kolaps",
+    pearls: "AHA 2025: berikan nalokson 2 mg intranasal atau 0,4 mg IV SEBELUM memulai RJP bila ada kecurigaan opioid. Lanjutkan napas buatan + RJP segera setelahnya." },
   { kind: "outcome", title: "Lanjutkan RJP hingga…", sub: "ROSC / petugas BHJL tiba / lelah",
     pearls: "Tukar penolong tiap 2 menit untuk cegah kelelahan & menjaga kualitas kompresi." },
 ];
@@ -93,11 +102,11 @@ export const ACLS_FLOW_ARREST = [
   { kind: "note", title: "Cari & atasi Hs & Ts", sub: "Diferensial reversibel",
     pearls: "Hipovolemia · Hipoksia · H⁺ asidosis · Hipo/Hiperkalemia · Hipotermia · Tension PTX · Tamponade · Toksin · Trombosis paru · Trombosis koroner" },
   { kind: "outcome", title: "ROSC", sub: "Lanjut Perawatan Pasca Henti Jantung",
-    pearls: "Target temperatur 32–36°C · MAP ≥ 65 mmHg · SpO₂ 92–98% · EtCO₂ 35–45 · cari & atasi etiologi." },
+    pearls: "AHA 2025: TTM 32–37,5°C (cegah demam ≥37,7°C) · MAP ≥ 65 mmHg · SpO₂ 92–98% · EtCO₂ 35–45 · cari & atasi etiologi." },
 ];
 
 /* ------------------------------------------------------------
-   BRADIKARDI (PERKI 2021)
+   BRADIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_BRADY = [
   { kind: "action", title: "Identifikasi & nilai", sub: "HR < 50 · ABC · O₂ · akses IV · EKG 12-sandapan",
@@ -116,7 +125,7 @@ export const ACLS_FLOW_BRADY = [
 ];
 
 /* ------------------------------------------------------------
-   TAKIKARDI (PERKI 2021)
+   TAKIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_TACHY = [
   { kind: "action", title: "Identifikasi & nilai", sub: "HR > 150 · ABC · O₂ · akses IV · EKG 12-sandapan",
@@ -140,7 +149,7 @@ export const ACLS_FLOW_TACHY = [
 ];
 
 /* ------------------------------------------------------------
-   SKA (Sindrom Koroner Akut · PERKI 2021)
+   SKA (Sindrom Koroner Akut · PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_SKA = [
   { kind: "action", title: "Kecurigaan SKA", sub: "Nyeri dada > 20 mnt · keringat dingin · sesak",
@@ -165,7 +174,7 @@ export const ACLS_FLOW_SKA = [
 ];
 
 /* ------------------------------------------------------------
-   PASCA HENTI JANTUNG (Perawatan Pasca Henti Jantung · PERKI 2021)
+   PASCA HENTI JANTUNG (Perawatan Pasca Henti Jantung · PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_ROSC = [
   { kind: "action", title: "ROSC tercapai · stabilkan", sub: "Konfirmasi nadi · TD · saturasi · EKG 12-sandapan",
@@ -177,16 +186,142 @@ export const ACLS_FLOW_ROSC = [
   { kind: "action", title: "EKG 12-sandapan · cari STEMI", sub: "Bila STEMI → IKPP emergensi",
     pearls: "PERKI: ~80% OHCA dengan ROSC menunjukkan penyebab kardiak; reperfusi dini menurunkan mortalitas." },
   { kind: "decision", title: "Pasien tetap koma?", q: "Tidak mengikuti perintah",
-    yes: { label: "TTM 32–36°C × 24 jam", tint: "var(--info)" },
-    no:  { label: "Observasi · ICU", tint: "var(--success)" } },
-  { kind: "action", title: "Targeted Temperature Management", sub: "32–36°C × ≥ 24 jam · cegah demam",
-    pearls: "Hindari demam 72 jam pertama. Sedasi & analgetik selama TTM. Rewarming bertahap 0,25°C/jam." },
+    yes: { label: "TTM 32–37,5°C × ≥ 24 jam", tint: "var(--info)" },
+    no:  { label: "Observasi · ICU · cegah demam", tint: "var(--success)" } },
+  { kind: "action", title: "Targeted Temperature Management (TTM)", sub: "32–37,5°C · cegah demam ≥ 37,7°C · minimal 24 jam (direkomendasikan 36–48 jam)",
+    pearls: "AHA 2025: TTM 32–37,5°C (bukan hanya 32–34°C). Cegah demam ≥37,7°C selama 72 jam pasca-ROSC. Rewarming bertahap ≤0,25°C/jam. Sedasi & analgetik selama TTM." },
   { kind: "outcome", title: "Cari & atasi etiologi", sub: "Echo · CT · lab · konsul multidisiplin",
     pearls: "Prognostikasi neurologis ditunda ≥ 72 jam pasca-TTM. Hindari withdrawal of care dini." },
 ];
 
 /* ------------------------------------------------------------
-   OBAT-OBATAN (per PERKI 2021 Bab IX)
+   OVERDOSIS OPIOID — Keadaan Khusus (AHA 2025 Part 10)
+   ------------------------------------------------------------ */
+export const ACLS_FLOW_OPIOID = [
+  { kind: "action", title: "Kenali overdosis opioid", sub: "Napas lambat / tidak ada · miosis · tidak responsif",
+    pearls: "Trias klasik: miosis (pupil pinpoint) · penurunan kesadaran · depresi napas. Tanyakan riwayat opioid, temukan jarum/obat." },
+  { kind: "action", title: "Aktifkan bantuan · panggil SPGDT / 119",
+    sub: "Jangan tinggalkan pasien sendirian",
+    pearls: "Minta AED. Pre-hospital: hubungi 119 segera. Rumah sakit: Code Blue." },
+  { kind: "decision", title: "Ada nadi?", q: "Nadi karotis teraba?",
+    yes: { label: "Henti napas saja — nalokson + ventilasi", tint: "var(--warning)" },
+    no:  { label: "Henti jantung — RJP segera", tint: "var(--danger)" } },
+  { kind: "drug", title: "Nalokson 2 mg Intranasal (atau 0,4 mg IV/IO)", sub: "Berikan sebelum atau saat memulai RJP bila curiga opioid",
+    pearls: "AHA 2025: nalokson IM/IN dapat diberikan oleh orang awam. Dosis 2 mg IN via atomizer (1 mg per nostril) atau 0,4 mg IV. Onset IN 3–5 menit; IV/IM 1–2 menit. Ulangi tiap 2–3 menit bila perlu (maks tidak ditetapkan, titrasi efek)." },
+  { kind: "action", title: "Mulai RJP berkualitas tinggi", sub: "100–120/mnt · kedalaman 5–6 cm · 30:2",
+    pearls: "Jangan tunda RJP untuk mendapatkan nalokson. Kedua tindakan dapat dilakukan bersamaan." },
+  { kind: "action", title: "Buka jalan napas · beri ventilasi BVM", sub: "O₂ 100% · 1 napas/6 detik (10/menit)",
+    pearls: "Hiperoksi sering diperlukan pada overdosis opioid karena sudah ada hipoksia berkepanjangan. Pertimbangkan airway adjunct (OPA/NPA)." },
+  { kind: "decision", title: "Respons terhadap nalokson?", q: "Pasien sadar · napas adekuat · SpO₂ ≥ 94%?",
+    yes: { label: "Monitor ketat 2–4 jam · nalokson re-dosing", tint: "var(--success)" },
+    no:  { label: "Lanjut RJP · cari penyebab lain", tint: "var(--danger)" } },
+  { kind: "note", title: "Perhatian post-nalokson", sub: "Awas resedasi saat nalokson habis",
+    pearls: "Waktu paruh opioid sering melebihi nalokson (30–90 menit). Siapkan drip nalokson 0,4–0,8 mg/jam bila opioid long-acting (fentanil, metadon). Pertimbangkan observasi 4–8 jam." },
+  { kind: "outcome", title: "Rujuk & edukasi", sub: "Detoksifikasi · program MOUD · edukasi keluarga",
+    pearls: "Setiap pasien overdosis opioid harus ditawari terapi medis berbasis bukti (metadon/buprenorfin). Resepkan nalokson take-home untuk keluarga/caregiver." },
+];
+
+/* ------------------------------------------------------------
+   ANAFILAKSIS — Keadaan Khusus (AHA 2025 · PERKI BHJL)
+   ------------------------------------------------------------ */
+export const ACLS_FLOW_ANAPHYLAXIS = [
+  { kind: "action", title: "Kenali anafilaksis", sub: "Onset cepat · multiorganic · setelah pajanan alergen",
+    pearls: "Kriteria: (1) kulit/mukosa + satu organ lain (resp/kardio); atau (2) dua sistem+ setelah pajanan; atau (3) hipotensi setelah pajanan. Alergen umum: makanan, antibiotik, NSAID, media kontras, bisa serangga." },
+  { kind: "drug", title: "Epinefrin 0,5 mg IM (anterolateral paha)", sub: "LINI PERTAMA — berikan segera tanpa menunggu akses IV",
+    pearls: "Sediaan 1:1.000 (1 mg/mL). Dosis dewasa 0,5 mg IM anterolateral paha (vastus lateralis). Anak < 30 kg: 0,3 mg IM. Ulangi tiap 5–10 menit bila respons tidak adekuat. Epipens (auto-injector): 0,3 mg dan 0,15 mg." },
+  { kind: "action", title: "Posisi berbaring · angkat kaki (bila hipotensi)", sub: "Jangan berdiri / duduk tiba-tiba → risiko 'empty heart'",
+    pearls: "Hipotensi tanpa distres napas: posisi supine + kaki ditinggikan. Distres napas dominan: semi-sitting. Hamil: miring kiri." },
+  { kind: "action", title: "O₂ aliran tinggi · akses IV besar · cairan IV", sub: "O₂ mask 8–12 L/mnt · NaCl 0,9% 1–2 L bolus",
+    pearls: "Hipotensi persisten setelah epinefrin IM: bolus IV NaCl 0,9% 500 mL cepat, ulangi hingga MAP ≥ 65. Pasang monitor." },
+  { kind: "decision", title: "Airway aman?", q: "Stridor · angioedema lidah / uvula · suara serak?",
+    yes: { label: "Intubasi dini sebelum terlambat", tint: "var(--danger)" },
+    no:  { label: "O₂ mask · monitor ketat", tint: "var(--success)" } },
+  { kind: "drug", title: "Antihistamin H1 (Difenhidramin 50 mg IV)", sub: "Tambahan — bukan lini pertama · tidak gantikan epinefrin",
+    pearls: "AHA 2025: antihistamin tidak mencegah atau mengobati syok anafilaksis dan angiodema berat. Diberikan sebagai adjuvan setelah epinefrin dosis pertama diberikan." },
+  { kind: "drug", title: "Kortikosteroid (Metilprednisolon 125 mg IV)", sub: "Cegah reaksi bifasik · efek lambat 4–6 jam",
+    pearls: "Reaksi bifasik terjadi pada 5–20% kasus, 1–72 jam setelah reaksi awal. Observasi minimal 4–6 jam (8–24 jam bila reaksi berat)." },
+  { kind: "drug", title: "Epinefrin drip IV (bila henti jantung / syok refrakter)", sub: "Drip 1–10 μg/menit atau bolus IV 0,1 mg (1:10.000) perlahan",
+    pearls: "Henti jantung akibat anafilaksis: protokol ACLS standar + epinefrin 1 mg IV/IO tiap 3–5 menit. Durasi RJP yang lama tetap layak — epinefrin IV pada anafilaksis sangat efektif." },
+  { kind: "outcome", title: "Observasi & discharge plan", sub: "4–8 jam (reaksi ringan) · 24 jam (berat / bifasik)",
+    pearls: "Resepkan auto-injector epinefrin (Epipen) saat pulang. Rujuk ke dokter spesialis alergi. Identifikasi gelang alergi. Edukasi menghindari alergen." },
+];
+
+/* ------------------------------------------------------------
+   HENTI JANTUNG PADA KEHAMILAN — AHA 2025 Part 10
+   ------------------------------------------------------------ */
+export const ACLS_FLOW_PREGNANCY = [
+  { kind: "action", title: "Aktifkan Kode Maternal Darurat", sub: "Panggil tim ACLS + tim obstetri + neonatologi",
+    pearls: "AHA 2025: siapkan segera untuk Resusitasi Caesar Darurat (RCD/PMCD). Target RCD ≤ 5 menit dari henti jantung ibu bila RJP tidak menghasilkan ROSC." },
+  { kind: "action", title: "RJP berkualitas tinggi · posisi tangan lebih tinggi", sub: "Satu jari di atas titik tengah sternum · kedalaman 5–6 cm",
+    pearls: "Pada kehamilan > 20 minggu: kompresi di atas pusat sternum (uterus mendorong diafragma ke atas). Ganti compressor tiap 2 menit." },
+  { kind: "action", title: "Manual Left Uterine Displacement (LUD)", sub: "Geser uterus ke kiri secara manual selama RJP",
+    pearls: "LUD menghilangkan kompresi aortocaval (sindrom supine hipotensif) → meningkatkan venous return dan CO. Tidak perlu memiringkan ibu; meja CPR tetap datar." },
+  { kind: "action", title: "O₂ 100% · akses IV/IO (di atas diafragma dianjurkan)', sub: 'Hindari jalur femoral jika uterus besar menekan vena cava",
+    pearls: "Airway lanjut: intubasi (lebih sulit karena edema, berat badan). Gunakan ETT lebih kecil 0,5-1 ukuran. Preoksigenasi adekuat penting." },
+  { kind: "decision", title: "ROSC dalam 4 menit?", q: "Nadi teraba · sirkulasi spontan kembali?",
+    yes: { label: "Lanjut perawatan maternal-fetal", tint: "var(--success)" },
+    no:  { label: "Siapkan RCD segera · target ≤ 5 mnt", tint: "var(--danger)" } },
+  { kind: "shock", title: "Defibrilasi aman pada kehamilan", sub: "Bifasik 200 J · lepas monitor fetal · pad jauh dari uterus",
+    pearls: "Defibrilasi TIDAK kontraindikasi pada kehamilan. Arus ke fetus minimal. Lepaskan monitor EFM sebelum shock." },
+  { kind: "action", title: "Resusitasi Caesar Darurat (RCD)", sub: "Target < 5 menit dari henti jantung · di mana saja bila perlu",
+    pearls: "AHA 2025: RCD adalah intervensi resusitasi ibu (bukan hanya untuk menyelamatkan bayi). Mengurangi kompresi aortocaval → meningkatkan keberhasilan RJP. Dapat dilakukan di IGD / ICU bila tidak ada kamar operasi tersedia." },
+  { kind: "drug", title: "Obat ACLS standar (tidak kontraindikasi)", sub: "Epinefrin · amiodaron · dosis tidak diubah",
+    pearls: "Epinefrin, amiodarone, dan defibrilasi digunakan dengan dosis standar. Jangan tunda atau kurangi dosis karena kekhawatiran fetal." },
+  { kind: "outcome", title: "Pasca ROSC — ICU perinatal", sub: "Monitor fetal · TTM aman pada kehamilan · konsul multidisiplin",
+    pearls: "TTM (32–37,5°C) dapat diterapkan pada ibu hamil pasca-ROSC; pantau kesejahteraan fetal ketat. Konsul kardiologi, obstetri, neonatologi, anestesi." },
+];
+
+/* ------------------------------------------------------------
+   TENGGELAM (Drowning) — AHA 2025 Part 10
+   ------------------------------------------------------------ */
+export const ACLS_FLOW_DROWNING = [
+  { kind: "action", title: "Keamanan & ekstraksi dari air", sub: "Jangan masuk air tanpa perlindungan · aktivasi SPGDT",
+    pearls: "Bahaya bagi penyelamat: arus, kedalaman, panik korban. Gunakan alat bantu (pelampung, tali). Panggil 119 segera." },
+  { kind: "action", title: "Mulai ventilasi penyelamatan di air (bila aman)", sub: "5 napas penyelamatan sesegera mungkin",
+    pearls: "AHA 2025: napas penyelamatan adalah langkah pertama pada tenggelam. Penyebab utama henti jantung adalah asfiksia (bukan irama jantung primer). Ventilasi dini menyelamatkan jiwa." },
+  { kind: "action", title: "Keluarkan dari air · posisi supine di permukaan keras", sub: "Minimal gerakan leher hanya bila ada kecurigaan trauma",
+    pearls: "Jangan rutin imobilisasi servikal — risiko trauma leher pada tenggelam sangat rendah (<0,5%) kecuali ada mekanisme jelas (terjun, benturan). Imobilisasi tidak perlu menunda resusitasi." },
+  { kind: "action", title: "Cek nadi + napas ≤ 10 detik", sub: "Bila tidak ada nadi/napas → mulai RJP segera",
+    pearls: "Mungkin terasa sangat lambat akibat hipotermia. Konfirmasi 10 detik penuh. Pasang AED segera." },
+  { kind: "action", title: "RJP 30:2 — prioritaskan ventilasi", sub: "Beri 5 napas awal sebelum memulai kompresi",
+    pearls: "Berbeda dari henti jantung dewasa biasa — tenggelam adalah asfiksia primer. Beri 5 napas penyelamatan dulu, lalu 30:2. Keluarkan air dari saluran napas hanya jika obstruksi nyata (tidak perlu 'draining')." },
+  { kind: "action", title: "Pasang AED · cek irama · defibrilasi bila shockable", sub: "Keringkan dada sebelum pasang pad",
+    pearls: "Hipotermia berat dapat mengurangi efektivitas defibrilasi. Coba 1–3 kali shock; bila gagal saat suhu < 30°C, tunda defibrilasi lanjutan hingga suhu > 30°C." },
+  { kind: "action", title: "Manajemen hipotermia (bila ada)', sub: 'Lepas pakaian basah · selimut hangat · hindari gerakan berlebihan",
+    pearls: "Jangan anggap pasien meninggal tanpa mencoba resusitasi penuh ('not dead until warm and dead'). Target rewarming minimal 32°C sebelum menyatakan meninggal." },
+  { kind: "drug", title: "Obat ACLS standar bila henti jantung", sub: "Epinefrin 1 mg IV/IO tiap 3–5 menit",
+    pearls: "Etiologi: asfiksia → hipoksia → henti jantung (biasanya asistol/PEA). Cari Hs&Ts: hipotermia, hipoksia, hipovolemia. Pada hipotermia berat: efektivitas obat menurun." },
+  { kind: "outcome", title: "ICU · monitoring paru · neuroproteksi", sub: "Awas ARDS, edema paru, aspirasi, sepsis",
+    pearls: "Outcome tenggelam sangat bergantung pada durasi submersion dan waktu resusitasi. Submersion < 5 menit → prognosis baik. > 25 menit air tawar / > 30 menit air asin → prognosis buruk. Hipotermia dapat bersifat neuroprotektif." },
+];
+
+/* ------------------------------------------------------------
+   HIPOTERMIA BERAT — AHA 2025 Part 10
+   ------------------------------------------------------------ */
+export const ACLS_FLOW_HYPOTHERMIA = [
+  { kind: "action", title: "Kenali & ukur suhu inti", sub: "Termometer rektal / esofageal · bukan aksila/timpani",
+    pearls: "Klasifikasi: I: 32–35°C (menggigil); II: 28–32°C (tidak menggigil, ataksia); III: 24–28°C (tidak sadar); IV: < 24°C (henti jantung)." },
+  { kind: "action", title: "Cegah kehilangan panas lebih lanjut", sub: "Lepas pakaian basah · selimut hangat · lindungi dari angin",
+    pearls: "Handle with care — gerakan berlebihan dapat memicu VF pada hipotermia berat. Transport secara hati-hati, posisi horizontal." },
+  { kind: "action", title: "Cek nadi ≤ 60 detik pada hipotermia berat", sub: "Denyut sangat lemah dan lambat — jangan terburu-buru",
+    pearls: "AHA 2025: pada suhu < 30°C, nadi dapat sangat lemah/lambat. Gunakan USG atau monitor jantung untuk konfirmasi henti jantung sebelum memulai RJP bila ragu." },
+  { kind: "decision", title: "Henti jantung?", q: "Tidak ada nadi yang teraba",
+    yes: { label: "Mulai RJP · tahan jangan hentikan", tint: "var(--danger)" },
+    no:  { label: "Rewarming aktif · monitor ketat", tint: "var(--info)" } },
+  { kind: "action", title: "RJP berkelanjutan · jangan hentikan", sub: "'Not dead until warm and dead' — terus RJP hingga suhu inti ≥ 32°C",
+    pearls: "Hipotermia bersifat neuroprotektif — laporan kasus survival dengan neurologis baik setelah > 60 menit RJP. Ganti compressor tiap 2 menit. Hindari hiperventilasi (kurangi preload)." },
+  { kind: "shock", title: "Defibrilasi terbatas pada suhu < 30°C", sub: "Coba 1 shock VF/pVT; tunda defibrilasi lebih lanjut hingga suhu ≥ 30°C",
+    pearls: "Pada suhu < 30°C, defibrilasi seringkali tidak efektif. Berikan 1–3 shock; jika gagal, fokus pada rewarming. Di atas 30°C, defibrilasi berulang bila indikasi." },
+  { kind: "drug", title: "Obat ACLS — dosis & interval diperpanjang", sub: "Pertimbangkan tidak memberikan obat bila suhu < 30°C",
+    pearls: "AHA 2025: pada suhu < 30°C, metabolisme obat sangat lambat → akumulasi toksik. Tahan epinefrin/amiodaron. Di atas 30°C: berikan dengan interval lebih panjang (6–10 menit). Di atas 35°C: dosis normal." },
+  { kind: "action", title: "Rewarming aktif internal", sub: "Cairan IV hangat (40–42°C) · O₂ hangat lembab · lavase rongga tubuh hangat",
+    pearls: "ECMO (extracorporeal membrane oxygenation) adalah pilihan terbaik untuk henti jantung akibat hipotermia — target suhu > 32°C saat ROSC. Indikasi ECMO: suhu < 28°C, K+ serum < 12 mEq/L." },
+  { kind: "outcome", title: "Target ROSC dengan suhu ≥ 32°C", sub: "ECMO preferred · ICU · monitor aritmia reperfusi",
+    pearls: "Aritmia reperfusi (AF, VT/VF) sering terjadi saat rewarming — umumnya self-terminating saat suhu normal. Prognosis baik bila K+ < 12 mEq/L sebelum rewarming." },
+];
+
+/* ------------------------------------------------------------
+   OBAT-OBATAN (per PERKI 2025 · AHA 2025)
    ------------------------------------------------------------ */
 export const ACLS_DRUGS = [
   /* === Vasopresor / inotropik === */
@@ -198,16 +333,17 @@ export const ACLS_DRUGS = [
     class: "Adrenergik α + β",
     tint: "var(--danger)",
     indication: "Henti jantung (semua irama) · anafilaksis · bradikardi simtomatik · hipotensi berat",
-    dose: "1 mg IV/IO (10 mL dari 1:10.000)",
-    repeat: "Setiap 3–5 menit selama resusitasi",
-    prep: "Sediaan 1:1.000 (1 mg/mL) atau 1:10.000 (0,1 mg/mL). Bolus tanpa diencerkan; flush NaCl 0,9% 20 mL & angkat lengan 10–20 detik. Rute ETT: 2–2,5 mg diencerkan 10 mL NaCl 0,9%.",
+    dose: "Henti jantung: 1 mg IV/IO (10 mL dari 1:10.000) · Anafilaksis: 0,5 mg IM anterolateral paha (1:1.000)",
+    repeat: "Henti jantung: tiap 3–5 menit · Anafilaksis: tiap 5–10 menit bila perlu",
+    prep: "Sediaan 1:1.000 (1 mg/mL) atau 1:10.000 (0,1 mg/mL). Bolus IV tanpa diencerkan; flush NaCl 0,9% 20 mL & angkat lengan 10–20 detik. Rute ETT: 2–2,5 mg diencerkan 10 mL NaCl 0,9%.",
     pearls: [
-      "Berikan segera pada PEA/Asistol; pada VF/pVT setelah shock ke-2.",
-      "Drip bradikardi tidak stabil: 2–10 μg/menit (atau 0,1–0,5 μg/kg/menit pasca ROSC).",
+      "Henti jantung: berikan segera pada PEA/Asistol; pada VF/pVT setelah shock ke-2.",
+      "Anafilaksis: 0,5 mg IM (deltoid atau anterolateral paha — vastus lateralis) dari sediaan 1:1.000. Sisi paha lebih disukai karena absorpsi lebih cepat.",
+      "Drip pasca-ROSC/bradikardi tidak stabil: 2–10 μg/menit (titrasi ke MAP ≥ 65 mmHg).",
       "Jangan dicampur dengan larutan alkali (natrium bikarbonat).",
     ],
-    contra: "Tidak ada kontraindikasi mutlak pada henti jantung.",
-    source: "PERKI 2021 · Tabel 9.1 & 9.3",
+    contra: "Tidak ada kontraindikasi mutlak pada henti jantung atau anafilaksis.",
+    source: "PERKI 2025 · Tabel 9.1 & 9.3 · AHA 2025",
   },
   {
     key: "norepi",
@@ -225,7 +361,7 @@ export const ACLS_DRUGS = [
       "Jangan dicampur larutan alkali (natrium bikarbonat).",
     ],
     contra: "Hipovolemia belum terkoreksi · trombosis mesenterik/perifer.",
-    source: "PERKI 2021 · Tabel 9.1",
+    source: "PERKI 2025 · Tabel 9.1",
   },
   {
     key: "dopa",
@@ -244,7 +380,7 @@ export const ACLS_DRUGS = [
       "Jangan dicampur larutan alkali.",
     ],
     contra: "Hipovolemia belum terkoreksi · feokromositoma · takiaritmia tidak terkoreksi.",
-    source: "PERKI 2021 · Tabel 9.1 & 9.3",
+    source: "PERKI 2025 · Tabel 9.1 & 9.3",
   },
   {
     key: "dobu",
@@ -262,7 +398,7 @@ export const ACLS_DRUGS = [
       "Pasien usia lanjut responnya dapat menurun.",
     ],
     contra: "Syok karena toksin/obat · stenosis subaortik hipertrofik idiopatik · hipersensitif sulfit.",
-    source: "PERKI 2021 · Tabel 9.1",
+    source: "PERKI 2025 · Tabel 9.1",
   },
 
   /* === Antiaritmia === */
@@ -283,7 +419,7 @@ export const ACLS_DRUGS = [
       "Turunkan dosis digoksin 50% bila kombinasi.",
     ],
     contra: "AV block 2°/3° tanpa pacing · bradikardi berat · hipotensi berat.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "lido",
@@ -301,7 +437,7 @@ export const ACLS_DRUGS = [
       "Alternatif amiodaron pada henti jantung refrakter (PERKI).",
     ],
     contra: "Hipersensitif anestetik amide · AV block tinggi.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "mg",
@@ -319,7 +455,7 @@ export const ACLS_DRUGS = [
       "Koreksi K+ bersamaan (sering hipokalemia menyertai hipoMg).",
     ],
     contra: "Insufisiensi renal berat (akumulasi) · AV block tinggi.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "adenosine",
@@ -338,7 +474,7 @@ export const ACLS_DRUGS = [
       "Defibrilator harus siap pada QRS lebar.",
     ],
     contra: "Asma berat · AV block 2°/3° tanpa pacing · WPW dengan AF (risiko VF).",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "atropine",
@@ -356,7 +492,7 @@ export const ACLS_DRUGS = [
       "Hati-hati pada iskemia akut (takikardi berlebih).",
     ],
     contra: "AV block high-degree (Mobitz II / derajat 3) — pacing dulu.",
-    source: "PERKI 2021 · Tabel 9.3",
+    source: "PERKI 2025 · Tabel 9.3",
   },
   {
     key: "verapamil",
@@ -374,7 +510,7 @@ export const ACLS_DRUGS = [
       "Hati-hati pada gagal jantung sistolik (inotropik negatif).",
     ],
     contra: "Hipotensi · AV block tinggi · WPW dengan AF · gagal jantung berat.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "diltiazem",
@@ -391,7 +527,7 @@ export const ACLS_DRUGS = [
       "Hindari pada WPW pre-eksitasi dengan AF.",
     ],
     contra: "Hipotensi · AV block tinggi · WPW dengan AF.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
   {
     key: "digoxin",
@@ -408,7 +544,7 @@ export const ACLS_DRUGS = [
       "Risiko toksisitas pada gangguan ginjal & elektrolit (hipoK/hipoMg).",
     ],
     contra: "AV block tinggi · WPW · hipokalemia berat.",
-    source: "PERKI 2021 · Tabel 9.2",
+    source: "PERKI 2025 · Tabel 9.2",
   },
 
   /* === Antitrombotik untuk SKA === */
@@ -427,7 +563,7 @@ export const ACLS_DRUGS = [
       "Hambat pembentukan thromboxan A2 → cegah agregasi platelet & konstriksi arteri.",
     ],
     contra: "Alergi aspirin · perdarahan aktif · ulkus peptik aktif.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "clopi",
@@ -444,7 +580,7 @@ export const ACLS_DRUGS = [
       "Pertimbangkan loading 600 mg bila IKPP untuk onset lebih cepat.",
     ],
     contra: "Perdarahan aktif · ICH baru.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "tica",
@@ -462,7 +598,7 @@ export const ACLS_DRUGS = [
       "PERKI: hindari pada riwayat ICH atau gangguan hati berat.",
     ],
     contra: "ICH · perdarahan aktif · gangguan hati berat.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "ufh",
@@ -480,7 +616,7 @@ export const ACLS_DRUGS = [
       "Risiko HIT (heparin-induced thrombocytopenia) — pantau trombosit.",
     ],
     contra: "Perdarahan aktif · HIT · trombosit < 100.000.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "enox",
@@ -497,7 +633,7 @@ export const ACLS_DRUGS = [
       "Pasien > 75 tahun: 0,75 mg/kg SC tiap 12 jam (tanpa bolus IV).",
     ],
     contra: "Perdarahan aktif · HIT · CKD stadium 5.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "strepto",
@@ -515,7 +651,7 @@ export const ACLS_DRUGS = [
       "Target: door-to-needle ≤ 30 menit.",
     ],
     contra: "Riwayat ICH · perdarahan aktif · stroke iskemik < 3 bulan · TD > 180/110 tidak terkontrol · bedah besar < 3 minggu.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
   },
   {
     key: "alteplase",
@@ -532,7 +668,107 @@ export const ACLS_DRUGS = [
       "Risiko ICH lebih tinggi (~0,9%); skrining ketat kontraindikasi.",
     ],
     contra: "Sama dengan streptokinase; ICH lebih tinggi pada lansia & hipertensi.",
-    source: "PERKI 2021 · Tabel 9.4",
+    source: "PERKI 2025 · Tabel 9.4",
+  },
+
+  /* === Antidot / Keadaan Khusus (AHA 2025) === */
+  {
+    key: "naloxone",
+    name: "Nalokson",
+    altName: "Narcan",
+    category: "Antidot · Keadaan Khusus",
+    class: "Antagonis reseptor opioid",
+    tint: "var(--tint-neuro)",
+    indication: "Overdosis opioid dengan depresi napas atau henti jantung",
+    dose: "2 mg intranasal (1 mg per nostril) ATAU 0,4 mg IV/IO/IM",
+    repeat: "Ulangi tiap 2–3 menit bila tidak respons · titrasi efek",
+    prep: "Intranasal (IN): 2 mg via atomizer nasal (lebih mudah diberikan awam). IV: 0,4 mg ampul 1 mL diencerkan NaCl 0,9%. Drip: 0,4–0,8 mg/jam bila opioid long-acting (metadon, fentanil patch).",
+    pearls: [
+      "AHA 2025: nalokson IN 2 mg direkomendasikan sebagai intervensi BLS untuk suspected opioid arrest — berikan sebelum atau saat memulai RJP.",
+      "Waktu paruh singkat (30–90 mnt) — resedasi mungkin terjadi bila opioid long-acting; pasang drip kontinyu.",
+      "Pada adiksi opioid kronis: dosis tinggi dapat memicu withdrawal akut (agitasi, muntah, nyeri). Titrasi perlahan 0,04–0,1 mg.",
+      "NADA efek pada overdosis non-opioid (benzo, barbiturat, etanol).",
+    ],
+    contra: "Tidak ada kontraindikasi mutlak pada overdosis opioid mengancam jiwa.",
+    source: "AHA 2025 Part 10.3",
+  },
+  {
+    key: "calcium",
+    name: "Kalsium Glukonat / Klorida",
+    category: "Elektrolit · Antidot",
+    class: "Kation divalen — stabilisasi membran",
+    tint: "var(--tint-renal)",
+    indication: "Hiperkalemia berat · toksisitas CCB · hipokalemia simtomatik · hipomagnesemia dengan hipokalsemia",
+    dose: "Glukonat: 1–3 g IV (10–30 mL larutan 10%) · Klorida: 1 g IV (10 mL larutan 10%)",
+    repeat: "Ulangi tiap 10–20 menit sesuai respons EKG dan kadar serum",
+    prep: "Glukonat: aman via perifer · Klorida: lebih kuat 3× — hindari ekstravasasi (nekrosis); gunakan via sentral. Berikan perlahan 2–3 menit IV push.",
+    pearls: [
+      "Hiperkalemia: berikan bila QRS melebar, gelombang T tinggi peaked, atau K+ > 6,5 mEq/L. Onset 1–3 menit.",
+      "Toksisitas CCB: Ca-klorida 1–3 g IV bolus perlahan; dapat diikuti drip 0,5–1 g/jam.",
+      "Tidak menurunkan kadar K+ — hanya stabilisasi membran jantung sementara (30–60 menit).",
+      "Hindari pencampuran dengan NaHCO₃ (presipitasi kalsium karbonat).",
+    ],
+    contra: "Hiperkalsemia · Digoxin toxicity (potentiasi) · hiperkalemia tanpa perubahan EKG (relatif).",
+    source: "PERKI 2025 · AHA 2025",
+  },
+  {
+    key: "nahco3",
+    name: "Natrium Bikarbonat",
+    altName: "NaHCO₃",
+    category: "Buffer · Antidot",
+    class: "Alkalinisasi sistemik",
+    tint: "var(--tint-renal)",
+    indication: "Asidosis metabolik berat (pH < 7,1) · overdosis TCA · hiperkalemia berat · alkalinisasi urin",
+    dose: "1 mEq/kg IV bolus (bicnat 8,4% = 1 mEq/mL)",
+    repeat: "Ulangi 0,5 mEq/kg tiap 10 menit · panduan ABG",
+    prep: "Larutan 8,4% (1 mEq/mL) atau 4,2% (0,5 mEq/mL). Encerkan 1:1 dengan D5W bila via perifer. Jangan campur dengan kalsium (presipitasi), epinefrin, atau dopamin.",
+    pearls: [
+      "Tidak direkomendasikan rutin pada henti jantung (asidosis akan koreksi dengan RJP berkualitas).",
+      "Overdosis TCA: alkalinisasi darah target pH 7,45–7,55 mempersempit QRS & stabilisasi irama.",
+      "Hiperkalemia berat dengan QRS melebar: 50–100 mEq IV bolus (shift K+ ke intrasel).",
+      "Hipercarbia worsening: bikarbonat menghasilkan CO₂ — pastikan ventilasi adekuat.",
+    ],
+    contra: "Asidosis respiratorik tidak terkoreksi · alkalosis metabolik · hipernatremia.",
+    source: "PERKI 2025 · AHA 2025",
+  },
+  {
+    key: "procainamide",
+    name: "Prokainamid",
+    category: "Antiaritmia",
+    class: "Kelas IA · penghambat kanal Na+ dan K+",
+    tint: "var(--tint-neuro)",
+    indication: "VT stabil monomorfik dengan nadi (lini 2 setelah amiodaron) · SVT refrakter · AF dengan konduksi aksesori",
+    dose: "20–50 mg/menit IV infus hingga aritmia terminasi, atau maks 17 mg/kg",
+    repeat: "Maintenance: 1–4 mg/menit drip",
+    prep: "Encerkan dalam 250–500 mL D5% atau NaCl 0,9%. Pemantauan EKG kontinyu wajib. Hentikan bila QRS melebar > 50%, hipotensi, atau aritmia baru.",
+    pearls: [
+      "Lebih efektif dari amiodaron untuk terminasi VT monomorfik stabil (beberapa RCT).",
+      "Memperlambat konduksi → jangan pakai pada LBBB preexisting (kontraindikasi relatif).",
+      "Dihindari pada QT memanjang (risiko TdP) dan MI akut.",
+      "Metabolit aktif NAPA (N-asetilprokainamid) dapat menyebabkan lupus-like syndrome jangka panjang.",
+    ],
+    contra: "QT memanjang · Torsades de Pointes · AV block tinggi tanpa pacing · SLE.",
+    source: "AHA 2025",
+  },
+  {
+    key: "dextrose",
+    name: "Dextrose 40% (D40%)",
+    altName: "Glukosa 40%",
+    category: "Antidot · Keadaan Khusus",
+    class: "Karbohidrat intravena",
+    tint: "var(--success)",
+    indication: "Hipoglikemia berat (gula darah < 50 mg/dL dengan gejala) · tidak sadar akibat hipoglikemia",
+    dose: "25–50 mL IV bolus (= 10–20 g glukosa) perlahan 2–3 menit",
+    repeat: "Ulangi bila GDS < 70 mg/dL setelah 15 menit · drip D10% maintenance",
+    prep: "Larutan D40% = 400 mg/mL. Hiperosmolar — gunakan vena besar, hindari vena kecil (risiko phlebitis/nekrosis). Cek GDS sebelum & 15 menit setelah pemberian.",
+    pearls: [
+      "Henti jantung akibat hipoglikemia: koreksi gula darah adalah bagian dari Hs (diferensial).",
+      "Injeksi terlalu cepat dapat menyebabkan osmolalitas darah melonjak — berikan perlahan.",
+      "Setelah sadar: berikan makanan per oral untuk cegah re-hipoglikemia (bila bisa menelan).",
+      "Pada sulfonilurea OD: hipoglikemia dapat berulang berkali-kali — pertimbangkan drip D10% + oktreotid.",
+    ],
+    contra: "Hiperglikemia yang tidak terdiagnosis (pastikan cek GDS terlebih dahulu).",
+    source: "PERKI 2025 · AHA 2025",
   },
 ];
 
@@ -576,6 +812,36 @@ export const ACLS_RHYTHMS = [
     severity: "critical", tint: "var(--danger)",
     features: "Peaked T → PR memanjang → QRS lebar → sine wave.",
     action: "Ca-glukonas 1 g · insulin + D5 · β-agonis · diuresis/dialisis." },
+
+  /* Ritme tambahan — AHA 2025 / ESC 2023 */
+  { key: "af",      name: "Fibrilasi Atrium", short: "AF",
+    severity: "stable", tint: "var(--warning)",
+    features: "Irama tidak regular (irregularly irregular) · tidak ada gelombang P yang jelas · garis isoelektrik bergetar (f-wave) · QRS sempit (kecuali aberansi).",
+    action: "Kontrol laju: diltiazem/verapamil/β-blocker atau digoksin (CHF). Kontrol irama: kardioversi tersinkron bila tidak stabil. Antikoagulasi: CHADS₂-VASc ≥ 2 → DOAC." },
+  { key: "flutter", name: "Flutter Atrium", short: "A-Flutter",
+    severity: "stable", tint: "var(--warning)",
+    features: "Gelombang gigi gergaji (sawtooth) di inferior leads (II, III, aVF) · laju atrium 250–350 · konduksi biasanya 2:1 → HR ~150 · regular.",
+    action: "Tidak stabil: kardioversi tersinkron 50–100 J. Stabil: rate control (diltiazem/β-blocker). Hindari adenosin diagnostik saja (tidak terminasi)." },
+  { key: "wellens", name: "Sindrom Wellens", short: "Wellens",
+    severity: "critical", tint: "var(--danger)",
+    features: "Tipe A: gelombang T bifasik di V2–V3 (positif lalu negatif). Tipe B: gelombang T negatif dalam di V2–V3. Terjadi saat BEBAS nyeri dada (post-angina). ST normal/minimal.",
+    action: "JANGAN stress test (risiko VF) · konsul kardiologi segera · kateterisasi kritis (LAD stenosis berat hampir pasti)." },
+  { key: "dewinter", name: "De Winter T-wave", short: "De Winter",
+    severity: "critical", tint: "var(--danger)",
+    features: "ST depresi naik (upsloping) di V1–V6 + gelombang T tinggi-simetris di prekordial + ST elevasi aVR (sering) · STEMI equivalen (LAD oklusi).",
+    action: "Perlakukan sebagai STEMI: ASA + DAPT + antikoagulan + IKPP emergensi < 90 menit. Jangan menunggu — tidak ada evolusi ST elevasi klasik." },
+  { key: "brugada", name: "Pola Brugada Tipe 1", short: "Brugada",
+    severity: "critical", tint: "var(--danger)",
+    features: "ST elevasi berbentuk 'coved' (kubah) ≥ 2 mm di V1–V2 + gelombang T negatif · bukan elevasi STEMI — ST turun secara bertahap (coved pattern).",
+    action: "Rujuk elektrofisiologi · ICD bila ada riwayat syncope/VF. Hindari: sodium channel blocker, CCB, β-blocker, demam tinggi. Quinidine/isoproterenol untuk VF storm." },
+  { key: "wpw",     name: "WPW — Wolff-Parkinson-White", short: "WPW",
+    severity: "unstable", tint: "var(--danger)",
+    features: "Interval PR pendek (< 120 ms) · gelombang delta (slurring awal QRS) · QRS sedikit melebar · ST-T inverse dari delta. EKG normal di antara episode.",
+    action: "WPW + AF dengan konduksi cepat → KONTRAINDIKASI adenosin/verapamil/digoksin (dapat trigger VF). Gunakan prokainamid/amiodaron atau kardioversi segera. Konsul EP ablasi." },
+  { key: "lbbb",    name: "LBBB Baru", short: "LBBB Baru",
+    severity: "critical", tint: "var(--danger)",
+    features: "QRS ≥ 0,12 dtk · pola RSR' di V5–V6 ('M-shape') · gelombang S di V1 · Sgarbossa criteria: konkordant ST ≥ 1 mm atau diskordant ST ≥ 25% QRS amplitude.",
+    action: "LBBB BARU + gejala SKA = STEMI equivalen → IKPP emergensi. Gunakan kriteria Sgarbossa untuk identifikasi STEMI di LBBB. Jangan tunda reperfusi." },
 ];
 
 /* ------------------------------------------------------------
