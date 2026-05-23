@@ -219,7 +219,7 @@ export default function App() {
         </div>
 
         {cprOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)' }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)', animation: 'acls-overlay-in 280ms var(--ease-out) both' }}>
             <CPRTimer onClose={() => setCprOpen(false)}/>
           </div>
         )}
