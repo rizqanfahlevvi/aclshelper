@@ -87,6 +87,108 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
         pts.push(`${i},${y}`);
       }
       out.push("M" + pts.join(" L"));
+    } else if (kind === "af") {
+      /* Atrial fibrillation: irregular R-R, fibrillatory baseline */
+      const pts = [];
+      const intervals = [38, 55, 42, 63, 35, 50, 45];
+      let x = 0; let idx = 0;
+      while (x <= w) {
+        const qi = intervals[idx % intervals.length];
+        for (let j = 0; j < qi && x + j <= w; j++) {
+          const fib = Math.sin((x + j) * 1.7) * 1.5 + Math.sin((x + j) * 3.1) * 1.0;
+          const p = j / qi; let y = cy + fib;
+          if (p > 0.55 && p < 0.59) y = cy + 10;
+          else if (p > 0.59 && p < 0.63) y = cy - 20;
+          else if (p > 0.63 && p < 0.67) y = cy + 7;
+          pts.push(`${x + j},${y}`);
+        }
+        x += qi; idx++;
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "flutter") {
+      /* Atrial flutter: sawtooth P waves (f-waves), regular ~150 bpm QRS */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const pf = i % 15 / 15; /* f-wave cycle */
+        const pq = i % 60 / 60; /* QRS cycle 2:1 */
+        let y = cy + (pf < 0.5 ? -6 * pf / 0.5 + 3 : 3 - 3 * (pf - 0.5) / 0.5); /* sawtooth */
+        if (pq > 0.55 && pq < 0.59) y = cy + 10;
+        else if (pq > 0.59 && pq < 0.63) y = cy - 18;
+        else if (pq > 0.63 && pq < 0.67) y = cy + 6;
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "wellens") {
+      /* Wellens Type B: deep symmetric T inversion in V2-V3, normal ST, normal QRS */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const p = i % 80 / 80; let y = cy;
+        if (p > 0.08 && p < 0.14) y = cy - Math.sin((p - 0.08) / 0.06 * Math.PI) * 3; /* small P */
+        else if (p > 0.32 && p < 0.36) y = cy + 4;   /* Q */
+        else if (p > 0.36 && p < 0.40) y = cy - 18;  /* R */
+        else if (p > 0.40 && p < 0.44) y = cy + 4;   /* S */
+        /* Deep symmetric negative T — Wellens */
+        else if (p > 0.50 && p < 0.72) y = cy + Math.sin((p - 0.50) / 0.22 * Math.PI) * 16;
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "dewinter") {
+      /* De Winter: upsloping ST depression + tall symmetric T waves */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const p = i % 70 / 70; let y = cy;
+        if (p > 0.08 && p < 0.14) y = cy - Math.sin((p - 0.08) / 0.06 * Math.PI) * 3;
+        else if (p > 0.30 && p < 0.34) y = cy + 10; /* Q dep + ST dep transition */
+        else if (p > 0.34 && p < 0.37) y = cy - 16; /* R */
+        else if (p > 0.37 && p < 0.44) y = cy + 5 + (p - 0.37) / 0.07 * 5; /* upsloping ST dep */
+        /* Tall symmetric T */
+        else if (p > 0.52 && p < 0.74) y = cy - Math.sin((p - 0.52) / 0.22 * Math.PI) * 18;
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "brugada") {
+      /* Brugada Type 1: coved ST elevation with negative T in V1-V2 */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const p = i % 70 / 70; let y = cy;
+        if (p > 0.08 && p < 0.14) y = cy - Math.sin((p - 0.08) / 0.06 * Math.PI) * 3;
+        else if (p > 0.30 && p < 0.34) y = cy + 4;
+        else if (p > 0.34 && p < 0.37) y = cy - 20; /* R peak */
+        /* Coved pattern: descending ST that slopes down slowly to negative T */
+        else if (p > 0.37 && p < 0.58) y = cy - 20 + (p - 0.37) / 0.21 * 26; /* descend through baseline */
+        else if (p > 0.58 && p < 0.72) y = cy + 6 - Math.sin((p - 0.58) / 0.14 * Math.PI) * 6;
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "wpw") {
+      /* WPW: short PR + delta wave slurring into QRS */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const p = i % 65 / 65; let y = cy;
+        if (p > 0.08 && p < 0.14) y = cy - Math.sin((p - 0.08) / 0.06 * Math.PI) * 4; /* P wave */
+        /* Very short PR — delta wave slurring directly */
+        else if (p > 0.18 && p < 0.26) y = cy - 4 - (p - 0.18) / 0.08 * 14; /* delta slur up */
+        else if (p > 0.26 && p < 0.29) y = cy - 22; /* R peak */
+        else if (p > 0.29 && p < 0.38) y = cy - 22 + (p - 0.29) / 0.09 * 28; /* wide S */
+        else if (p > 0.50 && p < 0.65) y = cy - Math.sin((p - 0.50) / 0.15 * Math.PI) * 6; /* T */
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
+    } else if (kind === "lbbb") {
+      /* LBBB: broad notched R in V5-V6, deep S in V1 */
+      const pts = [];
+      for (let i = 0; i <= w; i += 1) {
+        const p = i % 80 / 80; let y = cy;
+        if (p > 0.10 && p < 0.16) y = cy - Math.sin((p - 0.10) / 0.06 * Math.PI) * 3;
+        /* No Q, broad M-shaped R (notched) */
+        else if (p > 0.28 && p < 0.46) {
+          const pp = (p - 0.28) / 0.18;
+          y = cy - Math.sin(pp * Math.PI) * 18 + Math.sin(pp * 2 * Math.PI) * 6;
+        }
+        else if (p > 0.55 && p < 0.72) y = cy + Math.sin((p - 0.55) / 0.17 * Math.PI) * 8; /* discordant T */
+        pts.push(`${i},${y}`);
+      }
+      out.push("M" + pts.join(" L"));
     } else {
       const pts = [];
       for (let i = 0; i <= w; i += 1) {

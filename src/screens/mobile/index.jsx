@@ -8,6 +8,8 @@ import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_QUICK_ACTIONS, ACLS_FLOW_ARREST, ACLS_FLOW_BRADY,
   ACLS_FLOW_TACHY, ACLS_FLOW_BHJD, ACLS_FLOW_SKA, ACLS_FLOW_ROSC,
+  ACLS_FLOW_OPIOID, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_PREGNANCY,
+  ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
 
 /* ============================================================
@@ -44,8 +46,8 @@ export function MobileHome({ nav, openCPR }) {
       <LargeTitle>ACLS Helper</LargeTitle>
 
       <div style={{ padding: "0 20px 12px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <Pill tone="teal">PERKI 2021</Pill>
-        <Pill tone="gray">AHA 2020</Pill>
+        <Pill tone="teal">PERKI 2025</Pill>
+        <Pill tone="gray">AHA 2025</Pill>
         <span className="t-footnote" style={{ color: "var(--label-secondary)", flex: 1, minWidth: 0 }}>
           Alat bantu kognitif bedside · bukan pengganti penilaian klinis
         </span>
@@ -131,8 +133,8 @@ export function MobileHome({ nav, openCPR }) {
           </List>
 
           <SectionFooter>
-            ACLS Helper · v1.1 · 2026 · Bagian dari ekosistem MDKit<br/>
-            Mengikuti PERKI 2021 (BHJL &amp; BHJD) + AHA 2020 — penilaian klinis tetap diperlukan.
+            ACLS Helper · v1.2 · 2026 · Bagian dari ekosistem MDKit<br/>
+            Mengikuti PERKI 2025 (BHJL &amp; BHJD) + AHA 2025 — penilaian klinis tetap diperlukan.
           </SectionFooter>
           <div style={{ height: 24 }}/>
         </>
@@ -165,11 +167,17 @@ export function MobileAlgoList({ nav }) {
           <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
         ))}
       </List>
+      <SectionHeader>Keadaan Khusus</SectionHeader>
+      <List>
+        {ACLS_ALGORITHMS.filter(a => ["opioid","anaphylaxis","pregnancy","drowning","hypothermia"].includes(a.key)).map(a => (
+          <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+        ))}
+      </List>
       <SectionHeader>Diferensial</SectionHeader>
       <List>
         <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
       </List>
-      <SectionFooter>Mengikuti AHA Adult ACLS guidelines 2020 + PERKI 2021 (BHJL & BHJD).</SectionFooter>
+      <SectionFooter>Mengikuti AHA 2025 + PERKI 2025 (BHJL &amp; BHJD).</SectionFooter>
       <div style={{ height: 24 }}/>
     </>
   );
@@ -179,7 +187,18 @@ export function MobileAlgoList({ nav }) {
    ALGORITHM DETAIL
    ============================================================ */
 export function MobileAlgorithmDetail({ nav, id }) {
-  const flow = id === "brady" ? ACLS_FLOW_BRADY : id === "tachy" ? ACLS_FLOW_TACHY : id === "bhjd" ? ACLS_FLOW_BHJD : id === "ska" ? ACLS_FLOW_SKA : id === "rosc" ? ACLS_FLOW_ROSC : ACLS_FLOW_ARREST;
+  const flow =
+    id === "brady"       ? ACLS_FLOW_BRADY :
+    id === "tachy"       ? ACLS_FLOW_TACHY :
+    id === "bhjd"        ? ACLS_FLOW_BHJD :
+    id === "ska"         ? ACLS_FLOW_SKA :
+    id === "rosc"        ? ACLS_FLOW_ROSC :
+    id === "opioid"      ? ACLS_FLOW_OPIOID :
+    id === "anaphylaxis" ? ACLS_FLOW_ANAPHYLAXIS :
+    id === "pregnancy"   ? ACLS_FLOW_PREGNANCY :
+    id === "drowning"    ? ACLS_FLOW_DROWNING :
+    id === "hypothermia" ? ACLS_FLOW_HYPOTHERMIA :
+    ACLS_FLOW_ARREST;
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
   return (
     <>
@@ -188,7 +207,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
         <div className="t-title-2">{algo.label}</div>
         <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{algo.sub} · ketuk langkah untuk detail</div>
         <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <Pill tone="red">{algo.tag}</Pill><Pill tone="gray">{algo.source || "AHA 2020"}</Pill>
+          <Pill tone="red">{algo.tag}</Pill><Pill tone="gray">{algo.source || "AHA 2025"}</Pill>
         </div>
       </div>
       <div style={{ padding: "8px 16px 18px" }}>
@@ -215,6 +234,7 @@ export function MobileDrugList({ nav }) {
     if (filter === "vaso") return (d.category || "").match(/Vasopresor|Inotropik/);
     if (filter === "arrhythmia") return (d.category || "").match(/Antiaritmia|Bradiaritmia/);
     if (filter === "thrombo") return (d.category || "").includes("Antitrombotik");
+    if (filter === "antidot") return (d.category || "").includes("Antidot");
     return true;
   });
   return (
@@ -222,14 +242,14 @@ export function MobileDrugList({ nav }) {
       <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Obat ACLS</LargeTitle>
       <div style={{ padding: "0 16px 12px", display: "flex", gap: 6, overflowX: "auto" }}>
-        {[{ v: "all", label: "Semua" }, { v: "vaso", label: "Vasopresor" }, { v: "arrhythmia", label: "Antiaritmia" }, { v: "thrombo", label: "Antitrombotik" }].map(f => (
+        {[{ v: "all", label: "Semua" }, { v: "vaso", label: "Vasopresor" }, { v: "arrhythmia", label: "Antiaritmia" }, { v: "thrombo", label: "Antitrombotik" }, { v: "antidot", label: "Antidot" }].map(f => (
           <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
             style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
             {f.label}
           </button>
         ))}
       </div>
-      <SectionHeader>{drugs.length} obat · PERKI 2021</SectionHeader>
+      <SectionHeader>{drugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
         {drugs.map(d => (
           <button key={d.key} onClick={() => nav.push({ screen: "drug", id: d.key })}
@@ -248,7 +268,7 @@ export function MobileDrugList({ nav }) {
           </button>
         ))}
       </div>
-      <SectionFooter>Sumber: PERKI 2021 · verifikasi dosis dengan apoteker / pharmacopoeia setempat.</SectionFooter>
+      <SectionFooter>Sumber: PERKI 2025 · AHA 2025 · verifikasi dosis dengan apoteker / pharmacopoeia setempat.</SectionFooter>
       <div style={{ height: 24 }}/>
     </>
   );
