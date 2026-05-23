@@ -1,0 +1,391 @@
+/* ============================================================
+   ICU Helper · iOS Components
+   Shared component CSS for UI kit and previews.
+   ============================================================ */
+
+/* NOTE: @import of colors-and-type.css removed — Vite handles
+   import order via main.jsx */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: var(--accent); text-decoration: none; }
+
+/* ============================================================
+   NAVIGATION — Status bar, Nav bar, Tab bar
+   ============================================================ */
+.ios-statusbar {
+  height: 47px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px 0 28px;
+  font-family: var(--font-sans);
+  font-weight: 600; font-size: 17px;
+  color: var(--label-primary);
+}
+.ios-statusbar .right {
+  display: flex; align-items: center; gap: 6px;
+}
+.ios-statusbar .icons { display: flex; align-items: center; gap: 5px; opacity: 0.92; }
+
+/* Navigation bar (large title + buttons) */
+.ios-navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 16px 4px;
+  min-height: 44px;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+.ios-navbar .nb-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--accent);
+  font-size: 17px; letter-spacing: -0.022em;
+  font-weight: 400;
+  height: 32px;
+  border-radius: 16px;
+  padding: 0 6px;
+}
+.ios-navbar .nb-btn.back { padding-left: 0; }
+.ios-navbar .nb-btn.glyph {
+  width: 36px; padding: 0; justify-content: center;
+  background: var(--fill-tertiary);
+  color: var(--label-primary);
+}
+.ios-navbar .nb-title {
+  position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.022em;
+  pointer-events: none;
+}
+
+/* Large title block (sits below nav bar) */
+.ios-large-title {
+  padding: 4px 20px 8px;
+  font-size: 34px; font-weight: 700; letter-spacing: 0.011em;
+  line-height: 41px;
+  color: var(--label-primary);
+}
+
+/* Search field (under large title) */
+.ios-search {
+  margin: 6px 16px 12px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--fill-tertiary);
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 8px;
+  color: var(--label-secondary);
+  font-size: 17px; letter-spacing: -0.022em;
+}
+.ios-search svg { flex-shrink: 0; }
+
+/* Bottom tab bar (translucent material) */
+.ios-tabbar {
+  display: grid;
+  grid-auto-columns: 1fr; grid-auto-flow: column;
+  padding: 6px 0 22px;
+  background: var(--material-chrome);
+  backdrop-filter: var(--blur-base);
+  -webkit-backdrop-filter: var(--blur-base);
+  border-top: 0.5px solid var(--separator);
+}
+.ios-tabbar .tab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  color: var(--label-tertiary);
+  padding: 4px 2px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
+}
+.ios-tabbar .tab.active { color: var(--accent); }
+.ios-tabbar .tab svg { width: 26px; height: 26px; }
+
+/* Home indicator bar */
+.ios-home-indicator {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 134px; height: 5px; border-radius: 3px;
+  background: var(--label-primary);
+  opacity: 0.95;
+}
+
+/* ============================================================
+   LISTS — Inset Grouped (most iOS lists)
+   ============================================================ */
+.ios-section-header {
+  padding: 22px 32px 6px;
+  font-size: 13px; font-weight: 400; letter-spacing: -0.005em;
+  color: var(--label-secondary);
+  text-transform: uppercase;
+}
+.ios-section-footer {
+  padding: 8px 32px 14px;
+  font-size: 13px; color: var(--label-secondary); letter-spacing: -0.005em;
+}
+
+.ios-list {
+  margin: 0 16px 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.ios-row {
+  display: flex; align-items: center;
+  min-height: 44px;
+  padding: 11px 16px;
+  position: relative;
+  background: var(--bg-tertiary);
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-row + .ios-row::before {
+  content: ""; position: absolute; left: 60px; right: 0; top: 0;
+  height: 0.5px; background: var(--separator);
+}
+.ios-row.tight { min-height: 38px; padding: 8px 16px; }
+
+.ios-row .glyph {
+  width: 29px; height: 29px; border-radius: 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-right: 12px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ios-row .label {
+  flex: 1; min-width: 0;
+  font-size: 17px; letter-spacing: -0.022em; color: var(--label-primary);
+}
+.ios-row .label .sub {
+  display: block;
+  font-size: 13px; color: var(--label-secondary);
+  margin-top: 2px;
+}
+.ios-row .value {
+  margin-left: 8px;
+  font-size: 17px; letter-spacing: -0.022em;
+  color: var(--label-secondary);
+}
+.ios-row .chev { margin-left: 6px; color: var(--label-tertiary); flex-shrink: 0; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.ios-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  height: 50px;
+  padding: 0 18px;
+  border-radius: var(--r-lg);
+  font-size: 17px; font-weight: 600; letter-spacing: -0.022em;
+  background: var(--accent);
+  color: var(--accent-fg);
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast);
+}
+.ios-btn:active { transform: scale(0.97); opacity: 0.85; }
+.ios-btn.tinted { background: var(--accent-tint); color: var(--accent); }
+.ios-btn.gray   { background: var(--fill-tertiary); color: var(--label-primary); }
+.ios-btn.plain  { background: transparent; color: var(--accent); height: 44px; }
+.ios-btn.destructive { background: var(--danger); color: #fff; }
+.ios-btn.sm { height: 34px; padding: 0 14px; font-size: 15px; border-radius: 10px; }
+.ios-btn.pill { border-radius: 999px; }
+.ios-btn.block { width: 100%; }
+
+/* ============================================================
+   SEGMENTED CONTROL
+   ============================================================ */
+.ios-segmented {
+  display: inline-flex;
+  background: var(--fill-tertiary);
+  border-radius: 9px;
+  padding: 2px;
+  gap: 0;
+}
+.ios-segmented button {
+  padding: 5px 12px;
+  font-size: 13px; font-weight: 500; letter-spacing: -0.005em;
+  color: var(--label-primary);
+  border-radius: 7px;
+  min-height: 28px;
+}
+.ios-segmented button.active {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+[data-theme="dark"] .ios-segmented button.active {
+  background: #636366;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ios-segmented button.active { background: #636366; }
+}
+
+/* ============================================================
+   CARDS / TILES (used outside lists, e.g. dashboards)
+   ============================================================ */
+.ios-card {
+  background: var(--bg-tertiary);
+  border-radius: var(--r-card);
+  padding: 16px;
+  box-shadow: var(--shadow-1);
+}
+.ios-card.flat { box-shadow: 0 0 0 0.5px var(--separator); }
+
+/* Tinted icon tile (squircle) */
+.ios-glyph {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.ios-glyph.lg { width: 60px; height: 60px; border-radius: 14px; }
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+.ios-field {
+  display: flex; align-items: center;
+  min-height: 44px;
+  padding: 7px 16px;
+  background: var(--bg-tertiary);
+}
+.ios-field label {
+  flex: 0 0 130px;
+  font-size: 17px; letter-spacing: -0.022em;
+  color: var(--label-primary);
+}
+.ios-field input,
+.ios-field select {
+  flex: 1; min-width: 0;
+  border: none; outline: none;
+  background: transparent;
+  text-align: right;
+  font-size: 17px; letter-spacing: -0.022em;
+  color: var(--label-primary);
+  font-family: inherit;
+}
+.ios-field input::placeholder { color: var(--label-tertiary); }
+.ios-field .unit {
+  margin-left: 6px;
+  font-size: 17px; color: var(--label-secondary);
+}
+
+/* Toggle (iOS switch) */
+.ios-switch {
+  width: 51px; height: 31px;
+  background: var(--fill-secondary);
+  border-radius: 999px;
+  position: relative;
+  transition: background var(--dur-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+.ios-switch::after {
+  content: ""; position: absolute;
+  top: 2px; left: 2px;
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.10);
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+.ios-switch.on { background: var(--success); }
+.ios-switch.on::after { transform: translateX(20px); }
+
+/* Stepper */
+.ios-stepper {
+  display: inline-flex;
+  background: var(--fill-tertiary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ios-stepper button {
+  width: 44px; height: 32px;
+  font-size: 18px; font-weight: 500;
+  color: var(--label-primary);
+  position: relative;
+}
+.ios-stepper button + button::before {
+  content: ""; position: absolute; left: 0; top: 7px; bottom: 7px;
+  width: 0.5px; background: var(--separator);
+}
+
+/* ============================================================
+   BADGES, TAGS, PILLS
+   ============================================================ */
+.ios-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  min-height: 20px; padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.005em;
+  background: var(--fill-tertiary);
+  color: var(--label-primary);
+}
+.ios-badge.notification {
+  background: var(--danger); color: #fff;
+  font-size: 13px; font-weight: 700; padding: 0 7px;
+  min-width: 20px; height: 20px; justify-content: center;
+  border-radius: 10px;
+}
+.ios-tag {
+  display: inline-flex; align-items: center;
+  height: 22px; padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px; font-weight: 600; letter-spacing: -0.005em;
+}
+.ios-tag.blue   { background: rgba(0,122,255,0.12);  color: var(--sys-blue); }
+.ios-tag.green  { background: rgba(52,199,89,0.16);  color: var(--sys-green); }
+.ios-tag.red    { background: rgba(255,59,48,0.12);  color: var(--sys-red); }
+.ios-tag.orange { background: rgba(255,149,0,0.14);  color: var(--sys-orange); }
+.ios-tag.purple { background: rgba(175,82,222,0.14); color: var(--sys-purple); }
+.ios-tag.teal   { background: rgba(48,176,199,0.14); color: var(--sys-teal); }
+.ios-tag.gray   { background: var(--fill-tertiary);  color: var(--label-secondary); }
+
+/* ============================================================
+   ALERTS / BANNERS / SHEETS
+   ============================================================ */
+.ios-alert {
+  display: flex; gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--r-card);
+  align-items: flex-start;
+}
+.ios-alert .icon { flex-shrink: 0; }
+.ios-alert .title {
+  font-size: 15px; font-weight: 600; letter-spacing: -0.011em;
+  margin-bottom: 2px;
+}
+.ios-alert .body {
+  font-size: 14px; color: var(--label-secondary); letter-spacing: -0.005em;
+}
+.ios-alert.warn { background: rgba(255,149,0,0.10); }
+.ios-alert.warn .title { color: var(--warning); }
+.ios-alert.info { background: rgba(0,122,255,0.08); }
+.ios-alert.info .title { color: var(--info); }
+.ios-alert.danger { background: rgba(255,59,48,0.10); }
+.ios-alert.danger .title { color: var(--danger); }
+
+/* ============================================================
+   PHONE FRAME (used in previews + ui kit)
+   ============================================================ */
+.phone-frame {
+  width: 390px; height: 844px;
+  background: var(--bg-secondary);
+  border-radius: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 11px #1a1a1a,
+    0 0 0 12px #353537,
+    0 30px 60px rgba(0,0,0,0.30);
+  isolation: isolate;
+}
+.phone-frame .notch {
+  position: absolute;
+  top: 11px; left: 50%; transform: translateX(-50%);
+  width: 124px; height: 35px;
+  background: #000; border-radius: 999px;
+  z-index: 1000;
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  display: block;          /* not flex — flex would shrink list rows */
+  overflow-y: auto;
+  background: var(--bg-secondary);
+}
+.phone-screen::-webkit-scrollbar { display: none; }
