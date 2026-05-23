@@ -244,23 +244,23 @@ export function BottomSheet({ open, onClose, title, children, height }) {
 
 const CPR_BPM = 110;
 
+// AHA 2025: VF/pVT path — 6 langkah, loop kembali ke index 2 (Shock = AHA Step 5)
 const VF_STEPS = [
-  { kind:'shock', title:'Defibrilasi pertama',           sub:'200J bifasik · pastikan semua menjauh',                    cta:'shock'               },
-  { kind:'cpr',   title:'CPR 2 menit · IV/IO access',    sub:'Timer berjalan · cek irama setelah 2 mnt',                 auto:true                 },
-  { kind:'shock', title:'Defibrilasi kedua',              sub:'200J bifasik',                                             cta:'shock'               },
-  { kind:'drug',  title:'Epinefrin 1 mg IV/IO',           sub:'Sesegera mungkin · ulangi q3–5 mnt',                      cta:'epi'                 },
-  { kind:'opt',   title:'Pertimbangkan intubasi',         sub:'ETT/SGA · EtCO₂ · ventilasi 1×/6 dtk',                   cta:'intubasi', skip:true },
-  { kind:'cpr',   title:'CPR 2 menit',                    sub:'Cari & atasi Hs & Ts · Epinefrin q3–5 mnt',               auto:true                 },
-  { kind:'shock', title:'Defibrilasi ketiga',             sub:'200J bifasik',                                             cta:'shock'               },
-  { kind:'drug',  title:'Amiodarone 300 mg IV/IO',        sub:'atau Lidokain 1–1.5 mg/kg bolus',                         cta:'amio'                },
-  { kind:'cpr',   title:'CPR 2 menit',                    sub:'Epinefrin q3–5 mnt · pertimbangkan penyebab reversibel',  auto:true                 },
+  { kind:'shock', title:'Shock pertama (AHA Step 3)',         sub:'120–200J bifasik · 360J monofasik · pastikan semua menjauh',  cta:'shock' },
+  { kind:'cpr',   title:'CPR 2 menit + IV/IO access (Step 4)',sub:'Bag-mask + O₂ · pasang IV/IO · pantau EtCO₂ · 100–120/mnt',  auto:true   },
+  { kind:'shock', title:'Shock kedua (AHA Step 5)',           sub:'120–200J bifasik · 360J monofasik',                            cta:'shock' },
+  { kind:'cpr',   title:'CPR 2 menit (Step 6)',               sub:'Epi 1mg q3–5 mnt · pertimbangkan intubasi/SGA · capnografi',   auto:true,  actions:['epi','airway'] },
+  { kind:'shock', title:'Shock ketiga (AHA Step 7)',          sub:'120–200J bifasik · 360J monofasik',                            cta:'shock' },
+  { kind:'cpr',   title:'CPR 2 menit (Step 8)',               sub:'Amiodarone 300mg IV/IO bolus · cari & atasi Hs & Ts',          auto:true,  actions:['amio','epi'] },
+  // Setelah index 5: rhythm check → VF → wrap ke index 2 (Shock = Step 5)
 ];
 
+// AHA 2025: PEA/Asistol path — Epi ASAP pertama, 3 langkah, loop ke index 1 (CPR = Step 10)
 const PEA_STEPS = [
-  { kind:'cpr',   title:'CPR 2 menit · IV/IO access',    sub:'Minimal interupsi · 100–120/mnt',                         auto:true                 },
-  { kind:'drug',  title:'Epinefrin 1 mg IV/IO — SEGERA', sub:'Sesegera mungkin · ulangi q3–5 mnt',                      cta:'epi'                 },
-  { kind:'opt',   title:'Pertimbangkan intubasi',         sub:'ETT/SGA · EtCO₂ · cari & atasi Hs & Ts',                 cta:'intubasi', skip:true },
-  { kind:'cpr',   title:'CPR 2 menit',                    sub:'Epinefrin q3–5 mnt · cari & atasi Hs & Ts',              auto:true                 },
+  { kind:'drug',  title:'Epinefrin ASAP (Step 9)',             sub:'1 mg IV/IO sesegera mungkin — prioritas pertama sebelum CPR 2 mnt', cta:'epi', urgent:true },
+  { kind:'cpr',   title:'CPR 2 menit + IV/IO access (Step 10)',sub:'Epi 1mg q3–5 mnt · pertimbangkan intubasi/SGA · capnografi',        auto:true,  actions:['epi','airway'] },
+  { kind:'cpr',   title:'CPR 2 menit (Step 11)',               sub:'Cari & atasi penyebab reversibel · Hs & Ts · Epi q3–5 mnt',          auto:true,  actions:['epi'] },
+  // Setelah index 2: rhythm check → no ROSC → wrap ke index 1 (CPR = Step 10)
 ];
 
 function useMetronome(active) {
@@ -310,19 +310,6 @@ const RHYTHM_OPTS = [
   { key: "unknown",      label: "Belum terpasang",  sub: "Mulai CPR — pasang monitor segera",       color: "var(--label-secondary)" },
 ];
 
-function getGuidance(rhythm, cycles, epiDoses, shocks, amio) {
-  if (!rhythm || rhythm === "unknown") return { text: "Pasang monitor/defibrilator · CPR berkualitas tinggi · IV/IO access", color: "var(--label-secondary)" };
-  if (rhythm === "shockable") {
-    if (cycles === 1) return { text: `Defibrilasi 200J bifasik → CPR 2 mnt → IV/IO access${epiDoses === 0 ? " → Epinefrin 1mg setelah shock ke-2" : ""}`, color: "var(--danger)" };
-    if (shocks >= 3 && amio === 0) return { text: "Amiodarone 300mg IV/IO atau Lidokain 1–1.5mg/kg · Epinefrin q3-5 mnt", color: "var(--warning)" };
-    return { text: `Defibrilasi → CPR 2 mnt · Epinefrin ${epiDoses === 0 ? "segera" : "q3-5 mnt"} · Cari & atasi Hs & Ts`, color: "var(--danger)" };
-  }
-  if (rhythm === "nonshockable") {
-    if (cycles === 1) return { text: "CPR segera · IV/IO ASAP · Epinefrin 1mg sesegera mungkin · Cari Hs & Ts", color: "var(--info)" };
-    return { text: `Epinefrin ${epiDoses === 0 ? "SEGERA" : "q3-5 mnt"} · Cari & atasi Hs & Ts · cek irama tiap 2 mnt`, color: "var(--info)" };
-  }
-  return { text: "", color: "var(--label-secondary)" };
-}
 
 function StepCard({ step, idx }) {
   const colMap = { shock:'var(--danger)', drug:'var(--warning)', opt:'var(--label-tertiary)', cpr:'var(--info)' };
@@ -415,10 +402,10 @@ export function CPRTimer({ onClose }) {
   const steps = rhythm === 'shockable' ? VF_STEPS : PEA_STEPS;
   const safeIdx = Math.min(stepIdx, steps.length - 1);
   const curStep = steps[safeIdx];
+  const wrapIdx = rhythm === 'shockable' ? 2 : 1;
   const advanceStep = () => setStepIdx(idx => {
     const next = idx + 1;
-    if (next >= steps.length) return rhythm === 'shockable' ? 5 : 3;
-    return next;
+    return next >= steps.length ? wrapIdx : next;
   });
 
   const startCPR = (selectedRhythm) => {
@@ -445,26 +432,23 @@ export function CPRTimer({ onClose }) {
       return;
     }
     const label = RHYTHM_OPTS.find(r => r.key === result)?.label || result;
-    setLog(l => [...l, { t: elapsed, wall: nowWall(elapsedMs), action: `Siklus ${cycles} — irama: ${label}`, tone: result === "shockable" ? "danger" : "info" }]);
+    setLog(l => [...l, { t: elapsed, wall: nowWall(elapsedMs), action: `Cek irama siklus ${cycles}: ${label}`, tone: result === "shockable" ? "danger" : "info" }]);
     if (result !== rhythm) {
       setRhythm(result);
-      setStepIdx(0);
+      // VF→PEA: Go to Step 10 = PEA[1] (CPR 2 mnt + Epi + Airway)
+      // PEA→VF: Go to Step 5  = VF[2]  (Shock)
+      setStepIdx(result === 'shockable' ? 2 : 1);
     } else {
       setStepIdx(idx => {
         const newSteps = result === 'shockable' ? VF_STEPS : PEA_STEPS;
+        const wrapI = result === 'shockable' ? 2 : 1;
         const next = idx + 1;
-        if (next >= newSteps.length) return result === 'shockable' ? 5 : 3;
-        return next;
+        return next >= newSteps.length ? wrapI : next;
       });
-    }
-    if (result === "shockable") {
-      setLog(l => [...l, { t: elapsed, wall: nowWall(elapsedMs), action: "Defibrilasi — lanjut CPR 2 menit", tone: "danger" }]);
     }
     setPhase("active");
     setRunning(true);
   };
-
-  const guidance = getGuidance(rhythm, cycles, epiDoses, shocks, amio);
 
   /* === SETUP PHASE === */
   if (phase === "setup") {
@@ -566,11 +550,19 @@ export function CPRTimer({ onClose }) {
           </div>
 
           <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)" }}>
-            <div className="t-caption-2" style={{ color: "var(--info)", fontWeight: 700, marginBottom: 4 }}>REKOMENDASI SIKLUS {cycles}</div>
-            <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5 }}>
-              {rhythm === "shockable"    ? `Shockable: defibrilasi ke-${shocks + 1} · CPR 2 mnt · Epinefrin ${epiDoses === 0 ? "segera" : "jika sudah ≥ 3 mnt"}` : ""}
-              {rhythm === "nonshockable" ? `Non-shockable: lanjut CPR · Epinefrin ${epiDoses === 0 ? "SEGERA" : "q3-5 mnt"} · Cari Hs & Ts` : ""}
-              {rhythm === "unknown"      ? "Identifikasi irama sesegera mungkin · pastikan CPR berkualitas tinggi" : ""}
+            <div className="t-caption-2" style={{ color: "var(--info)", fontWeight: 700, marginBottom: 4 }}>LANGKAH BERIKUTNYA (AHA 2025)</div>
+            <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.6 }}>
+              {rhythm === "shockable" ? (
+                <>
+                  <span style={{ color: "var(--danger)", fontWeight: 600 }}>Jika masih VF/pVT:</span> Defibrilasi (Step 5) → CPR 2 mnt + Epi q3-5 mnt{shocks >= 2 ? " + Amiodarone 300mg" : ""}{"\n"}
+                  <span style={{ color: "var(--info)", fontWeight: 600 }}>Jika non-shockable:</span> Lanjut ke Step 10 → CPR 2 mnt + Epi + Pertimbangkan airway
+                </>
+              ) : rhythm === "nonshockable" ? (
+                <>
+                  <span style={{ color: "var(--info)", fontWeight: 600 }}>Jika masih PEA/Asistol:</span> CPR 2 mnt + Epi q3-5 mnt + Cari & atasi Hs & Ts{"\n"}
+                  <span style={{ color: "var(--danger)", fontWeight: 600 }}>Jika shockable:</span> Lanjut ke Step 5 → Defibrilasi segera
+                </>
+              ) : "Identifikasi irama sesegera mungkin · pastikan CPR berkualitas tinggi"}
             </div>
           </div>
         </div>
@@ -590,39 +582,34 @@ export function CPRTimer({ onClose }) {
             <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: 4, background: "var(--danger)", marginRight: 5, verticalAlign: "middle", animation: "acls-blink 1s infinite" }}/>
             CODE BLUE
           </div>
-          <div style={{ width: 60 }}/>
+          <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'rgba(255,59,48,0.15)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
+            </svg>
+            <span style={{ fontSize: 11, fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
+              {soundOn ? `♩ ${CPR_BPM} BPM` : 'Metronome'}
+            </span>
+          </button>
         </div>
 
         <StepCard step={curStep} idx={safeIdx} />
 
-        <div style={{ padding: "6px 20px 10px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12, alignItems: "flex-start", marginTop: 4 }}>
+        <div style={{ padding: "4px 16px 8px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, alignItems: "center" }}>
             <div>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>SIKLUS 2 MNT</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 42, fontWeight: 700, color: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--label-primary)", lineHeight: 1, fontFeatureSettings: '"tnum"', marginTop: 2, letterSpacing: "-0.02em" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 32, fontWeight: 700, color: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--label-primary)", lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: "-0.02em" }}>
                 {fmtMs(cycleRemainingMs)}
               </div>
-              <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 3 }}>tersisa · siklus {cycles}</div>
+              <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 2 }}>tersisa · siklus {cycles}</div>
             </div>
-            <div style={{ textAlign: "right", paddingTop: 2 }}>
+            <div style={{ textAlign: "right" }}>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>TOTAL</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 2 }}>{fmt(elapsed)}</div>
-              <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 8 }}>METRONOME</div>
-              <button onClick={() => setSoundOn(s => !s)} style={{ display:'inline-flex', alignItems:'center', gap:4, padding:'3px 7px', borderRadius:7, background: soundOn ? 'rgba(255,59,48,0.12)' : 'var(--fill-tertiary)', border:0, cursor:'pointer', marginTop:3 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  {soundOn
-                    ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>
-                    : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>
-                  }
-                </svg>
-                <span style={{ fontSize:11, fontWeight:600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace:'nowrap' }}>
-                  {soundOn ? `♩ ${CPR_BPM} BPM` : 'Aktifkan'}
-                </span>
-              </button>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
             </div>
           </div>
-          <div style={{ height: 7, borderRadius: 4, background: "var(--fill-tertiary)", marginTop: 10, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: cycleProgress * 100 + "%", background: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--success)", borderRadius: 4, transition: "width 50ms linear, background var(--dur-fast)" }}/>
+          <div style={{ height: 5, borderRadius: 3, background: "var(--fill-tertiary)", marginTop: 8, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: cycleProgress * 100 + "%", background: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--success)", borderRadius: 3, transition: "width 50ms linear, background var(--dur-fast)" }}/>
           </div>
         </div>
 
@@ -639,79 +626,86 @@ export function CPRTimer({ onClose }) {
       {/* === Contextual action panel — sesuai langkah algoritma === */}
       <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
 
-        {/* Shock step */}
+        {/* Shock step — bifasik + monofasik */}
         {curStep.kind === 'shock' && (
           <button className="cpr-action shock" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px' }}
-            onClick={() => { setShocks(s => s + 1); addLog(`Defibrilasi ${shocks + 1} × 200J bifasik`, 'danger'); advanceStep(); }}>
+            onClick={() => { setShocks(s => s + 1); addLog(`Defibrilasi ${shocks + 1} — 120-200J bifasik / 360J monofasik`, 'danger'); advanceStep(); }}>
             <Icons.boltFill size={32}/>
             <div style={{ textAlign: 'left' }}>
-              <div className="t-title-3" style={{ color: '#fff' }}>Defibrilasi — 200J bifasik</div>
-              <div className="t-caption-2" style={{ opacity: 0.82 }}>{shocks > 0 ? `${shocks} sudah diberikan · ` : ''}Tandai &amp; lanjut</div>
+              <div className="t-title-3" style={{ color: '#fff' }}>Defibrilasi</div>
+              <div className="t-caption-2" style={{ opacity: 0.88 }}>Bifasik 120–200J · Monofasik 360J</div>
+              <div className="t-caption-2" style={{ opacity: 0.72, marginTop: 1 }}>{shocks > 0 ? `${shocks}× sudah · ` : ''}Tandai &amp; lanjut →</div>
             </div>
           </button>
         )}
 
-        {/* Epi step */}
+        {/* Epi ASAP — PEA step 0, urgent pulsing */}
         {curStep.kind === 'drug' && curStep.cta === 'epi' && (
-          <button className="cpr-action epi" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px' }}
-            onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO · next 3 mnt`, 'warn'); advanceStep(); }}>
-            <Icons.pill size={28} stroke={2}/>
+          <button className={"cpr-action epi" + (curStep.urgent ? " epi-ready" : "")} style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 70, padding: '14px 18px' }}
+            onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO — SEGERA`, 'warn'); advanceStep(); }}>
+            <Icons.pill size={32} stroke={2}/>
             <div style={{ textAlign: 'left' }}>
-              <div className="t-title-3" style={{ color: '#fff' }}>Epinefrin 1 mg IV/IO</div>
-              <div className="t-caption-2" style={{ opacity: 0.82 }}>Dosis #{epiDoses + 1} · Tandai &amp; lanjut</div>
+              <div className="t-title-3" style={{ color: '#fff' }}>{curStep.urgent ? '⚡ Epinefrin ASAP' : 'Epinefrin 1 mg IV/IO'}</div>
+              <div className="t-caption-2" style={{ opacity: 0.85 }}>1 mg IV/IO · Dosis #{epiDoses + 1} · Tandai &amp; lanjut →</div>
             </div>
           </button>
         )}
 
-        {/* Amiodarone step */}
-        {curStep.kind === 'drug' && curStep.cta === 'amio' && (
-          <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
-            onClick={() => { setAmio(a => a + 1); addLog(`Amiodarone ${amio === 0 ? '300mg' : '150mg'} IV/IO bolus`, 'info'); advanceStep(); }}>
-            <Icons.syringe size={28} stroke={2}/>
-            <div style={{ textAlign: 'left' }}>
-              <div className="t-title-3" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
-              <div className="t-caption-2" style={{ opacity: 0.82 }}>Tandai &amp; lanjut</div>
-            </div>
-          </button>
-        )}
-
-        {/* Intubasi optional step */}
-        {curStep.kind === 'opt' && (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="cpr-action intubate" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, padding: '12px 16px' }}
-              onClick={() => { setIntubated(true); addLog('Intubasi ETT · konfirmasi EtCO₂ + auskultasi', 'info'); advanceStep(); }}>
-              <Icons.lungs size={26} stroke={2}/>
-              <div style={{ textAlign: 'left' }}>
-                <div className="t-headline" style={{ color: '#fff' }}>Intubasi ETT / SGA</div>
-                <div className="t-caption-2" style={{ opacity: 0.82 }}>EtCO₂ · ventilasi 1×/6 dtk</div>
-              </div>
-            </button>
-            <button style={{ height: 60, padding: '0 18px', borderRadius: 14, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer', flexShrink: 0 }}
-              onClick={advanceStep}>Lewati</button>
-          </div>
-        )}
-
-        {/* CPR running step — tampilkan status */}
+        {/* CPR step — status indicator + secondary actions sesuai step */}
         {curStep.kind === 'cpr' && (
-          <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
-            <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
-            {epiNextMs != null && !epiReady && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
-            )}
-          </div>
-        )}
-
-        {/* Epi jatuh tempo — muncul di atas secondary row saat countdown = 0 dan bukan step epi */}
-        {epiReady && curStep.cta !== 'epi' && (
-          <button className="cpr-action epi epi-ready" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52, padding: '10px 16px' }}
-            onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO · jatuh tempo`, 'warn'); }}>
-            <Icons.pill size={22} stroke={2}/>
-            <div style={{ textAlign: 'left' }}>
-              <div className="t-headline" style={{ color: '#fff' }}>⚠ Epinefrin jatuh tempo!</div>
-              <div className="t-caption-2" style={{ opacity: 0.85 }}>Dosis #{epiDoses + 1} · berikan segera</div>
+          <>
+            <div style={{ padding: '9px 13px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 9, height: 9, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
+              <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
+              {epiNextMs != null && !epiReady && (
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
+              )}
             </div>
-          </button>
+
+            {/* Epi — selama step yang butuh epi */}
+            {curStep.actions?.includes('epi') && (
+              <button className={"cpr-action epi" + (epiReady ? " epi-ready" : "")} style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px' }}
+                onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO`, 'warn'); }}>
+                <Icons.pill size={22} stroke={2}/>
+                <div style={{ textAlign: 'left' }}>
+                  <div className="t-headline" style={{ color: '#fff' }}>Epinefrin 1 mg IV/IO</div>
+                  <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                    {epiNextMs == null ? 'Dosis pertama — berikan segera' : epiReady ? '⚠ Jatuh tempo — berikan segera!' : `Next: ${fmt(Math.ceil(epiRemainMs / 1000))} · dosis #${epiDoses + 1}`}
+                  </div>
+                </div>
+              </button>
+            )}
+
+            {/* Amiodarone — selama step yang butuh amio */}
+            {curStep.actions?.includes('amio') && (
+              <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
+                onClick={() => { setAmio(a => a + 1); addLog(`Amiodarone ${amio === 0 ? '300mg' : '150mg'} IV/IO bolus`, 'info'); }}>
+                <Icons.syringe size={22} stroke={2}/>
+                <div style={{ textAlign: 'left' }}>
+                  <div className="t-headline" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
+                  <div className="t-caption-2" style={{ opacity: 0.85 }}>atau Lidokain 1–1.5 mg/kg bolus</div>
+                </div>
+              </button>
+            )}
+
+            {/* Airway — selama step yang include airway */}
+            {curStep.actions?.includes('airway') && !intubated && (
+              <button className="cpr-action intubate" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px' }}
+                onClick={() => { setIntubated(true); addLog('Intubasi ETT / SGA · konfirmasi EtCO₂ + auskultasi', 'info'); }}>
+                <Icons.lungs size={22} stroke={2}/>
+                <div style={{ textAlign: 'left' }}>
+                  <div className="t-headline" style={{ color: '#fff' }}>Intubasi ETT / SGA</div>
+                  <div className="t-caption-2" style={{ opacity: 0.85 }}>EtCO₂ · ventilasi 1×/6 dtk saat CPR kontinu</div>
+                </div>
+              </button>
+            )}
+            {curStep.actions?.includes('airway') && intubated && (
+              <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 0.5px rgba(52,199,89,0.4)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Icons.check size={14} stroke={2.5} style={{ color: 'var(--success)', flexShrink: 0 }}/>
+                <span className="t-caption-1" style={{ color: 'var(--success)', fontWeight: 600 }}>Airway lanjut terpasang · ventilasi 1×/6 dtk</span>
+              </div>
+            )}
+          </>
         )}
 
         {/* Secondary row — selalu tersedia */}
