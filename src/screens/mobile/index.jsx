@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Icons, NavBar, LargeTitle, SearchField,
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
@@ -13,7 +13,31 @@ import {
 /* ============================================================
    HOME
    ============================================================ */
-export function MobileHome({ nav, openSheet, openCPR }) {
+export function MobileHome({ nav, openCPR }) {
+  const [query, setQuery] = useState('');
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return [
+      ...ACLS_ALGORITHMS.filter(a =>
+        (a.label + ' ' + a.sub).toLowerCase().includes(q)
+      ).map(a => ({ type: 'algo', key: a.key, label: a.label, sub: a.sub, tint: a.tint })),
+      ...ACLS_DRUGS.filter(d =>
+        (d.name + ' ' + (d.altName || '') + ' ' + (d.category || '')).toLowerCase().includes(q)
+      ).map(d => ({ type: 'drug', key: d.key, label: d.name, sub: d.category || d.class, tint: d.tint })),
+      ...ACLS_RHYTHMS.filter(r =>
+        (r.name + ' ' + (r.short || '')).toLowerCase().includes(q)
+      ).map(r => ({ type: 'rhythm', key: r.key, label: r.name, sub: r.short, tint: r.tint })),
+    ].slice(0, 8);
+  }, [query]);
+
+  const iconFor = (type) => {
+    if (type === 'algo') return <Icons.algo size={16} stroke={2.4}/>;
+    if (type === 'drug') return <Icons.pill size={16} stroke={2.4}/>;
+    return <Icons.ekg size={16} stroke={2.4}/>;
+  };
+
   return (
     <>
       <NavBar/>
@@ -27,60 +51,92 @@ export function MobileHome({ nav, openSheet, openCPR }) {
         </span>
       </div>
 
-      <SearchField placeholder="Cari algoritma, obat, EKG…"/>
+      <SearchField placeholder="Cari algoritma, obat, EKG…" value={query} onChange={setQuery}/>
 
-      <div style={{ padding: "0 16px 4px" }}>
-        <button onClick={openCPR} className="acls-hero-emergency" style={{ width: "100%", textAlign: "left", padding: "16px 18px", borderRadius: 18, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(255,59,48,0.30)" }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.18)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <Icons.boltFill size={26}/>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div className="t-headline" style={{ color: "#fff" }}>Aktifkan Code Blue</div>
-            <div className="t-footnote" style={{ color: "rgba(255,255,255,0.85)", marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
-          </div>
-          <Icons.chevR size={16} stroke={2.4}/>
-        </button>
-      </div>
-
-      <SectionHeader>Akses cepat</SectionHeader>
-      <div style={{ padding: "0 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {[
-          { key: "vfvt",  label: "VF / pVT",       sub: "Shockable",     tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-          { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable", tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-          { key: "brady", label: "Bradikardi",     sub: "HR < 50",       tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-          { key: "tachy", label: "Takikardi",      sub: "HR > 150",      tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
-        ].map(c => (
-          <button key={c.key} onClick={() => nav.push({ screen: "algo", id: c.key })}
-            style={{ padding: "14px", borderRadius: 16, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", flexDirection: "column", gap: 10, minHeight: 100 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.icon}</div>
-            <div>
-              <div className="t-headline">{c.label}</div>
-              <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
+      {query ? (
+        <div style={{ padding: "8px 16px" }}>
+          {results.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+              <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+              <div className="t-footnote">Coba kata kunci lain</div>
             </div>
-          </button>
-        ))}
-      </div>
+          ) : (
+            <List>
+              {results.map(r => (
+                <Row key={r.type + r.key}
+                  glyph={iconFor(r.type)} tint={r.tint}
+                  label={r.label} sub={r.sub}
+                  onClick={() => {
+                    setQuery('');
+                    if (r.type === 'algo') nav.push({ screen: 'algo', id: r.key });
+                    else if (r.type === 'drug') nav.push({ screen: 'drug', id: r.key });
+                    else nav.push({ screen: 'ekg', id: r.key });
+                  }}
+                />
+              ))}
+            </List>
+          )}
+        </div>
+      ) : (
+        <>
+          <div style={{ padding: "0 16px 4px" }}>
+            <button onClick={openCPR} className="acls-hero-emergency" style={{ width: "100%", textAlign: "left", padding: "16px 18px", borderRadius: 18, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(255,59,48,0.30)", transition: "transform 160ms, box-shadow 160ms" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(255,59,48,0.40)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,59,48,0.30)"; }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.18)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                <Icons.boltFill size={26}/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="t-headline" style={{ color: "#fff" }}>Aktifkan Code Blue</div>
+                <div className="t-footnote" style={{ color: "rgba(255,255,255,0.85)", marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
+              </div>
+              <Icons.chevR size={16} stroke={2.4}/>
+            </button>
+          </div>
 
-      <SectionHeader>Algoritma</SectionHeader>
-      <List>
-        {ACLS_ALGORITHMS.slice(0, 6).map(a => (
-          <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
-        ))}
-      </List>
+          <SectionHeader>Akses cepat</SectionHeader>
+          <div style={{ padding: "0 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {[
+              { key: "vfvt",  label: "VF / pVT",       sub: "Shockable",     tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
+              { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable", tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
+              { key: "brady", label: "Bradikardi",     sub: "HR < 50",       tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
+              { key: "tachy", label: "Takikardi",      sub: "HR > 150",      tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
+            ].map(c => (
+              <button key={c.key} onClick={() => nav.push({ screen: "algo", id: c.key })}
+                style={{ padding: "14px", borderRadius: 16, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", flexDirection: "column", gap: 10, minHeight: 100, transition: "transform 160ms, box-shadow 160ms" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "var(--shadow-2)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-1)"; }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.icon}</div>
+                <div>
+                  <div className="t-headline">{c.label}</div>
+                  <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
+                </div>
+              </button>
+            ))}
+          </div>
 
-      <SectionHeader>Alat</SectionHeader>
-      <List>
-        <Row glyph={<Icons.timer size={16} stroke={2.4}/>} tint="var(--success)" label="CPR Workspace" sub="Resusitasi aktif · siklus 2 menit" onClick={openCPR}/>
-        <Row glyph={<Icons.ekg size={16} stroke={2.4}/>} tint="var(--tint-resp)" label="Pustaka EKG" sub="VF · VT · TdP · SVT · STEMI" onClick={() => nav.push({ screen: "ekgList" })}/>
-        <Row glyph={<Icons.pill size={16} stroke={2.4}/>} tint="var(--tint-drug)" label="Obat ACLS" sub="18 obat · PERKI 2021" onClick={() => nav.push({ screen: "drugList" })}/>
-        <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
-      </List>
+          <SectionHeader>Algoritma</SectionHeader>
+          <List>
+            {ACLS_ALGORITHMS.slice(0, 6).map(a => (
+              <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+            ))}
+          </List>
 
-      <SectionFooter>
-        ACLS Helper · v1.1 · 2026 · Bagian dari ekosistem MDKit<br/>
-        Mengikuti PERKI 2021 (BHJL &amp; BHJD) + AHA 2020 — penilaian klinis tetap diperlukan.
-      </SectionFooter>
-      <div style={{ height: 24 }}/>
+          <SectionHeader>Alat</SectionHeader>
+          <List>
+            <Row glyph={<Icons.timer size={16} stroke={2.4}/>} tint="var(--success)" label="CPR Workspace" sub="Resusitasi aktif · siklus 2 menit" onClick={openCPR}/>
+            <Row glyph={<Icons.ekg size={16} stroke={2.4}/>} tint="var(--tint-resp)" label="Pustaka EKG" sub="VF · VT · TdP · SVT · STEMI" onClick={() => nav.push({ screen: "ekgList" })}/>
+            <Row glyph={<Icons.pill size={16} stroke={2.4}/>} tint="var(--tint-drug)" label="Obat ACLS" sub="18 obat · PERKI 2021" onClick={() => nav.push({ screen: "drugList" })}/>
+            <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
+          </List>
+
+          <SectionFooter>
+            ACLS Helper · v1.1 · 2026 · Bagian dari ekosistem MDKit<br/>
+            Mengikuti PERKI 2021 (BHJL &amp; BHJD) + AHA 2020 — penilaian klinis tetap diperlukan.
+          </SectionFooter>
+          <div style={{ height: 24 }}/>
+        </>
+      )}
     </>
   );
 }

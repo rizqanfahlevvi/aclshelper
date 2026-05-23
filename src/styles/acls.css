@@ -31,11 +31,12 @@ body {
 .acls-mobile-content {
   position: absolute;
   top: 52px;
-  bottom: 104px;
+  bottom: 90px;
   left: 0; right: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  animation: acls-fadeslide 260ms var(--ease-out) both;
 }
 
 .acls-mobile-bottomnav {
@@ -51,6 +52,12 @@ body {
   display: flex;
   overflow: hidden;
   background: var(--bg-secondary);
+}
+
+/* Screen enter animation */
+@keyframes acls-fadeslide {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ---------- Sidebar ----------------------------------------- */
@@ -231,25 +238,26 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 80px 1fr 1fr;
   align-items: center;
-  height: 78px;
-  padding: 0 8px 16px;
+  height: 90px;
+  padding: 0 8px 22px;
   background: var(--material-chrome);
   backdrop-filter: var(--blur-base);
   -webkit-backdrop-filter: var(--blur-base);
   border-top: 0.5px solid var(--separator);
 }
 .acls-bottomnav .nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   border: 0; background: transparent; cursor: pointer;
   color: var(--label-tertiary);
   font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
-  padding: 6px 0;
-  transition: color var(--dur-fast);
+  padding: 4px 0;
+  transition: color var(--dur-fast), transform 120ms;
 }
+.acls-bottomnav .nav-btn:active { transform: scale(0.92); }
 .acls-bottomnav .nav-btn.active { color: var(--accent); }
 .acls-bottomnav .acls-fab {
   position: absolute;
-  bottom: 32px; left: 50%; transform: translateX(-50%);
+  bottom: 40px; left: 50%; transform: translateX(-50%);
   display: inline-flex; align-items: center; justify-content: center;
   color: #fff;
   border: 0; cursor: pointer;
@@ -267,6 +275,12 @@ body {
 .acls-bottomnav .acls-fab:focus-visible {
   box-shadow: 0 0 0 3px var(--accent), 0 10px 24px rgba(255,59,48,0.42);
 }
+@keyframes acls-fab-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(255,59,48,0.45), 0 10px 24px rgba(255,59,48,0.42), 0 2px 4px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.20); }
+  60%  { box-shadow: 0 0 0 12px rgba(255,59,48,0),   0 10px 24px rgba(255,59,48,0.42), 0 2px 4px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.20); }
+  100% { box-shadow: 0 0 0 0   rgba(255,59,48,0),   0 10px 24px rgba(255,59,48,0.42), 0 2px 4px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.20); }
+}
+.acls-bottomnav .acls-fab { animation: acls-fab-ring 2.5s ease-out infinite; }
 
 /* ============================================================
    BottomSheet

@@ -187,10 +187,28 @@ export const LargeTitle = ({ children, right }) => (
   </div>
 );
 
-export const SearchField = ({ placeholder = "Cari" }) => (
-  <div className="ios-search">
-    <Icons.search size={17} stroke={2}/>
-    <span>{placeholder}</span>
+export const SearchField = ({ placeholder = "Cari", value = "", onChange, onFocus }) => (
+  <div className="ios-search" style={{ cursor: "text" }}>
+    <Icons.search size={17} stroke={2} style={{ flexShrink: 0, color: "var(--label-tertiary)" }}/>
+    <input
+      type="search"
+      value={value}
+      onChange={e => onChange && onChange(e.target.value)}
+      onFocus={onFocus}
+      placeholder={placeholder}
+      style={{
+        flex: 1, border: "none", background: "transparent", outline: "none",
+        font: "inherit", color: "var(--label-primary)", fontSize: 17,
+        letterSpacing: "-0.022em", WebkitAppearance: "none", appearance: "none",
+        minWidth: 0,
+      }}
+    />
+    {value && (
+      <button onClick={() => onChange && onChange("")}
+        style={{ background: "none", border: 0, cursor: "pointer", color: "var(--label-tertiary)", padding: "0 2px", display: "inline-flex", alignItems: "center" }}>
+        <Icons.cross size={14} stroke={2.4}/>
+      </button>
+    )}
   </div>
 );
 

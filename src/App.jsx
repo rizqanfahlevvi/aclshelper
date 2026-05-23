@@ -4,7 +4,7 @@ import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
   MobileEkgList, MobileEkgDetail,
-  MobileHsTs, FabQuickSheet,
+  MobileHsTs,
 } from './screens/mobile';
 import {
   DesktopSidebar, DesktopTopbar, DesktopDashboard,
@@ -159,7 +159,6 @@ export default function App() {
     setStack(s => ({ ...s, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] }));
   };
 
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [cprOpen, setCprOpen] = useState(false);
 
   /* Desktop state */
@@ -177,7 +176,6 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
-        openSheet={() => setSheetOpen(true)}
         openCPR={() => setCprOpen(true)}/>;
     }
     if (tab === 'algo') {
@@ -233,23 +231,8 @@ export default function App() {
               onChange={(k) => setTab(k)}
               fabShape="circle"
               accent="var(--danger)"
-              onFabTap={() => setSheetOpen(true)}
-              onFabLongPress={() => { setSheetOpen(false); setCprOpen(true); }}/>
+              onFabClick={() => setCprOpen(true)}/>
           </div>
-        )}
-
-        {!cprOpen && (
-          <FabQuickSheet
-            open={sheetOpen}
-            onClose={() => setSheetOpen(false)}
-            onPickAction={(key) => {
-              setSheetOpen(false);
-              if (key === 'cpr') { setCprOpen(true); return; }
-              const map = { vf: 'vfvt', pea: 'pea', brady: 'brady', tachy: 'tachy' };
-              setTab('algo');
-              setStack(s => ({ ...s, algo: [{ screen: 'algoList' }, { screen: 'algo', id: map[key] }] }));
-            }}
-            onOpenCpr={() => { setSheetOpen(false); setCprOpen(true); }}/>
         )}
       </div>
     );

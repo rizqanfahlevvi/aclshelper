@@ -180,33 +180,7 @@ export function FlowConnector({ tone = "var(--label-tertiary)" }) {
 /* ============================================================
    BottomNav with center FAB
    ============================================================ */
-export function BottomNav({ active, onChange, fabShape = "circle", onFabTap, onFabLongPress, accent }) {
-  const longPressTimer = useRef(null);
-  const longFired = useRef(false);
-
-  const handleStart = (e) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    longFired.current = false;
-    longPressTimer.current = setTimeout(() => {
-      longFired.current = true;
-      longPressTimer.current = null;
-      onFabLongPress && onFabLongPress();
-    }, 550);
-  };
-  const handleEnd = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-      if (!longFired.current) onFabTap && onFabTap();
-    }
-  };
-  const handleCancel = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-    longFired.current = false;
-  };
+export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent }) {
   const fabRadius = fabShape === "circle" ? 30 : fabShape === "squircle" ? 18 : 30;
   const fabWidth = fabShape === "pill" ? 90 : 60;
 
@@ -232,10 +206,8 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabTap, onF
       <button
         className="acls-fab"
         style={{ width: fabWidth, height: 60, borderRadius: fabRadius, background: accent || "var(--danger)" }}
-        onPointerDown={handleStart}
-        onPointerUp={handleEnd}
-        onPointerCancel={handleCancel}
-        aria-label="Quick Code Blue">
+        onClick={onFabClick}
+        aria-label="Code Blue">
         <Icons.boltFill size={26} />
         {fabShape === "pill" && <span style={{ marginLeft: 4, fontWeight: 700 }}>CODE</span>}
       </button>
