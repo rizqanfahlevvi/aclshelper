@@ -10,7 +10,7 @@ import {
 /* ============================================================
    Sidebar
    ============================================================ */
-export function DesktopSidebar({ active, onChange, onOpenCpr }) {
+export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }) {
   const items = [
     { key: "dashboard", label: "Beranda",     icon: Icons.house },
     { key: "algo",      label: "Algoritma",   icon: Icons.algo },
@@ -19,51 +19,67 @@ export function DesktopSidebar({ active, onChange, onOpenCpr }) {
     { key: "hsts",      label: "Hs & Ts",     icon: Icons.clipboard },
   ];
   return (
-    <aside className="acls-sidebar">
-      <div className="acls-sidebar-brand">
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 14px rgba(255,59,48,0.25)" }}>
+    <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
+      <div className="acls-sidebar-brand" style={{ justifyContent: collapsed ? 'center' : undefined, padding: collapsed ? '14px 8px' : undefined }}>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 14px rgba(255,59,48,0.25)", flexShrink: 0 }}>
           <Icons.boltFill size={20}/>
         </div>
-        <div>
-          <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>MDKit · v1.1</div>
-        </div>
+        {!collapsed && (
+          <div>
+            <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
+            <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>MDKit · v1.1</div>
+          </div>
+        )}
       </div>
 
-      <div className="acls-sidebar-search">
-        <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
-      </div>
+      {!collapsed && (
+        <div className="acls-sidebar-search">
+          <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
+        </div>
+      )}
 
       <nav className="acls-sidebar-nav">
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px" }}>MENU</div>
+        {!collapsed && <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px" }}>MENU</div>}
         {items.map(it => (
-          <button key={it.key} onClick={() => onChange(it.key)} className={"acls-sidebar-item " + (active === it.key ? "active" : "")}>
-            <it.icon size={18} stroke={1.9}/><span>{it.label}</span>
+          <button key={it.key} onClick={() => onChange(it.key)}
+            className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
+            style={{ justifyContent: collapsed ? 'center' : undefined, padding: collapsed ? '10px' : undefined }}
+            title={collapsed ? it.label : undefined}>
+            <it.icon size={18} stroke={1.9}/>
+            {!collapsed && <span>{it.label}</span>}
           </button>
         ))}
 
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
-        {[
-          { key: "bhjd",  label: "BHJD Dewasa",   tint: "var(--accent)" },
-          { key: "vfvt",  label: "VF / pVT",       tint: "var(--danger)" },
-          { key: "pea",   label: "PEA / Asistol",  tint: "var(--info)" },
-          { key: "brady", label: "Bradikardi",     tint: "var(--warning)" },
-          { key: "tachy", label: "Takikardi",      tint: "var(--tint-neuro)" },
-          { key: "ska",   label: "SKA / STEMI",    tint: "var(--tint-vital)" },
-        ].map(it => (
-          <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
-            <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
-            <span>{it.label}</span>
-          </button>
-        ))}
+        {!collapsed && (
+          <>
+            <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
+            {[
+              { key: "bhjd",  label: "BHJD Dewasa",   tint: "var(--accent)" },
+              { key: "vfvt",  label: "VF / pVT",       tint: "var(--danger)" },
+              { key: "pea",   label: "PEA / Asistol",  tint: "var(--info)" },
+              { key: "brady", label: "Bradikardi",     tint: "var(--warning)" },
+              { key: "tachy", label: "Takikardi",      tint: "var(--tint-neuro)" },
+              { key: "ska",   label: "SKA / STEMI",    tint: "var(--tint-vital)" },
+            ].map(it => (
+              <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
+                <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
+                <span>{it.label}</span>
+              </button>
+            ))}
+          </>
+        )}
       </nav>
 
-      <div style={{ padding: "10px 14px 16px", marginTop: "auto" }}>
+      <div style={{ padding: collapsed ? '10px 8px 16px' : '10px 14px 16px', marginTop: 'auto' }}>
         <button onClick={onOpenCpr} className="ios-btn block"
-          style={{ background: "var(--danger)", color: "#fff", height: 46, borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8, whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(255,59,48,0.25)" }}>
-          <Icons.boltFill size={18}/> Code Blue
+          style={{ background: "var(--danger)", color: "#fff", height: collapsed ? 40 : 46,
+            borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: collapsed ? 0 : 8,
+            whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
+            justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+          <Icons.boltFill size={18}/>
+          {!collapsed && ' Code Blue'}
         </button>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", textAlign: "center", marginTop: 6 }}>Aktifkan CPR Workspace</div>
+        {!collapsed && <div className="t-caption-2" style={{ color: "var(--label-secondary)", textAlign: "center", marginTop: 6 }}>Aktifkan CPR Workspace</div>}
       </div>
     </aside>
   );

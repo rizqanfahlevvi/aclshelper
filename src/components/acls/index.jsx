@@ -329,7 +329,7 @@ function StepCard({ step, idx }) {
   );
 }
 
-export function CPRTimer({ onClose }) {
+export function CPRTimer({ onClose, isMobile = true }) {
   const [phase, setPhase] = useState("setup");
   const [rhythm, setRhythm] = useState(null);
 
@@ -756,9 +756,9 @@ export function CPRTimer({ onClose }) {
 
     {/* === Pulse Check Modal === */}
     {pulseCheckOpen && (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end' }}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}
         onClick={() => setPulseCheckOpen(false)}>
-        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: '20px 20px 0 0', padding: `20px 20px calc(20px + env(safe-area-inset-bottom, 0px))`, animation: 'acls-sheet-up 260ms var(--ease-out) both', display: 'flex', flexDirection: 'column', gap: 10 }}
+        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: isMobile ? '20px 20px 0 0' : 16, padding: isMobile ? `20px 20px calc(20px + env(safe-area-inset-bottom, 0px))` : '24px', animation: 'acls-sheet-up 260ms var(--ease-out) both', display: 'flex', flexDirection: 'column', gap: 10 }}
           onClick={e => e.stopPropagation()}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)', margin: '0 auto 6px' }}/>
           <div style={{ padding: '9px 12px', borderRadius: 11, background: 'rgba(255,149,0,0.09)', boxShadow: 'inset 0 0 0 0.5px rgba(255,149,0,0.35)' }}>
@@ -803,9 +803,9 @@ export function CPRTimer({ onClose }) {
 
     {/* === Full Log Modal === */}
     {logModalOpen && (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end' }}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 310, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}
         onClick={() => setLogModalOpen(false)}>
-        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: '20px 20px 0 0', maxHeight: '80dvh', display: 'flex', flexDirection: 'column', animation: 'acls-sheet-up 260ms var(--ease-out) both', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: isMobile ? '20px 20px 0 0' : 16, maxHeight: isMobile ? '80dvh' : '70vh', display: 'flex', flexDirection: 'column', animation: 'acls-sheet-up 260ms var(--ease-out) both', paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 0px)' : 0 }}
           onClick={e => e.stopPropagation()}>
           <div style={{ padding: '16px 20px 8px', flexShrink: 0 }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)', margin: '0 auto 12px' }}/>

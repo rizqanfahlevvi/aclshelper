@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
 import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
@@ -12,15 +12,20 @@ import {
 } from './screens/desktop';
 import { ACLS_ALGORITHMS } from './data';
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+function useBreakpoint() {
+  const get = () => {
+    const w = window.innerWidth;
+    if (w < 768) return 'mobile';
+    if (w < 1024) return 'tablet';
+    return 'desktop';
+  };
+  const [bp, setBp] = useState(get);
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const handler = (e) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    const handler = () => setBp(get());
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
-  return isMobile;
+  return bp;
 }
 
 function useClock() {
@@ -120,7 +125,8 @@ function AppTopBar({ theme, onToggleTheme }) {
 const ACCENT = { color: '#30B0C7', dark: '#40C8E0' };
 
 export default function App() {
-  const isMobile = useIsMobile();
+  const bp = useBreakpoint();
+  const isMobile = bp === 'mobile';
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
@@ -207,6 +213,7 @@ export default function App() {
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
   const algoLabel = (ACLS_ALGORITHMS.find(a => a.key === deskView.id) || {}).label || 'Adult Cardiac Arrest';
 
+  /* ── MOBILE ───────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <div className="acls-app-mobile">
@@ -219,8 +226,9 @@ export default function App() {
         </div>
 
         {cprOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)', animation: 'acls-overlay-in 280ms var(--ease-out) both' }}>
-            <CPRTimer onClose={() => setCprOpen(false)}/>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)',
+            animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 52 }}>
+            <CPRTimer isMobile onClose={() => setCprOpen(false)}/>
           </div>
         )}
 
@@ -238,9 +246,11 @@ export default function App() {
     );
   }
 
+  /* ── TABLET + DESKTOP ─────────────────────────────────────── */
   return (
     <div className="acls-app-desktop">
       <DesktopSidebar
+        collapsed={bp === 'tablet'}
         active={deskView.screen}
         onChange={(screen, id) => setDeskView({ screen, id })}
         onOpenCpr={() => setCprOpen(true)}/>
@@ -252,16 +262,31 @@ export default function App() {
           : deskView.screen === 'hsts'  ? ['ACLS Helper', 'Hs & Ts']
           : ['ACLS Helper', 'Beranda']
         }/>
-        <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+        {/* Content area — CPR panel renders here (absolute) so sidebar + topbar stay visible */}
+        <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
           {renderDesktop()}
+
+          {cprOpen && (
+            <>
+              {/* Blur backdrop over content area */}
+              <div style={{ position: 'absolute', inset: 0, zIndex: 10,
+                background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)' }}
+                onClick={() => setCprOpen(false)}/>
+              {/* CPR panel — centered, max-width 640px */}
+              <div style={{ position: 'absolute', inset: 0, zIndex: 11,
+                display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+                <div style={{ width: 'min(640px, 100%)', height: '100%',
+                  background: 'var(--bg-secondary)', pointerEvents: 'all',
+                  animation: 'acls-overlay-in 280ms var(--ease-out) both',
+                  boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
+                  <CPRTimer isMobile={false} onClose={() => setCprOpen(false)}/>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
-
-      {cprOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)' }}>
-          <CPRTimer onClose={() => setCprOpen(false)}/>
-        </div>
-      )}
     </div>
   );
 }

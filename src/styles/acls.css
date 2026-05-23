@@ -356,7 +356,7 @@ body {
   height: 100%;
   background: var(--bg-secondary);
   display: flex; flex-direction: column;
-  padding-top: 52px;
+  padding-top: 0;
 }
 .cpr-header {
   background: var(--bg-tertiary);
@@ -407,5 +407,30 @@ body {
 @keyframes acls-blink {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0.25; }
+}
+
+/* ============================================================
+   Sidebar collapsed (tablet 768-1023px)
+   ============================================================ */
+.acls-sidebar--collapsed {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Responsive — landscape phone
+   ============================================================ */
+@media (max-width: 767px) and (orientation: landscape) {
+  .acls-mobile-content {
+    top: 44px;
+    bottom: 52px;
+  }
+  .acls-bottomnav {
+    height: 52px;
+    padding: 0 8px 2px;
+  }
+  .acls-bottomnav .acls-fab {
+    width: 46px; height: 46px;
+  }
 }
 
