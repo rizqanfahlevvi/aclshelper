@@ -26,6 +26,23 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico}'],
+        /* New SW takes over immediately — no waiting for tabs to close */
+        skipWaiting: true,
+        clientsClaim: true,
+        /* Navigation requests: network-first so online users always get
+           the latest index.html (which references hashed JS/CSS bundles).
+           Falls back to cache after 3 s if network is slow/offline. */
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              networkTimeoutSeconds: 3,
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+        ],
       },
     }),
   ],
