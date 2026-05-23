@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
 import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
   MobileEkgList, MobileEkgDetail,
-  MobileHsTs,
+  MobileHsTs, InstallPopup,
 } from './screens/mobile';
 import {
   DesktopSidebar, DesktopTopbar, DesktopDashboard,
@@ -167,6 +167,25 @@ export default function App() {
 
   const [cprOpen, setCprOpen] = useState(false);
 
+  /* PWA install prompt */
+  const deferredPromptRef = useRef(null);
+  const [installOpen, setInstallOpen] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    if (window.navigator.standalone) return;
+    if (localStorage.getItem('acls_install_dismissed')) return;
+    const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const handler = (e) => {
+      e.preventDefault();
+      deferredPromptRef.current = e;
+      setTimeout(() => setInstallOpen(true), 1200);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    if (isIOS) setTimeout(() => setInstallOpen(true), 1200);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
   /* Desktop state */
   const [deskView, setDeskView] = useState({ screen: 'dashboard' });
   const desktopPick = (screen, id) => setDeskView({ screen, id });
@@ -230,6 +249,17 @@ export default function App() {
             animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 52 }}>
             <CPRTimer isMobile onClose={() => setCprOpen(false)}/>
           </div>
+        )}
+
+        {installOpen && !cprOpen && (
+          <InstallPopup
+            deferredPrompt={deferredPromptRef.current}
+            onClose={() => setInstallOpen(false)}
+            onDismiss={() => {
+              localStorage.setItem('acls_install_dismissed', '1');
+              setInstallOpen(false);
+            }}
+          />
         )}
 
         {!cprOpen && (

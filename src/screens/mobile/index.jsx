@@ -13,6 +13,171 @@ import {
 } from '../../data';
 
 /* ============================================================
+   INSTALL POPUP
+   ============================================================ */
+export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
+  const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const [platform, setPlatform] = useState(isIOS ? 'ios' : 'android');
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    outcome === 'accepted' ? onDismiss() : onClose();
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 150,
+      background: 'rgba(0,0,0,0.52)',
+      backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '0 20px',
+      animation: 'acls-overlay-in 280ms var(--ease-out) both',
+    }}>
+      <div style={{
+        width: '100%', maxWidth: 360,
+        background: 'var(--bg-secondary)',
+        borderRadius: 24,
+        boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)',
+        overflow: 'hidden',
+      }}>
+        {/* Close button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 14px 0' }}>
+          <button onClick={onClose} style={{
+            width: 30, height: 30, borderRadius: 15, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--label-secondary)',
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Icon + title */}
+        <div style={{ textAlign: 'center', padding: '6px 24px 20px' }}>
+          <div style={{
+            width: 80, height: 80, borderRadius: 20,
+            background: 'var(--danger)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(255,59,48,0.35)',
+            marginBottom: 14,
+          }}>
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="#fff">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div className="t-title-2" style={{ marginBottom: 6 }}>Install ACLS Helper</div>
+          <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
+            Akses algoritma &amp; obat resusitasi secara offline —<br/>langsung dari layar utama perangkat Anda.
+          </div>
+        </div>
+
+        {/* Platform toggle */}
+        <div style={{ padding: '0 20px 16px' }}>
+          <div style={{
+            display: 'flex', background: 'var(--fill-tertiary)',
+            borderRadius: 12, padding: 3,
+          }}>
+            {[
+              { k: 'android', label: 'Android / Chrome' },
+              { k: 'ios',     label: 'iPhone / iPad' },
+            ].map(({ k, label }) => (
+              <button key={k} onClick={() => setPlatform(k)} style={{
+                flex: 1, height: 32, borderRadius: 9, border: 0, cursor: 'pointer',
+                background: platform === k ? 'var(--bg-secondary)' : 'transparent',
+                color: platform === k ? 'var(--label-primary)' : 'var(--label-secondary)',
+                fontWeight: platform === k ? 600 : 400,
+                fontSize: 13,
+                boxShadow: platform === k ? 'var(--shadow-1)' : 'none',
+                transition: 'background 160ms, color 160ms, box-shadow 160ms',
+              }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Android content */}
+        {platform === 'android' && (
+          <div style={{ padding: '0 20px 20px' }}>
+            {deferredPrompt ? (
+              <>
+                <div className="t-callout" style={{
+                  color: 'var(--label-secondary)', marginBottom: 14, lineHeight: 1.5,
+                }}>
+                  Ketuk tombol di bawah untuk menginstal aplikasi ini ke layar utama perangkat Anda.
+                </div>
+                <button onClick={handleInstall} className="ios-btn block" style={{
+                  background: 'var(--danger)', color: '#fff',
+                  height: 50, borderRadius: 14, fontSize: 16, fontWeight: 700,
+                }}>
+                  Install Sekarang
+                </button>
+              </>
+            ) : (
+              <div className="t-callout" style={{
+                color: 'var(--label-secondary)', lineHeight: 1.5,
+                padding: '12px 14px', background: 'var(--fill-quaternary)', borderRadius: 12,
+              }}>
+                Buka di <strong>Chrome</strong>, lalu ketuk menu (⋮) dan pilih <strong>"Tambahkan ke Layar Utama"</strong>.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* iOS content */}
+        {platform === 'ios' && (
+          <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              <>Pastikan membuka di <strong>Safari</strong> (bukan Chrome / Firefox)</>,
+              <>Ketuk ikon <strong>Bagikan</strong> <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginInline: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></span> di toolbar Safari</>,
+              <>Pilih <strong>"Tambah ke Layar Utama"</strong> (Add to Home Screen)</>,
+              <>Ketuk <strong>"Tambah"</strong> di pojok kanan atas</>,
+            ].map((text, i) => (
+              <div key={i} style={{
+                display: 'flex', gap: 12, alignItems: 'flex-start',
+                padding: '10px 12px', background: 'var(--fill-quaternary)', borderRadius: 10,
+              }}>
+                <span style={{
+                  width: 24, height: 24, borderRadius: 12, flexShrink: 0,
+                  background: 'var(--danger)', color: '#fff',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: 13,
+                }}>{i + 1}</span>
+                <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.55 }}>
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Dismiss */}
+        <div style={{ borderTop: '0.5px solid var(--separator)', padding: '12px 20px 16px', display: 'flex', gap: 8 }}>
+          <button onClick={onClose} style={{
+            flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+          }}>
+            Nanti
+          </button>
+          <button onClick={onDismiss} style={{
+            flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+          }}>
+            Jangan tampilkan lagi
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    HOME
    ============================================================ */
 export function MobileHome({ nav, openCPR }) {
