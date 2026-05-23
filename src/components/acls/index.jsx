@@ -324,7 +324,7 @@ function getGuidance(rhythm, cycles, epiDoses, shocks, amio) {
   return { text: "", color: "var(--label-secondary)" };
 }
 
-function StepCard({ step, idx, onNext, onSkip }) {
+function StepCard({ step, idx }) {
   const colMap = { shock:'var(--danger)', drug:'var(--warning)', opt:'var(--label-tertiary)', cpr:'var(--info)' };
   const lblMap = { shock:'Shock', drug:'Obat', opt:'Opsional', cpr:'CPR Aktif' };
   const color = colMap[step.kind] || 'var(--accent)';
@@ -338,18 +338,6 @@ function StepCard({ step, idx, onNext, onSkip }) {
       </div>
       <div style={{ fontSize:14, fontWeight:600, color:'var(--label-primary)', lineHeight:1.3 }}>{step.title}</div>
       {step.sub && <div style={{ fontSize:12, color:'var(--label-secondary)', marginTop:2, lineHeight:1.4 }}>{step.sub}</div>}
-      {step.cta && (
-        <div style={{ display:'flex', gap:8, marginTop:8 }}>
-          <button onClick={onNext} style={{ flex:1, height:32, borderRadius:8, background:color, color:'#fff', fontWeight:600, fontSize:13, border:0, cursor:'pointer' }}>
-            Tandai ✓ &amp; Lanjut
-          </button>
-          {step.skip && (
-            <button onClick={onSkip} style={{ height:32, padding:'0 12px', borderRadius:8, background:'var(--fill-tertiary)', color:'var(--label-secondary)', fontSize:12, border:0, cursor:'pointer' }}>
-              Lewati
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -605,7 +593,7 @@ export function CPRTimer({ onClose }) {
           <div style={{ width: 60 }}/>
         </div>
 
-        <StepCard step={curStep} idx={safeIdx} onNext={advanceStep} onSkip={advanceStep} />
+        <StepCard step={curStep} idx={safeIdx} />
 
         <div style={{ padding: "6px 20px 10px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12, alignItems: "flex-start", marginTop: 4 }}>
@@ -648,49 +636,98 @@ export function CPRTimer({ onClose }) {
         </div>
       </div>
 
-      <div className="cpr-actions">
-        <button className="cpr-action shock" onClick={() => { setShocks(s => s + 1); addLog(`Defibrilasi ${shocks + 1} × 200 J bifasik`, "danger"); if (curStep.cta === 'shock') advanceStep(); }}>
-          <Icons.boltFill size={28}/>
-          <span className="t-headline">Shock</span>
-          <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>{shocks} diberikan</span>
-        </button>
-        <button className={"cpr-action epi" + (epiReady ? " epi-ready" : "")}
-          onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1} mg IV/IO · next 3 mnt`, "warn"); if (curStep.cta === 'epi') advanceStep(); }}>
-          <Icons.pill size={26} stroke={2}/>
-          <span className="t-headline">Epinefrin</span>
-          {epiNextMs == null
-            ? <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>1 mg IV/IO · q3–5 mnt</span>
-            : epiReady
-              ? <span className="t-caption-2" style={{ fontWeight: 700, whiteSpace: "nowrap" }}>● BERIKAN SEKARANG</span>
-              : <span className="t-caption-2" style={{ opacity: 0.92, whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontFeatureSettings: '"tnum"' }}>
-                  Next: {fmt(Math.ceil(epiRemainMs / 1000))} · #{epiDoses}
-                </span>
-          }
-        </button>
-        <button className="cpr-action pulse" onClick={() => addLog("Cek nadi & irama ≤ 10 dtk", "info")}>
-          <Icons.heart size={26} stroke={2}/>
-          <span className="t-headline">Cek nadi &amp; irama</span>
-          <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>≤ 10 dtk</span>
-        </button>
-        <button className="cpr-action rosc" onClick={() => { addLog("ROSC tercapai · post-cardiac arrest", "success"); setRunning(false); }}>
-          <Icons.check size={28} stroke={2.6}/>
-          <span className="t-headline">ROSC</span>
-          <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>Ada nadi · akhiri</span>
-        </button>
-        <button className={"cpr-action intubate" + (intubated ? " done" : "")}
-          onClick={() => { if (intubated) { addLog("ETT dilepas / reposisi", "warn"); setIntubated(false); } else { addLog("Intubasi ETT · konfirmasi EtCO₂ + auskultasi", "info"); setIntubated(true); if (curStep.cta === 'intubasi') advanceStep(); } }}>
-          <Icons.lungs size={26} stroke={2}/>
-          <span className="t-headline">{intubated ? "Airway OK" : "Intubasi"}</span>
-          <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>{intubated ? "Ventilasi 1×6 dtk" : "ETT/SGA · EtCO₂"}</span>
-        </button>
-        <button className="cpr-action midaz" style={{ background: "linear-gradient(180deg, #5856D6, #3B39B8)" }}
-          onClick={() => { setAmio(a => a + 1); addLog(`Amiodarone ${amio === 0 ? "300mg" : "150mg"} IV/IO bolus`, "info"); if (curStep.cta === 'amio') advanceStep(); }}>
-          <Icons.syringe size={26} stroke={2}/>
-          <span className="t-headline">Amiodarone</span>
-          <span className="t-caption-2" style={{ opacity: 0.85, whiteSpace: "nowrap" }}>
-            {amio === 0 ? "300 mg IV/IO bolus" : `150 mg (dosis ${amio + 1})`}
-          </span>
-        </button>
+      {/* === Contextual action panel — sesuai langkah algoritma === */}
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+
+        {/* Shock step */}
+        {curStep.kind === 'shock' && (
+          <button className="cpr-action shock" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px' }}
+            onClick={() => { setShocks(s => s + 1); addLog(`Defibrilasi ${shocks + 1} × 200J bifasik`, 'danger'); advanceStep(); }}>
+            <Icons.boltFill size={32}/>
+            <div style={{ textAlign: 'left' }}>
+              <div className="t-title-3" style={{ color: '#fff' }}>Defibrilasi — 200J bifasik</div>
+              <div className="t-caption-2" style={{ opacity: 0.82 }}>{shocks > 0 ? `${shocks} sudah diberikan · ` : ''}Tandai &amp; lanjut</div>
+            </div>
+          </button>
+        )}
+
+        {/* Epi step */}
+        {curStep.kind === 'drug' && curStep.cta === 'epi' && (
+          <button className="cpr-action epi" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px' }}
+            onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO · next 3 mnt`, 'warn'); advanceStep(); }}>
+            <Icons.pill size={28} stroke={2}/>
+            <div style={{ textAlign: 'left' }}>
+              <div className="t-title-3" style={{ color: '#fff' }}>Epinefrin 1 mg IV/IO</div>
+              <div className="t-caption-2" style={{ opacity: 0.82 }}>Dosis #{epiDoses + 1} · Tandai &amp; lanjut</div>
+            </div>
+          </button>
+        )}
+
+        {/* Amiodarone step */}
+        {curStep.kind === 'drug' && curStep.cta === 'amio' && (
+          <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, padding: '14px 18px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
+            onClick={() => { setAmio(a => a + 1); addLog(`Amiodarone ${amio === 0 ? '300mg' : '150mg'} IV/IO bolus`, 'info'); advanceStep(); }}>
+            <Icons.syringe size={28} stroke={2}/>
+            <div style={{ textAlign: 'left' }}>
+              <div className="t-title-3" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
+              <div className="t-caption-2" style={{ opacity: 0.82 }}>Tandai &amp; lanjut</div>
+            </div>
+          </button>
+        )}
+
+        {/* Intubasi optional step */}
+        {curStep.kind === 'opt' && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="cpr-action intubate" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, padding: '12px 16px' }}
+              onClick={() => { setIntubated(true); addLog('Intubasi ETT · konfirmasi EtCO₂ + auskultasi', 'info'); advanceStep(); }}>
+              <Icons.lungs size={26} stroke={2}/>
+              <div style={{ textAlign: 'left' }}>
+                <div className="t-headline" style={{ color: '#fff' }}>Intubasi ETT / SGA</div>
+                <div className="t-caption-2" style={{ opacity: 0.82 }}>EtCO₂ · ventilasi 1×/6 dtk</div>
+              </div>
+            </button>
+            <button style={{ height: 60, padding: '0 18px', borderRadius: 14, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer', flexShrink: 0 }}
+              onClick={advanceStep}>Lewati</button>
+          </div>
+        )}
+
+        {/* CPR running step — tampilkan status */}
+        {curStep.kind === 'cpr' && (
+          <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
+            <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
+            {epiNextMs != null && !epiReady && (
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
+            )}
+          </div>
+        )}
+
+        {/* Epi jatuh tempo — muncul di atas secondary row saat countdown = 0 dan bukan step epi */}
+        {epiReady && curStep.cta !== 'epi' && (
+          <button className="cpr-action epi epi-ready" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52, padding: '10px 16px' }}
+            onClick={() => { setEpiDoses(e => e + 1); setEpiNextMs(elapsedMs + 180000); addLog(`Epinefrin ${epiDoses + 1}mg IV/IO · jatuh tempo`, 'warn'); }}>
+            <Icons.pill size={22} stroke={2}/>
+            <div style={{ textAlign: 'left' }}>
+              <div className="t-headline" style={{ color: '#fff' }}>⚠ Epinefrin jatuh tempo!</div>
+              <div className="t-caption-2" style={{ opacity: 0.85 }}>Dosis #{epiDoses + 1} · berikan segera</div>
+            </div>
+          </button>
+        )}
+
+        {/* Secondary row — selalu tersedia */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="cpr-action pulse" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+            onClick={() => addLog('Cek nadi & irama ≤ 10 dtk', 'info')}>
+            <Icons.heart size={18} stroke={2}/>
+            <span className="t-caption-1" style={{ fontWeight: 600, color: '#fff', whiteSpace: 'nowrap' }}>Cek nadi</span>
+          </button>
+          <button className="cpr-action rosc" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+            onClick={() => { addLog('ROSC tercapai · post-cardiac arrest', 'success'); setRunning(false); }}>
+            <Icons.check size={18} stroke={2.6}/>
+            <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
+          </button>
+        </div>
+
       </div>
 
       <div className="cpr-log">
