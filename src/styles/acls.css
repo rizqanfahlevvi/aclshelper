@@ -25,7 +25,7 @@ body {
 .acls-mobile-statusbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 100;
+  z-index: 300;
 }
 
 .acls-mobile-content {
@@ -356,7 +356,7 @@ body {
   height: 100%;
   background: var(--bg-secondary);
   display: flex; flex-direction: column;
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: 52px;
 }
 .cpr-header {
   background: var(--bg-tertiary);
