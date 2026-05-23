@@ -342,6 +342,7 @@ export function CPRTimer({ onClose }) {
   const [intubated, setIntubated] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
+  const [pulseCheckOpen, setPulseCheckOpen] = useState(false);
 
   const wallStartRef = useRef(null);
   const lastCycleRef = useRef(1);
@@ -708,19 +709,64 @@ export function CPRTimer({ onClose }) {
           </>
         )}
 
-        {/* Secondary row — selalu tersedia */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="cpr-action pulse" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
-            onClick={() => addLog('Cek nadi & irama ≤ 10 dtk', 'info')}>
-            <Icons.heart size={18} stroke={2}/>
-            <span className="t-caption-1" style={{ fontWeight: 600, color: '#fff', whiteSpace: 'nowrap' }}>Cek nadi</span>
-          </button>
-          <button className="cpr-action rosc" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
-            onClick={() => { addLog('ROSC tercapai · post-cardiac arrest', 'success'); setRunning(false); }}>
-            <Icons.check size={18} stroke={2.6}/>
-            <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
-          </button>
-        </div>
+        {/* Pulse check panel — muncul saat Cek nadi ditekan */}
+        {pulseCheckOpen ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ padding: '9px 12px', borderRadius: 11, background: 'rgba(255,149,0,0.09)', boxShadow: 'inset 0 0 0 0.5px rgba(255,149,0,0.35)' }}>
+              <div className="t-caption-2" style={{ color: 'var(--warning)', fontWeight: 700, marginBottom: 2 }}>CEK NADI &amp; IRAMA ≤ 10 dtk</div>
+              <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Hentikan kompresi sebentar · raba karotis · lihat monitor</div>
+            </div>
+
+            {RHYTHM_OPTS.slice(0, 2).map(opt => (
+              <button key={opt.key} onClick={() => {
+                addLog(`Cek nadi: ${opt.label} terdeteksi — lanjut CPR`, opt.key === 'shockable' ? 'danger' : 'info');
+                if (opt.key !== rhythm) setRhythm(opt.key);
+                setPulseCheckOpen(false);
+              }} style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--bg-tertiary)', boxShadow: `var(--shadow-1), 0 0 0 0.5px ${opt.color}40`, border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: opt.color, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {opt.key === 'shockable' ? <Icons.boltFill size={18} style={{ color: '#fff' }}/> : <Icons.flatline size={18} stroke={2.2} style={{ color: '#fff' }}/>}
+                </div>
+                <div>
+                  <div className="t-headline" style={{ color: opt.color }}>{opt.label}</div>
+                  <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Tidak ada nadi · lanjut CPR</div>
+                </div>
+              </button>
+            ))}
+
+            <button onClick={() => {
+              addLog('ROSC tercapai · post-cardiac arrest care', 'success');
+              setRunning(false);
+              setPulseCheckOpen(false);
+            }} style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 1px rgba(52,199,89,0.4)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icons.check size={18} stroke={2.6} style={{ color: '#fff' }}/>
+              </div>
+              <div>
+                <div className="t-headline" style={{ color: 'var(--success)' }}>Ada nadi — ROSC</div>
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Hentikan CPR · mulai post-cardiac arrest care</div>
+              </div>
+            </button>
+
+            <button onClick={() => { addLog('Cek nadi: tidak ada temuan baru · lanjut CPR', 'info'); setPulseCheckOpen(false); }}
+              style={{ height: 36, borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 13, fontWeight: 600, border: 0, cursor: 'pointer' }}>
+              Tutup — Lanjut CPR
+            </button>
+          </div>
+        ) : (
+          /* Secondary row — selalu tersedia */
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="cpr-action pulse" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+              onClick={() => { addLog('Cek nadi & irama ≤ 10 dtk', 'info'); setPulseCheckOpen(true); }}>
+              <Icons.heart size={18} stroke={2}/>
+              <span className="t-caption-1" style={{ fontWeight: 600, color: '#fff', whiteSpace: 'nowrap' }}>Cek nadi</span>
+            </button>
+            <button className="cpr-action rosc" style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px' }}
+              onClick={() => { addLog('ROSC tercapai · post-cardiac arrest', 'success'); setRunning(false); }}>
+              <Icons.check size={18} stroke={2.6}/>
+              <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
+            </button>
+          </div>
+        )}
 
       </div>
 
