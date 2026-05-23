@@ -246,7 +246,7 @@ export const List = ({ children, style }) => (
 );
 
 export const GlyphTile = ({ tint, children, size = 29, radius = 7, style }) => (
-  <span style={{ width: size, height: size, borderRadius: radius, background: tint, color: "#fff", flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", ...style }}>{children}</span>
+  <span style={{ width: size, height: size, borderRadius: radius, background: tint, color: "#fff", flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 14, ...style }}>{children}</span>
 );
 
 export const Row = ({ glyph, tint, label, sub, value, valueColor, chev = true, onClick, right }) => (
