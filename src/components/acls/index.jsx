@@ -221,7 +221,7 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabTap, onF
         style={{ width: fabWidth, height: 60, borderRadius: fabRadius, background: accent || "var(--danger)" }}
         onPointerDown={handleStart}
         onPointerUp={() => handleEnd(true)}
-        onPointerLeave={() => handleEnd(false)}
+        onPointerCancel={() => handleEnd(false)}
         aria-label="Quick Code Blue">
         <Icons.boltFill size={26} />
         {fabShape === "pill" && <span style={{ marginLeft: 4, fontWeight: 700 }}>CODE</span>}

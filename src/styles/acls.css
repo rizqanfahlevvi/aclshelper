@@ -26,14 +26,11 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  background: var(--material-chrome);
-  backdrop-filter: var(--blur-base);
-  -webkit-backdrop-filter: var(--blur-base);
 }
 
 .acls-mobile-content {
   position: absolute;
-  top: 47px;
+  top: 52px;
   bottom: 104px;
   left: 0; right: 0;
   overflow-y: auto;
@@ -242,7 +239,7 @@ body {
   border-top: 0.5px solid var(--separator);
 }
 .acls-bottomnav .nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
   border: 0; background: transparent; cursor: pointer;
   color: var(--label-tertiary);
   font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
