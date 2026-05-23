@@ -189,6 +189,8 @@ export default function App() {
   /* Desktop state */
   const [deskView, setDeskView] = useState({ screen: 'dashboard' });
   const desktopPick = (screen, id) => setDeskView({ screen, id });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(bp !== 'desktop');
+  useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
 
   const renderMobile = () => {
     const f = topFrame;
@@ -284,7 +286,8 @@ export default function App() {
 
       <div className="acls-desktop-body">
         <DesktopSidebar
-          collapsed={bp === 'tablet'}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(c => !c)}
           active={deskView.screen}
           onChange={(screen, id) => setDeskView({ screen, id })}
           onOpenCpr={() => setCprOpen(true)}/>

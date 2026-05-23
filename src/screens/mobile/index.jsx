@@ -208,14 +208,44 @@ export function MobileHome({ nav, openCPR }) {
   return (
     <>
       <NavBar/>
-      <LargeTitle>ACLS Helper</LargeTitle>
-
-      <div style={{ padding: "0 20px 12px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <Pill tone="teal">PERKI 2025</Pill>
-        <Pill tone="gray">AHA 2025</Pill>
-        <span className="t-footnote" style={{ color: "var(--label-secondary)", flex: 1, minWidth: 0 }}>
+      <div style={{ padding: '20px 20px 4px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
+          <Icons.boltFill size={11} fill="var(--danger)"/>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
+            letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Bantuan Hidup Jantung Lanjut
+          </span>
+        </div>
+        <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.05,
+          letterSpacing: '-0.03em', marginBottom: 8 }}>
+          <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            ACLS
+          </span>
+          {' '}
+          <span style={{ color: 'var(--label-primary)' }}>Helper</span>
+        </div>
+        <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 16 }}>
           Alat bantu kognitif bedside · bukan pengganti penilaian klinis
-        </span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          {[
+            { value: '14',   label: 'Algoritma', color: 'var(--danger)' },
+            { value: '25',   label: 'Obat',      color: 'var(--warning)' },
+            { value: '16',   label: 'EKG',       color: 'var(--info)' },
+            { value: '2025', label: 'Panduan',   color: 'var(--success)' },
+          ].map(({ value, label, color }) => (
+            <div key={label} style={{ flex: 1, background: 'var(--fill-secondary)',
+              borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+              <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 4 }}>
+          PERKI 2025 · AHA 2025
+        </div>
       </div>
 
       <SearchField placeholder="Cari algoritma, obat, EKG…" value={query} onChange={setQuery}/>

@@ -12,13 +12,13 @@ import {
 /* ============================================================
    Sidebar
    ============================================================ */
-export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }) {
+export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false, onToggleCollapse }) {
   const items = [
-    { key: "dashboard", label: "Beranda",     icon: Icons.house },
-    { key: "algo",      label: "Algoritma",   icon: Icons.algo },
-    { key: "drugs",     label: "Obat",        icon: Icons.pill },
-    { key: "ekg",       label: "Pustaka EKG", icon: Icons.ekg },
-    { key: "hsts",      label: "Hs & Ts",     icon: Icons.clipboard },
+    { key: "dashboard", label: "Beranda",     desc: "Ikhtisar & akses cepat",  icon: Icons.house },
+    { key: "algo",      label: "Algoritma",   desc: "14 protokol ACLS",        icon: Icons.algo },
+    { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
+    { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
+    { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
   ];
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
@@ -48,7 +48,13 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
             style={{ justifyContent: collapsed ? 'center' : undefined, padding: collapsed ? '10px' : undefined }}
             title={collapsed ? it.label : undefined}>
             <it.icon size={18} stroke={1.9}/>
-            {!collapsed && <span>{it.label}</span>}
+            {!collapsed && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                  textTransform: 'none', letterSpacing: 0, lineHeight: 1.2 }}>{it.desc}</span>
+              </div>
+            )}
           </button>
         ))}
 
@@ -78,6 +84,13 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
       </nav>
 
       <div style={{ padding: collapsed ? '10px 8px 16px' : '10px 14px 16px', marginTop: 'auto' }}>
+        <button onClick={onToggleCollapse}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-end',
+            width: '100%', background: 'none', border: 0, cursor: 'pointer',
+            color: 'var(--label-tertiary)', padding: '0 0 10px', gap: 6 }}>
+          {!collapsed && <span className="t-caption-2">Perkecil sidebar</span>}
+          {collapsed ? <Icons.chevR size={14}/> : <Icons.chevL size={14}/>}
+        </button>
         <button onClick={onOpenCpr} className="ios-btn block"
           style={{ background: "var(--danger)", color: "#fff", height: collapsed ? 40 : 46,
             borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: collapsed ? 0 : 8,
@@ -125,18 +138,60 @@ export function DesktopTopbar({ crumb }) {
 export function DesktopDashboard({ onPick, onOpenCpr }) {
   return (
     <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>Selamat pagi · 07:42</div>
-          <h1 className="t-large-title" style={{ margin: 0 }}>Siap bedside</h1>
-          <div className="t-callout" style={{ color: "var(--label-secondary)", marginTop: 4 }}>
-            Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
+          <Icons.boltFill size={12} fill="var(--danger)"/>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
+            letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Bantuan Hidup Jantung Lanjut
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between',
+          alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.0,
+              letterSpacing: '-0.03em', marginBottom: 10 }}>
+              <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                ACLS
+              </span>
+              {' '}
+              <span style={{ color: 'var(--label-primary)' }}>Helper</span>
+            </div>
+            <div className="t-callout" style={{ color: 'var(--label-secondary)', maxWidth: 380 }}>
+              Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, flexShrink: 0 }}>
+            {[
+              { value: '14',   label: 'Algoritma',  color: 'var(--danger)' },
+              { value: '25',   label: 'Obat',       color: 'var(--warning)' },
+              { value: '16',   label: 'EKG Rhythm', color: 'var(--info)' },
+              { value: '2025', label: 'Panduan',    color: 'var(--success)' },
+            ].map(({ value, label, color }) => (
+              <div key={label} style={{ background: 'var(--fill-secondary)',
+                borderRadius: 14, padding: '12px 16px', minWidth: 110 }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 4 }}>{label}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <button onClick={onOpenCpr}
-          style={{ padding: "10px 18px", borderRadius: 12, background: "var(--danger)", color: "#fff", display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 15, boxShadow: "0 8px 20px rgba(255,59,48,0.25)" }}>
-          <Icons.boltFill size={18}/> Aktifkan Code Blue
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
+          <button onClick={onOpenCpr}
+            style={{ padding: '10px 20px', borderRadius: 12, background: 'var(--danger)', color: '#fff',
+              display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 15,
+              boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer' }}>
+            <Icons.boltFill size={18}/> Aktifkan Code Blue
+          </button>
+          <span className="t-footnote" style={{ color: 'var(--label-tertiary)' }}>
+            Dibuat untuk PERKI 2025 · AHA 2025
+          </span>
+        </div>
       </div>
 
       <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
