@@ -172,16 +172,34 @@ export function DesktopTopbar({ crumb }) {
    ============================================================ */
 export function DesktopDashboard({ onPick, onOpenCpr }) {
   const [spotlight, setSpotlight] = useState(0);
+  const [dir, setDir] = useState('right');
   const intervalRef = useRef(null);
-  const switchTo = (idx) => {
+  const touchStartX = useRef(null);
+
+  const switchTo = (idx, direction = 'right') => {
+    setDir(direction);
     setSpotlight(idx);
     clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+    intervalRef.current = setInterval(() => {
+      setDir('right');
+      setSpotlight(s => (s + 1) % 2);
+    }, 7000);
   };
   useEffect(() => {
-    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+    intervalRef.current = setInterval(() => {
+      setDir('right');
+      setSpotlight(s => (s + 1) % 2);
+    }, 7000);
     return () => clearInterval(intervalRef.current);
   }, []);
+
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 50) switchTo((spotlight + 1) % 2, delta < 0 ? 'right' : 'left');
+    touchStartX.current = null;
+  };
   return (
     <div style={{ padding: "16px 24px 32px", overflowY: "auto", height: "100%" }}>
       <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
@@ -238,37 +256,40 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
         {/* Left column: spotlight — Code Blue ↔ Saweria */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {spotlight === 0
-            ? <button key="cb" onClick={onOpenCpr}
-                style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
-                  background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
-                  borderRadius: 16, border: 0, cursor: 'pointer',
-                  boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
-                  animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
-                <Icons.boltFill size={26}/>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
-                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
-                </div>
-              </button>
-            : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
-                style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
-                  background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
-                  borderRadius: 16, border: 0, cursor: 'pointer', textDecoration: 'none',
-                  boxShadow: '0 8px 20px rgba(255,149,0,0.30)',
-                  animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
-                <Icons.coffee size={26} stroke={2}/>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontWeight: 700, fontSize: 17 }}>Dukung</div>
-                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>saweria.co</div>
-                </div>
-              </a>
-          }
+          <div style={{ overflow: 'hidden', borderRadius: 16, flex: 1 }}
+            onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+            {spotlight === 0
+              ? <button key="cb" onClick={onOpenCpr}
+                  style={{ width: '100%', minHeight: 140, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
+                    background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                    borderRadius: 16, border: 0, cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+                    animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
+                  <Icons.boltFill size={26}/>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
+                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
+                  </div>
+                </button>
+              : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
+                  style={{ width: '100%', minHeight: 140, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
+                    background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
+                    borderRadius: 16, border: 0, cursor: 'pointer', textDecoration: 'none',
+                    boxShadow: '0 8px 20px rgba(255,149,0,0.30)',
+                    animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
+                  <Icons.coffee size={26} stroke={2}/>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 700, fontSize: 17 }}>Dukung</div>
+                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>saweria.co</div>
+                  </div>
+                </a>
+            }
+          </div>
           <div style={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
             {[0, 1].map(i => (
-              <div key={i} onClick={() => switchTo(i)}
+              <div key={i} onClick={() => switchTo(i, i > spotlight ? 'right' : 'left')}
                 style={{
                   width: spotlight === i ? 16 : 6, height: 6, borderRadius: 3, cursor: 'pointer',
                   background: spotlight === i
