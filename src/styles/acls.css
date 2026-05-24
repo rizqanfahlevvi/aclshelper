@@ -50,16 +50,8 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   overflow: hidden;
   background: var(--bg-secondary);
-}
-
-/* Sidebar + main row below the full-width AppTopBar */
-.acls-desktop-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
 }
 
 /* Screen enter animation */
@@ -90,11 +82,16 @@ body {
   transition: width 240ms var(--ease-out);
   overflow: hidden;
 }
+.acls-sidebar--collapsed {
+  width: 56px;
+}
 .acls-sidebar-brand {
   display: flex; gap: 10px; align-items: center;
   padding: 16px 18px 12px;
+  border-bottom: 0.5px solid var(--separator);
 }
 .acls-sidebar-search {
+  margin: 12px 14px;
   height: 30px;
   border-radius: 8px;
   background: var(--fill-tertiary);
@@ -170,8 +167,9 @@ body {
   box-shadow: var(--shadow-2), 0 0 0 0.5px var(--separator);
 }
 .acls-desk-quick .glyph {
-  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 9px;
   display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
 
 /* ---------- Desktop flow step ------------------------------ */
@@ -363,7 +361,7 @@ body {
   height: 100%;
   background: var(--bg-secondary);
   display: flex; flex-direction: column;
-  padding-top: 0;
+  padding-top: 52px;
 }
 .cpr-header {
   background: var(--bg-tertiary);
@@ -415,41 +413,4 @@ body {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0.25; }
 }
-
-/* ============================================================
-   Sidebar collapsed (tablet 768-1023px)
-   ============================================================ */
-.acls-sidebar--collapsed {
-  width: 56px;
-  flex-shrink: 0;
-}
-
-/* ============================================================
-   Responsive — landscape phone
-   ============================================================ */
-@media (max-width: 767px) and (orientation: landscape) {
-  .acls-mobile-content {
-    top: 44px;
-    bottom: 52px;
-  }
-  .acls-bottomnav {
-    height: 52px;
-    padding: 0 8px 2px;
-  }
-  .acls-bottomnav .acls-fab {
-    width: 46px; height: 46px;
-  }
-}
-
-/* ============================================================
-   Scrollbar — themed
-   ============================================================ */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--fill-quaternary);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--fill-secondary); }
-* { scrollbar-width: thin; scrollbar-color: var(--fill-quaternary) transparent; }
 
