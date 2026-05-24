@@ -148,6 +148,12 @@
   --material-chrome:  rgba(248,248,248,0.78);
   --blur-base:        saturate(180%) blur(20px);
   --blur-strong:      saturate(180%) blur(30px);
+
+  /* --- Neumorphism shadows -------------------------------- */
+  --neu-shadow-light: rgba(255, 255, 255, 0.92);
+  --neu-shadow-dark:  rgba(163, 168, 179, 0.65);
+  --neu-out:   5px 5px 12px var(--neu-shadow-dark), -5px -5px 12px var(--neu-shadow-light);
+  --neu-inset: inset 3px 3px 8px var(--neu-shadow-dark), inset -3px -3px 8px var(--neu-shadow-light);
 }
 
 /* ============================================================
@@ -215,6 +221,11 @@
     --material-regular: rgba(28,28,30,0.78);
     --material-thick:   rgba(28,28,30,0.90);
     --material-chrome:  rgba(10,10,12,0.82);
+
+    --neu-shadow-light: rgba(255, 255, 255, 0.05);
+    --neu-shadow-dark:  rgba(0, 0, 0, 0.55);
+    --neu-out:   4px 4px 10px var(--neu-shadow-dark), -3px -3px 8px var(--neu-shadow-light);
+    --neu-inset: inset 3px 3px 7px var(--neu-shadow-dark), inset -2px -2px 5px var(--neu-shadow-light);
   }
 }
 
@@ -253,6 +264,11 @@
   --material-regular:rgba(28,28,30,.78);
   --material-thick:rgba(28,28,30,.90);
   --material-chrome:rgba(10,10,12,.82);
+
+  --neu-shadow-light: rgba(255, 255, 255, 0.05);
+  --neu-shadow-dark:  rgba(0, 0, 0, 0.55);
+  --neu-out:   4px 4px 10px var(--neu-shadow-dark), -3px -3px 8px var(--neu-shadow-light);
+  --neu-inset: inset 3px 3px 7px var(--neu-shadow-dark), inset -2px -2px 5px var(--neu-shadow-light);
 }
 
 /* ============================================================
