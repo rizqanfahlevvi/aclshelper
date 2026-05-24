@@ -182,7 +182,6 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }) {
           </div>
         </div>
         <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
-          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '10px 18px 4px' }}>MENU</div>
           {menuItems.map(it => (
             <button key={it.key}
               className={'acls-sidebar-item ' + (activeTab === it.key ? 'active' : '')}
