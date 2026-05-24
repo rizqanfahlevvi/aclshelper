@@ -156,8 +156,8 @@ body {
 
 /* ---------- Desktop quick-access tile ---------------------- */
 .acls-desk-quick {
-  display: flex; flex-direction: column;
-  padding: 16px;
+  display: flex; flex-direction: row; align-items: center; gap: 12px;
+  padding: 12px 14px;
   border-radius: 14px;
   background: var(--bg-tertiary);
   box-shadow: var(--shadow-1), 0 0 0 0.5px var(--separator);
@@ -170,9 +170,8 @@ body {
   box-shadow: var(--shadow-2), 0 0 0 0.5px var(--separator);
 }
 .acls-desk-quick .glyph {
-  width: 40px; height: 40px; border-radius: 10px;
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  margin-bottom: 12px;
 }
 
 /* ---------- Desktop flow step ------------------------------ */

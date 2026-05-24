@@ -204,16 +204,18 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         {/* Right column: 2×2 algo cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           {[
-            { key: "vfvt",  label: "VF / pVT",       sub: "Jalur shockable rhythm",  tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-            { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable rhythm",    tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-            { key: "brady", label: "Bradikardi",     sub: "HR < 50 · simptomatik",   tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-            { key: "tachy", label: "Takikardi",      sub: "HR > 150 · dengan nadi",  tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
+            { key: "vfvt",  label: "VF / pVT",       sub: "Shockable rhythm",   tint: "var(--danger)",     icon: <Icons.boltFill size={16}/> },
+            { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable",      tint: "var(--info)",       icon: <Icons.flatline size={16} stroke={2.2}/> },
+            { key: "brady", label: "Bradikardi",     sub: "HR < 50",            tint: "var(--warning)",    icon: <Icons.slow size={16} stroke={2.2}/> },
+            { key: "tachy", label: "Takikardi",      sub: "HR > 150",           tint: "var(--tint-neuro)", icon: <Icons.fast size={16} stroke={2.2}/> },
           ].map(c => (
             <button key={c.key} onClick={() => onPick("algo", c.key)} className="acls-desk-quick">
               <span className="glyph" style={{ background: c.tint, color: "#fff" }}>{c.icon}</span>
-              <div className="t-headline">{c.label}</div>
-              <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
-              <span className="t-caption-2" style={{ color: c.tint, marginTop: 14, fontWeight: 600 }}>Buka algoritma →</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="t-callout" style={{ fontWeight: 600 }}>{c.label}</div>
+                <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{c.sub}</div>
+              </div>
+              <Icons.chevR size={12} stroke={2.4} style={{ color: "var(--label-tertiary)", flexShrink: 0 }}/>
             </button>
           ))}
         </div>
