@@ -364,20 +364,26 @@ export function MobileHome({ nav, openCPR }) {
    ============================================================ */
 export function MobileAlgoList({ nav }) {
   const [q, setQ] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const filtered = ACLS_ALGORITHMS.filter(a =>
     (a.label + ' ' + a.sub).toLowerCase().includes(q.toLowerCase())
   );
 
+  const toggleSearch = () => {
+    setSearchOpen(o => !o);
+    setQ('');
+  };
+
   return (
     <>
       <NavBar right={
-        <button className="nb-btn glyph" onClick={() => setQ(q ? '' : ' ')}>
+        <button className="nb-btn glyph" onClick={toggleSearch}>
           <Icons.search size={18} stroke={2}/>
         </button>
       }/>
       <LargeTitle>Algoritma</LargeTitle>
-      {q.trim() ? (
+      {searchOpen ? (
         <>
           <SearchField placeholder="Cari algoritma…" value={q} onChange={setQ}/>
           <div style={{ padding: "0 16px 12px" }}>
@@ -478,6 +484,9 @@ export function MobileAlgorithmDetail({ nav, id }) {
 export function MobileDrugList({ nav }) {
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const toggleSearch = () => { setSearchOpen(o => !o); setQ(''); };
 
   const drugs = ACLS_DRUGS.filter(d => {
     const matchFilter = (() => {
@@ -494,7 +503,7 @@ export function MobileDrugList({ nav }) {
 
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
+      <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Obat ACLS</LargeTitle>
       <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
         {[{ v: "all", label: "Semua" }, { v: "vaso", label: "Vasopresor" }, { v: "arrhythmia", label: "Antiaritmia" }, { v: "thrombo", label: "Antitrombotik" }, { v: "antidot", label: "Antidot" }].map(f => (
@@ -504,7 +513,7 @@ export function MobileDrugList({ nav }) {
           </button>
         ))}
       </div>
-      <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>
+      {searchOpen && <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>}
       <SectionHeader>{drugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
         {drugs.length === 0 ? (
@@ -600,6 +609,9 @@ const EKG_SEV_FILTERS = [
 export function MobileEkgList({ nav }) {
   const [q, setQ] = useState('');
   const [sev, setSev] = useState('all');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const toggleSearch = () => { setSearchOpen(o => !o); setQ(''); };
 
   const rhythms = ACLS_RHYTHMS.filter(r => {
     const matchSev = sev === 'all' || r.severity === sev;
@@ -609,7 +621,7 @@ export function MobileEkgList({ nav }) {
 
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
+      <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Pustaka EKG</LargeTitle>
       <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
         {EKG_SEV_FILTERS.map(f => (
@@ -619,7 +631,7 @@ export function MobileEkgList({ nav }) {
           </button>
         ))}
       </div>
-      <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>
+      {searchOpen && <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>}
       <SectionHeader>Irama · {rhythms.length}</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
         {rhythms.length === 0 ? (
