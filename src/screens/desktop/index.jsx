@@ -22,8 +22,8 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   ];
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 10px 0',
-        overflow: 'hidden', justifyContent: collapsed ? 'center' : undefined }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 13px 0',
+        overflow: 'hidden' }}>
         <button onClick={onToggleCollapse}
           style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
             border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
