@@ -829,11 +829,9 @@ export function MobileHsTs({ nav }) {
    Speed Dial FAB
    ============================================================ */
 const SPEED_DIAL_ITEMS = [
-  { key: 'tachy',   label: 'Takikardi',     icon: (s) => <Icons.fast size={s} stroke={2.2}/>,     tint: 'var(--tint-neuro)' },
-  { key: 'brady',   label: 'Bradikardi',    icon: (s) => <Icons.slow size={s} stroke={2.2}/>,     tint: 'var(--warning)' },
-  { key: 'pea',     label: 'PEA / Asistol', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
-  { key: 'vfvt',   label: 'VF / pVT',      icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
-  { key: '__cpr__', label: 'CPR Workspace', icon: (s) => <Icons.timer size={s} stroke={2}/>,      tint: 'var(--success)' },
+  { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
+  { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
+  { key: 'unknown',      label: 'Belum terpasang', sub: 'Mulai CPR segera',   icon: (s) => <Icons.heart size={s} stroke={2}/>,      tint: 'var(--label-tertiary)' },
 ];
 
 export function SpeedDial({ onClose, onPick }) {
@@ -864,13 +862,14 @@ export function SpeedDial({ onClose, onPick }) {
             <div style={{
               background: 'var(--bg-elevated)',
               color: 'var(--label-primary)',
-              padding: '7px 14px',
+              padding: '8px 14px',
               borderRadius: 12,
-              fontSize: 14, fontWeight: 600,
               boxShadow: 'var(--shadow-1), 0 0 0 0.5px var(--separator)',
               whiteSpace: 'nowrap',
+              textAlign: 'right',
             }}>
-              {item.label}
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</div>
+              {item.sub && <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 2 }}>{item.sub}</div>}
             </div>
             {/* Icon circle */}
             <div style={{

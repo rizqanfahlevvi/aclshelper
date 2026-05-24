@@ -438,7 +438,7 @@ function StepCard({ step, idx }) {
   );
 }
 
-export function CPRTimer({ onClose, isMobile = true }) {
+export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
   const [phase, setPhase] = useState("setup");
   const [rhythm, setRhythm] = useState(null);
 
@@ -465,6 +465,27 @@ export function CPRTimer({ onClose, isMobile = true }) {
   };
 
   const [log, setLog] = useState([]);
+
+  const startCPR = (selectedRhythm) => {
+    setStepIdx(0);
+    wallStartRef.current = new Date();
+    setRhythm(selectedRhythm);
+    setPhase("active");
+    setRunning(true);
+    const label = RHYTHM_OPTS.find(r => r.key === selectedRhythm)?.label || selectedRhythm;
+    setLog([
+      { t: 0, wall: nowWall(0), action: "CPR dimulai", tone: "info" },
+      { t: 0, wall: nowWall(0), action: `Irama awal: ${label}`, tone: selectedRhythm === "shockable" ? "danger" : "info" },
+    ]);
+    if (selectedRhythm === "shockable") {
+      setTimeout(() => setLog(l => [...l, { t: 0, wall: nowWall(0), action: "Defibrilasi segera — siapkan AED/defibrilator", tone: "danger" }]), 100);
+    }
+    setEpiNextMs(180000);
+  };
+
+  useEffect(() => {
+    if (initialRhythm) startCPR(initialRhythm);
+  }, []);
 
   useMetronome(soundOn && running);
 
@@ -518,22 +539,6 @@ export function CPRTimer({ onClose, isMobile = true }) {
     const next = idx + 1;
     return next >= steps.length ? wrapIdx : next;
   });
-
-  const startCPR = (selectedRhythm) => {
-    setStepIdx(0);
-    wallStartRef.current = new Date();
-    setRhythm(selectedRhythm);
-    setPhase("active");
-    setRunning(true);
-    const label = RHYTHM_OPTS.find(r => r.key === selectedRhythm)?.label || selectedRhythm;
-    setLog([
-      { t: 0, wall: nowWall(0), action: "CPR dimulai", tone: "info" },
-      { t: 0, wall: nowWall(0), action: `Irama awal: ${label}`, tone: selectedRhythm === "shockable" ? "danger" : "info" },
-    ]);
-    if (selectedRhythm === "shockable") {
-      setTimeout(() => setLog(l => [...l, { t: 0, wall: nowWall(0), action: "Defibrilasi segera — siapkan AED/defibrilator", tone: "danger" }]), 100);
-    }
-  };
 
   const handleRhythmResult = (result) => {
     if (result === "rosc") {
