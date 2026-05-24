@@ -459,11 +459,10 @@ body {
 }
 .acls-step-card {
   margin: 0 16px 6px;
-  padding: 10px 14px 10px 16px;
+  padding: 10px 14px;
   border-radius: 14px;
   background: var(--bg-secondary);
   box-shadow:
-    inset 4px 0 0 var(--step-color, var(--accent)),
     7px 7px 18px var(--neu-shadow-dark),
     -6px -6px 16px var(--neu-shadow-light),
     inset 0 1px 0 rgba(255, 255, 255, 0.42);
