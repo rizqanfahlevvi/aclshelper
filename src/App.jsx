@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
+import { Icons } from './components/base';
 import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
@@ -66,7 +67,7 @@ function MoonIcon() {
   );
 }
 
-function AppTopBar({ theme, onToggleTheme }) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar }) {
   const time = useClock();
   return (
     <div style={{
@@ -81,6 +82,16 @@ function AppTopBar({ theme, onToggleTheme }) {
       borderBottom: '0.5px solid var(--separator)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {onOpenSidebar && (
+          <button onClick={onOpenSidebar}
+            style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        )}
         <span style={{
           width: 28, height: 28, borderRadius: 8,
           background: 'var(--danger)',
@@ -122,6 +133,87 @@ function AppTopBar({ theme, onToggleTheme }) {
 }
 
 const ACCENT = { color: '#30B0C7', dark: '#40C8E0' };
+
+function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }) {
+  const menuItems = [
+    { key: 'home',  label: 'Beranda',     desc: 'Ikhtisar & akses cepat', icon: Icons.house },
+    { key: 'algo',  label: 'Algoritma',   desc: '14 protokol ACLS',       icon: Icons.algo },
+    { key: 'drugs', label: 'Obat',        desc: '25 obat emergensi',      icon: Icons.pill },
+    { key: 'tools', label: 'Pustaka EKG', desc: '16 ritme kardiologi',    icon: Icons.ekg },
+    { key: 'hsts',  label: 'Hs & Ts',     desc: '10 penyebab reversibel', icon: Icons.clipboard },
+  ];
+  const quickItems = [
+    { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
+    { key: 'vfvt',        label: 'VF / pVT',         tint: 'var(--danger)' },
+    { key: 'pea',         label: 'PEA / Asistol',    tint: 'var(--info)' },
+    { key: 'brady',       label: 'Bradikardi',       tint: 'var(--warning)' },
+    { key: 'tachy',       label: 'Takikardi',        tint: 'var(--tint-neuro)' },
+    { key: 'ska',         label: 'SKA / STEMI',      tint: 'var(--tint-vital)' },
+    { key: 'opioid',      label: 'Overdosis Opioid', tint: 'var(--tint-neuro)' },
+    { key: 'anaphylaxis', label: 'Anafilaksis',      tint: 'var(--danger)' },
+    { key: 'pregnancy',   label: 'Henti Kehamilan',  tint: 'var(--tint-vital)' },
+    { key: 'drowning',    label: 'Tenggelam',        tint: 'var(--info)' },
+    { key: 'hypothermia', label: 'Hipotermia Berat', tint: 'var(--accent)' },
+  ];
+  return (
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 150,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+        opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
+        transition: 'opacity 260ms var(--ease-out)' }}
+        onClick={onClose}/>
+      <div style={{ position: 'fixed', top: 52, bottom: 0, left: 0, zIndex: 160,
+        width: 264, background: 'var(--bg-tertiary)',
+        transform: open ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 280ms var(--ease-out)',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        boxShadow: '4px 0 32px rgba(0,0,0,0.18)' }}>
+        <div style={{ padding: '10px 14px 0' }}>
+          <div className="acls-sidebar-search">
+            <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span>
+          </div>
+        </div>
+        <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
+          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '10px 18px 4px' }}>MENU</div>
+          {menuItems.map(it => (
+            <button key={it.key}
+              className={'acls-sidebar-item ' + (activeTab === it.key ? 'active' : '')}
+              style={{ padding: '8px 10px' }}
+              onClick={() => { onNavigate(it.key); onClose(); }}>
+              <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                <it.icon size={18} stroke={1.9}/>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                  textTransform: 'none', letterSpacing: 0 }}>{it.desc}</span>
+              </div>
+            </button>
+          ))}
+          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>AKSES CEPAT</div>
+          {quickItems.map(it => (
+            <button key={it.key} className="acls-sidebar-item"
+              style={{ padding: '8px 10px' }}
+              onClick={() => { onNavigate('algo', it.key); onClose(); }}>
+              <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint,
+                marginLeft: 6, marginRight: 6, flexShrink: 0 }}/>
+              <span>{it.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div style={{ padding: '10px 14px 16px' }}>
+          <button onClick={() => { onOpenCpr(); onClose(); }}
+            style={{ background: 'var(--danger)', color: '#fff', height: 46, width: '100%',
+              borderRadius: 12, fontSize: 15, fontWeight: 700, display: 'flex', gap: 8,
+              boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer',
+              justifyContent: 'center', alignItems: 'center' }}>
+            <Icons.boltFill size={18}/> Code Blue
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function App() {
   const bp = useBreakpoint();
@@ -165,6 +257,18 @@ export default function App() {
   };
 
   const [cprOpen, setCprOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const mobileNavFromSidebar = (key, id) => {
+    if (key === 'hsts') {
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'hsts' }] }));
+    } else if (key === 'algo' && id) {
+      openAlgoFromHome(id);
+    } else {
+      setTab(key);
+    }
+  };
 
   /* PWA install prompt */
   const deferredPromptRef = useRef(null);
@@ -237,8 +341,15 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(true)}/>
         </div>
+
+        <MobileSidebar
+          open={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+          activeTab={tab}
+          onNavigate={mobileNavFromSidebar}
+          onOpenCpr={() => { setCprOpen(true); setMobileSidebarOpen(false); }}/>
 
         <div className="acls-mobile-content" key={screenKey}>
           {renderMobile()}

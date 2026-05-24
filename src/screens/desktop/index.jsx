@@ -55,11 +55,14 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
         {items.map(it => (
           <button key={it.key} onClick={() => onChange(it.key)}
             className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
-            style={{ justifyContent: collapsed ? 'center' : undefined, padding: collapsed ? '10px' : undefined }}
+            style={{ padding: '8px 10px' }}
             title={collapsed ? it.label : undefined}>
-            <it.icon size={18} stroke={1.9}/>
+            <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+              <it.icon size={18} stroke={1.9}/>
+            </div>
             {!collapsed && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0,
+                animation: 'acls-fadeslide 180ms var(--ease-out) both' }}>
                 <span style={{ lineHeight: 1.3 }}>{it.label}</span>
                 <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
                   textTransform: 'none', letterSpacing: 0, lineHeight: 1.2 }}>{it.desc}</span>
@@ -93,15 +96,24 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
         )}
       </nav>
 
-      <div style={{ padding: collapsed ? '10px 8px 16px' : '10px 14px 16px', marginTop: 'auto' }}>
-        <button onClick={onOpenCpr} className="ios-btn block"
-          style={{ background: "var(--danger)", color: "#fff", height: collapsed ? 40 : 46,
-            borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: collapsed ? 0 : 8,
-            whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
-            justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          <Icons.boltFill size={18}/>
-          {!collapsed && ' Code Blue'}
-        </button>
+      <div style={{ padding: collapsed ? '10px 8px 20px' : '10px 14px 16px', marginTop: 'auto' }}>
+        {collapsed ? (
+          <button onClick={onOpenCpr}
+            style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--danger)',
+              color: '#fff', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 16px rgba(255,59,48,0.35)' }}>
+            <Icons.boltFill size={20}/>
+          </button>
+        ) : (
+          <button onClick={onOpenCpr} className="ios-btn block"
+            style={{ background: "var(--danger)", color: "#fff", height: 46,
+              borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8,
+              boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
+              justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <Icons.boltFill size={18}/> Code Blue
+          </button>
+        )}
       </div>
     </aside>
   );
