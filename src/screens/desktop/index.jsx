@@ -157,7 +157,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, flexShrink: 0,
+          <div style={{ display: 'flex', gap: 10, flexShrink: 0,
             animation: 'acls-fadeslide 400ms 80ms var(--ease-out) both' }}>
             {[
               { value: '14',   label: 'Algoritma',  color: 'var(--danger)' },
