@@ -279,7 +279,10 @@ export default function App() {
   const topFrame = stack[tab][stack[tab].length - 1];
 
   const nav = {
-    push: (frame) => setStack(s => ({ ...s, [tab]: [...s[tab], frame] })),
+    push: (frame) => {
+      window.history.pushState(null, '', location.href);
+      setStack(s => ({ ...s, [tab]: [...s[tab], frame] }));
+    },
     pop: () => setStack(s => {
       const cur = s[tab];
       if (cur.length <= 1) return s;
@@ -288,6 +291,7 @@ export default function App() {
   };
 
   const openAlgoFromHome = (id) => {
+    window.history.pushState(null, '', location.href);
     setTab('algo');
     setStack(s => ({ ...s, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] }));
   };
@@ -298,6 +302,7 @@ export default function App() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const openCPR = (rhythm = null) => {
+    window.history.pushState(null, '', location.href);
     setCprRhythm(rhythm);
     setCprOpen(true);
   };
@@ -314,6 +319,7 @@ export default function App() {
 
   const mobileNavFromSidebar = (key, id) => {
     if (key === 'hsts') {
+      window.history.pushState(null, '', location.href);
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'hsts' }] }));
     } else if (key === 'algo' && id) {
@@ -322,6 +328,26 @@ export default function App() {
       setTab(key);
     }
   };
+
+  /* Browser back-button integration */
+  useEffect(() => {
+    const handle = () => {
+      if (cprOpen) {
+        setCprOpen(false);
+        setCprRhythm(null);
+      } else if (bp === 'mobile' || bp === 'tablet') {
+        setStack(s => {
+          const cur = s[tab];
+          if (cur.length <= 1) return s;
+          return { ...s, [tab]: cur.slice(0, -1) };
+        });
+      } else {
+        setDeskView(v => v.screen !== 'dashboard' ? { screen: 'dashboard' } : v);
+      }
+    };
+    window.addEventListener('popstate', handle);
+    return () => window.removeEventListener('popstate', handle);
+  }, [cprOpen, bp, tab]);
 
   /* PWA install prompt */
   const deferredPromptRef = useRef(null);
@@ -344,7 +370,10 @@ export default function App() {
 
   /* Desktop state */
   const [deskView, setDeskView] = useState({ screen: 'dashboard' });
-  const desktopPick = (screen, id) => setDeskView({ screen, id });
+  const desktopPick = (screen, id) => {
+    if (screen !== 'dashboard') window.history.pushState(null, '', location.href);
+    setDeskView({ screen, id });
+  };
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
 
