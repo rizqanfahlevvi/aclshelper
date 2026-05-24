@@ -478,10 +478,16 @@ body {
 }
 
 /* ============================================================
-   DARK MODE — neumorphic surface overrides for ACLS elements
+   DARK MODE — flat/native style for ACLS neumorphic elements
    ============================================================ */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .acls-step-card { background: var(--bg-tertiary); }
+  :root:not([data-theme="light"]) .acls-step-card {
+    background: var(--bg-tertiary);
+    box-shadow: var(--shadow-2);
+  }
 }
-[data-theme="dark"] .acls-step-card { background: var(--bg-tertiary); }
+[data-theme="dark"] .acls-step-card {
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-2);
+}
 

@@ -457,20 +457,42 @@ a { color: var(--accent); text-decoration: none; }
 }
 
 /* ============================================================
-   DARK MODE — neumorphic surface overrides
-   --bg-secondary = #000 in dark; use --bg-tertiary (#1C1C1E)
-   as neumorphic base so dual shadows remain visible
+   DARK MODE — flat/native iOS style for neutral neumorphic elements
+   Dual shadows (light + dark) don't work on dark surfaces; colored
+   shadows (cpr-action, fab, accent btn) remain and work fine.
    ============================================================ */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ios-btn.gray,
-  :root:not([data-theme="light"]) .ios-btn.tinted { background: var(--bg-tertiary); }
-  :root:not([data-theme="light"]) .ios-btn.sm.pill:not(.active) { background: var(--bg-tertiary); }
+  :root:not([data-theme="light"]) .ios-btn.gray {
+    background: var(--fill-secondary); color: var(--label-primary); box-shadow: none;
+  }
+  :root:not([data-theme="light"]) .ios-btn.tinted {
+    background: var(--accent-tint); color: var(--accent); box-shadow: none;
+  }
+  :root:not([data-theme="light"]) .ios-btn.gray:active,
+  :root:not([data-theme="light"]) .ios-btn.tinted:active {
+    opacity: 0.75; box-shadow: none;
+  }
+  :root:not([data-theme="light"]) .ios-btn.sm.pill:not(.active) {
+    background: var(--fill-tertiary); box-shadow: none;
+  }
+  :root:not([data-theme="light"]) .ios-btn.sm.pill:not(.active):active {
+    opacity: 0.7; box-shadow: none;
+  }
   :root:not([data-theme="light"]) .ios-switch:not(.on) {
-    background: var(--bg-tertiary);
+    background: var(--fill-secondary); box-shadow: none;
   }
 }
-[data-theme="dark"] .ios-btn.gray,
-[data-theme="dark"] .ios-btn.tinted { background: var(--bg-tertiary); }
-[data-theme="dark"] .ios-btn.sm.pill:not(.active) { background: var(--bg-tertiary); }
-[data-theme="dark"] .ios-switch:not(.on) { background: var(--bg-tertiary); }
+[data-theme="dark"] .ios-btn.gray {
+  background: var(--fill-secondary); color: var(--label-primary); box-shadow: none;
+}
+[data-theme="dark"] .ios-btn.tinted {
+  background: var(--accent-tint); color: var(--accent); box-shadow: none;
+}
+[data-theme="dark"] .ios-btn.gray:active,
+[data-theme="dark"] .ios-btn.tinted:active { opacity: 0.75; box-shadow: none; }
+[data-theme="dark"] .ios-btn.sm.pill:not(.active) {
+  background: var(--fill-tertiary); box-shadow: none;
+}
+[data-theme="dark"] .ios-btn.sm.pill:not(.active):active { opacity: 0.7; box-shadow: none; }
+[data-theme="dark"] .ios-switch:not(.on) { background: var(--fill-secondary); box-shadow: none; }
 .phone-screen::-webkit-scrollbar { display: none; }
