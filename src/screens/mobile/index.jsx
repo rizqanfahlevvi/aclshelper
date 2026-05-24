@@ -378,15 +378,24 @@ export function MobileAlgoList({ nav }) {
   return (
     <>
       <NavBar right={
-        <button className="nb-btn glyph" onClick={toggleSearch}>
-          <Icons.search size={18} stroke={2}/>
+        <button className="nb-btn glyph" onClick={toggleSearch} style={{
+          background: searchOpen ? 'var(--accent-tint)' : 'transparent',
+          color: searchOpen ? 'var(--accent)' : 'inherit',
+          borderRadius: 10,
+          transition: 'background 200ms var(--ease-out), color 200ms',
+        }}>
+          <span key={String(searchOpen)} style={{ display: 'inline-flex', animation: 'acls-fade-in 150ms var(--ease-out) both' }}>
+            {searchOpen ? <Icons.cross size={18} stroke={2.4}/> : <Icons.search size={18} stroke={2}/>}
+          </span>
         </button>
       }/>
       <LargeTitle>Algoritma</LargeTitle>
       {searchOpen ? (
         <>
-          <SearchField placeholder="Cari algoritma…" value={q} onChange={setQ}/>
-          <div style={{ padding: "0 16px 12px" }}>
+          <div style={{ animation: 'acls-search-in 220ms var(--ease-out) both' }}>
+            <SearchField placeholder="Cari algoritma…" value={q} onChange={setQ}/>
+          </div>
+          <div style={{ padding: "0 16px 12px", animation: 'acls-fadeslide 260ms 60ms var(--ease-out) both' }}>
             {filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
                 <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
@@ -530,12 +539,25 @@ export function MobileDrugList({ nav }) {
 
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
+      <NavBar right={
+        <button className="nb-btn glyph" onClick={toggleSearch} style={{
+          background: searchOpen ? 'var(--accent-tint)' : 'transparent',
+          color: searchOpen ? 'var(--accent)' : 'inherit',
+          borderRadius: 10,
+          transition: 'background 200ms var(--ease-out), color 200ms',
+        }}>
+          <span key={String(searchOpen)} style={{ display: 'inline-flex', animation: 'acls-fade-in 150ms var(--ease-out) both' }}>
+            {searchOpen ? <Icons.cross size={18} stroke={2.4}/> : <Icons.search size={18} stroke={2}/>}
+          </span>
+        </button>
+      }/>
       <LargeTitle>Obat ACLS</LargeTitle>
       {searchOpen ? (
         <>
-          <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>
-          <div style={{ padding: "0 16px 12px" }}>
+          <div style={{ animation: 'acls-search-in 220ms var(--ease-out) both' }}>
+            <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>
+          </div>
+          <div style={{ padding: "0 16px 12px", animation: 'acls-fadeslide 260ms 60ms var(--ease-out) both' }}>
             {searchDrugs.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
                 <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
@@ -661,12 +683,25 @@ export function MobileEkgList({ nav }) {
 
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
+      <NavBar right={
+        <button className="nb-btn glyph" onClick={toggleSearch} style={{
+          background: searchOpen ? 'var(--accent-tint)' : 'transparent',
+          color: searchOpen ? 'var(--accent)' : 'inherit',
+          borderRadius: 10,
+          transition: 'background 200ms var(--ease-out), color 200ms',
+        }}>
+          <span key={String(searchOpen)} style={{ display: 'inline-flex', animation: 'acls-fade-in 150ms var(--ease-out) both' }}>
+            {searchOpen ? <Icons.cross size={18} stroke={2.4}/> : <Icons.search size={18} stroke={2}/>}
+          </span>
+        </button>
+      }/>
       <LargeTitle>Pustaka EKG</LargeTitle>
       {searchOpen ? (
         <>
-          <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>
-          <div style={{ padding: "0 16px 12px" }}>
+          <div style={{ animation: 'acls-search-in 220ms var(--ease-out) both' }}>
+            <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>
+          </div>
+          <div style={{ padding: "0 16px 12px", animation: 'acls-fadeslide 260ms 60ms var(--ease-out) both' }}>
             {searchRhythms.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
                 <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>

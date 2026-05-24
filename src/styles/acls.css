@@ -60,6 +60,18 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Search field slide-in from top */
+@keyframes acls-search-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Generic fade-in */
+@keyframes acls-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* CPR overlay slide-in */
 @keyframes acls-overlay-in {
   from { opacity: 0; transform: translateY(32px); }
