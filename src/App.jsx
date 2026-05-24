@@ -256,6 +256,9 @@ export default function App() {
   const isMobile = bp === 'mobile';
   const [theme, setTheme] = useState('light');
 
+  /* Ref always holds latest nav state — used by popstate to avoid stale closures */
+  const navRef = useRef({});
+
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
@@ -325,29 +328,33 @@ export default function App() {
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
+      if (key !== 'home') window.history.pushState(null, '', location.href);
       setTab(key);
     }
   };
 
   /* Browser back-button integration */
+  navRef.current = { tab, stack, cprOpen, bp, deskView };
   useEffect(() => {
     const handle = () => {
+      const { tab, stack, cprOpen, bp, deskView } = navRef.current;
       if (cprOpen) {
         setCprOpen(false);
         setCprRhythm(null);
       } else if (bp === 'mobile' || bp === 'tablet') {
-        setStack(s => {
-          const cur = s[tab];
-          if (cur.length <= 1) return s;
-          return { ...s, [tab]: cur.slice(0, -1) };
-        });
+        const cur = stack[tab];
+        if (cur.length > 1) {
+          setStack(s => ({ ...s, [tab]: s[tab].slice(0, -1) }));
+        } else if (tab !== 'home') {
+          setTab('home');
+        }
       } else {
-        setDeskView(v => v.screen !== 'dashboard' ? { screen: 'dashboard' } : v);
+        if (deskView.screen !== 'dashboard') setDeskView({ screen: 'dashboard' });
       }
     };
     window.addEventListener('popstate', handle);
     return () => window.removeEventListener('popstate', handle);
-  }, [cprOpen, bp, tab]);
+  }, []);
 
   /* PWA install prompt */
   const deferredPromptRef = useRef(null);
@@ -463,7 +470,7 @@ export default function App() {
           <div className="acls-mobile-bottomnav">
             <BottomNav
               active={tab === 'tools' ? 'tools' : tab}
-              onChange={(k) => { setFabOpen(false); setTab(k); }}
+              onChange={(k) => { setFabOpen(false); if (k !== 'home') window.history.pushState(null, '', location.href); setTab(k); }}
               fabShape="circle"
               accent="var(--danger)"
               fabOpen={fabOpen}
