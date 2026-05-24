@@ -293,13 +293,23 @@ export default function App() {
   };
 
   const [cprOpen, setCprOpen] = useState(false);
+  const [cprRhythm, setCprRhythm] = useState(null);
   const [fabOpen, setFabOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  const openCPR = (rhythm = null) => {
+    setCprRhythm(rhythm);
+    setCprOpen(true);
+  };
+
+  const closeCPR = () => {
+    setCprOpen(false);
+    setCprRhythm(null);
+  };
+
   const onSpeedDialPick = (key) => {
     setFabOpen(false);
-    if (key === '__cpr__') { setCprOpen(true); return; }
-    openAlgoFromHome(key);
+    openCPR(key);
   };
 
   const mobileNavFromSidebar = (key, id) => {
@@ -349,7 +359,7 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
-        openCPR={() => setCprOpen(true)}/>;
+        openCPR={() => openCPR()}/>;
     }
     if (tab === 'algo') {
       if (f.screen === 'algo') return <MobileAlgorithmDetail nav={nav} id={f.id}/>;
@@ -374,7 +384,7 @@ export default function App() {
     if (v.screen === 'drugs') return <DesktopDrugs initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
-    return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => setCprOpen(true)}/>;
+    return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
@@ -392,7 +402,7 @@ export default function App() {
           onClose={() => setMobileSidebarOpen(false)}
           activeTab={tab}
           onNavigate={mobileNavFromSidebar}
-          onOpenCpr={() => { setCprOpen(true); setMobileSidebarOpen(false); }}/>
+          onOpenCpr={() => { openCPR(); setMobileSidebarOpen(false); }}/>
 
         <div className="acls-mobile-content" key={screenKey}>
           {renderMobile()}
@@ -401,7 +411,7 @@ export default function App() {
         {cprOpen && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)',
             animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 52 }}>
-            <CPRTimer isMobile onClose={() => setCprOpen(false)}/>
+            <CPRTimer isMobile initialRhythm={cprRhythm} onClose={closeCPR}/>
           </div>
         )}
 
@@ -447,7 +457,7 @@ export default function App() {
           onToggleCollapse={() => setSidebarCollapsed(c => !c)}
           active={deskView.screen}
           onChange={(screen, id) => setDeskView({ screen, id })}
-          onOpenCpr={() => setCprOpen(true)}/>
+          onOpenCpr={() => openCPR()}/>
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
@@ -459,7 +469,7 @@ export default function App() {
                 <div style={{ position: 'absolute', inset: 0, zIndex: 10,
                   background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)' }}
-                  onClick={() => setCprOpen(false)}/>
+                  onClick={closeCPR}/>
                 {/* CPR panel — centered, max-width 900px */}
                 <div style={{ position: 'absolute', inset: 0, zIndex: 11,
                   display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
@@ -467,7 +477,7 @@ export default function App() {
                     background: 'var(--bg-secondary)', pointerEvents: 'all',
                     animation: 'acls-overlay-in 280ms var(--ease-out) both',
                     boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
-                    <CPRTimer isMobile={false} onClose={() => setCprOpen(false)}/>
+                    <CPRTimer isMobile={false} initialRhythm={cprRhythm} onClose={closeCPR}/>
                   </div>
                 </div>
               </>
