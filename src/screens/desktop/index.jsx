@@ -57,7 +57,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
             className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
             style={{ padding: '8px 10px' }}
             title={collapsed ? it.label : undefined}>
-            <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0, alignSelf: 'center' }}>
               <it.icon size={18} stroke={1.9}/>
             </div>
             {!collapsed && (
