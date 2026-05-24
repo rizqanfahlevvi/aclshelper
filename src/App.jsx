@@ -334,7 +334,6 @@ export default function App() {
   };
 
   /* Browser back-button integration */
-  navRef.current = { tab, stack, cprOpen, bp, deskView };
   useEffect(() => {
     const handle = () => {
       const { tab, stack, cprOpen, bp, deskView } = navRef.current;
@@ -383,6 +382,7 @@ export default function App() {
   };
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
+  useEffect(() => { navRef.current = { tab, stack, cprOpen, bp, deskView }; });
 
   const renderMobile = () => {
     const f = topFrame;
