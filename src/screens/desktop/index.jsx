@@ -12,69 +12,138 @@ import {
 /* ============================================================
    Sidebar
    ============================================================ */
-export function DesktopSidebar({ active, onChange, onOpenCpr }) {
-  const items = [
-    { key: "dashboard", label: "Beranda",     icon: Icons.house },
-    { key: "algo",      label: "Algoritma",   icon: Icons.algo },
-    { key: "drugs",     label: "Obat",        icon: Icons.pill },
-    { key: "ekg",       label: "Pustaka EKG", icon: Icons.ekg },
-    { key: "hsts",      label: "Hs & Ts",     icon: Icons.clipboard },
-  ];
-  return (
-    <aside className="acls-sidebar">
-      <div className="acls-sidebar-brand">
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 14px rgba(255,59,48,0.25)" }}>
-          <Icons.boltFill size={20}/>
-        </div>
-        <div>
-          <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>MDKit · v1.1</div>
-        </div>
-      </div>
+const SIDEBAR_NAV = [
+  { key: "dashboard", label: "Beranda",     desc: "Ikhtisar & akses cepat",  icon: Icons.house },
+  { key: "algo",      label: "Algoritma",   desc: "14 protokol ACLS",        icon: Icons.algo },
+  { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
+  { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
+  { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
+];
+const SIDEBAR_QUICK = [
+  { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
+  { key: "vfvt",        label: "VF / pVT",         tint: "var(--danger)" },
+  { key: "pea",         label: "PEA / Asistol",    tint: "var(--info)" },
+  { key: "brady",       label: "Bradikardi",       tint: "var(--warning)" },
+  { key: "tachy",       label: "Takikardi",        tint: "var(--tint-neuro)" },
+  { key: "ska",         label: "SKA / STEMI",      tint: "var(--tint-vital)" },
+  { key: "opioid",      label: "Overdosis Opioid", tint: "var(--tint-neuro)" },
+  { key: "anaphylaxis", label: "Anafilaksis",      tint: "var(--danger)" },
+  { key: "pregnancy",   label: "Henti Kehamilan",  tint: "var(--tint-vital)" },
+  { key: "drowning",    label: "Tenggelam",        tint: "var(--info)" },
+  { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
+];
 
-      <div className="acls-sidebar-search">
-        <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
+export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false, onToggleCollapse }) {
+  const [query, setQuery] = React.useState('');
+  const q = query.trim().toLowerCase();
+  const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
+  const quickItems = q ? SIDEBAR_QUICK.filter(it => it.label.toLowerCase().includes(q)) : SIDEBAR_QUICK;
+  const noResults = q && navItems.length === 0 && quickItems.length === 0;
+  return (
+    <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 13px 0',
+        overflow: 'hidden' }}>
+        <button onClick={onToggleCollapse}
+          style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
+            border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            position: 'relative' }}>
+          {/* Hamburger — visible when collapsed */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+              opacity: collapsed ? 1 : 0, transform: collapsed ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          {/* X — visible when expanded */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+              opacity: collapsed ? 0 : 1, transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        {!collapsed && (
+          <div className="acls-sidebar-search" style={{ flex: 1, margin: 0,
+            animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
+            <Icons.search size={14} stroke={2}/>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Cari…"
+              style={{ flex: 1, background: 'none', border: 0, outline: 'none',
+                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}
+            />
+            {query && (
+              <button onClick={() => setQuery('')}
+                style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
+                  color: 'var(--label-tertiary)', display: 'flex', alignItems: 'center',
+                  lineHeight: 1 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <nav className="acls-sidebar-nav">
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px" }}>MENU</div>
-        {items.map(it => (
-          <button key={it.key} onClick={() => onChange(it.key)} className={"acls-sidebar-item " + (active === it.key ? "active" : "")}>
-            <it.icon size={18} stroke={1.9}/><span>{it.label}</span>
+        {(collapsed ? SIDEBAR_NAV : navItems).map(it => (
+          <button key={it.key} onClick={() => onChange(it.key)}
+            className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
+            style={{ padding: '0 10px', height: 48 }}
+            title={collapsed ? it.label : undefined}>
+            <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+              <it.icon size={18} stroke={1.9}/>
+            </div>
+            {!collapsed && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0,
+                animation: 'acls-fadeslide 180ms var(--ease-out) both' }}>
+                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                  textTransform: 'none', letterSpacing: 0, lineHeight: 1.2 }}>{it.desc}</span>
+              </div>
+            )}
           </button>
         ))}
 
         {!collapsed && (
           <>
-            <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
-            {[
-              { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
-              { key: "vfvt",        label: "VF / pVT",         tint: "var(--danger)" },
-              { key: "pea",         label: "PEA / Asistol",    tint: "var(--info)" },
-              { key: "brady",       label: "Bradikardi",       tint: "var(--warning)" },
-              { key: "tachy",       label: "Takikardi",        tint: "var(--tint-neuro)" },
-              { key: "ska",         label: "SKA / STEMI",      tint: "var(--tint-vital)" },
-              { key: "opioid",      label: "Overdosis Opioid", tint: "var(--tint-neuro)" },
-              { key: "anaphylaxis", label: "Anafilaksis",      tint: "var(--danger)" },
-              { key: "pregnancy",   label: "Henti Kehamilan",  tint: "var(--tint-vital)" },
-              { key: "drowning",    label: "Tenggelam",        tint: "var(--info)" },
-              { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
-            ].map(it => (
-              <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
-                <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
-                <span>{it.label}</span>
-              </button>
-            ))}
+            {noResults && (
+              <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+            )}
+            {quickItems.length > 0 && (
+              <>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
+                {quickItems.map(it => (
+                  <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
+                    <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
+                    <span>{it.label}</span>
+                  </button>
+                ))}
+              </>
+            )}
           </>
         )}
       </nav>
 
-      <div style={{ padding: "10px 14px 16px", marginTop: "auto" }}>
-        <button onClick={onOpenCpr} className="ios-btn block"
-          style={{ background: "var(--danger)", color: "#fff", height: 46, borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8, whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(255,59,48,0.25)" }}>
-          <Icons.boltFill size={18}/> Code Blue
-        </button>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", textAlign: "center", marginTop: 6 }}>Aktifkan CPR Workspace</div>
+      <div style={{ padding: collapsed ? '10px 8px 20px' : '10px 14px 16px', marginTop: 'auto' }}>
+        {collapsed ? (
+          <button onClick={onOpenCpr}
+            style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--danger)',
+              color: '#fff', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 16px rgba(255,59,48,0.35)' }}>
+            <Icons.boltFill size={20}/>
+          </button>
+        ) : (
+          <button onClick={onOpenCpr} className="ios-btn block"
+            style={{ background: "var(--danger)", color: "#fff", height: 46,
+              borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8,
+              boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
+              justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <Icons.boltFill size={18}/> Code Blue
+          </button>
+        )}
       </div>
     </aside>
   );
@@ -94,15 +163,6 @@ export function DesktopTopbar({ crumb }) {
           </React.Fragment>
         ))}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span className="t-caption-2" style={{ color: "var(--label-secondary)" }}>
-          <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "var(--success)", marginRight: 6 }}/>
-          PERKI 2025 · AHA 2025
-        </span>
-        <button className="nb-btn glyph" style={{ width: 30, height: 30, borderRadius: 8, background: "var(--fill-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-          <Icons.settings size={16}/>
-        </button>
-      </div>
     </div>
   );
 }
@@ -112,38 +172,98 @@ export function DesktopTopbar({ crumb }) {
    ============================================================ */
 export function DesktopDashboard({ onPick, onOpenCpr }) {
   return (
-    <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>Selamat pagi · 07:42</div>
-          <h1 className="t-large-title" style={{ margin: 0 }}>Siap bedside</h1>
-          <div className="t-callout" style={{ color: "var(--label-secondary)", marginTop: 4 }}>
-            Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
+    <div style={{ padding: "16px 24px 32px", overflowY: "auto", height: "100%" }}>
+      <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 10 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
+            letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Your daily Cardiac Problem Companion
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between',
+          alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
+            <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.0,
+              letterSpacing: '-0.03em', marginBottom: 8 }}>
+              <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                ACLS
+              </span>
+              {' '}
+              <span style={{ color: 'var(--label-primary)' }}>Helper</span>
+            </div>
+            <div className="t-callout" style={{ color: 'var(--label-secondary)', maxWidth: 380 }}>
+              Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, flexShrink: 0,
+            animation: 'acls-fadeslide 400ms 80ms var(--ease-out) both' }}>
+            {[
+              { value: '14',   label: 'Algoritma',  color: 'var(--danger)' },
+              { value: '25',   label: 'Obat',       color: 'var(--warning)' },
+              { value: '16',   label: 'EKG Rhythm', color: 'var(--info)' },
+              { value: '2025', label: 'Panduan',    color: 'var(--success)' },
+            ].map(({ value, label, color }) => (
+              <div key={label} style={{ background: 'var(--fill-secondary)',
+                borderRadius: 12, padding: '10px 14px', minWidth: 90,
+                transition: 'transform 160ms', cursor: 'default' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <button onClick={onOpenCpr}
-          style={{ padding: "10px 18px", borderRadius: 12, background: "var(--danger)", color: "#fff", display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 15, boxShadow: "0 8px 20px rgba(255,59,48,0.25)" }}>
-          <Icons.boltFill size={18}/> Aktifkan Code Blue
-        </button>
       </div>
 
-      <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-        {[
-          { key: "vfvt",  label: "VF / pVT",       sub: "Jalur shockable rhythm",  tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-          { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable rhythm",    tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-          { key: "brady", label: "Bradikardi",     sub: "HR < 50 · simptomatik",   tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-          { key: "tachy", label: "Takikardi",      sub: "HR > 150 · dengan nadi",  tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
-        ].map(c => (
-          <button key={c.key} onClick={() => onPick("algo", c.key)} className="acls-desk-quick">
-            <span className="glyph" style={{ background: c.tint, color: "#fff" }}>{c.icon}</span>
-            <div className="t-headline">{c.label}</div>
-            <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
-            <span className="t-caption-2" style={{ color: c.tint, marginTop: 14, fontWeight: 600 }}>Buka algoritma →</span>
+      <DesktopTopbar crumb={['Beranda']}/>
+
+      <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
+        animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
+        {/* Left column: Code Blue (+ future Saweria card below) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <button onClick={onOpenCpr}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 8, padding: '20px 16px',
+              background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+              borderRadius: 16, border: 0, cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+              animation: 'acls-fab-ring 2.5s 1.5s infinite',
+              transition: 'transform 160ms' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
+            <Icons.boltFill size={26}/>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
+              <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
+            </div>
           </button>
-        ))}
+        </div>
+        {/* Right column: 2×2 algo cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          {[
+            { key: "vfvt",  label: "VF / pVT",       sub: "Shockable rhythm",   tint: "var(--danger)",     icon: <Icons.boltFill size={16}/> },
+            { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable",      tint: "var(--info)",       icon: <Icons.flatline size={16} stroke={2.2}/> },
+            { key: "brady", label: "Bradikardi",     sub: "HR < 50",            tint: "var(--warning)",    icon: <Icons.slow size={16} stroke={2.2}/> },
+            { key: "tachy", label: "Takikardi",      sub: "HR > 150",           tint: "var(--tint-neuro)", icon: <Icons.fast size={16} stroke={2.2}/> },
+          ].map(c => (
+            <button key={c.key} onClick={() => onPick("algo", c.key)} className="acls-desk-quick">
+              <span className="glyph" style={{ background: c.tint, color: "#fff" }}>{c.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="t-callout" style={{ fontWeight: 600 }}>{c.label}</div>
+                <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{c.sub}</div>
+              </div>
+              <Icons.chevR size={12} stroke={2.4} style={{ color: "var(--label-tertiary)", flexShrink: 0 }}/>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
+      <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14 }}>
         <div className="acls-card-lg">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12, gap: 16 }}>
             <div style={{ minWidth: 0 }}>
@@ -248,7 +368,9 @@ export function DesktopAlgorithm({ id, onPick }) {
   }, [selected, id]);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Algoritma', algo.label]}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ overflowY: "auto", padding: "20px 24px 40px", borderRight: "0.5px solid var(--separator-opaque)" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ALUR ALGORITMA</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
@@ -333,6 +455,7 @@ export function DesktopAlgorithm({ id, onPick }) {
           </button>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -344,7 +467,9 @@ export function DesktopDrugs({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_DRUGS[0].key);
   const d = ACLS_DRUGS.find(x => x.key === selectedKey) || ACLS_DRUGS[0];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Obat']}/>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>OBAT ACLS · {ACLS_DRUGS.length}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -402,6 +527,7 @@ export function DesktopDrugs({ initialId, onPick }) {
           <div className="t-footnote" style={{ marginTop: 4, lineHeight: 1.5 }}>{d.contra}</div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -413,7 +539,9 @@ export function DesktopEkg({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
   const r = ACLS_RHYTHMS.find(x => x.key === selectedKey) || ACLS_RHYTHMS[0];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Pustaka EKG']}/>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>IRAMA · {ACLS_RHYTHMS.length}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -450,6 +578,7 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -460,7 +589,9 @@ export function DesktopEkg({ initialId, onPick }) {
 export function DesktopHsTs({ onPick }) {
   const [exp, setExp] = useState(null);
   return (
-    <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Hs & Ts']}/>
+      <div style={{ padding: "20px 28px 40px", overflowY: "auto", flex: 1 }}>
       <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
       <h2 className="t-title-1" style={{ margin: "2px 0 6px" }}>Hs &amp; Ts — Penyebab reversibel</h2>
       <div className="t-callout" style={{ color: "var(--label-secondary)" }}>Ketuk untuk melihat clue klinis + tatalaksana. Cari sistematis tiap rhythm check.</div>
@@ -490,6 +621,7 @@ export function DesktopHsTs({ onPick }) {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

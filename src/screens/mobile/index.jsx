@@ -13,6 +13,171 @@ import {
 } from '../../data';
 
 /* ============================================================
+   INSTALL POPUP
+   ============================================================ */
+export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
+  const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const [platform, setPlatform] = useState(isIOS ? 'ios' : 'android');
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    outcome === 'accepted' ? onDismiss() : onClose();
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 150,
+      background: 'rgba(0,0,0,0.52)',
+      backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '0 20px',
+      animation: 'acls-overlay-in 280ms var(--ease-out) both',
+    }}>
+      <div style={{
+        width: '100%', maxWidth: 360,
+        background: 'var(--bg-secondary)',
+        borderRadius: 24,
+        boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)',
+        overflow: 'hidden',
+      }}>
+        {/* Close button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 14px 0' }}>
+          <button onClick={onClose} style={{
+            width: 30, height: 30, borderRadius: 15, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--label-secondary)',
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Icon + title */}
+        <div style={{ textAlign: 'center', padding: '6px 24px 20px' }}>
+          <div style={{
+            width: 80, height: 80, borderRadius: 20,
+            background: 'var(--danger)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(255,59,48,0.35)',
+            marginBottom: 14,
+          }}>
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="#fff">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div className="t-title-2" style={{ marginBottom: 6 }}>Install ACLS Helper</div>
+          <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
+            Akses algoritma &amp; obat resusitasi secara offline —<br/>langsung dari layar utama perangkat Anda.
+          </div>
+        </div>
+
+        {/* Platform toggle */}
+        <div style={{ padding: '0 20px 16px' }}>
+          <div style={{
+            display: 'flex', background: 'var(--fill-tertiary)',
+            borderRadius: 12, padding: 3,
+          }}>
+            {[
+              { k: 'android', label: 'Android / Chrome' },
+              { k: 'ios',     label: 'iPhone / iPad' },
+            ].map(({ k, label }) => (
+              <button key={k} onClick={() => setPlatform(k)} style={{
+                flex: 1, height: 32, borderRadius: 9, border: 0, cursor: 'pointer',
+                background: platform === k ? 'var(--bg-secondary)' : 'transparent',
+                color: platform === k ? 'var(--label-primary)' : 'var(--label-secondary)',
+                fontWeight: platform === k ? 600 : 400,
+                fontSize: 13,
+                boxShadow: platform === k ? 'var(--shadow-1)' : 'none',
+                transition: 'background 160ms, color 160ms, box-shadow 160ms',
+              }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Android content */}
+        {platform === 'android' && (
+          <div style={{ padding: '0 20px 20px' }}>
+            {deferredPrompt ? (
+              <>
+                <div className="t-callout" style={{
+                  color: 'var(--label-secondary)', marginBottom: 14, lineHeight: 1.5,
+                }}>
+                  Ketuk tombol di bawah untuk menginstal aplikasi ini ke layar utama perangkat Anda.
+                </div>
+                <button onClick={handleInstall} className="ios-btn block" style={{
+                  background: 'var(--danger)', color: '#fff',
+                  height: 50, borderRadius: 14, fontSize: 16, fontWeight: 700,
+                }}>
+                  Install Sekarang
+                </button>
+              </>
+            ) : (
+              <div className="t-callout" style={{
+                color: 'var(--label-secondary)', lineHeight: 1.5,
+                padding: '12px 14px', background: 'var(--fill-quaternary)', borderRadius: 12,
+              }}>
+                Buka di <strong>Chrome</strong>, lalu ketuk menu (⋮) dan pilih <strong>"Tambahkan ke Layar Utama"</strong>.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* iOS content */}
+        {platform === 'ios' && (
+          <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              <>Pastikan membuka di <strong>Safari</strong> (bukan Chrome / Firefox)</>,
+              <>Ketuk ikon <strong>Bagikan</strong> <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginInline: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></span> di toolbar Safari</>,
+              <>Pilih <strong>"Tambah ke Layar Utama"</strong> (Add to Home Screen)</>,
+              <>Ketuk <strong>"Tambah"</strong> di pojok kanan atas</>,
+            ].map((text, i) => (
+              <div key={i} style={{
+                display: 'flex', gap: 12, alignItems: 'flex-start',
+                padding: '10px 12px', background: 'var(--fill-quaternary)', borderRadius: 10,
+              }}>
+                <span style={{
+                  width: 24, height: 24, borderRadius: 12, flexShrink: 0,
+                  background: 'var(--danger)', color: '#fff',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: 13,
+                }}>{i + 1}</span>
+                <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.55 }}>
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Dismiss */}
+        <div style={{ borderTop: '0.5px solid var(--separator)', padding: '12px 20px 16px', display: 'flex', gap: 8 }}>
+          <button onClick={onClose} style={{
+            flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+          }}>
+            Nanti
+          </button>
+          <button onClick={onDismiss} style={{
+            flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+          }}>
+            Jangan tampilkan lagi
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    HOME
    ============================================================ */
 export function MobileHome({ nav, openCPR }) {
@@ -43,14 +208,43 @@ export function MobileHome({ nav, openCPR }) {
   return (
     <>
       <NavBar/>
-      <LargeTitle>ACLS Helper</LargeTitle>
-
-      <div style={{ padding: "0 20px 12px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <Pill tone="teal">PERKI 2025</Pill>
-        <Pill tone="gray">AHA 2025</Pill>
-        <span className="t-footnote" style={{ color: "var(--label-secondary)", flex: 1, minWidth: 0 }}>
+      <div style={{ padding: '20px 20px 4px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
+            letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Your daily Cardiac Problem Companion
+          </span>
+        </div>
+        <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.05,
+          letterSpacing: '-0.03em', marginBottom: 8 }}>
+          <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            ACLS
+          </span>
+          {' '}
+          <span style={{ color: 'var(--label-primary)' }}>Helper</span>
+        </div>
+        <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 16 }}>
           Alat bantu kognitif bedside · bukan pengganti penilaian klinis
-        </span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          {[
+            { value: '14',   label: 'Algoritma', color: 'var(--danger)' },
+            { value: '25',   label: 'Obat',      color: 'var(--warning)' },
+            { value: '16',   label: 'EKG',       color: 'var(--info)' },
+            { value: '2025', label: 'Panduan',   color: 'var(--success)' },
+          ].map(({ value, label, color }) => (
+            <div key={label} style={{ flex: 1, background: 'var(--fill-secondary)',
+              borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+              <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 4 }}>
+          PERKI 2025 · AHA 2025
+        </div>
       </div>
 
       <SearchField placeholder="Cari algoritma, obat, EKG…" value={query} onChange={setQuery}/>
@@ -81,37 +275,49 @@ export function MobileHome({ nav, openCPR }) {
         </div>
       ) : (
         <>
-          <div style={{ padding: "0 16px 4px" }}>
-            <button onClick={openCPR} className="acls-hero-emergency" style={{ width: "100%", textAlign: "left", padding: "16px 18px", borderRadius: 18, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(255,59,48,0.30)", transition: "transform 160ms, box-shadow 160ms" }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(255,59,48,0.40)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,59,48,0.30)"; }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.18)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                <Icons.boltFill size={26}/>
+          <div style={{ padding: '0 16px 4px' }}>
+            <button onClick={openCPR}
+              style={{ width: '100%', borderRadius: 16,
+                background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
+                boxShadow: '0 8px 24px rgba(255,59,48,0.30)',
+                border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(255,59,48,0.40)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(255,59,48,0.30)'; }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icons.boltFill size={22}/>
               </div>
-              <div style={{ flex: 1 }}>
-                <div className="t-headline" style={{ color: "#fff" }}>Aktifkan Code Blue</div>
-                <div className="t-footnote" style={{ color: "rgba(255,255,255,0.85)", marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
+                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
               </div>
-              <Icons.chevR size={16} stroke={2.4}/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
             </button>
           </div>
 
-          <SectionHeader>Akses cepat</SectionHeader>
-          <div style={{ padding: "0 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <SectionHeader>Akses Cepat</SectionHeader>
+          <div style={{ padding: '0 16px 12px', display: 'grid',
+            gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
-              { key: "vfvt",  label: "VF / pVT",       sub: "Shockable",     tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-              { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable", tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-              { key: "brady", label: "Bradikardi",     sub: "HR < 50",       tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-              { key: "tachy", label: "Takikardi",      sub: "HR > 150",      tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
+              { key: 'vfvt',  label: 'VF / pVT',   sub: 'Shockable',  tint: 'var(--danger)',     icon: <Icons.boltFill size={20}/> },
+              { key: 'pea',   label: 'PEA / Asystole', sub: 'Non-shockable', tint: 'var(--info)', icon: <Icons.flatline size={20} stroke={2.2}/> },
+              { key: 'brady', label: 'Bradikardi',  sub: 'HR < 50',    tint: 'var(--warning)',    icon: <Icons.slow size={20} stroke={2.2}/> },
+              { key: 'tachy', label: 'Takikardi',   sub: 'HR > 150',   tint: 'var(--tint-neuro)', icon: <Icons.fast size={20} stroke={2.2}/> },
             ].map(c => (
-              <button key={c.key} onClick={() => nav.push({ screen: "algo", id: c.key })}
-                style={{ padding: "14px", borderRadius: 16, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", flexDirection: "column", gap: 10, minHeight: 100, transition: "transform 160ms, box-shadow 160ms" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "var(--shadow-2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-1)"; }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.icon}</div>
+              <button key={c.key} onClick={() => nav.push({ screen: 'algo', id: c.key })}
+                style={{ padding: '14px 14px', borderRadius: 16, background: 'var(--bg-tertiary)',
+                  boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'column',
+                  gap: 10, border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-2)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-1)'; }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: '#fff',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{c.icon}</div>
                 <div>
-                  <div className="t-headline">{c.label}</div>
-                  <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
                 </div>
               </button>
             ))}

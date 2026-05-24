@@ -1,26 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
+import { Icons } from './components/base';
 import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
   MobileEkgList, MobileEkgDetail,
-  MobileHsTs,
+  MobileHsTs, InstallPopup,
 } from './screens/mobile';
 import {
-  DesktopSidebar, DesktopTopbar, DesktopDashboard,
+  DesktopSidebar, DesktopDashboard,
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
-import { ACLS_ALGORITHMS } from './data';
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+function useBreakpoint() {
+  const get = () => {
+    const w = window.innerWidth;
+    if (w < 768) return 'mobile';
+    if (w < 1024) return 'tablet';
+    return 'desktop';
+  };
+  const [bp, setBp] = useState(get);
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const handler = (e) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    const handler = () => setBp(get());
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
-  return isMobile;
+  return bp;
 }
 
 function useClock() {
@@ -62,7 +67,7 @@ function MoonIcon() {
   );
 }
 
-function AppTopBar({ theme, onToggleTheme }) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false }) {
   const time = useClock();
   return (
     <div style={{
@@ -77,6 +82,24 @@ function AppTopBar({ theme, onToggleTheme }) {
       borderBottom: '0.5px solid var(--separator)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {onOpenSidebar && (
+          <button onClick={onOpenSidebar}
+            style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+              style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+                opacity: sidebarOpen ? 0 : 1, transform: sidebarOpen ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+              style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+                opacity: sidebarOpen ? 1 : 0, transform: sidebarOpen ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        )}
         <span style={{
           width: 28, height: 28, borderRadius: 8,
           background: 'var(--danger)',
@@ -119,8 +142,118 @@ function AppTopBar({ theme, onToggleTheme }) {
 
 const ACCENT = { color: '#30B0C7', dark: '#40C8E0' };
 
+const MOBILE_MENU = [
+  { key: 'home',  label: 'Beranda',     desc: 'Ikhtisar & akses cepat', icon: Icons.house },
+  { key: 'algo',  label: 'Algoritma',   desc: '14 protokol ACLS',       icon: Icons.algo },
+  { key: 'drugs', label: 'Obat',        desc: '25 obat emergensi',      icon: Icons.pill },
+  { key: 'tools', label: 'Pustaka EKG', desc: '16 ritme kardiologi',    icon: Icons.ekg },
+  { key: 'hsts',  label: 'Hs & Ts',     desc: '10 penyebab reversibel', icon: Icons.clipboard },
+];
+const MOBILE_QUICK = [
+  { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
+  { key: 'vfvt',        label: 'VF / pVT',         tint: 'var(--danger)' },
+  { key: 'pea',         label: 'PEA / Asistol',    tint: 'var(--info)' },
+  { key: 'brady',       label: 'Bradikardi',       tint: 'var(--warning)' },
+  { key: 'tachy',       label: 'Takikardi',        tint: 'var(--tint-neuro)' },
+  { key: 'ska',         label: 'SKA / STEMI',      tint: 'var(--tint-vital)' },
+  { key: 'opioid',      label: 'Overdosis Opioid', tint: 'var(--tint-neuro)' },
+  { key: 'anaphylaxis', label: 'Anafilaksis',      tint: 'var(--danger)' },
+  { key: 'pregnancy',   label: 'Henti Kehamilan',  tint: 'var(--tint-vital)' },
+  { key: 'drowning',    label: 'Tenggelam',        tint: 'var(--info)' },
+  { key: 'hypothermia', label: 'Hipotermia Berat', tint: 'var(--accent)' },
+];
+
+function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }) {
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const menuFiltered = q ? MOBILE_MENU.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : MOBILE_MENU;
+  const quickFiltered = q ? MOBILE_QUICK.filter(it => it.label.toLowerCase().includes(q)) : MOBILE_QUICK;
+  const noResults = q && menuFiltered.length === 0 && quickFiltered.length === 0;
+  return (
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 150,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+        opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
+        transition: 'opacity 260ms var(--ease-out)' }}
+        onClick={onClose}/>
+      <div style={{ position: 'fixed', top: 52, bottom: 0, left: 0, zIndex: 160,
+        width: 264, background: 'var(--bg-tertiary)',
+        transform: open ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 280ms var(--ease-out)',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        boxShadow: '4px 0 32px rgba(0,0,0,0.18)' }}>
+        <div style={{ padding: '10px 14px 0' }}>
+          <div className="acls-sidebar-search">
+            <Icons.search size={14} stroke={2}/>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Cari…"
+              style={{ flex: 1, background: 'none', border: 0, outline: 'none',
+                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}
+            />
+            {query && (
+              <button onClick={() => setQuery('')}
+                style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
+                  color: 'var(--label-tertiary)', display: 'flex', alignItems: 'center' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+        <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
+          {noResults && (
+            <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+          )}
+          {menuFiltered.map(it => (
+            <button key={it.key}
+              className={'acls-sidebar-item ' + (activeTab === it.key ? 'active' : '')}
+              style={{ padding: '8px 10px' }}
+              onClick={() => { onNavigate(it.key); onClose(); }}>
+              <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                <it.icon size={18} stroke={1.9}/>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                  textTransform: 'none', letterSpacing: 0 }}>{it.desc}</span>
+              </div>
+            </button>
+          ))}
+          {quickFiltered.length > 0 && (
+            <>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>AKSES CEPAT</div>
+              {quickFiltered.map(it => (
+                <button key={it.key} className="acls-sidebar-item"
+                  style={{ padding: '8px 10px' }}
+                  onClick={() => { onNavigate('algo', it.key); onClose(); }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint,
+                    marginLeft: 6, marginRight: 6, flexShrink: 0 }}/>
+                  <span>{it.label}</span>
+                </button>
+              ))}
+            </>
+          )}
+        </nav>
+        <div style={{ padding: '10px 14px 16px' }}>
+          <button onClick={() => { onOpenCpr(); onClose(); }}
+            style={{ background: 'var(--danger)', color: '#fff', height: 46, width: '100%',
+              borderRadius: 12, fontSize: 15, fontWeight: 700, display: 'flex', gap: 8,
+              boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer',
+              justifyContent: 'center', alignItems: 'center' }}>
+            <Icons.boltFill size={18}/> Code Blue
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function App() {
-  const isMobile = useIsMobile();
+  const bp = useBreakpoint();
+  const isMobile = bp === 'mobile';
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
@@ -160,10 +293,43 @@ export default function App() {
   };
 
   const [cprOpen, setCprOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const mobileNavFromSidebar = (key, id) => {
+    if (key === 'hsts') {
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'hsts' }] }));
+    } else if (key === 'algo' && id) {
+      openAlgoFromHome(id);
+    } else {
+      setTab(key);
+    }
+  };
+
+  /* PWA install prompt */
+  const deferredPromptRef = useRef(null);
+  const [installOpen, setInstallOpen] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    if (window.navigator.standalone) return;
+    if (localStorage.getItem('acls_install_dismissed')) return;
+    const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const handler = (e) => {
+      e.preventDefault();
+      deferredPromptRef.current = e;
+      setTimeout(() => setInstallOpen(true), 1200);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    if (isIOS) setTimeout(() => setInstallOpen(true), 1200);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   /* Desktop state */
   const [deskView, setDeskView] = useState({ screen: 'dashboard' });
   const desktopPick = (screen, id) => setDeskView({ screen, id });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
 
   const renderMobile = () => {
     const f = topFrame;
@@ -205,23 +371,42 @@ export default function App() {
   };
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
-  const algoLabel = (ACLS_ALGORITHMS.find(a => a.key === deskView.id) || {}).label || 'Adult Cardiac Arrest';
 
+  /* ── MOBILE ───────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen}/>
         </div>
+
+        <MobileSidebar
+          open={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+          activeTab={tab}
+          onNavigate={mobileNavFromSidebar}
+          onOpenCpr={() => { setCprOpen(true); setMobileSidebarOpen(false); }}/>
 
         <div className="acls-mobile-content" key={screenKey}>
           {renderMobile()}
         </div>
 
         {cprOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)', animation: 'acls-overlay-in 280ms var(--ease-out) both' }}>
-            <CPRTimer onClose={() => setCprOpen(false)}/>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)',
+            animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 52 }}>
+            <CPRTimer isMobile onClose={() => setCprOpen(false)}/>
           </div>
+        )}
+
+        {installOpen && !cprOpen && (
+          <InstallPopup
+            deferredPrompt={deferredPromptRef.current}
+            onClose={() => setInstallOpen(false)}
+            onDismiss={() => {
+              localStorage.setItem('acls_install_dismissed', '1');
+              setInstallOpen(false);
+            }}
+          />
         )}
 
         {!cprOpen && (
@@ -238,30 +423,46 @@ export default function App() {
     );
   }
 
+  /* ── TABLET + DESKTOP ─────────────────────────────────────── */
   return (
     <div className="acls-app-desktop">
-      <DesktopSidebar
-        active={deskView.screen}
-        onChange={(screen, id) => setDeskView({ screen, id })}
-        onOpenCpr={() => setCprOpen(true)}/>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-        <DesktopTopbar crumb={
-          deskView.screen === 'algo'  ? ['ACLS Helper', 'Algoritma', algoLabel]
-          : deskView.screen === 'drugs' ? ['ACLS Helper', 'Obat']
-          : deskView.screen === 'ekg'   ? ['ACLS Helper', 'Pustaka EKG']
-          : deskView.screen === 'hsts'  ? ['ACLS Helper', 'Hs & Ts']
-          : ['ACLS Helper', 'Beranda']
-        }/>
-        <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-          {renderDesktop()}
-        </div>
-      </main>
+      {/* Full-width topbar — same structure as mobile */}
+      <AppTopBar theme={theme} onToggleTheme={toggleTheme}/>
 
-      {cprOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)' }}>
-          <CPRTimer onClose={() => setCprOpen(false)}/>
-        </div>
-      )}
+      <div className="acls-desktop-body">
+        <DesktopSidebar
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(c => !c)}
+          active={deskView.screen}
+          onChange={(screen, id) => setDeskView({ screen, id })}
+          onOpenCpr={() => setCprOpen(true)}/>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+          {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
+          <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
+            {renderDesktop()}
+
+            {cprOpen && (
+              <>
+                {/* Blur backdrop over content area */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 10,
+                  background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)' }}
+                  onClick={() => setCprOpen(false)}/>
+                {/* CPR panel — centered, max-width 900px */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 11,
+                  display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+                  <div style={{ width: 'min(900px, 100%)', height: '100%',
+                    background: 'var(--bg-secondary)', pointerEvents: 'all',
+                    animation: 'acls-overlay-in 280ms var(--ease-out) both',
+                    boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
+                    <CPRTimer isMobile={false} onClose={() => setCprOpen(false)}/>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
