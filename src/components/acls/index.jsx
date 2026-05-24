@@ -440,7 +440,7 @@ function StepCard({ step, idx }) {
   const lblMap = { shock:'Shock', drug:'Obat', opt:'Opsional', cpr:'CPR Aktif' };
   const color = colMap[step.kind] || 'var(--accent)';
   return (
-    <div style={{ margin:'0 16px 6px', padding:'10px 12px', borderRadius:12, background:'var(--bg-tertiary)', borderLeft:`3px solid ${color}`, boxShadow:'var(--shadow-1)' }}>
+    <div className="acls-step-card" style={{ borderLeft:`3px solid ${color}` }}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
         <span style={{ fontSize:10, fontWeight:700, color, background:color+'1F', padding:'1px 6px', borderRadius:99 }}>
           {lblMap[step.kind] || 'Langkah'}

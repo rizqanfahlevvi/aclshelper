@@ -386,7 +386,6 @@ body {
   height: 100%;
   background: var(--bg-secondary);
   display: flex; flex-direction: column;
-  padding-top: 52px;
 }
 .cpr-header {
   background: var(--bg-tertiary);
@@ -457,6 +456,14 @@ body {
 @keyframes acls-epi-pulse {
   0%, 100% { box-shadow: 0 0 0 0   rgba(255,59,48,0.50), 5px 5px 16px rgba(200,34,26,0.42), -3px -3px 10px rgba(255,255,255,0.18), inset 0 0 0 1.5px rgba(255,255,255,0.25); }
   50%      { box-shadow: 0 0 0 8px rgba(255,59,48,0),    5px 5px 16px rgba(200,34,26,0.42), -3px -3px 10px rgba(255,255,255,0.18), inset 0 0 0 1.5px rgba(255,255,255,0.35); }
+}
+.acls-step-card {
+  margin: 0 16px 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  box-shadow: 6px 6px 16px var(--neu-shadow-dark), -5px -5px 14px var(--neu-shadow-light),
+              inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .cpr-log {
   flex: 1; overflow-y: auto;
