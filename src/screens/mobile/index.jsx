@@ -481,6 +481,33 @@ export function MobileAlgorithmDetail({ nav, id }) {
 /* ============================================================
    DRUG LIST
    ============================================================ */
+const DRUG_FILTERS = [
+  { v: "all",        label: "Semua" },
+  { v: "vaso",       label: "Vasopresor" },
+  { v: "arrhythmia", label: "Antiaritmia" },
+  { v: "thrombo",    label: "Antitrombotik" },
+  { v: "antidot",    label: "Antidot" },
+];
+
+function DrugCard({ d, onPress }) {
+  return (
+    <button onClick={onPress}
+      style={{ padding: "12px 14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start", border: 0 }}>
+      <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+        <Icons.pill size={20} stroke={2}/>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+          <div className="t-headline">{d.name}</div>
+          <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)", marginTop: 4 }}/>
+        </div>
+        <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{d.class}{d.altName ? " · " + d.altName : ""}</div>
+        <div className="t-footnote" style={{ marginTop: 6, padding: "6px 8px", background: "var(--fill-quaternary)", borderRadius: 6, color: "var(--label-primary)", fontFamily: "var(--font-mono)" }}>{d.dose}</div>
+      </div>
+    </button>
+  );
+}
+
 export function MobileDrugList({ nav }) {
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState('');
@@ -488,56 +515,55 @@ export function MobileDrugList({ nav }) {
 
   const toggleSearch = () => { setSearchOpen(o => !o); setQ(''); };
 
-  const drugs = ACLS_DRUGS.filter(d => {
-    const matchFilter = (() => {
-      if (filter === "all") return true;
-      if (filter === "vaso") return (d.category || "").match(/Vasopresor|Inotropik/);
-      if (filter === "arrhythmia") return (d.category || "").match(/Antiaritmia|Bradiaritmia/);
-      if (filter === "thrombo") return (d.category || "").includes("Antitrombotik");
-      if (filter === "antidot") return (d.category || "").includes("Antidot");
-      return true;
-    })();
-    const matchQ = !q.trim() || (d.name + ' ' + (d.altName || '') + ' ' + (d.class || '')).toLowerCase().includes(q.toLowerCase());
-    return matchFilter && matchQ;
+  const categoryDrugs = ACLS_DRUGS.filter(d => {
+    if (filter === "all") return true;
+    if (filter === "vaso") return (d.category || "").match(/Vasopresor|Inotropik/);
+    if (filter === "arrhythmia") return (d.category || "").match(/Antiaritmia|Bradiaritmia/);
+    if (filter === "thrombo") return (d.category || "").includes("Antitrombotik");
+    if (filter === "antidot") return (d.category || "").includes("Antidot");
+    return true;
   });
+
+  const searchDrugs = ACLS_DRUGS.filter(d =>
+    !q.trim() || (d.name + ' ' + (d.altName || '') + ' ' + (d.class || '')).toLowerCase().includes(q.toLowerCase())
+  );
 
   return (
     <>
       <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Obat ACLS</LargeTitle>
-      <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
-        {[{ v: "all", label: "Semua" }, { v: "vaso", label: "Vasopresor" }, { v: "arrhythmia", label: "Antiaritmia" }, { v: "thrombo", label: "Antitrombotik" }, { v: "antidot", label: "Antidot" }].map(f => (
-          <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
-            style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
-            {f.label}
-          </button>
-        ))}
-      </div>
-      {searchOpen && <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>}
-      <SectionHeader>{drugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
-      <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {drugs.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
-            <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
-            <div className="t-footnote">Coba kata kunci atau filter lain</div>
-          </div>
-        ) : drugs.map(d => (
-          <button key={d.key} onClick={() => nav.push({ screen: "drug", id: d.key })}
-            style={{ padding: "12px 14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start", border: 0 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-              <Icons.pill size={20} stroke={2}/>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                <div className="t-headline">{d.name}</div>
-                <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)", marginTop: 4 }}/>
+      {searchOpen ? (
+        <>
+          <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>
+          <div style={{ padding: "0 16px 12px" }}>
+            {searchDrugs.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+                <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+                <div className="t-footnote">Coba kata kunci lain</div>
               </div>
-              <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{d.class}{d.altName ? " · " + d.altName : ""}</div>
-              <div className="t-footnote" style={{ marginTop: 6, padding: "6px 8px", background: "var(--fill-quaternary)", borderRadius: 6, color: "var(--label-primary)", fontFamily: "var(--font-mono)" }}>{d.dose}</div>
-            </div>
-          </button>
-        ))}
-      </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {searchDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/>)}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
+            {DRUG_FILTERS.map(f => (
+              <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
+                style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <SectionHeader>{categoryDrugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
+          <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {categoryDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/>)}
+          </div>
+        </>
+      )}
       <SectionFooter>Sumber: PERKI 2025 · AHA 2025 · verifikasi dosis dengan apoteker / pharmacopoeia setempat.</SectionFooter>
       <div style={{ height: 24 }}/>
     </>
@@ -613,46 +639,62 @@ export function MobileEkgList({ nav }) {
 
   const toggleSearch = () => { setSearchOpen(o => !o); setQ(''); };
 
-  const rhythms = ACLS_RHYTHMS.filter(r => {
-    const matchSev = sev === 'all' || r.severity === sev;
-    const matchQ = !q.trim() || (r.name + ' ' + (r.short || '')).toLowerCase().includes(q.toLowerCase());
-    return matchSev && matchQ;
-  });
+  const sevRhythms = sev === 'all' ? ACLS_RHYTHMS : ACLS_RHYTHMS.filter(r => r.severity === sev);
+
+  const searchRhythms = ACLS_RHYTHMS.filter(r =>
+    !q.trim() || (r.name + ' ' + (r.short || '')).toLowerCase().includes(q.toLowerCase())
+  );
+
+  const RhythmCard = ({ r }) => (
+    <button onClick={() => nav.push({ screen: "ekg", id: r.key })}
+      style={{ padding: "10px 12px 12px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <div>
+          <div className="t-headline">{r.name}</div>
+          <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{r.short}</div>
+        </div>
+        <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase" }}>{r.severity}</span>
+      </div>
+      <RhythmStrip kind={r.key} width={320} height={48} color={r.tint}/>
+    </button>
+  );
 
   return (
     <>
       <NavBar right={<button className="nb-btn glyph" onClick={toggleSearch}><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Pustaka EKG</LargeTitle>
-      <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
-        {EKG_SEV_FILTERS.map(f => (
-          <button key={f.v} onClick={() => setSev(f.v)} className="ios-btn sm pill"
-            style={{ background: sev === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: sev === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
-            {f.label}
-          </button>
-        ))}
-      </div>
-      {searchOpen && <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>}
-      <SectionHeader>Irama · {rhythms.length}</SectionHeader>
-      <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {rhythms.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
-            <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
-            <div className="t-footnote">Coba kata kunci atau filter lain</div>
-          </div>
-        ) : rhythms.map(r => (
-          <button key={r.key} onClick={() => nav.push({ screen: "ekg", id: r.key })}
-            style={{ padding: "10px 12px 12px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-              <div>
-                <div className="t-headline">{r.name}</div>
-                <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 1 }}>{r.short}</div>
+      {searchOpen ? (
+        <>
+          <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>
+          <div style={{ padding: "0 16px 12px" }}>
+            {searchRhythms.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+                <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+                <div className="t-footnote">Coba kata kunci lain</div>
               </div>
-              <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase" }}>{r.severity}</span>
-            </div>
-            <RhythmStrip kind={r.key} width={320} height={48} color={r.tint}/>
-          </button>
-        ))}
-      </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {searchRhythms.map(r => <RhythmCard key={r.key} r={r}/>)}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
+            {EKG_SEV_FILTERS.map(f => (
+              <button key={f.v} onClick={() => setSev(f.v)} className="ios-btn sm pill"
+                style={{ background: sev === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: sev === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <SectionHeader>Irama · {sevRhythms.length}</SectionHeader>
+          <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {sevRhythms.map(r => <RhythmCard key={r.key} r={r}/>)}
+          </div>
+        </>
+      )}
       <SectionFooter>Strip ilustratif · selalu konfirmasi dengan 12-lead EKG.</SectionFooter>
       <div style={{ height: 24 }}/>
     </>
