@@ -28,9 +28,19 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
           style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
             border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            transition: 'transform 220ms var(--ease-out)',
-            transform: collapsed ? 'rotate(0deg)' : 'rotate(90deg)' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            position: 'relative' }}>
+          {/* Hamburger — visible when collapsed */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+              opacity: collapsed ? 1 : 0, transform: collapsed ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          {/* X — visible when expanded */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
+              opacity: collapsed ? 0 : 1, transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
         </button>
         {!collapsed && (
           <div className="acls-sidebar-search" style={{ flex: 1, margin: 0,
