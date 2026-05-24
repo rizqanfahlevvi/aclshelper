@@ -45,7 +45,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
         {!collapsed && (
           <div className="acls-sidebar-search" style={{ flex: 1, margin: 0,
             animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
-            <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
+            <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span>
           </div>
         )}
       </div>
