@@ -187,24 +187,124 @@ export const ACLS_FLOW_BRADY = [
    TAKIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_TACHY = [
-  { kind: "action", title: "Identifikasi & nilai", sub: "HR > 150 · ABC · O₂ · akses IV · EKG 12-sandapan",
-    pearls: "Pasang monitor, oksimetri & TD. Tanyakan riwayat (palpitasi, obat, kafein, hipertiroid)." },
-  { kind: "decision", title: "Stabil?", q: "Tidak ada hipotensi, AMS, iskemia, syok, gagal jantung akut?",
-    yes: { label: "Stabil — lanjut analisis QRS", tint: "var(--success)" },
-    no:  { label: "Tidak stabil — kardioversi", tint: "var(--danger)" } },
-  { kind: "shock", title: "Kardioversi tersinkron", sub: "Atrial fib: 120–200 J · A-flutter / SVT: 50–100 J · VT mono: 100 J",
-    pearls: "PERKI: sedasi midazolam + analgetik. Sinkronisasi WAJIB; bila gagal sinkron → kejut asinkron." },
-  { kind: "decision", title: "QRS sempit / lebar?", q: "Durasi QRS",
-    yes: { label: "Lebar ≥ 0,12 dtk · VT?", tint: "var(--tint-neuro)" },
-    no:  { label: "Sempit < 0,12 dtk · SVT", tint: "var(--info)" } },
-  { kind: "action", title: "QRS sempit reguler · Manuver Vagal", sub: "Valsava · pijat sinus karotis",
-    pearls: "PERKI: manuver vagal menghentikan ~25% PSVT. Hindari pijat sinus karotis bilateral / bila ada bruit." },
-  { kind: "drug", title: "Adenosin 6 mg IV cepat", sub: "Flush NaCl 20 mL · lengan diangkat · dosis ke-2: 12 mg",
-    pearls: "Defibrilator harus siap. Hindari pada asma. Kurangi 3 mg bila pakai dipiridamol/karbamazepin atau akses sentral." },
-  { kind: "drug", title: "QRS lebar stabil · Amiodaron", sub: "150 mg IV dalam 10 menit · ulang tiap 10 mnt prn",
-    pearls: "Maks 2,2 g/24 jam. Maintenance: 1 mg/mnt × 6 jam, lalu 0,5 mg/mnt × 18 jam." },
-  { kind: "outcome", title: "Konsul kardiologi", sub: "Cari etiologi · pertimbangkan ablasi / EP study",
-    pearls: "Bila pre-eksitasi (WPW) dengan AF → hindari adenosin & CCB; gunakan amiodaron / kardioversi." },
+  // [0] Box 1 — AHA 2025: Assess appropriateness
+  {
+    kind: "action",
+    title: "Identifikasi & nilai",
+    sub: "HR ≥ 150/mnt · nilai klinis · apakah takiaritmia?",
+    pearls: "Pertanyaan kunci: apakah HR ini proporsional terhadap kondisi klinis (demam, nyeri, hipovolemi)? Sinus takikardi sebagai respons fisiologis tidak memerlukan antiaritmia.",
+  },
+  // [1] Box 2 — AHA 2025: Initial assessment & support ← BARU (sebelumnya tidak ada)
+  {
+    kind: "action",
+    title: "Stabilisasi awal (Box 2 AHA 2025)",
+    sub: "Jaga jalan napas · O₂ bila hipoksemi · monitor EKG & TD & oksimetri · akses IV · EKG 12-sandapan",
+    pearls: [
+      "AHA 2025 Box 2: langkah ini wajib sebelum decision stabil/tidak stabil.",
+      "EKG 12-sandapan kritis: tentukan QRS sempit/lebar, regular/ireguler, ada delta wave (WPW)?",
+      "Pasang defibrilator/kardioverter dalam jangkauan sebelum terapi apapun.",
+    ],
+  },
+  // [2] Box 3 — decision: ada compromise? ← digeser dari index [1]
+  {
+    kind: "decision",
+    title: "Persistent tachyarrhythmia dengan compromise?",
+    q: "Ada hipotensi · AMS · syok · nyeri dada iskemik · gagal jantung akut?",
+    yes: { label: "Tidak stabil — kardioversi segera", tint: "var(--danger)", targetIndex: 3 },
+    no:  { label: "Stabil — analisis QRS", tint: "var(--success)", targetIndex: 5 },
+  },
+  // [3] Box 6 — kardioversi (tidak stabil) ← digeser dari index [2]
+  {
+    kind: "shock",
+    title: "Kardioversi tersinkron (Box 6)",
+    sub: "Sedasi bila memungkinkan · QRS sempit reguler: pertimbangkan adenosin dulu",
+    pearls: [
+      "PERKI: sedasi midazolam 1–2 mg IV + analgetik (fentanil/morfin) bila sadar.",
+      "Energi: A-fib 120–200 J bifasik · A-flutter/SVT 50–100 J · VT monomorfik 100 J.",
+      "Sinkronisasi WAJIB (mode 'sync'); bila gagal sinkron dan pasien memburuk → defibrilasi asinkron.",
+      "Polimorfik VT tidak stabil: TIDAK bisa disinkron → defibrilasi dosis tinggi (asinkron).",
+    ],
+  },
+  // [4] Box 7 — refrakter (setelah kardioversi gagal)
+  {
+    kind: "action",
+    title: "Jika refrakter (Box 7)",
+    sub: "Pertimbangkan: naikkan energi · tambah antiaritmia · konsul spesialis",
+    pearls: [
+      "Cari penyebab yang bisa dikoreksi (iskemia, elektrolit, obat).",
+      "Antiaritmia IV sebelum kardioversi ulang dapat meningkatkan keberhasilan.",
+      "Konsul kardiologi/elektrofisiologi segera bila kardioversi ≥ 3× gagal.",
+    ],
+  },
+  // [5] Box 4 — decision: QRS lebar atau sempit? (stabil)
+  {
+    kind: "decision",
+    title: "QRS lebar atau sempit?",
+    q: "Durasi QRS pada EKG 12-sandapan",
+    yes: { label: "Lebar ≥ 0,12 dtk → VT / SVT aberan", tint: "var(--tint-neuro)", targetIndex: 8 },
+    no:  { label: "Sempit < 0,12 dtk → SVT", tint: "var(--info)", targetIndex: 6 },
+  },
+  // [6] Box 5a — QRS sempit stabil: manuver vagal + adenosin
+  {
+    kind: "action",
+    title: "QRS sempit reguler · Manuver Vagal",
+    sub: "Valsava · pijat sinus karotis (unilateral) · cold water immersion",
+    pearls: [
+      "PERKI: manuver vagal menghentikan ~25% PSVT. Lakukan saat monitor EKG berjalan.",
+      "Hindari pijat sinus karotis: bilateral, pada pasien dengan bruit, atau riwayat stroke.",
+      "Modified Valsava (recumbent + passive leg raise setelah strain) lebih efektif.",
+    ],
+  },
+  // [7] Box 5b — Adenosin
+  {
+    kind: "drug",
+    title: "Adenosin 6 mg IV bolus cepat",
+    sub: "Flush NaCl 20 mL segera · lengan diangkat · dosis ke-2: 12 mg bila tidak respons",
+    pearls: [
+      "Defibrilator harus siap sebelum pemberian — dapat memicu VF pada WPW + AF.",
+      "Hindari pada asma berat (bronkospasme).",
+      "Kurangi dosis menjadi 3 mg bila: pakai dipiridamol/karbamazepin, pasca transplantasi jantung, atau akses vena sentral.",
+      "QRS lebar: adenosin hanya bila regular DAN monomorfik (untuk diagnostik/terapi SVT aberan).",
+      "QRS ireguler lebar (AF + WPW) → KONTRAINDIKASI adenosin (risiko VF).",
+    ],
+  },
+  // [8] Box 8 — QRS lebar stabil: antiaritmia ← DIPERBARUI (tambah Procainamide)
+  {
+    kind: "drug",
+    title: "QRS lebar stabil · Antiaritmia IV (Box 8)",
+    sub: "Prokainamid 20–50 mg/mnt (maks 17 mg/kg) · atau Amiodaron 150 mg/10 mnt · konsul spesialis",
+    pearls: [
+      "AHA 2025: pertimbangkan adenosin hanya bila QRS lebar REGULAR dan MONOMORFIK.",
+      "Prokainamid: loading 20–50 mg/mnt IV → hentikan bila aritmia terminasi, QRS melebar >50%, hipotensi, atau maks 17 mg/kg. Maintenance 1–4 mg/mnt. HINDARI pada QT memanjang atau CHF.",
+      "Amiodaron: 150 mg IV dalam 10 menit, dapat diulang. Maintenance 1 mg/mnt × 6 jam.",
+      "Jangan berikan dua antiaritmia IV bersamaan tanpa konsul — risiko proaritmia.",
+      "QRS lebar ireguler POLIMORFIK (TdP) → defibrilasi, bukan kardioversi atau antiaritmia Kelas I.",
+    ],
+  },
+  // [9] Box AF — AF dengan rate cepat (QRS sempit ireguler) ← BARU
+  {
+    kind: "action",
+    title: "QRS sempit IREGULER · Fibrilasi Atrium",
+    sub: "Rate control: diltiazem atau β-blocker IV · rhythm control: kardioversi bila tidak stabil · antikoagulasi",
+    pearls: [
+      "Identifikasi: irama tidak teratur (irregularly irregular), tidak ada gelombang P, garis dasar bergetar.",
+      "Rate control akut: diltiazem 0,25 mg/kg IV bolus atau metoprolol 2,5–5 mg IV. Alternatif: digoksin atau amiodaron pada CHF.",
+      "Kardioversi elektrik: hanya bila tidak stabil ATAU durasi AF jelas < 48 jam.",
+      "AF > 48 jam atau durasi tidak diketahui: JANGAN kardioversi tanpa antikoagulasi adekuat (risiko emboli) — kecuali hemodinamik tidak stabil.",
+      "WPW + AF: HINDARI adenosin, digoksin, diltiazem, verapamil, β-blocker IV → gunakan amiodaron atau kardioversi segera.",
+    ],
+  },
+  // [10] Konsul & follow-up
+  {
+    kind: "outcome",
+    title: "Konsul kardiologi",
+    sub: "Cari etiologi · pertimbangkan ablasi / EP study · antikoagulasi jangka panjang",
+    pearls: [
+      "WPW dengan AF atau SVT refrakter → ablasi kateter (kuratif >95%).",
+      "VT pada penyakit jantung struktural → ICD + konsul EP.",
+      "AF: stratifikasi risiko emboli (CHA₂DS₂-VASc ≥ 2 → DOAC).",
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------

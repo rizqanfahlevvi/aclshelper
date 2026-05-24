@@ -485,14 +485,30 @@ export function DesktopAlgorithm({ id, onPick }) {
         {step.sub && <div className="t-callout" style={{ color: "var(--label-primary)" }}>{step.sub}</div>}
         {step.kind === "decision" && (
           <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,59,48,0.10)", boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "55" }}>
-              <div className="t-caption-2" style={{ color: step.yes.tint, fontWeight: 700 }}>YES</div>
+            <button
+              onClick={() => {
+                const target = step.yes?.targetIndex ?? Math.min(selected + 1, flow.length - 1);
+                setSelected(target);
+              }}
+              style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,59,48,0.10)",
+                boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "55", border: 0, cursor: "pointer",
+                textAlign: "left", transition: "opacity 150ms" }}
+            >
+              <div className="t-caption-2" style={{ color: step.yes.tint, fontWeight: 700 }}>YES →</div>
               <div className="t-headline" style={{ color: step.yes.tint, marginTop: 4 }}>{step.yes.label}</div>
-            </div>
-            <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(0,122,255,0.08)", boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "55" }}>
-              <div className="t-caption-2" style={{ color: step.no.tint, fontWeight: 700 }}>NO</div>
+            </button>
+            <button
+              onClick={() => {
+                const target = step.no?.targetIndex ?? Math.min(selected + 2, flow.length - 1);
+                setSelected(target);
+              }}
+              style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(0,122,255,0.08)",
+                boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "55", border: 0, cursor: "pointer",
+                textAlign: "left", transition: "opacity 150ms" }}
+            >
+              <div className="t-caption-2" style={{ color: step.no.tint, fontWeight: 700 }}>NO →</div>
               <div className="t-headline" style={{ color: step.no.tint, marginTop: 4 }}>{step.no.label}</div>
-            </div>
+            </button>
           </div>
         )}
         {step.pearls && (
