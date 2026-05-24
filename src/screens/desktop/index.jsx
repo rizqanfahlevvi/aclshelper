@@ -31,10 +31,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
               boxShadow: '0 4px 10px rgba(255,59,48,0.25)', flexShrink: 0 }}>
               <Icons.boltFill size={18}/>
             </div>
-            <div>
-              <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
-              <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MDKit · v1.1</div>
-            </div>
+            <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
           </div>
         )}
         <button onClick={onToggleCollapse}
