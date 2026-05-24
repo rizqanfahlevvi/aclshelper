@@ -171,37 +171,43 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <DesktopTopbar crumb={['Beranda']}/>
 
-      <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr', gap: 14,
+      <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
         animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
-        <button onClick={onOpenCpr}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 10, padding: '22px 16px',
-            background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
-            borderRadius: 16, border: 0, cursor: 'pointer',
-            boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
-            animation: 'acls-fab-ring 2.5s 1.5s infinite',
-            transition: 'transform 160ms' }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-          <Icons.boltFill size={28}/>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontWeight: 700, fontSize: 16 }}>Code Blue</div>
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>CPR Workspace</div>
-          </div>
-        </button>
-        {[
-          { key: "vfvt",  label: "VF / pVT",       sub: "Jalur shockable rhythm",  tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-          { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable rhythm",    tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-          { key: "brady", label: "Bradikardi",     sub: "HR < 50 · simptomatik",   tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-          { key: "tachy", label: "Takikardi",      sub: "HR > 150 · dengan nadi",  tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
-        ].map(c => (
-          <button key={c.key} onClick={() => onPick("algo", c.key)} className="acls-desk-quick">
-            <span className="glyph" style={{ background: c.tint, color: "#fff" }}>{c.icon}</span>
-            <div className="t-headline">{c.label}</div>
-            <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
-            <span className="t-caption-2" style={{ color: c.tint, marginTop: 14, fontWeight: 600 }}>Buka algoritma →</span>
+        {/* Left column: Code Blue (+ future Saweria card below) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <button onClick={onOpenCpr}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 10, padding: '28px 16px',
+              background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+              borderRadius: 16, border: 0, cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+              animation: 'acls-fab-ring 2.5s 1.5s infinite',
+              transition: 'transform 160ms' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
+            <Icons.boltFill size={32}/>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
+              <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
+            </div>
           </button>
-        ))}
+        </div>
+        {/* Right column: 2×2 algo cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          {[
+            { key: "vfvt",  label: "VF / pVT",       sub: "Jalur shockable rhythm",  tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
+            { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable rhythm",    tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
+            { key: "brady", label: "Bradikardi",     sub: "HR < 50 · simptomatik",   tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
+            { key: "tachy", label: "Takikardi",      sub: "HR > 150 · dengan nadi",  tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
+          ].map(c => (
+            <button key={c.key} onClick={() => onPick("algo", c.key)} className="acls-desk-quick">
+              <span className="glyph" style={{ background: c.tint, color: "#fff" }}>{c.icon}</span>
+              <div className="t-headline">{c.label}</div>
+              <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
+              <span className="t-caption-2" style={{ color: c.tint, marginTop: 14, fontWeight: 600 }}>Buka algoritma →</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
