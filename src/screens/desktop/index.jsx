@@ -171,6 +171,17 @@ export function DesktopTopbar({ crumb }) {
    Dashboard
    ============================================================ */
 export function DesktopDashboard({ onPick, onOpenCpr }) {
+  const [spotlight, setSpotlight] = useState(0);
+  const intervalRef = useRef(null);
+  const switchTo = (idx) => {
+    setSpotlight(idx);
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+  };
+  useEffect(() => {
+    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
   return (
     <div style={{ padding: "16px 24px 32px", overflowY: "auto", height: "100%" }}>
       <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
@@ -225,24 +236,48 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
         animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
-        {/* Left column: Code Blue (+ future Saweria card below) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <button onClick={onOpenCpr}
-            style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              gap: 8, padding: '20px 16px',
-              background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
-              borderRadius: 16, border: 0, cursor: 'pointer',
-              boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
-              animation: 'acls-fab-ring 2.5s 1.5s infinite',
-              transition: 'transform 160ms' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-            <Icons.boltFill size={26}/>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
-              <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
-            </div>
-          </button>
+        {/* Left column: spotlight — Code Blue ↔ Saweria */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {spotlight === 0
+            ? <button key="cb" onClick={onOpenCpr}
+                style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
+                  background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                  borderRadius: 16, border: 0, cursor: 'pointer',
+                  boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+                  animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
+                <Icons.boltFill size={26}/>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
+                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
+                </div>
+              </button>
+            : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
+                style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
+                  background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
+                  borderRadius: 16, border: 0, cursor: 'pointer', textDecoration: 'none',
+                  boxShadow: '0 8px 20px rgba(255,149,0,0.30)',
+                  animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
+                <Icons.coffee size={26} stroke={2}/>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontWeight: 700, fontSize: 17 }}>Dukung</div>
+                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>saweria.co</div>
+                </div>
+              </a>
+          }
+          <div style={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
+            {[0, 1].map(i => (
+              <div key={i} onClick={() => switchTo(i)}
+                style={{
+                  width: spotlight === i ? 16 : 6, height: 6, borderRadius: 3, cursor: 'pointer',
+                  background: spotlight === i
+                    ? (i === 0 ? 'var(--danger)' : '#FF9500')
+                    : 'var(--fill-tertiary)',
+                  transition: 'width 200ms var(--ease-out), background 200ms'
+                }}/>
+            ))}
+          </div>
         </div>
         {/* Right column: 2×2 algo cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>

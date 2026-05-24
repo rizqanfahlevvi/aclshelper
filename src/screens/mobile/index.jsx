@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Icons, NavBar, LargeTitle, SearchField,
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
@@ -189,6 +189,17 @@ const STAT_CARDS = [
 
 export function MobileHome({ nav, openCPR }) {
   const [query, setQuery] = useState('');
+  const [spotlight, setSpotlight] = useState(0);
+  const intervalRef = useRef(null);
+  const switchTo = (idx) => {
+    setSpotlight(idx);
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+  };
+  useEffect(() => {
+    intervalRef.current = setInterval(() => setSpotlight(s => (s + 1) % 2), 7000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -285,26 +296,58 @@ export function MobileHome({ nav, openCPR }) {
       ) : (
         <>
           <div style={{ padding: '0 16px 4px' }}>
-            <button onClick={openCPR}
-              style={{ width: '100%', borderRadius: 16,
-                background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
-                display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
-                boxShadow: '0 8px 24px rgba(255,59,48,0.30)',
-                border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(255,59,48,0.40)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(255,59,48,0.30)'; }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icons.boltFill size={22}/>
-              </div>
-              <div style={{ flex: 1, textAlign: 'left' }}>
-                <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
-                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </button>
+            {spotlight === 0
+              ? <button key="cb" onClick={openCPR}
+                  style={{ width: '100%', borderRadius: 16,
+                    background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
+                    boxShadow: '0 8px 24px rgba(255,59,48,0.30)',
+                    border: 0, cursor: 'pointer',
+                    animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icons.boltFill size={22}/>
+                  </div>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
+                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
+                  style={{ width: '100%', borderRadius: 16,
+                    background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
+                    boxShadow: '0 8px 24px rgba(255,149,0,0.30)',
+                    border: 0, cursor: 'pointer', textDecoration: 'none',
+                    animation: 'acls-fadeslide 300ms var(--ease-out) both' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icons.coffee size={22} stroke={2}/>
+                  </div>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>Dukung Pengembangan</div>
+                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>saweria.co/rizqanfahlevvi</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </a>
+            }
+            <div style={{ display: 'flex', gap: 5, justifyContent: 'center', marginTop: 8 }}>
+              {[0, 1].map(i => (
+                <div key={i} onClick={() => switchTo(i)}
+                  style={{
+                    width: spotlight === i ? 16 : 6, height: 6, borderRadius: 3, cursor: 'pointer',
+                    background: spotlight === i
+                      ? (i === 0 ? 'var(--danger)' : '#FF9500')
+                      : 'var(--fill-tertiary)',
+                    transition: 'width 200ms var(--ease-out), background 200ms'
+                  }}/>
+              ))}
+            </div>
           </div>
 
           <SectionHeader>Akses Cepat</SectionHeader>
