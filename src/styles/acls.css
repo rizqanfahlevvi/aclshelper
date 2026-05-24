@@ -11,7 +11,9 @@ body {
   color: var(--label-primary);
   font-family: var(--font-sans);
   overflow: hidden;
+  overscroll-behavior: none;
 }
+#root { overscroll-behavior: none; }
 
 /* Mobile full-screen layout */
 .acls-app-mobile {
@@ -30,12 +32,13 @@ body {
 
 .acls-mobile-content {
   position: absolute;
-  top: 52px;
-  bottom: 90px;
+  top: calc(52px + env(safe-area-inset-top));
+  bottom: calc(90px + max(0px, env(safe-area-inset-bottom) - 22px));
   left: 0; right: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   animation: acls-fadeslide 260ms var(--ease-out) both;
 }
 
@@ -279,8 +282,8 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 80px 1fr 1fr;
   align-items: center;
-  height: 90px;
-  padding: 0 8px 22px;
+  height: calc(90px + max(0px, env(safe-area-inset-bottom) - 22px));
+  padding: 0 8px max(22px, env(safe-area-inset-bottom));
   background: var(--material-chrome);
   backdrop-filter: var(--blur-base);
   -webkit-backdrop-filter: var(--blur-base);
@@ -292,6 +295,7 @@ body {
   color: var(--label-tertiary);
   font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
   padding: 4px 0;
+  touch-action: manipulation;
   transition: color var(--dur-fast), transform 120ms;
 }
 .acls-bottomnav .nav-btn:active { transform: scale(0.92); }
@@ -405,6 +409,7 @@ body {
   align-items: flex-start;
   min-height: 72px;
   text-align: left;
+  touch-action: manipulation;
   transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
   color: #fff;
   box-shadow: 5px 5px 14px rgba(0,0,0,0.18), -3px -3px 10px rgba(255,255,255,0.16),
@@ -470,6 +475,7 @@ body {
 .cpr-log {
   flex: 1; overflow-y: auto;
   background: var(--bg-secondary);
+  overscroll-behavior-y: contain;
 }
 
 @keyframes acls-blink {

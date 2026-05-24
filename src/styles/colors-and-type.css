@@ -16,17 +16,19 @@
   --font-sans:
     -apple-system, BlinkMacSystemFont,
     "SF Pro Text", "SF Pro Display",
+    "Google Sans", "Google Sans Text", Roboto,
     "Inter var", "Inter",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   --font-rounded:
     ui-rounded, -apple-system-ui-rounded,
     "SF Pro Rounded", "SF Pro Display",
-    "Nunito", "Inter var", system-ui, sans-serif;
+    "Google Sans Display", Nunito,
+    "Inter var", system-ui, sans-serif;
 
   --font-mono:
     ui-monospace, "SF Mono", "JetBrains Mono",
-    Menlo, Monaco, Consolas, monospace;
+    "Roboto Mono", Menlo, Monaco, Consolas, monospace;
 
   /* --- Type scale (iOS Human Interface Guidelines) -------- */
   /* size / line-height / weight / tracking */
@@ -282,6 +284,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 .t-large-title { font: var(--type-large-title); font-family: var(--font-sans); letter-spacing: 0.011em; }

@@ -71,11 +71,11 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false })
   const time = useClock();
   return (
     <div style={{
-      height: 52,
+      height: 'calc(52px + env(safe-area-inset-top))',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 16px',
+      padding: 'env(safe-area-inset-top) 16px 0',
       background: 'var(--material-chrome)',
       backdropFilter: 'var(--blur-base)',
       WebkitBackdropFilter: 'var(--blur-base)',
@@ -446,7 +446,7 @@ export default function App() {
 
         {cprOpen && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'var(--bg-secondary)',
-            animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 52 }}>
+            animation: 'acls-overlay-in 280ms var(--ease-out) both', paddingTop: 'calc(52px + env(safe-area-inset-top))' }}>
             <CPRTimer isMobile initialRhythm={cprRhythm} onClose={closeCPR}/>
           </div>
         )}

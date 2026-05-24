@@ -572,7 +572,7 @@ export function MobileDrugList({ nav }) {
         </>
       ) : (
         <>
-          <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
+          <div className="chips-scroll" style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
             {DRUG_FILTERS.map(f => (
               <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
                 style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
@@ -716,7 +716,7 @@ export function MobileEkgList({ nav }) {
         </>
       ) : (
         <>
-          <div style={{ padding: "6px 16px 10px", display: "flex", gap: 6, overflowX: "auto" }}>
+          <div className="chips-scroll" style={{ padding: "6px 16px 10px", display: "flex", gap: 6, overflowX: "auto" }}>
             {EKG_SEV_FILTERS.map(f => (
               <button key={f.v} onClick={() => setSev(f.v)} className={`ios-btn sm pill${sev === f.v ? ' active' : ''}`}
                 style={{ fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>

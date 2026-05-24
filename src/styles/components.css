@@ -194,6 +194,7 @@ a { color: var(--accent); text-decoration: none; }
   color: var(--accent-fg);
   box-shadow: 4px 4px 12px rgba(0,122,255,0.32), -3px -3px 9px rgba(255,255,255,0.16),
               inset 0 1px 0 rgba(255,255,255,0.22);
+  touch-action: manipulation;
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
 }
 .ios-btn:active {
@@ -496,3 +497,10 @@ a { color: var(--accent); text-decoration: none; }
 [data-theme="dark"] .ios-btn.sm.pill:not(.active):active { opacity: 0.7; box-shadow: none; }
 [data-theme="dark"] .ios-switch:not(.on) { background: var(--fill-secondary); box-shadow: none; }
 .phone-screen::-webkit-scrollbar { display: none; }
+
+/* Horizontal scroll chip rows — hide scrollbar cross-browser */
+.chips-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.chips-scroll::-webkit-scrollbar { display: none; }
