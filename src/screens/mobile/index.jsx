@@ -831,7 +831,7 @@ export function MobileHsTs({ nav }) {
 const SPEED_DIAL_ITEMS = [
   { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
   { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
-  { key: 'unknown',      label: 'Belum terpasang', sub: 'Mulai CPR segera',   icon: (s) => <Icons.heart size={s} stroke={2}/>,      tint: 'var(--label-tertiary)' },
+  { key: 'awaiting',     label: 'Belum terpasang', sub: 'Box 1 — pasang monitor', icon: (s) => <Icons.heart size={s} stroke={2}/>,   tint: 'var(--label-tertiary)' },
 ];
 
 export function SpeedDial({ onClose, onPick }) {
