@@ -22,28 +22,23 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   ];
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      {collapsed ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0' }}>
-          <button onClick={onToggleCollapse}
-            style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
-              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px 0' }}>
-          <div className="acls-sidebar-search" style={{ flex: 1, margin: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 10px 0',
+        overflow: 'hidden' }}>
+        <button onClick={onToggleCollapse}
+          style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
+            border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            transition: 'transform 220ms var(--ease-out)',
+            transform: collapsed ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        {!collapsed && (
+          <div className="acls-sidebar-search" style={{ flex: 1, margin: 0,
+            animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
             <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
           </div>
-          <button onClick={onToggleCollapse}
-            style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
-              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <nav className="acls-sidebar-nav">
         {!collapsed && <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px" }}>MENU</div>}
