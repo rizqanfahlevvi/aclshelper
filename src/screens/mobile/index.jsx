@@ -214,7 +214,7 @@ export function MobileHome({ nav, openCPR }) {
           <Icons.boltFill size={11} fill="var(--danger)"/>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Bantuan Hidup Jantung Lanjut
+            Your daily Cardiac Problem Companion
           </span>
         </div>
         <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.05,
@@ -276,37 +276,42 @@ export function MobileHome({ nav, openCPR }) {
         </div>
       ) : (
         <>
-          <div style={{ padding: "0 16px 4px" }}>
-            <button onClick={openCPR} className="acls-hero-emergency" style={{ width: "100%", textAlign: "left", padding: "16px 18px", borderRadius: 18, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 24px rgba(255,59,48,0.30)", transition: "transform 160ms, box-shadow 160ms" }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(255,59,48,0.40)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,59,48,0.30)"; }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.18)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ padding: '0 16px 12px', display: 'grid',
+            gridTemplateColumns: '1.3fr 1fr 1fr', gridTemplateRows: 'auto auto', gap: 10 }}>
+            <button onClick={openCPR}
+              style={{ gridRow: '1 / 3', borderRadius: 18,
+                background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 10, padding: '20px 12px', boxShadow: '0 8px 24px rgba(255,59,48,0.30)',
+                border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(255,59,48,0.40)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(255,59,48,0.30)'; }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.18)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icons.boltFill size={26}/>
               </div>
-              <div style={{ flex: 1 }}>
-                <div className="t-headline" style={{ color: "#fff" }}>Aktifkan Code Blue</div>
-                <div className="t-footnote" style={{ color: "rgba(255,255,255,0.85)", marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Code Blue</div>
+                <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>CPR Workspace</div>
               </div>
-              <Icons.chevR size={16} stroke={2.4}/>
             </button>
-          </div>
-
-          <SectionHeader>Akses cepat</SectionHeader>
-          <div style={{ padding: "0 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-              { key: "vfvt",  label: "VF / pVT",       sub: "Shockable",     tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
-              { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable", tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
-              { key: "brady", label: "Bradikardi",     sub: "HR < 50",       tint: "var(--warning)",    icon: <Icons.slow size={22} stroke={2.2}/> },
-              { key: "tachy", label: "Takikardi",      sub: "HR > 150",      tint: "var(--tint-neuro)", icon: <Icons.fast size={22} stroke={2.2}/> },
+              { key: 'vfvt',  label: 'VF / pVT',   sub: 'Shockable',  tint: 'var(--danger)',     icon: <Icons.boltFill size={18}/> },
+              { key: 'pea',   label: 'PEA / As.',   sub: 'Non-shock',  tint: 'var(--info)',       icon: <Icons.flatline size={18} stroke={2.2}/> },
+              { key: 'brady', label: 'Bradikardi',  sub: 'HR < 50',    tint: 'var(--warning)',    icon: <Icons.slow size={18} stroke={2.2}/> },
+              { key: 'tachy', label: 'Takikardi',   sub: 'HR > 150',   tint: 'var(--tint-neuro)', icon: <Icons.fast size={18} stroke={2.2}/> },
             ].map(c => (
-              <button key={c.key} onClick={() => nav.push({ screen: "algo", id: c.key })}
-                style={{ padding: "14px", borderRadius: 16, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", flexDirection: "column", gap: 10, minHeight: 100, transition: "transform 160ms, box-shadow 160ms" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "var(--shadow-2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-1)"; }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{c.icon}</div>
+              <button key={c.key} onClick={() => nav.push({ screen: 'algo', id: c.key })}
+                style={{ padding: '12px 10px', borderRadius: 14, background: 'var(--bg-tertiary)',
+                  boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'column',
+                  gap: 8, border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-2)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-1)'; }}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: c.tint, color: '#fff',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{c.icon}</div>
                 <div>
-                  <div className="t-headline">{c.label}</div>
-                  <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{c.sub}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
                 </div>
               </button>
             ))}

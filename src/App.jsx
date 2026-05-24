@@ -7,10 +7,9 @@ import {
   MobileHsTs, InstallPopup,
 } from './screens/mobile';
 import {
-  DesktopSidebar, DesktopTopbar, DesktopDashboard,
+  DesktopSidebar, DesktopDashboard,
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
-import { ACLS_ALGORITHMS } from './data';
 
 function useBreakpoint() {
   const get = () => {
@@ -189,7 +188,7 @@ export default function App() {
   /* Desktop state */
   const [deskView, setDeskView] = useState({ screen: 'dashboard' });
   const desktopPick = (screen, id) => setDeskView({ screen, id });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(bp !== 'desktop');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
 
   const renderMobile = () => {
@@ -232,7 +231,6 @@ export default function App() {
   };
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
-  const algoLabel = (ACLS_ALGORITHMS.find(a => a.key === deskView.id) || {}).label || 'Adult Cardiac Arrest';
 
   /* ── MOBILE ───────────────────────────────────────────────── */
   if (isMobile) {
@@ -292,14 +290,7 @@ export default function App() {
           onChange={(screen, id) => setDeskView({ screen, id })}
           onOpenCpr={() => setCprOpen(true)}/>
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-          <DesktopTopbar crumb={
-            deskView.screen === 'algo'  ? ['ACLS Helper', 'Algoritma', algoLabel]
-            : deskView.screen === 'drugs' ? ['ACLS Helper', 'Obat']
-            : deskView.screen === 'ekg'   ? ['ACLS Helper', 'Pustaka EKG']
-            : deskView.screen === 'hsts'  ? ['ACLS Helper', 'Hs & Ts']
-            : ['ACLS Helper', 'Beranda']
-          }/>
-          {/* Content area — CPR panel renders here (absolute) so sidebar + topbar stay visible */}
+          {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
             {renderDesktop()}
 

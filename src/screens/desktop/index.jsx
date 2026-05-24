@@ -22,16 +22,30 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   ];
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      <div className="acls-sidebar-brand" style={{ justifyContent: collapsed ? 'center' : undefined, padding: collapsed ? '14px 8px' : undefined }}>
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, var(--danger), #c81e10)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 14px rgba(255,59,48,0.25)", flexShrink: 0 }}>
-          <Icons.boltFill size={20}/>
-        </div>
-        {!collapsed && (
-          <div>
-            <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
-            <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>MDKit · v1.1</div>
+      <div className="acls-sidebar-brand"
+        style={{ justifyContent: 'space-between', padding: collapsed ? '0 8px' : '0 12px 0 14px', height: 52 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, var(--danger), #c81e10)',
+            color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 10px rgba(255,59,48,0.25)', flexShrink: 0 }}>
+            <Icons.boltFill size={18}/>
           </div>
-        )}
+          {!collapsed && (
+            <div>
+              <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MDKit · v1.1</div>
+            </div>
+          )}
+        </div>
+        <button onClick={onToggleCollapse}
+          style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
+            border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {collapsed
+            ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          }
+        </button>
       </div>
 
       {!collapsed && (
@@ -84,13 +98,6 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
       </nav>
 
       <div style={{ padding: collapsed ? '10px 8px 16px' : '10px 14px 16px', marginTop: 'auto' }}>
-        <button onClick={onToggleCollapse}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-end',
-            width: '100%', background: 'none', border: 0, cursor: 'pointer',
-            color: 'var(--label-tertiary)', padding: '0 0 10px', gap: 6 }}>
-          {!collapsed && <span className="t-caption-2">Perkecil sidebar</span>}
-          {collapsed ? <Icons.chevR size={14}/> : <Icons.chevL size={14}/>}
-        </button>
         <button onClick={onOpenCpr} className="ios-btn block"
           style={{ background: "var(--danger)", color: "#fff", height: collapsed ? 40 : 46,
             borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: collapsed ? 0 : 8,
@@ -119,15 +126,6 @@ export function DesktopTopbar({ crumb }) {
           </React.Fragment>
         ))}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span className="t-caption-2" style={{ color: "var(--label-secondary)" }}>
-          <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "var(--success)", marginRight: 6 }}/>
-          PERKI 2025 · AHA 2025
-        </span>
-        <button className="nb-btn glyph" style={{ width: 30, height: 30, borderRadius: 8, background: "var(--fill-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-          <Icons.settings size={16}/>
-        </button>
-      </div>
     </div>
   );
 }
@@ -144,7 +142,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
           <Icons.boltFill size={12} fill="var(--danger)"/>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Bantuan Hidup Jantung Lanjut
+            Your daily Cardiac Problem Companion
           </span>
         </div>
 
@@ -188,11 +186,10 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
               boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer' }}>
             <Icons.boltFill size={18}/> Aktifkan Code Blue
           </button>
-          <span className="t-footnote" style={{ color: 'var(--label-tertiary)' }}>
-            Dibuat untuk PERKI 2025 · AHA 2025
-          </span>
         </div>
       </div>
+
+      <DesktopTopbar crumb={['Beranda']}/>
 
       <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
         {[
@@ -315,7 +312,9 @@ export function DesktopAlgorithm({ id, onPick }) {
   }, [selected, id]);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Algoritma', algo.label]}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ overflowY: "auto", padding: "20px 24px 40px", borderRight: "0.5px solid var(--separator-opaque)" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ALUR ALGORITMA</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
@@ -400,6 +399,7 @@ export function DesktopAlgorithm({ id, onPick }) {
           </button>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -411,7 +411,9 @@ export function DesktopDrugs({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_DRUGS[0].key);
   const d = ACLS_DRUGS.find(x => x.key === selectedKey) || ACLS_DRUGS[0];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Obat']}/>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>OBAT ACLS · {ACLS_DRUGS.length}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -469,6 +471,7 @@ export function DesktopDrugs({ initialId, onPick }) {
           <div className="t-footnote" style={{ marginTop: 4, lineHeight: 1.5 }}>{d.contra}</div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -480,7 +483,9 @@ export function DesktopEkg({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
   const r = ACLS_RHYTHMS.find(x => x.key === selectedKey) || ACLS_RHYTHMS[0];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Pustaka EKG']}/>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
       <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>IRAMA · {ACLS_RHYTHMS.length}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -517,6 +522,7 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -527,7 +533,9 @@ export function DesktopEkg({ initialId, onPick }) {
 export function DesktopHsTs({ onPick }) {
   const [exp, setExp] = useState(null);
   return (
-    <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <DesktopTopbar crumb={['Hs & Ts']}/>
+      <div style={{ padding: "20px 28px 40px", overflowY: "auto", flex: 1 }}>
       <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
       <h2 className="t-title-1" style={{ margin: "2px 0 6px" }}>Hs &amp; Ts — Penyebab reversibel</h2>
       <div className="t-callout" style={{ color: "var(--label-secondary)" }}>Ketuk untuk melihat clue klinis + tatalaksana. Cari sistematis tiap rhythm check.</div>
@@ -557,6 +565,7 @@ export function DesktopHsTs({ onPick }) {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
