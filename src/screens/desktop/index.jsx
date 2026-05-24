@@ -51,13 +51,14 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
       </div>
 
       <nav className="acls-sidebar-nav">
-        {!collapsed && <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px" }}>MENU</div>}
+        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 18px 4px",
+          visibility: collapsed ? 'hidden' : 'visible' }}>MENU</div>
         {items.map(it => (
           <button key={it.key} onClick={() => onChange(it.key)}
             className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
-            style={{ padding: '8px 10px' }}
+            style={{ padding: '0 10px', height: 48 }}
             title={collapsed ? it.label : undefined}>
-            <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0, alignSelf: 'center' }}>
+            <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
               <it.icon size={18} stroke={1.9}/>
             </div>
             {!collapsed && (
