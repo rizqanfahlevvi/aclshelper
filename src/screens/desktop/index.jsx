@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
 import { RhythmStrip } from '../../components/acls';
 import {
@@ -185,7 +185,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         <div style={{ display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
           <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
-            <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.0,
+            <div style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, lineHeight: 1.0,
               letterSpacing: '-0.03em', marginBottom: 8 }}>
               <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
@@ -202,15 +202,16 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
           <div style={{ display: 'flex', gap: 10, flexShrink: 0,
             animation: 'acls-fadeslide 400ms 80ms var(--ease-out) both' }}>
             {[
-              { value: '14',   label: 'Algoritma',  color: 'var(--danger)' },
-              { value: '25',   label: 'Obat',       color: 'var(--warning)' },
-              { value: '16',   label: 'EKG Rhythm', color: 'var(--info)' },
-              { value: '2025', label: 'Panduan',    color: 'var(--success)' },
-            ].map(({ value, label, color }) => (
-              <div key={label} style={{ background: 'var(--fill-secondary)',
-                borderRadius: 12, padding: '10px 14px', minWidth: 90,
-                transition: 'transform 160ms', cursor: 'default' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              { value: '14',   label: 'Algoritma',  color: 'var(--danger)',  screen: 'algo' },
+              { value: '25',   label: 'Obat',       color: 'var(--warning)', screen: 'drugs' },
+              { value: '16',   label: 'EKG Rhythm', color: 'var(--info)',    screen: 'ekg' },
+              { value: '2025', label: 'Panduan',    color: 'var(--success)', screen: null },
+            ].map(({ value, label, color, screen }) => (
+              <div key={label} onClick={() => screen && onPick(screen)}
+                style={{ background: 'var(--fill-secondary)',
+                  borderRadius: 12, padding: '10px 14px', minWidth: 90,
+                  transition: 'transform 160ms', cursor: screen ? 'pointer' : 'default' }}
+                onMouseEnter={e => { if (screen) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
                 <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
@@ -227,7 +228,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         {/* Left column: Code Blue (+ future Saweria card below) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <button onClick={onOpenCpr}
-            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            style={{ flex: 1, minHeight: 140, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               gap: 8, padding: '20px 16px',
               background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
               borderRadius: 16, border: 0, cursor: 'pointer',
@@ -360,6 +361,19 @@ export function DesktopAlgorithm({ id, onPick }) {
   const [selected, setSelected] = useState(0);
   useEffect(() => { setSelected(0); }, [id]);
   const step = flow[selected];
+  const TONE_MAP = { action: "var(--accent)", shock: "var(--danger)", drug: "var(--tint-drug)", note: "var(--tint-theory)", outcome: "var(--success)", decision: "var(--warning)" };
+  const currentTone = step ? (TONE_MAP[step.kind] || "var(--accent)") : "var(--accent)";
+
+  const activeRef = useRef(null);
+  useEffect(() => { activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, [selected]);
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'ArrowDown') setSelected(s => Math.min(s + 1, flow.length - 1));
+      if (e.key === 'ArrowUp')   setSelected(s => Math.max(s - 1, 0));
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [flow.length]);
 
   const relatedDrug = useMemo(() => {
     if (!step) return null;
@@ -381,10 +395,12 @@ export function DesktopAlgorithm({ id, onPick }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {flow.map((s, i) => {
             const active = selected === i;
-            const tone = { action: "var(--accent)", shock: "var(--danger)", drug: "var(--tint-drug)", note: "var(--tint-theory)", outcome: "var(--success)", decision: "var(--warning)" }[s.kind] || "var(--accent)";
+            const tone = TONE_MAP[s.kind] || "var(--accent)";
+            const connColor = i < selected ? "var(--accent)" : (i === selected ? tone : "var(--separator)");
             return (
               <React.Fragment key={i}>
-                <button onClick={() => setSelected(i)} className={"acls-desk-flowstep" + (active ? " active" : "")}
+                <button ref={active ? activeRef : null}
+                  onClick={() => setSelected(i)} className={"acls-desk-flowstep" + (active ? " active" : "")}
                   style={{ background: active ? tone + "14" : "var(--bg-tertiary)", boxShadow: active ? "inset 0 0 0 1px " + tone : "var(--shadow-1)" }}>
                   <span className="kind" style={{ background: tone + "1F", color: tone }}>{s.kind === "decision" ? "?" : s.kind === "shock" ? "⚡" : i + 1}</span>
                   <div style={{ textAlign: "left", flex: 1 }}>
@@ -393,7 +409,7 @@ export function DesktopAlgorithm({ id, onPick }) {
                     {s.kind === "decision" && <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{s.q}</div>}
                   </div>
                 </button>
-                {i < flow.length - 1 && <div style={{ marginLeft: 20, height: 16, borderLeft: "2px dashed " + (selected === i || selected === i + 1 ? tone : "var(--separator)") }}/>}
+                {i < flow.length - 1 && <div style={{ marginLeft: 20, height: 16, borderLeft: "2px dashed " + connColor, transition: "border-color 200ms" }}/>}
               </React.Fragment>
             );
           })}
@@ -401,8 +417,15 @@ export function DesktopAlgorithm({ id, onPick }) {
       </div>
 
       <div style={{ overflowY: "auto", padding: "20px 24px 40px", background: "var(--bg-secondary)" }}>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LANGKAH {selected + 1} DARI {flow.length}</div>
-        <h3 className="t-title-2" style={{ margin: "4px 0 6px" }}>{step.title}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LANGKAH {selected + 1} DARI {flow.length}</div>
+          <div className="t-caption-2" style={{ color: currentTone, fontWeight: 700 }}>{step.kind?.toUpperCase()}</div>
+        </div>
+        <div style={{ height: 3, background: 'var(--fill-secondary)', borderRadius: 2, margin: '6px 0 14px' }}>
+          <div style={{ width: ((selected + 1) / flow.length * 100) + '%', height: '100%',
+            background: currentTone, borderRadius: 2, transition: 'width 300ms var(--ease-out)' }}/>
+        </div>
+        <h3 className="t-title-2" style={{ margin: "0 0 6px" }}>{step.title}</h3>
         {step.sub && <div className="t-callout" style={{ color: "var(--label-primary)" }}>{step.sub}</div>}
         {step.kind === "decision" && (
           <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -465,23 +488,45 @@ export function DesktopAlgorithm({ id, onPick }) {
    ============================================================ */
 export function DesktopDrugs({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_DRUGS[0].key);
+  const [drugQ, setDrugQ] = useState('');
   const d = ACLS_DRUGS.find(x => x.key === selectedKey) || ACLS_DRUGS[0];
+  const filteredDrugs = drugQ.trim()
+    ? ACLS_DRUGS.filter(it => it.name.toLowerCase().includes(drugQ.toLowerCase()) || (it.class || '').toLowerCase().includes(drugQ.toLowerCase()))
+    : ACLS_DRUGS;
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       <DesktopTopbar crumb={['Obat']}/>
       <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
-      <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>OBAT ACLS · {ACLS_DRUGS.length}</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {ACLS_DRUGS.map(it => (
-            <button key={it.key} onClick={() => setSelectedKey(it.key)} className={"acls-list-item " + (selectedKey === it.key ? "active" : "")}>
-              <span style={{ width: 6, height: 30, borderRadius: 3, background: it.tint, flexShrink: 0 }}/>
-              <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                <div className="t-callout" style={{ fontWeight: 600 }}>{it.name}</div>
-                <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{it.class}</div>
-              </div>
-            </button>
-          ))}
+      <div style={{ borderRight: "0.5px solid var(--separator-opaque)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "12px 12px 8px", flexShrink: 0 }}>
+          <div className="acls-sidebar-search" style={{ margin: 0 }}>
+            <Icons.search size={13} stroke={2}/>
+            <input value={drugQ} onChange={e => setDrugQ(e.target.value)} placeholder="Cari obat…"
+              style={{ flex: 1, background: 'none', border: 0, outline: 'none',
+                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}/>
+            {drugQ && <button onClick={() => setDrugQ('')}
+              style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0, color: 'var(--label-tertiary)', display: 'flex' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>}
+          </div>
+        </div>
+        <div style={{ overflowY: "auto", padding: "0 12px 16px", flex: 1 }}>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>OBAT ACLS · {filteredDrugs.length}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {filteredDrugs.length === 0
+              ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+              : filteredDrugs.map(it => (
+              <button key={it.key} onClick={() => setSelectedKey(it.key)} className={"acls-list-item " + (selectedKey === it.key ? "active" : "")}>
+                <span style={{ width: 6, height: 30, borderRadius: 3, background: it.tint, flexShrink: 0 }}/>
+                <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                  <div className="t-callout" style={{ fontWeight: 600 }}>{it.name}</div>
+                  <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{it.class}</div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div style={{ overflowY: "auto", padding: "20px 28px 40px" }}>
@@ -535,26 +580,46 @@ export function DesktopDrugs({ initialId, onPick }) {
 /* ============================================================
    ECG Library
    ============================================================ */
+const EKG_SEVERITY_LABELS = { shockable: 'Shockable', 'non-shockable': 'Non-shock', stable: 'Stabil', unstable: 'Tdk stabil', critical: 'Kritis' };
+
 export function DesktopEkg({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
+  const [ekgFilter, setEkgFilter] = useState('all');
   const r = ACLS_RHYTHMS.find(x => x.key === selectedKey) || ACLS_RHYTHMS[0];
+  const filteredRhythms = ekgFilter === 'all' ? ACLS_RHYTHMS : ACLS_RHYTHMS.filter(it => it.severity === ekgFilter);
+  const allSeverities = [...new Set(ACLS_RHYTHMS.map(r => r.severity))];
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       <DesktopTopbar crumb={['Pustaka EKG']}/>
       <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", flex: 1, overflow: "hidden" }}>
-      <div style={{ borderRight: "0.5px solid var(--separator-opaque)", overflowY: "auto", padding: "16px 12px" }}>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>IRAMA · {ACLS_RHYTHMS.length}</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {ACLS_RHYTHMS.map(it => (
-            <button key={it.key} onClick={() => setSelectedKey(it.key)} className={"acls-list-item " + (selectedKey === it.key ? "active" : "")}
-              style={{ flexDirection: "column", alignItems: "stretch", padding: 8, gap: 4 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span className="t-callout" style={{ fontWeight: 600 }}>{it.short}</span>
-                <span className="ios-tag" style={{ background: it.tint + "22", color: it.tint, textTransform: "uppercase" }}>{it.severity}</span>
-              </div>
-              <RhythmStrip kind={it.key} width={260} height={30} color={it.tint} grid={false}/>
-            </button>
-          ))}
+      <div style={{ borderRight: "0.5px solid var(--separator-opaque)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "10px 12px 8px", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+            {['all', ...allSeverities].map(f => (
+              <button key={f} onClick={() => setEkgFilter(f)}
+                style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, border: 0, cursor: 'pointer',
+                  background: ekgFilter === f ? 'var(--accent)' : 'var(--fill-secondary)',
+                  color: ekgFilter === f ? '#fff' : 'var(--label-secondary)',
+                  transition: 'background 150ms, color 150ms' }}>
+                {f === 'all' ? 'Semua' : (EKG_SEVERITY_LABELS[f] || f)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ overflowY: "auto", padding: "0 12px 16px", flex: 1 }}>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>IRAMA · {filteredRhythms.length}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {filteredRhythms.map(it => (
+              <button key={it.key} onClick={() => setSelectedKey(it.key)} className={"acls-list-item " + (selectedKey === it.key ? "active" : "")}
+                style={{ flexDirection: "column", alignItems: "stretch", padding: 8, gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span className="t-callout" style={{ fontWeight: 600 }}>{it.short}</span>
+                  <span className="ios-tag" style={{ background: it.tint + "22", color: it.tint, textTransform: "uppercase" }}>{it.severity}</span>
+                </div>
+                <RhythmStrip kind={it.key} width={260} height={30} color={it.tint} grid={false}/>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div style={{ overflowY: "auto", padding: "20px 28px 40px" }}>
@@ -587,27 +652,41 @@ export function DesktopEkg({ initialId, onPick }) {
    Hs & Ts
    ============================================================ */
 export function DesktopHsTs({ onPick }) {
-  const [exp, setExp] = useState(null);
+  const [exp, setExp] = useState(new Set());
+  const toggle = (key) => setExp(prev => {
+    const next = new Set(prev);
+    next.has(key) ? next.delete(key) : next.add(key);
+    return next;
+  });
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       <DesktopTopbar crumb={['Hs & Ts']}/>
       <div style={{ padding: "20px 28px 40px", overflowY: "auto", flex: 1 }}>
       <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
       <h2 className="t-title-1" style={{ margin: "2px 0 6px" }}>Hs &amp; Ts — Penyebab reversibel</h2>
-      <div className="t-callout" style={{ color: "var(--label-secondary)" }}>Ketuk untuk melihat clue klinis + tatalaksana. Cari sistematis tiap rhythm check.</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div className="t-callout" style={{ color: "var(--label-secondary)" }}>Ketuk untuk melihat clue klinis + tatalaksana. Cari sistematis tiap rhythm check.</div>
+        {exp.size > 0 && <button onClick={() => setExp(new Set())}
+          style={{ fontSize: 12, color: "var(--accent)", background: "none", border: 0, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}>
+          Tutup semua
+        </button>}
+      </div>
       <div style={{ marginTop: 22, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         {["H","T"].map(g => (
           <div key={g}>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>{g === "H" ? "5 H's" : "5 T's"}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {ACLS_HS_TS.filter(x => x.group === g).map(c => {
-                const open = exp === c.key;
+                const open = exp.has(c.key);
                 return (
-                  <button key={c.key} onClick={() => setExp(open ? null : c.key)} className="acls-card-lg" style={{ textAlign: "left", border: 0, cursor: "pointer", width: "100%", padding: "14px 16px" }}>
+                  <button key={c.key} onClick={() => toggle(c.key)} className="acls-card-lg"
+                    style={{ textAlign: "left", border: open ? "1px solid " + c.tint + "44" : "1px solid transparent",
+                      cursor: "pointer", width: "100%", padding: "14px 16px",
+                      background: open ? c.tint + "08" : "var(--bg-tertiary)", transition: "background 150ms, border-color 150ms" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>{g}</span>
                       <div className="t-headline" style={{ flex: 1 }}>{c.name}</div>
-                      <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform var(--dur-fast)", color: "var(--label-tertiary)" }}><Icons.chevDown size={16} stroke={2}/></span>
+                      <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform var(--dur-fast)", color: open ? c.tint : "var(--label-tertiary)" }}><Icons.chevDown size={16} stroke={2}/></span>
                     </div>
                     {open && (
                       <div style={{ marginTop: 10, paddingLeft: 40, display: "flex", flexDirection: "column", gap: 6 }}>
