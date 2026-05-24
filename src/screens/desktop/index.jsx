@@ -106,7 +106,6 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
           <Icons.boltFill size={18}/>
           {!collapsed && ' Code Blue'}
         </button>
-        {!collapsed && <div className="t-caption-2" style={{ color: "var(--label-secondary)", textAlign: "center", marginTop: 6 }}>Aktifkan CPR Workspace</div>}
       </div>
     </aside>
   );
@@ -136,10 +135,9 @@ export function DesktopTopbar({ crumb }) {
 export function DesktopDashboard({ onPick, onOpenCpr }) {
   return (
     <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 28, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
           background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
-          <Icons.boltFill size={12} fill="var(--danger)"/>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
@@ -148,7 +146,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
         <div style={{ display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
-          <div>
+          <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
             <div style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.0,
               letterSpacing: '-0.03em', marginBottom: 10 }}>
               <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
@@ -163,7 +161,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, flexShrink: 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, flexShrink: 0,
+            animation: 'acls-fadeslide 400ms 80ms var(--ease-out) both' }}>
             {[
               { value: '14',   label: 'Algoritma',  color: 'var(--danger)' },
               { value: '25',   label: 'Obat',       color: 'var(--warning)' },
@@ -171,27 +170,38 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
               { value: '2025', label: 'Panduan',    color: 'var(--success)' },
             ].map(({ value, label, color }) => (
               <div key={label} style={{ background: 'var(--fill-secondary)',
-                borderRadius: 14, padding: '12px 16px', minWidth: 110 }}>
+                borderRadius: 14, padding: '12px 16px', minWidth: 110,
+                transition: 'transform 160ms', cursor: 'default' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
                 <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 4 }}>{label}</div>
               </div>
             ))}
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
-          <button onClick={onOpenCpr}
-            style={{ padding: '10px 20px', borderRadius: 12, background: 'var(--danger)', color: '#fff',
-              display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 15,
-              boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer' }}>
-            <Icons.boltFill size={18}/> Aktifkan Code Blue
-          </button>
-        </div>
       </div>
 
       <DesktopTopbar crumb={['Beranda']}/>
 
-      <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+      <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr', gap: 14,
+        animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
+        <button onClick={onOpenCpr}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 10, padding: '22px 16px',
+            background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+            borderRadius: 16, border: 0, cursor: 'pointer',
+            boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+            animation: 'acls-fab-ring 2.5s 1.5s infinite',
+            transition: 'transform 160ms' }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
+          <Icons.boltFill size={28}/>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Code Blue</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>CPR Workspace</div>
+          </div>
+        </button>
         {[
           { key: "vfvt",  label: "VF / pVT",       sub: "Jalur shockable rhythm",  tint: "var(--danger)",     icon: <Icons.boltFill size={22}/> },
           { key: "pea",   label: "PEA / Asystole", sub: "Non-shockable rhythm",    tint: "var(--info)",       icon: <Icons.flatline size={22} stroke={2.2}/> },
