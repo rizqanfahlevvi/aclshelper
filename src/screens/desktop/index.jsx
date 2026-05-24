@@ -22,22 +22,26 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   ];
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      <div className="acls-sidebar-brand"
-        style={{ justifyContent: 'center', padding: '0 12px', height: 52 }}>
-        <button onClick={onToggleCollapse}
-          style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
-            border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          {collapsed
-            ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          }
-        </button>
-      </div>
-
-      {!collapsed && (
-        <div className="acls-sidebar-search">
-          <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
+      {collapsed ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0' }}>
+          <button onClick={onToggleCollapse}
+            style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px 0' }}>
+          <div className="acls-sidebar-search" style={{ flex: 1, margin: 0 }}>
+            <Icons.search size={14} stroke={2}/><span className="t-footnote">Cari…</span><kbd>⌘K</kbd>
+          </div>
+          <button onClick={onToggleCollapse}
+            style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       )}
 
@@ -121,10 +125,10 @@ export function DesktopTopbar({ crumb }) {
    ============================================================ */
 export function DesktopDashboard({ onPick, onOpenCpr }) {
   return (
-    <div style={{ padding: "20px 28px 40px", overflowY: "auto", height: "100%" }}>
-      <div style={{ marginBottom: 28, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
+    <div style={{ padding: "16px 24px 32px", overflowY: "auto", height: "100%" }}>
+      <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
-          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
+          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 10 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
@@ -134,8 +138,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         <div style={{ display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
           <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
-            <div style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.0,
-              letterSpacing: '-0.03em', marginBottom: 10 }}>
+            <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.0,
+              letterSpacing: '-0.03em', marginBottom: 8 }}>
               <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 ACLS
@@ -157,12 +161,12 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
               { value: '2025', label: 'Panduan',    color: 'var(--success)' },
             ].map(({ value, label, color }) => (
               <div key={label} style={{ background: 'var(--fill-secondary)',
-                borderRadius: 14, padding: '12px 16px', minWidth: 110,
+                borderRadius: 12, padding: '10px 14px', minWidth: 90,
                 transition: 'transform 160ms', cursor: 'default' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 4 }}>{label}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -171,13 +175,13 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <DesktopTopbar crumb={['Beranda']}/>
 
-      <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
+      <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
         animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
         {/* Left column: Code Blue (+ future Saweria card below) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <button onClick={onOpenCpr}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              gap: 10, padding: '28px 16px',
+              gap: 8, padding: '20px 16px',
               background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
               borderRadius: 16, border: 0, cursor: 'pointer',
               boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
@@ -185,7 +189,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
               transition: 'transform 160ms' }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-            <Icons.boltFill size={32}/>
+            <Icons.boltFill size={26}/>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
               <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
@@ -210,7 +214,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         </div>
       </div>
 
-      <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
+      <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14 }}>
         <div className="acls-card-lg">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12, gap: 16 }}>
             <div style={{ minWidth: 0 }}>
