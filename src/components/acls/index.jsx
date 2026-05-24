@@ -226,7 +226,7 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
    FlowStep
    ============================================================ */
 export function FlowStep({ step, index, total, onAction, expandable = true }) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const tone = {
     action:   { tint: "var(--accent)",      label: "Tindakan",  bg: "var(--bg-tertiary)" },
