@@ -443,7 +443,22 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--bg-secondary);
 }
 
+/* ── Global thin scrollbar ─────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 2px;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+/* phone-screen mockup: no scrollbar */
 .phone-screen::-webkit-scrollbar { display: none; }
+.phone-screen { scrollbar-width: none; }
 
 /* Horizontal scroll chip rows — hide scrollbar cross-browser */
 .chips-scroll {

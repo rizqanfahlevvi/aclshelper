@@ -88,6 +88,10 @@
   --separator-opaque:     #C6C6C8;          /* opaqueSeparator */
   --separator:            rgba(60,60,67,0.29);
 
+  /* --- Scrollbar ----------------------------------------- */
+  --scrollbar-thumb:      rgba(0,0,0,0.22);
+  --scrollbar-thumb-hover:rgba(0,0,0,0.40);
+
   /* --- Semantic accents (used for clinical states) ------- */
   --accent:               var(--sys-blue);    /* primary brand */
   --accent-fg:            #FFFFFF;
@@ -198,6 +202,9 @@
     --separator-opaque:  #38383A;
     --separator:         rgba(84,84,88,0.65);
 
+    --scrollbar-thumb:       rgba(255,255,255,0.22);
+    --scrollbar-thumb-hover: rgba(255,255,255,0.40);
+
     --accent:            #0A84FF;
     --accent-tint:       rgba(10,132,255,0.18);
     --success:           #30D158;
@@ -249,6 +256,8 @@
   --label-link:#0A84FF;
 
   --separator-opaque:#38383A; --separator:rgba(84,84,88,.65);
+
+  --scrollbar-thumb:rgba(255,255,255,.22); --scrollbar-thumb-hover:rgba(255,255,255,.40);
 
   --accent:#0A84FF; --accent-tint:rgba(10,132,255,.18);
   --success:#30D158; --warning:#FF9F0A; --danger:#FF453A; --info:#0A84FF;
