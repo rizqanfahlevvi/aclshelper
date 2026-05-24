@@ -180,6 +180,13 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
 /* ============================================================
    HOME
    ============================================================ */
+const STAT_CARDS = [
+  { value: '14',   label: 'Algoritma', color: 'var(--danger)',  screen: 'algoList' },
+  { value: '25',   label: 'Obat',      color: 'var(--warning)', screen: 'drugList' },
+  { value: '16',   label: 'EKG',       color: 'var(--info)',    screen: 'ekgList' },
+  { value: '2025', label: 'Panduan',   color: 'var(--success)', screen: null },
+];
+
 export function MobileHome({ nav, openCPR }) {
   const [query, setQuery] = useState('');
 
@@ -216,7 +223,7 @@ export function MobileHome({ nav, openCPR }) {
             Your daily Cardiac Problem Companion
           </span>
         </div>
-        <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.05,
+        <div style={{ fontSize: 'clamp(32px, 10vw, 42px)', fontWeight: 800, lineHeight: 1.05,
           letterSpacing: '-0.03em', marginBottom: 8 }}>
           <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
@@ -229,17 +236,19 @@ export function MobileHome({ nav, openCPR }) {
           Alat bantu kognitif bedside · bukan pengganti penilaian klinis
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          {[
-            { value: '14',   label: 'Algoritma', color: 'var(--danger)' },
-            { value: '25',   label: 'Obat',      color: 'var(--warning)' },
-            { value: '16',   label: 'EKG',       color: 'var(--info)' },
-            { value: '2025', label: 'Panduan',   color: 'var(--success)' },
-          ].map(({ value, label, color }) => (
-            <div key={label} style={{ flex: 1, background: 'var(--fill-secondary)',
-              borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-              <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
-            </div>
+          {STAT_CARDS.map((c) => (
+            <button key={c.label}
+              onClick={() => c.screen && nav.push({ screen: c.screen })}
+              style={{ flex: 1, background: 'var(--fill-secondary)',
+                borderRadius: 14, padding: '10px 8px', textAlign: 'center',
+                border: 0, cursor: c.screen ? 'pointer' : 'default',
+                transition: 'opacity 120ms',
+              }}
+              onMouseEnter={e => { if (c.screen) e.currentTarget.style.opacity = '0.75'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: c.color, lineHeight: 1 }}>{c.value}</div>
+              <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 3 }}>{c.label}</div>
+            </button>
           ))}
         </div>
         <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 4 }}>
@@ -302,20 +311,21 @@ export function MobileHome({ nav, openCPR }) {
           <div style={{ padding: '0 16px 12px', display: 'grid',
             gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
-              { key: 'vfvt',  label: 'VF / pVT',   sub: 'Shockable',  tint: 'var(--danger)',     icon: <Icons.boltFill size={20}/> },
-              { key: 'pea',   label: 'PEA / Asystole', sub: 'Non-shockable', tint: 'var(--info)', icon: <Icons.flatline size={20} stroke={2.2}/> },
-              { key: 'brady', label: 'Bradikardi',  sub: 'HR < 50',    tint: 'var(--warning)',    icon: <Icons.slow size={20} stroke={2.2}/> },
-              { key: 'tachy', label: 'Takikardi',   sub: 'HR > 150',   tint: 'var(--tint-neuro)', icon: <Icons.fast size={20} stroke={2.2}/> },
+              { key: 'vfvt',  label: 'VF / pVT',       sub: 'Shockable',     tint: 'var(--danger)',     icon: <Icons.boltFill size={20}/> },
+              { key: 'pea',   label: 'PEA / Asystole',  sub: 'Non-shockable', tint: 'var(--info)',       icon: <Icons.flatline size={20} stroke={2.2}/> },
+              { key: 'brady', label: 'Bradikardi',       sub: 'HR < 50',       tint: 'var(--warning)',    icon: <Icons.slow size={20} stroke={2.2}/> },
+              { key: 'tachy', label: 'Takikardi',        sub: 'HR > 150',      tint: 'var(--tint-neuro)', icon: <Icons.fast size={20} stroke={2.2}/> },
             ].map(c => (
               <button key={c.key} onClick={() => nav.push({ screen: 'algo', id: c.key })}
-                style={{ padding: '14px 14px', borderRadius: 16, background: 'var(--bg-tertiary)',
-                  boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'column',
-                  gap: 10, border: 0, cursor: 'pointer', transition: 'transform 160ms, box-shadow 160ms' }}
+                style={{ padding: '12px 14px', borderRadius: 16, background: 'var(--bg-tertiary)',
+                  boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'row',
+                  alignItems: 'center', gap: 12, border: 0, cursor: 'pointer',
+                  transition: 'transform 160ms, box-shadow 160ms' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-2)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-1)'; }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: '#fff',
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{c.icon}</div>
-                <div>
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
                   <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
                 </div>
@@ -353,38 +363,70 @@ export function MobileHome({ nav, openCPR }) {
    ALGORITHM LIST
    ============================================================ */
 export function MobileAlgoList({ nav }) {
+  const [q, setQ] = useState('');
+
+  const filtered = ACLS_ALGORITHMS.filter(a =>
+    (a.label + ' ' + a.sub).toLowerCase().includes(q.toLowerCase())
+  );
+
   return (
     <>
-      <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
+      <NavBar right={
+        <button className="nb-btn glyph" onClick={() => setQ(q ? '' : ' ')}>
+          <Icons.search size={18} stroke={2}/>
+        </button>
+      }/>
       <LargeTitle>Algoritma</LargeTitle>
-      <div style={{ padding: "0 16px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
-        <Pill tone="red">Code Blue</Pill><Pill tone="blue">Non-shockable</Pill>
-        <Pill tone="orange">Bradikardi</Pill><Pill tone="purple">Takikardi</Pill>
-      </div>
-      <SectionHeader>Algoritma utama</SectionHeader>
-      <List>
-        {ACLS_ALGORITHMS.filter(a => ["bhjd","arrest","vfvt","pea"].includes(a.key)).map(a => (
-          <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
-        ))}
-      </List>
-      <SectionHeader>Peri-arrest</SectionHeader>
-      <List>
-        {ACLS_ALGORITHMS.filter(a => ["brady","tachy","ska","rosc"].includes(a.key)).map(a => (
-          <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
-        ))}
-      </List>
-      <SectionHeader>Keadaan Khusus</SectionHeader>
-      <List>
-        {ACLS_ALGORITHMS.filter(a => ["opioid","anaphylaxis","pregnancy","drowning","hypothermia"].includes(a.key)).map(a => (
-          <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
-        ))}
-      </List>
-      <SectionHeader>Diferensial</SectionHeader>
-      <List>
-        <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
-      </List>
-      <SectionFooter>Mengikuti AHA 2025 + PERKI 2025 (BHJL &amp; BHJD).</SectionFooter>
-      <div style={{ height: 24 }}/>
+      {q.trim() ? (
+        <>
+          <SearchField placeholder="Cari algoritma…" value={q} onChange={setQ}/>
+          <div style={{ padding: "0 16px 12px" }}>
+            {filtered.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+                <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+                <div className="t-footnote">Coba kata kunci lain</div>
+              </div>
+            ) : (
+              <List>
+                {filtered.map(a => (
+                  <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+                ))}
+              </List>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ padding: "0 16px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <Pill tone="red">Code Blue</Pill><Pill tone="blue">Non-shockable</Pill>
+            <Pill tone="orange">Bradikardi</Pill><Pill tone="purple">Takikardi</Pill>
+          </div>
+          <SectionHeader>Algoritma utama</SectionHeader>
+          <List>
+            {ACLS_ALGORITHMS.filter(a => ["bhjd","arrest","vfvt","pea"].includes(a.key)).map(a => (
+              <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+            ))}
+          </List>
+          <SectionHeader>Peri-arrest</SectionHeader>
+          <List>
+            {ACLS_ALGORITHMS.filter(a => ["brady","tachy","ska","rosc"].includes(a.key)).map(a => (
+              <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+            ))}
+          </List>
+          <SectionHeader>Keadaan Khusus</SectionHeader>
+          <List>
+            {ACLS_ALGORITHMS.filter(a => ["opioid","anaphylaxis","pregnancy","drowning","hypothermia"].includes(a.key)).map(a => (
+              <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+            ))}
+          </List>
+          <SectionHeader>Diferensial</SectionHeader>
+          <List>
+            <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
+          </List>
+          <SectionFooter>Mengikuti AHA 2025 + PERKI 2025 (BHJL &amp; BHJD).</SectionFooter>
+          <div style={{ height: 24 }}/>
+        </>
+      )}
     </>
   );
 }
@@ -408,7 +450,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
   return (
     <>
-      <NavBar back="Algorithms" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
+      <NavBar back="Algoritma" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
       <div style={{ padding: "0 20px 12px" }}>
         <div className="t-title-2">{algo.label}</div>
         <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{algo.sub} · ketuk langkah untuk detail</div>
@@ -435,19 +477,26 @@ export function MobileAlgorithmDetail({ nav, id }) {
    ============================================================ */
 export function MobileDrugList({ nav }) {
   const [filter, setFilter] = useState("all");
+  const [q, setQ] = useState('');
+
   const drugs = ACLS_DRUGS.filter(d => {
-    if (filter === "all") return true;
-    if (filter === "vaso") return (d.category || "").match(/Vasopresor|Inotropik/);
-    if (filter === "arrhythmia") return (d.category || "").match(/Antiaritmia|Bradiaritmia/);
-    if (filter === "thrombo") return (d.category || "").includes("Antitrombotik");
-    if (filter === "antidot") return (d.category || "").includes("Antidot");
-    return true;
+    const matchFilter = (() => {
+      if (filter === "all") return true;
+      if (filter === "vaso") return (d.category || "").match(/Vasopresor|Inotropik/);
+      if (filter === "arrhythmia") return (d.category || "").match(/Antiaritmia|Bradiaritmia/);
+      if (filter === "thrombo") return (d.category || "").includes("Antitrombotik");
+      if (filter === "antidot") return (d.category || "").includes("Antidot");
+      return true;
+    })();
+    const matchQ = !q.trim() || (d.name + ' ' + (d.altName || '') + ' ' + (d.class || '')).toLowerCase().includes(q.toLowerCase());
+    return matchFilter && matchQ;
   });
+
   return (
     <>
       <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Obat ACLS</LargeTitle>
-      <div style={{ padding: "0 16px 12px", display: "flex", gap: 6, overflowX: "auto" }}>
+      <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
         {[{ v: "all", label: "Semua" }, { v: "vaso", label: "Vasopresor" }, { v: "arrhythmia", label: "Antiaritmia" }, { v: "thrombo", label: "Antitrombotik" }, { v: "antidot", label: "Antidot" }].map(f => (
           <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
             style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
@@ -455,9 +504,15 @@ export function MobileDrugList({ nav }) {
           </button>
         ))}
       </div>
+      <SearchField placeholder="Cari obat…" value={q} onChange={setQ}/>
       <SectionHeader>{drugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {drugs.map(d => (
+        {drugs.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+            <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+            <div className="t-footnote">Coba kata kunci atau filter lain</div>
+          </div>
+        ) : drugs.map(d => (
           <button key={d.key} onClick={() => nav.push({ screen: "drug", id: d.key })}
             style={{ padding: "12px 14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start", border: 0 }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -487,7 +542,7 @@ export function MobileDrugDetail({ nav, id }) {
   const d = ACLS_DRUGS.find(x => x.key === id) || ACLS_DRUGS[0];
   return (
     <>
-      <NavBar back="Drugs" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
+      <NavBar back="Obat" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
       <div style={{ padding: "0 20px 16px", display: "flex", gap: 14, alignItems: "center" }}>
         <div style={{ width: 64, height: 64, borderRadius: 16, flexShrink: 0, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
           <Icons.pill size={32} stroke={2}/>
@@ -535,14 +590,44 @@ export function MobileDrugDetail({ nav, id }) {
 /* ============================================================
    ECG LIST
    ============================================================ */
+const EKG_SEV_FILTERS = [
+  { v: 'all',           label: 'Semua' },
+  { v: 'shockable',     label: 'Shockable' },
+  { v: 'non-shockable', label: 'Non-shock' },
+  { v: 'stable',        label: 'Stabil' },
+];
+
 export function MobileEkgList({ nav }) {
+  const [q, setQ] = useState('');
+  const [sev, setSev] = useState('all');
+
+  const rhythms = ACLS_RHYTHMS.filter(r => {
+    const matchSev = sev === 'all' || r.severity === sev;
+    const matchQ = !q.trim() || (r.name + ' ' + (r.short || '')).toLowerCase().includes(q.toLowerCase());
+    return matchSev && matchQ;
+  });
+
   return (
     <>
       <NavBar right={<button className="nb-btn glyph"><Icons.search size={18} stroke={2}/></button>}/>
       <LargeTitle>Pustaka EKG</LargeTitle>
-      <SectionHeader>Irama · {ACLS_RHYTHMS.length}</SectionHeader>
+      <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
+        {EKG_SEV_FILTERS.map(f => (
+          <button key={f.v} onClick={() => setSev(f.v)} className="ios-btn sm pill"
+            style={{ background: sev === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: sev === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+      <SearchField placeholder="Cari irama EKG…" value={q} onChange={setQ}/>
+      <SectionHeader>Irama · {rhythms.length}</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {ACLS_RHYTHMS.map(r => (
+        {rhythms.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
+            <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
+            <div className="t-footnote">Coba kata kunci atau filter lain</div>
+          </div>
+        ) : rhythms.map(r => (
           <button key={r.key} onClick={() => nav.push({ screen: "ekg", id: r.key })}
             style={{ padding: "10px 12px 12px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -603,12 +688,19 @@ export function MobileEkgDetail({ nav, id }) {
    Hs & Ts
    ============================================================ */
 export function MobileHsTs({ nav }) {
-  const [expanded, setExpanded] = useState(null);
+  const [expanded, setExpanded] = useState(new Set());
+
+  const toggle = (key) => setExpanded(prev => {
+    const next = new Set(prev);
+    next.has(key) ? next.delete(key) : next.add(key);
+    return next;
+  });
+
   const renderItem = (c, letter) => {
-    const open = expanded === c.key;
+    const open = expanded.has(c.key);
     return (
-      <button key={c.key} onClick={() => setExpanded(open ? null : c.key)}
-        style={{ padding: "12px 14px", borderRadius: 12, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: open ? 8 : 0 }}>
+      <button key={c.key} onClick={() => toggle(c.key)}
+        style={{ padding: "12px 14px", borderRadius: 12, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: open ? "0.5px solid " + c.tint + "55" : "0.5px solid transparent", display: "flex", flexDirection: "column", gap: open ? 8 : 0, transition: "border-color var(--dur-fast)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{letter}</span>
           <span className="t-headline" style={{ flex: 1 }}>{c.name}</span>
@@ -625,7 +717,7 @@ export function MobileHsTs({ nav }) {
   };
   return (
     <>
-      <NavBar back="Algorithms" onBack={nav.pop} title="Hs &amp; Ts"/>
+      <NavBar back="Algoritma" onBack={nav.pop} title="Hs &amp; Ts"/>
       <LargeTitle>Hs &amp; Ts</LargeTitle>
       <div style={{ padding: "0 20px 12px" }}>
         <div className="t-footnote" style={{ color: "var(--label-secondary)" }}>10 penyebab reversibel · cari sistematis selama resusitasi · ketuk untuk tatalaksana.</div>
