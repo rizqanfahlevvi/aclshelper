@@ -23,20 +23,20 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
       <div className="acls-sidebar-brand"
-        style={{ justifyContent: 'space-between', padding: collapsed ? '0 8px' : '0 12px 0 14px', height: 52 }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, var(--danger), #c81e10)',
-            color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(255,59,48,0.25)', flexShrink: 0 }}>
-            <Icons.boltFill size={18}/>
-          </div>
-          {!collapsed && (
+        style={{ justifyContent: collapsed ? 'center' : 'space-between', padding: collapsed ? '0 12px' : '0 12px 0 14px', height: 52 }}>
+        {!collapsed && (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, var(--danger), #c81e10)',
+              color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 10px rgba(255,59,48,0.25)', flexShrink: 0 }}>
+              <Icons.boltFill size={18}/>
+            </div>
             <div>
               <div className="t-headline" style={{ lineHeight: 1.1 }}>ACLS Helper</div>
               <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MDKit · v1.1</div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         <button onClick={onToggleCollapse}
           style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--fill-tertiary)',
             border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
