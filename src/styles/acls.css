@@ -477,3 +477,11 @@ body {
   50.01%, 100% { opacity: 0.25; }
 }
 
+/* ============================================================
+   DARK MODE — neumorphic surface overrides for ACLS elements
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .acls-step-card { background: var(--bg-tertiary); }
+}
+[data-theme="dark"] .acls-step-card { background: var(--bg-tertiary); }
+
