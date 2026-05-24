@@ -225,7 +225,9 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
 /* ============================================================
    FlowStep
    ============================================================ */
-export function FlowStep({ step, index, total, onAction }) {
+export function FlowStep({ step, index, total, onAction, expandable = true }) {
+  const [open, setOpen] = React.useState(false);
+
   const tone = {
     action:   { tint: "var(--accent)",      label: "Tindakan",  bg: "var(--bg-tertiary)" },
     shock:    { tint: "var(--danger)",       label: "Shock",     bg: "rgba(255,59,48,0.10)" },
@@ -235,6 +237,7 @@ export function FlowStep({ step, index, total, onAction }) {
     decision: { tint: "var(--warning)",      label: "Keputusan", bg: "var(--bg-tertiary)" },
   }[step.kind] || { tint: "var(--accent)", label: "Langkah", bg: "var(--bg-tertiary)" };
 
+  // Decision step — tidak berubah dari versi asli
   if (step.kind === "decision") {
     return (
       <div className="flow-step decision">
@@ -242,11 +245,17 @@ export function FlowStep({ step, index, total, onAction }) {
         <div className="t-headline" style={{ marginTop: 2 }}>{step.title}</div>
         <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{step.q}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-          <button onClick={() => onAction && onAction("yes")} style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(255,59,48,0.10)", color: step.yes.tint, boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "40" }}>
+          <button
+            onClick={() => onAction && onAction("yes")}
+            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(255,59,48,0.10)", color: step.yes.tint, boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "40", border: 0, cursor: "pointer" }}
+          >
             <div className="t-caption-2">YES</div>
             <div className="t-subheadline" style={{ fontWeight: 600, marginTop: 1 }}>{step.yes.label}</div>
           </button>
-          <button onClick={() => onAction && onAction("no")} style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(0,122,255,0.08)", color: step.no.tint, boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "40" }}>
+          <button
+            onClick={() => onAction && onAction("no")}
+            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(0,122,255,0.08)", color: step.no.tint, boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "40", border: 0, cursor: "pointer" }}
+          >
             <div className="t-caption-2">NO</div>
             <div className="t-subheadline" style={{ fontWeight: 600, marginTop: 1 }}>{step.no.label}</div>
           </button>
@@ -255,16 +264,63 @@ export function FlowStep({ step, index, total, onAction }) {
     );
   }
 
+  // Non-decision: expandable pearls
+  const hasPearls = !!step.pearls && expandable;
+
   return (
-    <div className="flow-step" style={{ background: tone.bg, boxShadow: "0 0 0 0.5px " + tone.tint + "30, var(--shadow-1)" }}>
+    <div
+      className="flow-step"
+      style={{
+        background: tone.bg,
+        boxShadow: "0 0 0 0.5px " + tone.tint + "30, var(--shadow-1)",
+        cursor: hasPearls ? "pointer" : "default",
+      }}
+      onClick={hasPearls ? () => setOpen(o => !o) : undefined}
+    >
+      {/* Header row */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div className="flow-tag" style={{ background: tone.tint + "1F", color: tone.tint }}>{tone.label}</div>
-        <span className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>{index + 1} / {total}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>{index + 1} / {total}</span>
+          {hasPearls && (
+            <span style={{
+              fontSize: 16,
+              color: tone.tint,
+              display: "inline-block",
+              transform: open ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 200ms ease",
+              lineHeight: 1,
+              userSelect: "none",
+            }}>›</span>
+          )}
+        </div>
       </div>
+
+      {/* Title + sub — selalu tampil */}
       <div className="t-headline" style={{ marginTop: 6 }}>{step.title}</div>
-      {step.sub && <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{step.sub}</div>}
-      {step.pearls && (
-        <div className="t-caption-1" style={{ marginTop: 8, padding: "8px 10px", borderRadius: 8, background: "var(--fill-quaternary)", color: "var(--label-secondary)", lineHeight: 1.4 }}>{step.pearls}</div>
+      {step.sub && (
+        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{step.sub}</div>
+      )}
+
+      {/* Pearls — hanya tampil saat expandable=false (desktop inline) atau saat open=true (mobile expand) */}
+      {step.pearls && !expandable && (
+        <div className="t-caption-1" style={{ marginTop: 8, padding: "8px 10px", borderRadius: 8, background: "var(--fill-quaternary)", color: "var(--label-secondary)", lineHeight: 1.4 }}>
+          {Array.isArray(step.pearls)
+            ? step.pearls.map((p, pi) => <div key={pi} style={{ marginBottom: pi < step.pearls.length - 1 ? 4 : 0 }}>· {p}</div>)
+            : step.pearls}
+        </div>
+      )}
+
+      {hasPearls && open && (
+        <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "var(--fill-quaternary)", animation: "acls-fade-in 150ms ease both" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: tone.tint, marginBottom: 6 }}>CATATAN KLINIS</div>
+          {Array.isArray(step.pearls)
+            ? step.pearls.map((p, pi) => (
+                <div key={pi} className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5, marginBottom: pi < step.pearls.length - 1 ? 4 : 0 }}>· {p}</div>
+              ))
+            : <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5 }}>{step.pearls}</div>
+          }
+        </div>
       )}
     </div>
   );

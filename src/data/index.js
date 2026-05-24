@@ -109,19 +109,78 @@ export const ACLS_FLOW_ARREST = [
    BRADIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_BRADY = [
-  { kind: "action", title: "Identifikasi & nilai", sub: "HR < 50 · ABC · O₂ · akses IV · EKG 12-sandapan",
-    pearls: "Cari penyebab: hipoksia, iskemia, gangguan elektrolit (hiperkalemia), obat-obatan." },
-  { kind: "decision", title: "Bradiaritmia persisten?", q: "Menyebabkan hipotensi, gangguan kesadaran, syok, nyeri dada, gagal jantung akut?",
-    yes: { label: "Tidak stabil — terapi", tint: "var(--danger)" },
-    no:  { label: "Monitor · observasi", tint: "var(--success)" } },
-  { kind: "drug", title: "Sulfas Atropin", sub: "1 mg IV bolus · ulang tiap 3–5 menit · maks 3 mg (0,04 mg/kg)",
-    pearls: "PERKI: tidak efektif pada AV block infranodal (Mobitz II / derajat 3) — siapkan pacing langsung." },
-  { kind: "action", title: "Pacu jantung transkutan (TCP)", sub: "Capture: HR target 60–80 · sedasi nyeri",
-    pearls: "Konfirmasi mechanical capture (palpasi nadi sesuai pace) — bukan hanya electrical capture." },
-  { kind: "drug", title: "Drip Dopamin atau Epinefrin", sub: "Dopa 5–20 μg/kgBB/mnt · Epi 2–10 μg/mnt",
-    pearls: "PERKI: bila TCP tidak tersedia. Titrasi ke MAP ≥ 65 mmHg & resolusi gejala." },
-  { kind: "outcome", title: "Konsul kardiologi", sub: "Pacu transvena · cari etiologi (iskemia, elektrolit, obat)",
-    pearls: "Pacu permanent bila high-degree AV block menetap setelah koreksi penyebab reversibel." },
+  // [0] Box 1 — AHA 2025
+  {
+    kind: "action",
+    title: "Identifikasi & nilai",
+    sub: "HR < 50/mnt · ABC · O₂ · akses IV · monitor · EKG 12-sandapan",
+    pearls: "Bradikardi simptomatik: ada tanda hipoperfusi (hipotensi, AMS, syok, nyeri dada iskemik, gagal jantung akut). Bradikardi asimtomatik tidak memerlukan terapi akut.",
+  },
+  // [1] Box 2 — decision: ada compromise?
+  {
+    kind: "decision",
+    title: "Cardiopulmonary compromise?",
+    q: "Ada hipotensi · gangguan kesadaran · syok · nyeri dada iskemik · gagal jantung akut?",
+    yes: { label: "Ya — stabilisasi ABC dulu", tint: "var(--danger)", targetIndex: 2 },
+    no:  { label: "Monitor · observasi · cari etiologi", tint: "var(--success)", targetIndex: 8 },
+  },
+  // [2] Box 3 — AHA 2025 ← BARU (sebelumnya tidak ada)
+  {
+    kind: "action",
+    title: "Stabilisasi ABC (Box 3 AHA 2025)",
+    sub: "Jaga jalan napas · beri O₂ · ventilasi tekanan positif jika perlu · pasang monitor kardiorespiratori · pantau nadi",
+    pearls: "Jika bradikardi membaik setelah O₂ + airway management → tidak perlu Atropin. Nilai ulang sebelum melanjutkan ke terapi farmakologis.",
+  },
+  // [3] Box 4 — decision: masih persists? ← BARU (sebelumnya tidak ada)
+  {
+    kind: "decision",
+    title: "Bradikardi persists dengan compromise?",
+    q: "Setelah stabilisasi ABC: masih ada hipotensi / AMS / syok / nyeri dada / gagal jantung akut?",
+    yes: { label: "Ya — lanjut Atropin", tint: "var(--danger)", targetIndex: 4 },
+    no:  { label: "Tidak — observasi & etiologi", tint: "var(--success)", targetIndex: 8 },
+  },
+  // [4] Box 5a — Atropin (digeser dari index [2])
+  {
+    kind: "drug",
+    title: "Sulfas Atropin",
+    sub: "1 mg IV bolus · ulang tiap 3–5 menit · maks 3 mg · jika gagal → TCP dan/atau vasopressor",
+    pearls: "TIDAK efektif pada AV block infranodal (Mobitz II / derajat 3) — siapkan TCP segera. Dosis < 0,5 mg dapat paradoks memperlambat HR.",
+  },
+  // [5] Box 5b — TCP (digeser dari index [3])
+  {
+    kind: "action",
+    title: "Pacu jantung transkutan (TCP)",
+    sub: "Demand mode · rate 60–80/mnt · mulai output rendah, naikkan sampai capture · sedasi/analgesi",
+    pearls: "PERKI: TCP pilihan utama bila atropin gagal atau AV block infranodal. Konfirmasi capture mekanikal (nadi teraba), bukan hanya elektrikal (spike di monitor).",
+  },
+  // [6] Box 5c — Dopamin / Epi drip (digeser dari index [4])
+  {
+    kind: "drug",
+    title: "Drip Dopamin atau Epinefrin",
+    sub: "Dopamin 2–20 mcg/kg/mnt IV · atau Epinefrin 2–10 mcg/mnt IV",
+    pearls: "Dopamin: efek kronotropik dominan di dosis 5–10 mcg/kg/mnt. Epinefrin: alternatif bila tidak ada dopamin atau syok berat. Titrasi sesuai respons HR dan TD.",
+  },
+  // [7] Box 6 — Konsul (digeser dari index [5])
+  {
+    kind: "outcome",
+    title: "Konsul kardiologi",
+    sub: "Pacu transvena · cari etiologi (iskemia, elektrolit, obat)",
+    pearls: "Pacu permanent bila high-degree AV block menetap setelah koreksi penyebab reversibel.",
+  },
+  // [8] Box 7 — Monitor & etiologi ← BARU (endpoint NO dari Box 2 & Box 4)
+  {
+    kind: "action",
+    title: "Identifikasi & atasi penyebab (Box 7)",
+    sub: "Support ABC · EKG 12-sandapan · lab elektrolit · observasi ketat",
+    pearls: [
+      "Hipoksia — paling sering, atasi O₂ dan airway.",
+      "Iskemia miokard — EKG, troponin, pertimbangkan revaskularisasi.",
+      "Gangguan elektrolit — hiperkalemia (tall T, wide QRS), hipokalsemia.",
+      "Obat-obatan — β-blocker, CCB, digoksin, antiaritmia (periksa riwayat obat).",
+      "Hipotiroid — TSH bila klinis sesuai.",
+      "AV block infranodal (Mobitz II / derajat 3) — atropin tidak efektif, siapkan pacing segera.",
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------

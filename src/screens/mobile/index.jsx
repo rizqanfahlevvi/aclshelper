@@ -526,27 +526,74 @@ export function MobileAlgorithmDetail({ nav, id }) {
     id === "drowning"    ? ACLS_FLOW_DROWNING :
     id === "hypothermia" ? ACLS_FLOW_HYPOTHERMIA :
     ACLS_FLOW_ARREST;
+
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
+
+  const [activeStep, setActiveStep] = useState(null);
+  const stepRefs = useRef([]);
+
+  const scrollToStep = (idx) => {
+    const clamped = Math.max(0, Math.min(idx, flow.length - 1));
+    setActiveStep(clamped);
+    setTimeout(() => {
+      stepRefs.current[clamped]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  };
+
+  const handleAction = (step, index, dir) => {
+    if (dir === "yes") {
+      const target = step.yes?.targetIndex ?? Math.min(index + 1, flow.length - 1);
+      scrollToStep(target);
+    } else {
+      const target = step.no?.targetIndex ?? Math.min(index + 2, flow.length - 1);
+      scrollToStep(target);
+    }
+  };
+
   return (
     <>
-      <NavBar back="Algoritma" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
+      <NavBar
+        back="Algoritma"
+        onBack={nav.pop}
+        right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}
+      />
       <div style={{ padding: "0 20px 12px" }}>
         <div className="t-title-2">{algo.label}</div>
-        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{algo.sub} · ketuk langkah untuk detail</div>
+        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 4 }}>
+          {algo.sub} · ketuk langkah untuk detail
+        </div>
         <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <Pill tone="red">{algo.tag}</Pill><Pill tone="gray">{algo.source || "AHA 2025"}</Pill>
+          <Pill tone="red">{algo.tag}</Pill>
+          <Pill tone="gray">{algo.source || "AHA 2025"}</Pill>
         </div>
       </div>
+
       <div style={{ padding: "8px 16px 18px" }}>
         {flow.map((step, i) => (
           <React.Fragment key={i}>
-            <FlowStep step={step} index={i} total={flow.length}/>
-            {i < flow.length - 1 && <FlowConnector/>}
+            <div
+              ref={el => { stepRefs.current[i] = el; }}
+              style={
+                activeStep === i
+                  ? { outline: "2px solid var(--accent)", borderRadius: 14, transition: "outline 200ms" }
+                  : undefined
+              }
+            >
+              <FlowStep
+                step={step}
+                index={i}
+                total={flow.length}
+                expandable={true}
+                onAction={step.kind === "decision" ? (dir) => handleAction(step, i, dir) : undefined}
+              />
+            </div>
+            {i < flow.length - 1 && <FlowConnector />}
           </React.Fragment>
         ))}
       </div>
+
       <SectionFooter>Untuk panduan klinis — bukan pengganti penilaian klinis.</SectionFooter>
-      <div style={{ height: 24 }}/>
+      <div style={{ height: 24 }} />
     </>
   );
 }
