@@ -597,10 +597,8 @@ export function DesktopEkg({ initialId, onPick }) {
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
             {['all', ...allSeverities].map(f => (
               <button key={f} onClick={() => setEkgFilter(f)}
-                style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, border: 0, cursor: 'pointer',
-                  background: ekgFilter === f ? 'var(--accent)' : 'var(--fill-secondary)',
-                  color: ekgFilter === f ? '#fff' : 'var(--label-secondary)',
-                  transition: 'background 150ms, color 150ms' }}>
+                className={`ios-btn sm pill${ekgFilter === f ? ' active' : ''}`}
+                style={{ fontSize: 11, height: 26, padding: '0 9px' }}>
                 {f === 'all' ? 'Semua' : (EKG_SEVERITY_LABELS[f] || f)}
               </button>
             ))}
