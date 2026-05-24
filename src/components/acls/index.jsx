@@ -282,7 +282,7 @@ export function FlowConnector({ tone = "var(--label-tertiary)" }) {
 /* ============================================================
    BottomNav with center FAB
    ============================================================ */
-export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent }) {
+export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen }) {
   const fabRadius = fabShape === "circle" ? 30 : fabShape === "squircle" ? 18 : 30;
   const fabWidth = fabShape === "pill" ? 90 : 60;
 
@@ -307,10 +307,17 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
       })}
       <button
         className="acls-fab"
-        style={{ width: fabWidth, height: 60, borderRadius: fabRadius, background: accent || "var(--danger)" }}
+        style={{
+          width: fabWidth, height: 60, borderRadius: fabRadius,
+          background: fabOpen ? '#B02020' : (accent || "var(--danger)"),
+          animation: fabOpen ? 'none' : undefined,
+          transition: 'background 200ms var(--ease-out)',
+        }}
         onClick={onFabClick}
         aria-label="Code Blue">
-        <Icons.boltFill size={26} />
+        <span key={String(fabOpen)} style={{ display: 'inline-flex', animation: 'acls-fade-in 150ms var(--ease-out) both' }}>
+          {fabOpen ? <Icons.cross size={24} stroke={2.4}/> : <Icons.boltFill size={26}/>}
+        </span>
         {fabShape === "pill" && <span style={{ marginLeft: 4, fontWeight: 700 }}>CODE</span>}
       </button>
     </div>

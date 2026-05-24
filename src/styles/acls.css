@@ -72,6 +72,12 @@ body {
   to   { opacity: 1; }
 }
 
+/* Speed Dial mini-button enter */
+@keyframes acls-speeddial-item {
+  from { opacity: 0; transform: translateY(20px) scale(0.85); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
 /* CPR overlay slide-in */
 @keyframes acls-overlay-in {
   from { opacity: 0; transform: translateY(32px); }

@@ -5,7 +5,7 @@ import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
   MobileEkgList, MobileEkgDetail,
-  MobileHsTs, InstallPopup,
+  MobileHsTs, InstallPopup, SpeedDial,
 } from './screens/mobile';
 import {
   DesktopSidebar, DesktopDashboard,
@@ -293,7 +293,14 @@ export default function App() {
   };
 
   const [cprOpen, setCprOpen] = useState(false);
+  const [fabOpen, setFabOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const onSpeedDialPick = (key) => {
+    setFabOpen(false);
+    if (key === '__cpr__') { setCprOpen(true); return; }
+    openAlgoFromHome(key);
+  };
 
   const mobileNavFromSidebar = (key, id) => {
     if (key === 'hsts') {
@@ -409,14 +416,19 @@ export default function App() {
           />
         )}
 
+        {fabOpen && !cprOpen && (
+          <SpeedDial onClose={() => setFabOpen(false)} onPick={onSpeedDialPick}/>
+        )}
+
         {!cprOpen && (
           <div className="acls-mobile-bottomnav">
             <BottomNav
               active={tab === 'tools' ? 'tools' : tab}
-              onChange={(k) => setTab(k)}
+              onChange={(k) => { setFabOpen(false); setTab(k); }}
               fabShape="circle"
               accent="var(--danger)"
-              onFabClick={() => setCprOpen(true)}/>
+              fabOpen={fabOpen}
+              onFabClick={() => setFabOpen(o => !o)}/>
           </div>
         )}
       </div>

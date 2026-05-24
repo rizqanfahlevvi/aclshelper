@@ -826,40 +826,65 @@ export function MobileHsTs({ nav }) {
 }
 
 /* ============================================================
-   FAB Quick Sheet
+   Speed Dial FAB
    ============================================================ */
-export function FabQuickSheet({ open, onClose, onPickAction, onOpenCpr }) {
+const SPEED_DIAL_ITEMS = [
+  { key: 'tachy',   label: 'Takikardi',     icon: (s) => <Icons.fast size={s} stroke={2.2}/>,     tint: 'var(--tint-neuro)' },
+  { key: 'brady',   label: 'Bradikardi',    icon: (s) => <Icons.slow size={s} stroke={2.2}/>,     tint: 'var(--warning)' },
+  { key: 'pea',     label: 'PEA / Asistol', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
+  { key: 'vfvt',   label: 'VF / pVT',      icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
+  { key: '__cpr__', label: 'CPR Workspace', icon: (s) => <Icons.timer size={s} stroke={2}/>,      tint: 'var(--success)' },
+];
+
+export function SpeedDial({ onClose, onPick }) {
   return (
-    <BottomSheet open={open} onClose={onClose} title="Code Blue Cepat" height="62%">
-      <div style={{ padding: "0 16px 4px" }}>
-        <div className="t-footnote" style={{ color: "var(--label-secondary)" }}>
-          Ketuk untuk akses cepat algoritma — tekan-tahan FAB membuka CPR Workspace langsung.
-        </div>
-      </div>
-      <div style={{ padding: "14px 16px 4px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {ACLS_QUICK_ACTIONS.slice(0, 4).map(a => (
-          <button key={a.key} onClick={() => onPickAction(a.key)}
-            style={{ padding: "14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 10, minHeight: 110 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 10, background: a.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-              {a.glyph === "shock" && <Icons.boltFill size={22}/>}
-              {a.glyph === "flatline" && <Icons.flatline size={22} stroke={2.2}/>}
-              {a.glyph === "slow" && <Icons.slow size={22} stroke={2.2}/>}
-              {a.glyph === "fast" && <Icons.fast size={22} stroke={2.2}/>}
-            </span>
-            <div>
-              <div className="t-headline">{a.label}</div>
-              <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{a.sub}</div>
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 160,
+      display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end',
+      padding: '0 20px 106px',
+    }}>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{
+        position: 'absolute', inset: 0,
+        background: 'rgba(0,0,0,0.48)',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+      }}/>
+
+      {/* Action items — rendered top-to-bottom (CPR nearest FAB) */}
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'flex-end' }}>
+        {SPEED_DIAL_ITEMS.map((item, i) => (
+          <button key={item.key} onClick={() => onPick(item.key)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              background: 'none', border: 0, cursor: 'pointer', padding: 0,
+              animation: `acls-speeddial-item 240ms ${i * 45}ms var(--ease-spring) both`,
+            }}>
+            {/* Label pill */}
+            <div style={{
+              background: 'var(--bg-elevated)',
+              color: 'var(--label-primary)',
+              padding: '7px 14px',
+              borderRadius: 12,
+              fontSize: 14, fontWeight: 600,
+              boxShadow: 'var(--shadow-1), 0 0 0 0.5px var(--separator)',
+              whiteSpace: 'nowrap',
+            }}>
+              {item.label}
+            </div>
+            {/* Icon circle */}
+            <div style={{
+              width: 48, height: 48, borderRadius: 24,
+              background: item.tint, color: '#fff',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
+            }}>
+              {item.icon(20)}
             </div>
           </button>
         ))}
       </div>
-      <div style={{ padding: "12px 16px 16px" }}>
-        <button onClick={onOpenCpr} className="ios-btn block"
-          style={{ background: "var(--danger)", color: "#fff", height: 56, borderRadius: 16, fontSize: 17, fontWeight: 700, display: "flex", gap: 10 }}>
-          <Icons.boltFill size={22}/> Aktifkan CPR Workspace
-        </button>
-        <div className="t-caption-1" style={{ color: "var(--label-secondary)", textAlign: "center", marginTop: 8 }}>Siklus 2 menit · pengingat epinephrine · log shock</div>
-      </div>
-    </BottomSheet>
+    </div>
   );
 }
