@@ -192,63 +192,49 @@ a { color: var(--accent); text-decoration: none; }
   font-size: 17px; font-weight: 600; letter-spacing: -0.022em;
   background: var(--accent);
   color: var(--accent-fg);
-  box-shadow: 4px 4px 12px rgba(0,122,255,0.32), -3px -3px 9px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.22);
+  box-shadow: none;
   touch-action: manipulation;
-  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast);
 }
-.ios-btn:active {
-  transform: scale(0.97);
-  box-shadow: inset 3px 3px 8px rgba(0,0,0,0.22), inset -2px -2px 6px rgba(255,255,255,0.14);
-}
+.ios-btn:active { transform: scale(0.97); opacity: 0.75; }
 .ios-btn.tinted {
-  background: var(--bg-secondary);
+  background: var(--accent-tint);
   color: var(--accent);
-  box-shadow: var(--neu-out);
+  box-shadow: none;
 }
-.ios-btn.tinted:active { box-shadow: var(--neu-inset); }
+.ios-btn.tinted:active { opacity: 0.7; }
 .ios-btn.gray {
-  background: var(--bg-secondary);
+  background: var(--fill-secondary);
   color: var(--label-primary);
-  box-shadow: var(--neu-out);
+  box-shadow: none;
 }
-.ios-btn.gray:active { box-shadow: var(--neu-inset); }
+.ios-btn.gray:active { opacity: 0.7; }
 .ios-btn.plain  { background: transparent; color: var(--accent); height: 44px; box-shadow: none; }
-.ios-btn.plain:active { opacity: 0.65; box-shadow: none; transform: scale(0.97); }
+.ios-btn.plain:active { opacity: 0.65; transform: scale(0.97); }
 .ios-btn.destructive {
   background: var(--danger);
   color: #fff;
-  box-shadow: 4px 4px 12px rgba(255,59,48,0.35), -3px -3px 9px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.22);
+  box-shadow: none;
 }
-.ios-btn.destructive:active {
-  box-shadow: inset 3px 3px 8px rgba(0,0,0,0.22), inset -2px -2px 6px rgba(255,255,255,0.14);
-}
+.ios-btn.destructive:active { opacity: 0.75; transform: scale(0.97); }
 .ios-btn.sm { height: 34px; padding: 0 14px; font-size: 15px; border-radius: 10px; }
 .ios-btn.pill { border-radius: 999px; }
 .ios-btn.block { width: 100%; }
 
-/* Filter chip pills — neumorphic inactive / tinted active */
+/* Filter chip pills — flat iOS style */
 .ios-btn.sm.pill {
-  background: var(--bg-secondary);
+  background: var(--fill-tertiary);
   color: var(--label-primary);
-  box-shadow: 0 3px 10px rgba(110, 130, 195, 0.18), 0 1px 3px rgba(110, 130, 195, 0.10),
-              -2px -2px 7px rgba(255, 255, 255, 0.82);
-  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+  box-shadow: none;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast), color var(--dur-fast), opacity var(--dur-fast);
 }
 .ios-btn.sm.pill.active {
   background: var(--accent);
   color: var(--accent-fg);
-  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.28), 0 1px 3px rgba(0, 122, 255, 0.14),
-              inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: none;
 }
-.ios-btn.sm.pill:not(.active):active {
-  transform: scale(0.96);
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.12), inset -2px -2px 5px rgba(255, 255, 255, 0.72);
-}
-.ios-btn.sm.pill.active:active {
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.20), inset -1px -1px 3px rgba(255, 255, 255, 0.14);
-}
+.ios-btn.sm.pill:not(.active):active { transform: scale(0.96); opacity: 0.7; }
+.ios-btn.sm.pill.active:active { opacity: 0.75; }
 
 /* ============================================================
    SEGMENTED CONTROL
@@ -329,14 +315,14 @@ a { color: var(--accent); text-decoration: none; }
   font-size: 17px; color: var(--label-secondary);
 }
 
-/* Toggle (iOS switch) — neumorphic */
+/* Toggle (iOS switch) — flat iOS style */
 .ios-switch {
   width: 51px; height: 31px;
-  background: var(--bg-secondary);
+  background: var(--fill-secondary);
   border-radius: 999px;
   position: relative;
-  box-shadow: inset 2px 2px 5px var(--neu-shadow-dark), inset -2px -2px 4px var(--neu-shadow-light);
-  transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
+  box-shadow: none;
+  transition: background var(--dur-fast) var(--ease-out);
   flex-shrink: 0;
 }
 .ios-switch::after {
@@ -345,12 +331,12 @@ a { color: var(--accent); text-decoration: none; }
   width: 27px; height: 27px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 2px 3px 8px var(--neu-shadow-dark), -1px -1px 4px var(--neu-shadow-light);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0.5px 1px rgba(0,0,0,0.10);
   transition: transform var(--dur-base) var(--ease-spring);
 }
 .ios-switch.on {
   background: var(--success);
-  box-shadow: 3px 3px 8px rgba(37,151,74,0.38), -2px -2px 6px rgba(255,255,255,0.16);
+  box-shadow: none;
 }
 .ios-switch.on::after { transform: translateX(20px); }
 
@@ -457,45 +443,6 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--bg-secondary);
 }
 
-/* ============================================================
-   DARK MODE — flat/native iOS style for neutral neumorphic elements
-   Dual shadows (light + dark) don't work on dark surfaces; colored
-   shadows (cpr-action, fab, accent btn) remain and work fine.
-   ============================================================ */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ios-btn.gray {
-    background: var(--fill-secondary); color: var(--label-primary); box-shadow: none;
-  }
-  :root:not([data-theme="light"]) .ios-btn.tinted {
-    background: var(--accent-tint); color: var(--accent); box-shadow: none;
-  }
-  :root:not([data-theme="light"]) .ios-btn.gray:active,
-  :root:not([data-theme="light"]) .ios-btn.tinted:active {
-    opacity: 0.75; box-shadow: none;
-  }
-  :root:not([data-theme="light"]) .ios-btn.sm.pill:not(.active) {
-    background: var(--fill-tertiary); box-shadow: none;
-  }
-  :root:not([data-theme="light"]) .ios-btn.sm.pill:not(.active):active {
-    opacity: 0.7; box-shadow: none;
-  }
-  :root:not([data-theme="light"]) .ios-switch:not(.on) {
-    background: var(--fill-secondary); box-shadow: none;
-  }
-}
-[data-theme="dark"] .ios-btn.gray {
-  background: var(--fill-secondary); color: var(--label-primary); box-shadow: none;
-}
-[data-theme="dark"] .ios-btn.tinted {
-  background: var(--accent-tint); color: var(--accent); box-shadow: none;
-}
-[data-theme="dark"] .ios-btn.gray:active,
-[data-theme="dark"] .ios-btn.tinted:active { opacity: 0.75; box-shadow: none; }
-[data-theme="dark"] .ios-btn.sm.pill:not(.active) {
-  background: var(--fill-tertiary); box-shadow: none;
-}
-[data-theme="dark"] .ios-btn.sm.pill:not(.active):active { opacity: 0.7; box-shadow: none; }
-[data-theme="dark"] .ios-switch:not(.on) { background: var(--fill-secondary); box-shadow: none; }
 .phone-screen::-webkit-scrollbar { display: none; }
 
 /* Horizontal scroll chip rows — hide scrollbar cross-browser */

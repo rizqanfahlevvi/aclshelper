@@ -311,15 +311,14 @@ body {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  box-shadow: 6px 6px 18px rgba(200,34,26,0.45), -4px -4px 12px rgba(255,255,255,0.22),
-              inset 0 1px 0 rgba(255,255,255,0.20);
+  box-shadow: 0 4px 14px rgba(200,34,26,0.35), 0 1px 3px rgba(0,0,0,0.12);
   transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
 }
 .acls-bottomnav .acls-fab:active {
   transform: translateX(-50%) scale(0.92);
 }
 .acls-bottomnav .acls-fab:focus-visible {
-  box-shadow: 0 0 0 3px var(--accent), 6px 6px 18px rgba(200,34,26,0.45), -4px -4px 12px rgba(255,255,255,0.22);
+  box-shadow: 0 0 0 3px var(--accent), 0 4px 14px rgba(200,34,26,0.35);
 }
 @keyframes acls-fab-ring {
   0%   { box-shadow: 0 0 0 0   rgba(255,59,48,0.45), 6px 6px 18px rgba(200,34,26,0.45), -4px -4px 12px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.20); }
@@ -409,67 +408,32 @@ body {
   min-height: 72px;
   text-align: left;
   touch-action: manipulation;
-  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
+  transition: transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast);
   color: #fff;
-  box-shadow: 5px 5px 14px rgba(0,0,0,0.18), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
-.cpr-action:active {
-  transform: scale(0.96);
-  box-shadow: inset 3px 3px 9px rgba(0,0,0,0.24), inset -2px -2px 7px rgba(255,255,255,0.16);
-}
-.cpr-action.shock {
-  background: linear-gradient(150deg, var(--danger), #C8221A);
-  box-shadow: 5px 5px 16px rgba(200,34,26,0.42), -3px -3px 10px rgba(255,255,255,0.18),
-              inset 0 1px 0 rgba(255,255,255,0.20);
-}
-.cpr-action.epi {
-  background: linear-gradient(150deg, var(--warning), #C8740A);
-  box-shadow: 5px 5px 16px rgba(200,116,10,0.38), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.18);
-}
-.cpr-action.pulse {
-  background: linear-gradient(150deg, var(--info), #0058B8);
-  box-shadow: 5px 5px 16px rgba(0,88,184,0.40), -3px -3px 10px rgba(255,255,255,0.18),
-              inset 0 1px 0 rgba(255,255,255,0.20);
-}
-.cpr-action.rosc {
-  background: linear-gradient(150deg, var(--success), #25974A);
-  box-shadow: 5px 5px 16px rgba(37,151,74,0.38), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.18);
-}
-.cpr-action.intubate {
-  background: linear-gradient(150deg, #5E5CE6, #3B39B8);
-  box-shadow: 5px 5px 16px rgba(59,57,184,0.38), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.18);
-}
-.cpr-action.intubate.done {
-  background: linear-gradient(150deg, var(--success), #25974A);
-  box-shadow: 5px 5px 16px rgba(37,151,74,0.38), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 0 0 1.5px rgba(255,255,255,0.25);
-}
-.cpr-action.midaz {
-  background: linear-gradient(150deg, #AF52DE, #7E3AAF);
-  box-shadow: 5px 5px 16px rgba(126,58,175,0.38), -3px -3px 10px rgba(255,255,255,0.16),
-              inset 0 1px 0 rgba(255,255,255,0.18);
-}
+.cpr-action:active { transform: scale(0.96); opacity: 0.82; }
+.cpr-action.shock  { background: linear-gradient(150deg, var(--danger), #C8221A); }
+.cpr-action.epi    { background: linear-gradient(150deg, var(--warning), #C8740A); }
+.cpr-action.pulse  { background: linear-gradient(150deg, var(--info), #0058B8); }
+.cpr-action.rosc   { background: linear-gradient(150deg, var(--success), #25974A); }
+.cpr-action.intubate      { background: linear-gradient(150deg, #5E5CE6, #3B39B8); }
+.cpr-action.intubate.done { background: linear-gradient(150deg, var(--success), #25974A); }
+.cpr-action.midaz  { background: linear-gradient(150deg, #AF52DE, #7E3AAF); }
 .cpr-action.epi-ready {
   background: linear-gradient(150deg, var(--danger), #C8221A);
   animation: acls-epi-pulse 0.9s ease-in-out infinite;
 }
 @keyframes acls-epi-pulse {
-  0%, 100% { box-shadow: 0 0 0 0   rgba(255,59,48,0.50), 5px 5px 16px rgba(200,34,26,0.42), -3px -3px 10px rgba(255,255,255,0.18), inset 0 0 0 1.5px rgba(255,255,255,0.25); }
-  50%      { box-shadow: 0 0 0 8px rgba(255,59,48,0),    5px 5px 16px rgba(200,34,26,0.42), -3px -3px 10px rgba(255,255,255,0.18), inset 0 0 0 1.5px rgba(255,255,255,0.35); }
+  0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 0 0 0   rgba(255,59,48,0.50); }
+  50%      { box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 0 0 8px rgba(255,59,48,0); }
 }
 .acls-step-card {
   margin: 0 16px 6px;
   padding: 10px 14px;
   border-radius: 14px;
-  background: var(--bg-secondary);
-  box-shadow:
-    7px 7px 18px var(--neu-shadow-dark),
-    -6px -6px 16px var(--neu-shadow-light),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-1);
 }
 .cpr-log {
   flex: 1; overflow-y: auto;
@@ -482,17 +446,4 @@ body {
   50.01%, 100% { opacity: 0.25; }
 }
 
-/* ============================================================
-   DARK MODE — flat/native style for ACLS neumorphic elements
-   ============================================================ */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .acls-step-card {
-    background: var(--bg-tertiary);
-    box-shadow: var(--shadow-2);
-  }
-}
-[data-theme="dark"] .acls-step-card {
-  background: var(--bg-tertiary);
-  box-shadow: var(--shadow-2);
-}
 
