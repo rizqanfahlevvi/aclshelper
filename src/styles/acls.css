@@ -392,8 +392,7 @@ body {
   display: flex; flex-direction: column;
 }
 .cpr-header {
-  background: var(--bg-tertiary);
-  border-bottom: 0.5px solid var(--separator);
+  background: var(--bg-secondary);
   flex-shrink: 0;
 }
 .cpr-actions {

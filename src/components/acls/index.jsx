@@ -360,9 +360,9 @@ const VF_STEPS = [
   { kind:'shock', title:'Shock pertama (AHA Step 3)',         sub:'120–200J bifasik · 360J monofasik · pastikan semua menjauh',  cta:'shock' },
   { kind:'cpr',   title:'CPR 2 menit + IV/IO access (Step 4)',sub:'Bag-mask + O₂ · pasang IV/IO · pantau EtCO₂ · 100–120/mnt',  auto:true   },
   { kind:'shock', title:'Shock kedua (AHA Step 5)',           sub:'120–200J bifasik · 360J monofasik',                            cta:'shock' },
-  { kind:'cpr',   title:'CPR 2 menit (Step 6)',               sub:'Epi 1mg q3–5 mnt · pertimbangkan intubasi/SGA · capnografi',   auto:true,  actions:['epi','airway'] },
+  { kind:'cpr',   title:'CPR 2 menit (Step 6)',               sub:'Epi 1mg q3–5 mnt · pertimbangkan intubasi/SGA · capnografi',   auto:true,  actions:['epi','amio','airway'], amioOnlyIfUsed:true },
   { kind:'shock', title:'Shock ketiga (AHA Step 7)',          sub:'120–200J bifasik · 360J monofasik',                            cta:'shock' },
-  { kind:'cpr',   title:'CPR 2 menit (Step 8)',               sub:'Amiodarone 300mg IV/IO bolus · cari & atasi Hs & Ts',          auto:true,  actions:['amio','epi'] },
+  { kind:'cpr',   title:'CPR 2 menit (Step 8)',               sub:'Amiodarone IV/IO bolus · cari & atasi Hs & Ts',                auto:true,  actions:['amio','epi'] },
   // Setelah index 5: rhythm check → VF → wrap ke index 2 (Shock = Step 5)
 ];
 
@@ -886,7 +886,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
             {[...log].reverse().slice(0,6).map((e,i) => {
               const tc = { info:"var(--label-primary)", warn:"var(--warning)", danger:"var(--danger)", success:"var(--success)" }[e.tone];
               return (
-                <div key={i} className="t-footnote" style={{ display:"flex", justifyContent:"space-between", gap:12, padding:"8px 12px", borderRadius:8, background:"var(--bg-tertiary)", boxShadow:"var(--shadow-1)" }}>
+                <div key={i} className="t-footnote" style={{ display:"flex", justifyContent:"space-between", gap:12, padding:"8px 12px", borderRadius:8, background:"var(--fill-quaternary)" }}>
                   <span style={{ color:tc, fontWeight:600, flex:1, minWidth:0 }}>{e.action}</span>
                   <span style={{ color:"var(--label-tertiary)", fontFamily:"var(--font-mono)", fontFeatureSettings:'"tnum"', textAlign:"right", flexShrink:0, lineHeight:1.25 }}>
                     <div style={{ color:"var(--label-secondary)", fontWeight:600 }}>{e.wall}</div>
@@ -1073,12 +1073,11 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
 
           {/* 2-column body */}
           <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 340px', overflow: 'hidden' }}>
-            {/* LEFT: step + timer + actions */}
+            {/* LEFT: timer + actions + step */}
             <div style={{ overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <StepCard step={curStep} idx={safeIdx}/>
 
               {/* Timer block */}
-              <div style={{ padding: '12px 16px', borderRadius: 14, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
+              <div style={{ padding: '12px 16px', borderRadius: 14, background: 'var(--fill-quaternary)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 10, alignItems: 'center' }}>
                   <div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>SIKLUS 2 MNT</div>
@@ -1106,6 +1105,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                   <Icons.reset size={14}/> Reset
                 </button>
               </div>
+
+              <StepCard step={curStep} idx={safeIdx}/>
 
               {/* Contextual actions */}
               <div key={stepIdx} style={{ display: 'flex', flexDirection: 'column', gap: 8, animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
@@ -1160,7 +1161,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                         </div>
                       </button>
                     )}
-                    {curStep.actions?.includes('amio') && (
+                    {curStep.actions?.includes('amio') && amio < 2 && (!curStep.amioOnlyIfUsed || amio > 0) && (
                       <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
                         onClick={handleAmio}>
                         <Icons.syringe size={22} stroke={2}/>
@@ -1213,7 +1214,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                 {[...log].reverse().map((e, i) => {
                   const tc = { info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' }[e.tone];
                   return (
-                    <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
+                    <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
                       <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
                       <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
                         <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
@@ -1335,8 +1336,6 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
           </button>
         </div>
 
-        <StepCard step={curStep} idx={safeIdx} />
-
         <div style={{ padding: "4px 16px 8px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, alignItems: "center" }}>
             <div>
@@ -1364,6 +1363,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
             <Icons.reset size={13}/> Reset
           </button>
         </div>
+
+        <StepCard step={curStep} idx={safeIdx} />
       </div>
 
       {/* === Contextual action panel — sesuai langkah algoritma === */}
@@ -1428,8 +1429,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
               </button>
             )}
 
-            {/* Amiodarone — selama step yang butuh amio */}
-            {curStep.actions?.includes('amio') && (
+            {/* Amiodarone — selama step yang butuh amio; dosis 2 (150mg) hanya setelah dosis 1 pernah diberikan */}
+            {curStep.actions?.includes('amio') && amio < 2 && (!curStep.amioOnlyIfUsed || amio > 0) && (
               <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
                 onClick={handleAmio}>
                 <Icons.syringe size={22} stroke={2}/>
