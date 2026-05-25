@@ -69,14 +69,14 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari…"
-              style={{ flex: 1, background: 'none', border: 0, outline: 'none',
+              style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none',
                 color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}
             />
             {query && (
               <button onClick={() => setQuery('')}
                 style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
                   color: 'var(--label-tertiary)', display: 'flex', alignItems: 'center',
-                  lineHeight: 1 }}>
+                  lineHeight: 1, flexShrink: 0 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>

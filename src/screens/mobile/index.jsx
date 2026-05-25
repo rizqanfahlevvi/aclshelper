@@ -244,7 +244,7 @@ export function MobileHome({ nav, openCPR }) {
   return (
     <>
       <NavBar/>
-      <div style={{ padding: '20px 20px 4px' }}>
+      <div style={{ padding: '10px 20px 4px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
           background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
