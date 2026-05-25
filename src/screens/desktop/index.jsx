@@ -713,9 +713,9 @@ export function DesktopEkg({ initialId, onPick }) {
         {/* [2] EKG Image */}
         <EkgImage rhythm={r} style={{ marginTop: 16, marginBottom: 20, minHeight: 100 }} />
 
-        {/* [3] Definisi + [4] Ciri Pengenalan — side by side if both exist */}
+        {/* [3] Definisi + [4] Ciri Pengenalan */}
         {(r.definition || r.features) && (
-          <div style={{ display: "grid", gridTemplateColumns: r.definition ? "1fr 1fr" : "1fr", gap: 14, marginBottom: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.definition && (
               <div className="acls-card-lg">
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 6 }}>DEFINISI</div>
@@ -746,9 +746,9 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [6] Kriteria + [7] Tatalaksana — kriteria kiri, tatalaksana kanan */}
+        {/* [6] Kriteria + [7] Tatalaksana */}
         {(r.criteria?.length > 0 || (r.management?.immediate?.length || r.management?.drugs?.length || r.management?.notes?.length)) && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20, alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.criteria?.length > 0 && (
               <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>KRITERIA DIAGNOSTIK</div>
@@ -800,9 +800,9 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [8] DDx + [9] Pitfalls — side by side */}
+        {/* [8] DDx + [9] Pitfalls */}
         {(r.ddx?.length > 0 || r.pitfalls?.length > 0) && (
-          <div style={{ display: "grid", gridTemplateColumns: r.ddx?.length && r.pitfalls?.length ? "1fr 1fr" : "1fr", gap: 14, marginBottom: 20, alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.ddx?.length > 0 && (
               <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>DIAGNOSIS BANDING</div>
