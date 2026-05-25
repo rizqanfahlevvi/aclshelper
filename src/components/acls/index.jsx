@@ -258,11 +258,12 @@ export function EkgImage({ rhythm, style = {} }) {
         style={{
           width: '100%',
           height: 'auto',
-          display: status === 'loaded' ? 'block' : 'none',
+          display: 'block',
+          visibility: status === 'loaded' ? 'visible' : 'hidden',
+          position: status === 'loaded' ? 'static' : 'absolute',
           objectFit: 'contain',
           background: '#ffffff',
         }}
-        loading="lazy"
       />
 
       {/* Credit label */}
