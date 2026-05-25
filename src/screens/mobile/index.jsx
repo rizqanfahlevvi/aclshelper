@@ -281,7 +281,7 @@ export function MobileHome({ nav, openCPR }) {
           ))}
         </div>
         <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 4 }}>
-          PERKI 2025 · AHA 2025
+          PERKI 2021 · AHA 2025
         </div>
       </div>
 
@@ -414,7 +414,7 @@ export function MobileHome({ nav, openCPR }) {
 
           <SectionFooter>
             ACLS Helper · v1.2 · 2026 · Bagian dari ekosistem MDKit<br/>
-            Mengikuti PERKI 2025 (BHJL &amp; BHJD) + AHA 2025 — penilaian klinis tetap diperlukan.
+            Mengikuti PERKI 2021 (BHJL &amp; BHJD) + AHA 2025 — penilaian klinis tetap diperlukan.
           </SectionFooter>
           <div style={{ height: 24 }}/>
         </>
@@ -502,7 +502,7 @@ export function MobileAlgoList({ nav }) {
           <List>
             <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
           </List>
-          <SectionFooter>Mengikuti AHA 2025 + PERKI 2025 (BHJL &amp; BHJD).</SectionFooter>
+          <SectionFooter>Mengikuti AHA 2025 + PERKI 2021 (BHJL &amp; BHJD).</SectionFooter>
           <div style={{ height: 24 }}/>
         </>
       )}
@@ -691,13 +691,13 @@ export function MobileDrugList({ nav }) {
               </button>
             ))}
           </div>
-          <SectionHeader>{categoryDrugs.length} obat · PERKI 2025 · AHA 2025</SectionHeader>
+          <SectionHeader>{categoryDrugs.length} obat · PERKI 2021 · AHA 2025</SectionHeader>
           <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
             {categoryDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/>)}
           </div>
         </>
       )}
-      <SectionFooter>Sumber: PERKI 2025 · AHA 2025 · verifikasi dosis dengan apoteker / pharmacopoeia setempat.</SectionFooter>
+      <SectionFooter>Sumber: PERKI 2021 · AHA 2025 · verifikasi dosis dengan apoteker / pharmacopoeia setempat.</SectionFooter>
       <div style={{ height: 24 }}/>
     </>
   );

@@ -391,7 +391,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <div style={{ marginTop: 24, padding: "10px 16px", display: "flex", justifyContent: "space-between", gap: 12 }}>
         <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>ACLS Helper · v1.1 · Bagian dari ekosistem MDKit · penilaian klinis tetap diperlukan.</div>
-        <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>Sumber: PERKI 2025 + AHA 2025 · terakhir diperbarui 2026-05</div>
+        <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>Sumber: PERKI 2021 + AHA 2025 · terakhir diperbarui 2026-05</div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 /* ============================================================
    ACLS Helper · Data module
-   Berdasarkan: PERKI 2025 (Bantuan Hidup Jantung Lanjut & Dasar)
+   Berdasarkan: PERKI 2021 · Cetakan 2021 (diselaraskan AHA 2025)
    + AHA 2025 Guidelines for CPR and ECC (akuan internasional)
 
    Bilingual: istilah klinis EN/akronim, narasi ID.
@@ -10,7 +10,7 @@
    SUMBER & METADATA
    ------------------------------------------------------------ */
 export const ACLS_SOURCES = [
-  { key: "perki", short: "PERKI 2025", long: "Buku Panduan Kursus BHJL & BHJD — Perhimpunan Dokter Spesialis Kardiovaskular Indonesia, 2021 (diselaraskan AHA 2025)" },
+  { key: "perki", short: "PERKI 2021", long: "Buku Panduan Kursus BHJL & BHJD — Perhimpunan Dokter Spesialis Kardiovaskular Indonesia, Cetakan 2021 (diselaraskan AHA 2025 Guidelines)" },
   { key: "aha",   short: "AHA 2025",  long: "American Heart Association Guidelines for CPR and Emergency Cardiovascular Care, 2025" },
 ];
 
@@ -30,14 +30,14 @@ export const ACLS_QUICK_ACTIONS = [
    ------------------------------------------------------------ */
 export const ACLS_ALGORITHMS = [
   /* Algoritma Utama */
-  { key: "bhjd",      label: "BHJD Dewasa",              sub: "Bantuan Hidup Jantung Dasar · CABD",      tint: "var(--accent)",      tag: "BLS",                   source: "PERKI 2025" },
-  { key: "arrest",    label: "Henti Jantung Dewasa",     sub: "Algoritma utama BHJL · AHA 2025",         tint: "var(--danger)",      tag: "Code Blue",             source: "PERKI 2025" },
-  { key: "vfvt",      label: "VF / pVT",                 sub: "Jalur shockable rhythm",                  tint: "var(--danger)",      tag: "Shockable",             source: "PERKI 2025" },
-  { key: "pea",       label: "PEA / Asistol",            sub: "Jalur non-shockable rhythm",              tint: "var(--info)",        tag: "Non-shockable",         source: "PERKI 2025" },
-  { key: "brady",     label: "Bradikardi",               sub: "HR < 50 · simptomatik",                   tint: "var(--warning)",     tag: "Stabil / Tidak stabil", source: "PERKI 2025" },
-  { key: "tachy",     label: "Takikardi",                sub: "QRS sempit vs lebar",                     tint: "var(--tint-neuro)",  tag: "Stabil / Tidak stabil", source: "PERKI 2025" },
-  { key: "ska",       label: "Sindrom Koroner Akut",     sub: "STEMI · NSTEMI · UAP",                    tint: "var(--tint-vital)",  tag: "SKA",                   source: "PERKI 2025" },
-  { key: "rosc",      label: "Pasca Henti Jantung",      sub: "TTM 32–37,5°C · MAP · neuroproteksi",     tint: "var(--success)",     tag: "Pemulihan",             source: "PERKI 2025" },
+  { key: "bhjd",      label: "BHJD Dewasa",              sub: "Bantuan Hidup Jantung Dasar · CABD",      tint: "var(--accent)",      tag: "BLS",                   source: "PERKI 2021" },
+  { key: "arrest",    label: "Henti Jantung Dewasa",     sub: "Algoritma utama BHJL · AHA 2025",         tint: "var(--danger)",      tag: "Code Blue",             source: "PERKI 2021" },
+  { key: "vfvt",      label: "VF / pVT",                 sub: "Jalur shockable rhythm",                  tint: "var(--danger)",      tag: "Shockable",             source: "PERKI 2021" },
+  { key: "pea",       label: "PEA / Asistol",            sub: "Jalur non-shockable rhythm",              tint: "var(--info)",        tag: "Non-shockable",         source: "PERKI 2021" },
+  { key: "brady",     label: "Bradikardi",               sub: "HR < 50 · simptomatik",                   tint: "var(--warning)",     tag: "Stabil / Tidak stabil", source: "PERKI 2021" },
+  { key: "tachy",     label: "Takikardi",                sub: "QRS sempit vs lebar",                     tint: "var(--tint-neuro)",  tag: "Stabil / Tidak stabil", source: "PERKI 2021" },
+  { key: "ska",       label: "Sindrom Koroner Akut",     sub: "STEMI · NSTEMI · UAP",                    tint: "var(--tint-vital)",  tag: "SKA",                   source: "PERKI 2021" },
+  { key: "rosc",      label: "Pasca Henti Jantung",      sub: "TTM 32–37,5°C · MAP · neuroproteksi",     tint: "var(--success)",     tag: "Pemulihan",             source: "PERKI 2021" },
   { key: "hsts",      label: "Hs & Ts",                  sub: "10 penyebab reversibel",                  tint: "var(--tint-theory)", tag: "Diferensial",           source: "AHA 2025" },
   /* Keadaan Khusus (AHA 2025 Part 10) */
   { key: "opioid",    label: "Overdosis Opioid",         sub: "Nalokson sebelum RJP · ventilasi dulu",   tint: "var(--tint-neuro)",  tag: "Keadaan Khusus",        source: "AHA 2025" },
@@ -502,7 +502,7 @@ export const ACLS_DRUGS = [
       "Jangan dicampur dengan larutan alkali (natrium bikarbonat).",
     ],
     contra: "Tidak ada kontraindikasi mutlak pada henti jantung atau anafilaksis.",
-    source: "PERKI 2025 · Tabel 9.1 & 9.3 · AHA 2025",
+    source: "PERKI 2021 · Tabel 9.1 & 9.3 · AHA 2025",
   },
   {
     key: "norepi",
@@ -520,7 +520,7 @@ export const ACLS_DRUGS = [
       "Jangan dicampur larutan alkali (natrium bikarbonat).",
     ],
     contra: "Hipovolemia belum terkoreksi · trombosis mesenterik/perifer.",
-    source: "PERKI 2025 · Tabel 9.1",
+    source: "PERKI 2021 · Tabel 9.1",
   },
   {
     key: "dopa",
@@ -557,7 +557,7 @@ export const ACLS_DRUGS = [
       "Pasien usia lanjut responnya dapat menurun.",
     ],
     contra: "Syok karena toksin/obat · stenosis subaortik hipertrofik idiopatik · hipersensitif sulfit.",
-    source: "PERKI 2025 · Tabel 9.1",
+    source: "PERKI 2021 · Tabel 9.1",
   },
 
   /* === Antiaritmia === */

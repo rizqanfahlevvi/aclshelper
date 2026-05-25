@@ -519,6 +519,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
   const [epiNextMs, setEpiNextMs] = useState(null);
   const [shocks, setShocks] = useState(0);
   const [amio, setAmio] = useState(0);
+  const [lidocaine, setLidocaine] = useState(0);
   const [intubated, setIntubated] = useState(false);
   const [soundOn, setSoundOn] = useState(() => {
     try { return localStorage.getItem('acls_sound_enabled') === '1'; } catch { return false; }
@@ -741,6 +742,13 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
     const dose = amio === 0 ? '300mg' : '150mg';
     setAmio(a => a + 1);
     addLog(`Amiodarone ${dose} IV/IO bolus`, 'info');
+    sfx.amio();
+    haptic.amio();
+  };
+  const handleLidocaine = () => {
+    const dose = lidocaine === 0 ? '1–1,5 mg/kg' : '0,5–0,75 mg/kg';
+    setLidocaine(l => l + 1);
+    addLog(`Lidokain ${dose} IV/IO bolus`, 'info');
     sfx.amio();
     haptic.amio();
   };
@@ -1157,7 +1165,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                 <button className="ios-btn gray sm" style={{ height: 40, flex: 1 }} onClick={() => setRunning(r => !r)}>
                   {running ? <><Icons.pause size={14}/> Jeda</> : <><Icons.play size={14}/> Lanjut</>}
                 </button>
-                <button className="ios-btn gray sm" style={{ height: 40, flex: 1 }} onClick={() => { setElapsedMs(0); lastCycleRef.current = 1; }}>
+                <button className="ios-btn gray sm" style={{ height: 40, flex: 1 }} onClick={() => { setElapsedMs(0); lastCycleRef.current = 1; setLidocaine(0); }}>
                   <Icons.reset size={14}/> Reset
                 </button>
               </div>
@@ -1218,14 +1226,41 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                       </button>
                     )}
                     {curStep.actions?.includes('amio') && amio < 2 && (!curStep.amioOnlyIfUsed || amio > 0) && (
-                      <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
-                        onClick={handleAmio}>
-                        <Icons.syringe size={22} stroke={2}/>
-                        <div style={{ textAlign: 'left' }}>
-                          <div className="t-headline" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
-                          <div className="t-caption-2" style={{ opacity: 0.85 }}>atau Lidokain 1–1.5 mg/kg bolus</div>
-                        </div>
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <button
+                          className="cpr-action midaz"
+                          style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5856D6,#3B39B8)' }}
+                          onClick={handleAmio}
+                        >
+                          <Icons.syringe size={22} stroke={2}/>
+                          <div style={{ textAlign: 'left' }}>
+                            <div className="t-headline" style={{ color: '#fff' }}>
+                              Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO
+                            </div>
+                            <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                              {amio === 0 ? 'Dosis 1 · bolus dalam D5%' : 'Dosis 2 · 150 mg bolus'}
+                            </div>
+                          </div>
+                        </button>
+                        {lidocaine < 2 && (
+                          <button
+                            className="cpr-action"
+                            style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 46, padding: '10px 16px', background: 'linear-gradient(150deg,#2C2C2E,#1C1C1E)', opacity: amio > 0 ? 0.6 : 1 }}
+                            onClick={handleLidocaine}
+                          >
+                            <Icons.syringe size={20} stroke={2}/>
+                            <div style={{ textAlign: 'left' }}>
+                              <div className="t-headline" style={{ color: '#fff' }}>
+                                Lidokain {lidocaine === 0 ? '1–1,5 mg/kg' : '0,5–0,75 mg/kg'} IV/IO
+                              </div>
+                              <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                                {lidocaine === 0 ? 'Alternatif amio · dosis 1 · bolus' : 'Dosis 2 · maintenance 1–4 mg/mnt'}
+                                {amio > 0 ? ' · tidak disarankan setelah amio' : ''}
+                              </div>
+                            </div>
+                          </button>
+                        )}
+                      </div>
                     )}
                     {curStep.actions?.includes('airway') && !intubated && (
                       <button className="cpr-action intubate" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px' }}
@@ -1415,7 +1450,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
           <button className="ios-btn gray sm" style={{ height: 36, flex: 1 }} onClick={() => setRunning(r => !r)}>
             {running ? <><Icons.pause size={13}/> Jeda</> : <><Icons.play size={13}/> Lanjut</>}
           </button>
-          <button className="ios-btn gray sm" style={{ height: 36, flex: 1 }} onClick={() => { setElapsedMs(0); lastCycleRef.current = 1; }}>
+          <button className="ios-btn gray sm" style={{ height: 36, flex: 1 }} onClick={() => { setElapsedMs(0); lastCycleRef.current = 1; setLidocaine(0); }}>
             <Icons.reset size={13}/> Reset
           </button>
         </div>
@@ -1485,16 +1520,43 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
               </button>
             )}
 
-            {/* Amiodarone — selama step yang butuh amio; dosis 2 (150mg) hanya setelah dosis 1 pernah diberikan */}
+            {/* Amiodarone + Lidokain — selama step yang butuh amio; dosis 2 hanya setelah dosis 1 */}
             {curStep.actions?.includes('amio') && amio < 2 && (!curStep.amioOnlyIfUsed || amio > 0) && (
-              <button className="cpr-action midaz" style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(180deg,#5856D6,#3B39B8)' }}
-                onClick={handleAmio}>
-                <Icons.syringe size={22} stroke={2}/>
-                <div style={{ textAlign: 'left' }}>
-                  <div className="t-headline" style={{ color: '#fff' }}>Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO</div>
-                  <div className="t-caption-2" style={{ opacity: 0.85 }}>atau Lidokain 1–1.5 mg/kg bolus</div>
-                </div>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button
+                  className="cpr-action midaz"
+                  style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5856D6,#3B39B8)' }}
+                  onClick={handleAmio}
+                >
+                  <Icons.syringe size={22} stroke={2}/>
+                  <div style={{ textAlign: 'left' }}>
+                    <div className="t-headline" style={{ color: '#fff' }}>
+                      Amiodarone {amio === 0 ? '300 mg' : '150 mg'} IV/IO
+                    </div>
+                    <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                      {amio === 0 ? 'Dosis 1 · bolus dalam D5%' : 'Dosis 2 · 150 mg bolus'}
+                    </div>
+                  </div>
+                </button>
+                {lidocaine < 2 && (
+                  <button
+                    className="cpr-action"
+                    style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 46, padding: '10px 16px', background: 'linear-gradient(150deg,#2C2C2E,#1C1C1E)', opacity: amio > 0 ? 0.6 : 1 }}
+                    onClick={handleLidocaine}
+                  >
+                    <Icons.syringe size={20} stroke={2}/>
+                    <div style={{ textAlign: 'left' }}>
+                      <div className="t-headline" style={{ color: '#fff' }}>
+                        Lidokain {lidocaine === 0 ? '1–1,5 mg/kg' : '0,5–0,75 mg/kg'} IV/IO
+                      </div>
+                      <div className="t-caption-2" style={{ opacity: 0.85 }}>
+                        {lidocaine === 0 ? 'Alternatif amio · dosis 1 · bolus' : 'Dosis 2 · maintenance 1–4 mg/mnt'}
+                        {amio > 0 ? ' · tidak disarankan setelah amio' : ''}
+                      </div>
+                    </div>
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Airway — selama step yang include airway */}
