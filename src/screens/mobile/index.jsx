@@ -261,7 +261,7 @@ export function MobileHome({ nav, openCPR }) {
           <span style={{ color: 'var(--label-primary)', fontSize: 'clamp(32px, 10vw, 42px)' }}>Helper</span>
         </div>
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 16 }}>
-          Alat bantu kognitif bedside · bukan pengganti penilaian klinis
+          Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
         </div>
         <a href="https://id.linkedin.com/in/rizqanfahlevvi/"
           target="_blank" rel="noopener noreferrer"
