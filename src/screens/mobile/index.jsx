@@ -243,8 +243,7 @@ export function MobileHome({ nav, openCPR }) {
 
   return (
     <>
-      <NavBar/>
-      <div style={{ padding: '10px 20px 4px' }}>
+      <div style={{ padding: '4px 20px 4px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
           background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
@@ -252,14 +251,14 @@ export function MobileHome({ nav, openCPR }) {
             Your daily Cardiac Problem Companion
           </span>
         </div>
-        <div style={{ fontSize: 'clamp(32px, 10vw, 42px)', fontWeight: 800, lineHeight: 1.05,
-          letterSpacing: '-0.03em', marginBottom: 8 }}>
+        <div style={{ fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 8 }}>
           <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            fontSize: 'clamp(44px, 13vw, 58px)' }}>
             ACLS
           </span>
           {' '}
-          <span style={{ color: 'var(--label-primary)' }}>Helper</span>
+          <span style={{ color: 'var(--label-primary)', fontSize: 'clamp(32px, 10vw, 42px)' }}>Helper</span>
         </div>
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 16 }}>
           Alat bantu kognitif bedside · bukan pengganti penilaian klinis
@@ -280,8 +279,17 @@ export function MobileHome({ nav, openCPR }) {
             </button>
           ))}
         </div>
-        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 4 }}>
-          PERKI 2021 · AHA 2025
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
+          <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>Made by</span>
+          <a href="https://id.linkedin.com/in/rizqanfahlevvi/"
+            target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 4,
+              color: 'var(--label-secondary)', textDecoration: 'none' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+            <span className="t-caption-2" style={{ fontWeight: 600 }}>Rizqanfahlevvi</span>
+          </a>
         </div>
       </div>
 

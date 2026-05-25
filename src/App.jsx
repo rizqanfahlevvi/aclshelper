@@ -76,10 +76,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false })
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: 'env(safe-area-inset-top) 16px 0',
-      background: 'var(--material-chrome)',
-      backdropFilter: 'var(--blur-base)',
-      WebkitBackdropFilter: 'var(--blur-base)',
-      borderBottom: '0.5px solid var(--separator)',
+      background: 'var(--bg-primary)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {onOpenSidebar && (
