@@ -293,10 +293,8 @@ body {
   align-items: center;
   height: calc(90px + max(0px, env(safe-area-inset-bottom) - 22px));
   padding: 0 8px max(22px, env(safe-area-inset-bottom));
-  background: var(--material-chrome);
-  backdrop-filter: var(--blur-base);
-  -webkit-backdrop-filter: var(--blur-base);
-  border-top: 0.5px solid var(--separator);
+  background: transparent;
+  overflow: visible;
 }
 .acls-bottomnav .nav-btn {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
@@ -311,7 +309,8 @@ body {
 .acls-bottomnav .nav-btn.active { color: var(--accent); }
 .acls-bottomnav .acls-fab {
   position: absolute;
-  bottom: 40px; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(22px, env(safe-area-inset-bottom)) + 28px);
+  left: 50%; transform: translateX(-50%);
   display: inline-flex; align-items: center; justify-content: center;
   color: #fff;
   border: 0; cursor: pointer;
@@ -324,7 +323,7 @@ body {
   transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
 }
 .acls-bottomnav .acls-fab:active {
-  transform: translateX(-50%) scale(0.92);
+  transform: translateX(-50%) scale(0.94);
 }
 .acls-bottomnav .acls-fab:focus-visible {
   box-shadow: 0 0 0 3px var(--accent), 0 4px 14px rgba(200,34,26,0.35);

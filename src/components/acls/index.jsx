@@ -393,12 +393,38 @@ export function FlowConnector({ tone = "var(--label-tertiary)" }) {
 /* ============================================================
    BottomNav with center FAB
    ============================================================ */
-export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen }) {
-  const fabRadius = fabShape === "circle" ? 30 : fabShape === "squircle" ? 18 : 30;
-  const fabWidth = fabShape === "pill" ? 90 : 60;
+export function BottomNav({ active, onChange, onFabClick, accent, fabOpen }) {
+  const [navWidth, setNavWidth] = useState(375);
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setNavWidth(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const H = 60;
+  const R = 34;
+  const B = 22;
+  const cx = navWidth / 2;
+  const svgPath = [
+    `M0,0`,
+    `L${cx - R - B},0`,
+    `C${cx - R - 6},0 ${cx - R},${R * 0.5} ${cx - R},${R}`,
+    `A${R},${R},0,0,0,${cx + R},${R}`,
+    `C${cx + R},${R * 0.5} ${cx + R + 6},0 ${cx + R + B},0`,
+    `L${navWidth},0 L${navWidth},${H} L0,${H} Z`,
+  ].join(' ');
 
   return (
-    <div className="acls-bottomnav">
+    <div ref={navRef} className="acls-bottomnav">
+      <svg width={navWidth} height={H} aria-hidden="true"
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 0, display: 'block' }}>
+        <path d={svgPath} fill="var(--bg-primary)" />
+      </svg>
+
       {[
         { key: "home",  label: "Beranda",  icon: Icons.house,   iconFill: Icons.houseFill },
         { key: "algo",  label: "Algoritma",icon: Icons.algo,    iconFill: Icons.algoFill },
@@ -406,20 +432,24 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
         { key: "drugs", label: "Obat",     icon: Icons.pill,    iconFill: Icons.pillFill },
         { key: "tools", label: "EKG",      icon: Icons.ekg,     iconFill: Icons.ekgFill },
       ].map((t, i) => {
-        if (!t.icon) return <div key={i} />;
+        if (!t.icon) return <div key={i} style={{ position: 'relative', zIndex: 1 }} />;
         const isActive = active === t.key;
         const I = isActive ? t.iconFill : t.icon;
         return (
-          <button key={t.key} className={"nav-btn " + (isActive ? "active" : "")} onClick={() => onChange(t.key)}>
+          <button key={t.key}
+            className={"nav-btn " + (isActive ? "active" : "")}
+            style={{ position: 'relative', zIndex: 1 }}
+            onClick={() => onChange(t.key)}>
             <I size={24} />
             <span>{t.label}</span>
           </button>
         );
       })}
+
       <button
         className="acls-fab"
         style={{
-          width: fabWidth, height: 60, borderRadius: fabRadius,
+          width: 60, height: 60, borderRadius: 30,
           background: fabOpen ? '#B02020' : (accent || "var(--danger)"),
           animation: fabOpen ? 'none' : undefined,
           transition: 'background 200ms var(--ease-out)',
@@ -429,7 +459,6 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
         <span key={String(fabOpen)} style={{ display: 'inline-flex', animation: 'acls-fade-in 150ms var(--ease-out) both' }}>
           {fabOpen ? <Icons.cross size={24} stroke={2.4}/> : <Icons.boltFill size={26}/>}
         </span>
-        {fabShape === "pill" && <span style={{ marginLeft: 4, fontWeight: 700 }}>CODE</span>}
       </button>
     </div>
   );

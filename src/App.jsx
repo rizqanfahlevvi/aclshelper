@@ -468,7 +468,6 @@ export default function App() {
             <BottomNav
               active={tab === 'tools' ? 'tools' : tab}
               onChange={(k) => { setFabOpen(false); if (k !== 'home') window.history.pushState(null, '', location.href); setTab(k); }}
-              fabShape="circle"
               accent="var(--danger)"
               fabOpen={fabOpen}
               onFabClick={() => setFabOpen(o => !o)}/>
