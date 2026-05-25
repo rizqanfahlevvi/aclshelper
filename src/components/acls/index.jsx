@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Icons, NavBar, SectionHeader } from '../base';
 import { sfx } from '../../utils/sfx';
 import { haptic } from '../../utils/haptic';
@@ -225,6 +225,58 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
 /* ============================================================
    FlowStep
    ============================================================ */
+/* ============================================================
+   EkgImage — real photo strip with RhythmStrip SVG fallback
+   ============================================================ */
+export function EkgImage({ rhythm, style = {} }) {
+  const [status, setStatus] = React.useState('loading'); // loading | loaded | error
+
+  if (!rhythm.imageFile) {
+    return <RhythmStrip kind={rhythm.key} width={340} height={80} />;
+  }
+
+  const src = `/ekg-images/${rhythm.imageFile}`;
+
+  return (
+    <div style={{ position: 'relative', borderRadius: 10, overflow: 'hidden',
+      background: 'var(--fill-quaternary)', ...style }}>
+
+      {/* Fallback SVG saat loading atau error */}
+      {status !== 'loaded' && (
+        <div style={{ position: status === 'loading' ? 'absolute' : 'relative',
+          inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <RhythmStrip kind={rhythm.key} width={340} height={80} />
+        </div>
+      )}
+
+      {/* Gambar asli */}
+      <img
+        src={src}
+        alt={`Strip EKG ${rhythm.name}`}
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
+        style={{
+          width: '100%',
+          height: 'auto',
+          display: status === 'loaded' ? 'block' : 'none',
+          objectFit: 'contain',
+          background: '#ffffff',
+        }}
+        loading="lazy"
+      />
+
+      {/* Credit label */}
+      {status === 'loaded' && rhythm.imageCredit && (
+        <div style={{ fontSize: 10, color: 'var(--label-tertiary)',
+          padding: '3px 8px', background: 'var(--fill-quaternary)',
+          textAlign: 'right' }}>
+          {rhythm.imageCredit}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FlowStep({ step, index, total, onAction, expandable = true }) {
   const [open, setOpen] = useState(false);
 
