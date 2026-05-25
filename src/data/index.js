@@ -336,21 +336,136 @@ export const ACLS_FLOW_SKA = [
    PASCA HENTI JANTUNG (Perawatan Pasca Henti Jantung · PERKI 2025)
    ------------------------------------------------------------ */
 export const ACLS_FLOW_ROSC = [
-  { kind: "action", title: "ROSC tercapai · stabilkan", sub: "Konfirmasi nadi · TD · saturasi · EKG 12-sandapan",
-    pearls: "Lonjakan EtCO₂ tiba-tiba (> 35–40) sering jadi pertanda ROSC sebelum nadi teraba." },
-  { kind: "action", title: "Airway & ventilasi", sub: "Target SpO₂ 92–98% · EtCO₂ 35–45 mmHg",
-    pearls: "Hindari hiperoksia (kerusakan reperfusi) dan hipoventilasi (asidosis · vasodilatasi serebral)." },
-  { kind: "action", title: "Hemodinamik", sub: "Target MAP ≥ 65 mmHg · cairan + vasopresor titrasi",
-    pearls: "Pilihan vasopresor: norepinefrin (drip 0,1–0,5 μg/kg/mnt). Epi alternatif bila bradikardi." },
-  { kind: "action", title: "EKG 12-sandapan · cari STEMI", sub: "Bila STEMI → IKPP emergensi",
-    pearls: "PERKI: ~80% OHCA dengan ROSC menunjukkan penyebab kardiak; reperfusi dini menurunkan mortalitas." },
-  { kind: "decision", title: "Pasien tetap koma?", q: "Tidak mengikuti perintah",
-    yes: { label: "TTM 32–37,5°C × ≥ 24 jam", tint: "var(--info)" },
-    no:  { label: "Observasi · ICU · cegah demam", tint: "var(--success)" } },
-  { kind: "action", title: "Targeted Temperature Management (TTM)", sub: "32–37,5°C · cegah demam ≥ 37,7°C · minimal 24 jam (direkomendasikan 36–48 jam)",
-    pearls: "AHA 2025: TTM 32–37,5°C (bukan hanya 32–34°C). Cegah demam ≥37,7°C selama 72 jam pasca-ROSC. Rewarming bertahap ≤0,25°C/jam. Sedasi & analgetik selama TTM." },
-  { kind: "outcome", title: "Cari & atasi etiologi", sub: "Echo · CT · lab · konsul multidisiplin",
-    pearls: "Prognostikasi neurologis ditunda ≥ 72 jam pasca-TTM. Hindari withdrawal of care dini." },
+  // [0] Box 1 — ROSC diperoleh
+  {
+    kind: "outcome",
+    title: "ROSC tercapai (Box 1)",
+    sub: "Resusitasi berlanjut di fase pasca-ROSC — banyak langkah dapat berjalan paralel",
+    pearls: "Tandai waktu ROSC. Fase ini adalah 'resusitasi berkelanjutan' — bukan akhir penanganan.",
+  },
+  // [1] Box 2 — Manajemen airway + oksigenasi + hemodinamik
+  {
+    kind: "action",
+    title: "Manajemen airway + oksigenasi + hemodinamik (Box 2)",
+    sub: "Nilai airway · konfirmasi ETT · target SpO₂ 90–98% · PaCO₂ 35–45 · MAP ≥ 65 mmHg",
+    pearls: [
+      "Airway: nilai posisi ETT/SGA dengan capnografi gelombang. Ganti bila perlu.",
+      "Oksigenasi: pertahankan FiO₂ 100% sampai SpO₂/PaO₂ bisa diukur reliabel, lalu titrasi ke SpO₂ 90–98% (PaO₂ 60–105 mmHg).",
+      "Ventilasi: atur minute ventilation untuk target PaCO₂ 35–45 mmHg (kecuali asidemia berat).",
+      "Hemodinamik: vasopressor dan/atau resusitasi cairan untuk MAP ≥ 65 mmHg.",
+      "HINDARI: hiperoksemia (SpO₂ > 98%), hipokapnia (PaCO₂ < 35), hiperkapnia berat.",
+    ],
+  },
+  // [2] Box 3 — Pemeriksaan diagnostik awal
+  {
+    kind: "action",
+    title: "Pemeriksaan diagnostik awal (Box 3)",
+    sub: "EKG 12-sandapan · CT scan · USG bedside / ekokardiografi",
+    pearls: [
+      "EKG: cari ST elevasi, iskemia, aritmia — pertimbangkan kateterisasi emergensi bila STEMI.",
+      "CT kepala/thorax/abdomen: tentukan penyebab arrest atau komplikasi resusitasi.",
+      "USG bedside (POCUS/RUSH): identifikasi tamponade, pneumotoraks, hipovolemia, disfungsi ventrikel.",
+      "Indikasi angiografi koroner emergensi: ST elevasi persisten · syok kardiogenik · aritmia ventrikel berulang/refrakter · iskemia miokard berat.",
+    ],
+  },
+  // [3] Box 4 — Atasi etiologi + pertimbangkan intervensi koroner
+  {
+    kind: "action",
+    title: "Atasi etiologi arrest + komplikasi (Box 4)",
+    sub: "Cari & koreksi Hs & Ts · pertimbangkan angiografi koroner emergensi / MCS",
+    pearls: [
+      "Indikasi angiografi koroner emergensi: STEMI persisten · syok kardiogenik · aritmia ventrikel refrakter.",
+      "Mechanical Circulatory Support (MCS): IABP, Impella, ECMO-VA bila syok kardiogenik refrakter.",
+      "Antibiotik: pertimbangkan pada pasien aspirasi atau infeksi sebagai etiologi.",
+      "Target metabolik selama perawatan ICU: PaO₂ 60–105 · PaCO₂ 35–45 · glukosa 70–180 mg/dL · MAP ≥ 65.",
+    ],
+  },
+  // [4] Box 5 — Nilai kesadaran (off sedasi)
+  {
+    kind: "action",
+    title: "Nilai kesadaran pasien (Box 5)",
+    sub: "Nilai off sedasi dan neuromuscular blockade bila memungkinkan",
+    pearls: "Tujuan: tentukan apakah pasien dapat mengikuti perintah — menentukan jalur manajemen selanjutnya (TTM vs monitoring biasa).",
+  },
+  // [5] Box 6 — Decision: follows commands?
+  {
+    kind: "decision",
+    title: "Pasien mengikuti perintah?",
+    q: "Dapat mengikuti perintah sederhana saat off sedasi dan neuromuscular blockade?",
+    yes: { label: "Ya — lanjut perawatan kritis standar", tint: "var(--success)", targetIndex: 10 },
+    no:  { label: "Tidak / tidak dapat dinilai — TTM + EEG", tint: "var(--warning)", targetIndex: 6 },
+  },
+  // [6] Box 7 — Perawatan kritis berkelanjutan (untuk yang tidak follows commands)
+  {
+    kind: "action",
+    title: "Perawatan kritis berkelanjutan (Box 7)",
+    sub: "Sedasi · ventilasi protektif · target metabolik ketat · antibiotik bila perlu",
+    pearls: [
+      "Target ketat: PaO₂ 60–105 mmHg · PaCO₂ 35–45 mmHg · glukosa 70–180 mg/dL · MAP ≥ 65 mmHg.",
+      "Hindari hipoglikemia (< 70) DAN hiperglikemia (> 180) — keduanya memperburuk outcome neurologis.",
+      "Elektrolit: pertahankan K 3,5–5,0 mEq/L. Cegah hipernatremia (TTM dapat menyebabkan natriuresis).",
+      "Pertimbangkan antibiotik empiris bila ada tanda infeksi atau aspirasi.",
+    ],
+  },
+  // [7] Box 8 — Kontrol suhu (TTM)
+  {
+    kind: "action",
+    title: "Strategi kontrol suhu / TTM (Box 8)",
+    sub: "Target 32–37,5°C · mulai sesegera mungkin · pertahankan 24 jam minimum",
+    pearls: [
+      "AHA 2025: TTM diindikasikan bila pasien tidak mengikuti perintah setelah ROSC.",
+      "Target suhu: 32°C–37,5°C. Cegah demam (≥ 37,7°C) setidaknya 72 jam pasca-ROSC.",
+      "Metode: selimut pendingin eksternal, kateter pendingin intravaskular, es / kantong es.",
+      "Pantau suhu inti secara kontinyu: probe esofageal, kateter urin bersuhu.",
+      "PERKI 2021: pasien koma → TTM 32–36°C selama 24 jam. AHA 2025 memperluas target hingga 37,5°C.",
+    ],
+  },
+  // [8] Box 9 — EEG
+  {
+    kind: "action",
+    title: "EEG — evaluasi seizure (Box 9)",
+    sub: "EEG untuk pasien yang tidak mengikuti perintah · cari status epileptikus nonkonvulsif",
+    pearls: [
+      "Status epileptikus nonkonvulsif (NCSE) terjadi pada 10–30% pasien koma pasca-ROSC.",
+      "NCSE memperburuk cedera otak sekunder — harus dideteksi dan diterapi segera.",
+      "EEG kontinyu lebih sensitif dari EEG rutin. Bila tidak tersedia: EEG standar 20–30 menit.",
+      "Terapi seizure: levetiracetam atau valproat IV lini pertama; fenobarbital atau propofol untuk refrakter.",
+    ],
+  },
+  // [9] Box 10 — Angiografi koroner (bila tepat)
+  {
+    kind: "action",
+    title: "Angiografi koroner (Box 10 & 13)",
+    sub: "Bila ada indikasi: STEMI · syok · aritmia ventrikel refrakter · iskemia berat",
+    pearls: [
+      "Tidak semua pasien post-ROSC perlu angiografi emergensi — seleksi berdasarkan EKG dan klinis.",
+      "Pasien tanpa STEMI dan tanpa syok kardiogenik: angiografi dapat ditunda (elektif) setelah stabilisasi neurologis.",
+      "MCS (IABP/Impella/ECMO-VA) dapat dijadikan jembatan ke angiografi pada syok berat.",
+    ],
+  },
+  // [10] Box 12 — Perawatan kritis (untuk yang follows commands)
+  {
+    kind: "action",
+    title: "Perawatan kritis — pasien responsif (Box 12)",
+    sub: "Monitoring ketat · target metabolik · cari etiologi · rehabilitasi dini",
+    pearls: [
+      "Meski mengikuti perintah, pasien tetap berisiko deteriorasi — monitoring ICU 24–48 jam minimal.",
+      "Target metabolik tetap sama: MAP ≥ 65, SpO₂ 90–98%, glukosa 70–180.",
+      "Mulai mobilisasi dan rehabilitasi dini bila hemodinamik stabil.",
+    ],
+  },
+  // [11] Box 11 — Prognostikasi
+  {
+    kind: "action",
+    title: "Prognostikasi multimodal (Box 11)",
+    sub: "Tunda ≥ 72 jam dari ROSC atau setelah normotermia · pendekatan multimodal",
+    pearls: [
+      "AHA 2025: jangan prognostikasi terlalu dini — sedasi dan TTM dapat menutupi tanda neurologis.",
+      "Waktu prognostikasi: ≥ 72 jam dari ROSC ATAU ≥ 72 jam setelah mencapai normotermia (mana yang lebih lama).",
+      "Modalitas: pemeriksaan neurologis · EEG · SSEP (Somatosensory Evoked Potentials) · CT/MRI otak · biomarker (NSE, S100B).",
+      "Keputusan withdrawing/withholding therapy: butuh konsensus tim multidisiplin + keluarga.",
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------
@@ -409,25 +524,107 @@ export const ACLS_FLOW_ANAPHYLAXIS = [
    HENTI JANTUNG PADA KEHAMILAN — AHA 2025 Part 10
    ------------------------------------------------------------ */
 export const ACLS_FLOW_PREGNANCY = [
-  { kind: "action", title: "Aktifkan Kode Maternal Darurat", sub: "Panggil tim ACLS + tim obstetri + neonatologi",
-    pearls: "AHA 2025: siapkan segera untuk Resusitasi Caesar Darurat (RCD/PMCD). Target RCD ≤ 5 menit dari henti jantung ibu bila RJP tidak menghasilkan ROSC." },
-  { kind: "action", title: "RJP berkualitas tinggi · posisi tangan lebih tinggi", sub: "Satu jari di atas titik tengah sternum · kedalaman 5–6 cm",
-    pearls: "Pada kehamilan > 20 minggu: kompresi di atas pusat sternum (uterus mendorong diafragma ke atas). Ganti compressor tiap 2 menit." },
-  { kind: "action", title: "Manual Left Uterine Displacement (LUD)", sub: "Geser uterus ke kiri secara manual selama RJP",
-    pearls: "LUD menghilangkan kompresi aortocaval (sindrom supine hipotensif) → meningkatkan venous return dan CO. Tidak perlu memiringkan ibu; meja CPR tetap datar." },
-  { kind: "action", title: "O₂ 100% · akses IV/IO (di atas diafragma dianjurkan)', sub: 'Hindari jalur femoral jika uterus besar menekan vena cava",
-    pearls: "Airway lanjut: intubasi (lebih sulit karena edema, berat badan). Gunakan ETT lebih kecil 0,5-1 ukuran. Preoksigenasi adekuat penting." },
-  { kind: "decision", title: "ROSC dalam 4 menit?", q: "Nadi teraba · sirkulasi spontan kembali?",
-    yes: { label: "Lanjut perawatan maternal-fetal", tint: "var(--success)" },
-    no:  { label: "Siapkan RCD segera · target ≤ 5 mnt", tint: "var(--danger)" } },
-  { kind: "shock", title: "Defibrilasi aman pada kehamilan", sub: "Bifasik 200 J · lepas monitor fetal · pad jauh dari uterus",
-    pearls: "Defibrilasi TIDAK kontraindikasi pada kehamilan. Arus ke fetus minimal. Lepaskan monitor EFM sebelum shock." },
-  { kind: "action", title: "Resusitasi Caesar Darurat (RCD)", sub: "Target < 5 menit dari henti jantung · di mana saja bila perlu",
-    pearls: "AHA 2025: RCD adalah intervensi resusitasi ibu (bukan hanya untuk menyelamatkan bayi). Mengurangi kompresi aortocaval → meningkatkan keberhasilan RJP. Dapat dilakukan di IGD / ICU bila tidak ada kamar operasi tersedia." },
-  { kind: "drug", title: "Obat ACLS standar (tidak kontraindikasi)", sub: "Epinefrin · amiodaron · dosis tidak diubah",
-    pearls: "Epinefrin, amiodarone, dan defibrilasi digunakan dengan dosis standar. Jangan tunda atau kurangi dosis karena kekhawatiran fetal." },
-  { kind: "outcome", title: "Pasca ROSC — ICU perinatal", sub: "Monitor fetal · TTM aman pada kehamilan · konsul multidisiplin",
-    pearls: "TTM (32–37,5°C) dapat diterapkan pada ibu hamil pasca-ROSC; pantau kesejahteraan fetal ketat. Konsul kardiologi, obstetri, neonatologi, anestesi." },
+  // [0] Box 1 — Mulai BLS/ALS
+  {
+    kind: "action",
+    title: "Mulai BLS/ALS segera (Box 1)",
+    sub: "RJP berkualitas tinggi · LUD manual terus-menerus · AED/defibrilasi sesuai indikasi",
+    pearls: [
+      "LUD (Left Uterine Displacement): geser uterus ke kiri secara manual selama RJP bila fundus ≥ umbilikus — mengurangi kompresi aortocaval.",
+      "Meja CPR tetap DATAR — jangan miringkan ibu. LUD manual lebih efektif dari posisi miring.",
+      "Defibrilasi TIDAK kontraindikasi pada kehamilan — arus ke fetus minimal. Lepas monitor EFM sebelum shock.",
+      "Dosis obat ACLS (epinefrin, amiodarone) tidak diubah pada kehamilan.",
+    ],
+  },
+  // [1] Box 2 — Aktifkan tim + tentukan konteks
+  {
+    kind: "action",
+    title: "Aktifkan tim henti jantung kehamilan (Box 2)",
+    sub: "Panggil: anestesi · obstetri · neonatologi · ICU · farmasi",
+    pearls: [
+      "Tandai waktu henti jantung — target RCD (Resusitasi Caesar Darurat) ≤ 5 menit dari henti jantung.",
+      "Cari & atasi etiologi arrest (lihat mnemonic A–H di bawah).",
+    ],
+  },
+  // [2] Etiologi khas kehamilan — mnemonic A-H
+  {
+    kind: "note",
+    title: "Etiologi Henti Jantung Kehamilan (A–H)",
+    sub: "Anesthetic · Bleeding · Cardiovascular · Drugs · Embolic · Fever · General H&T · Hypertension",
+    pearls: [
+      "A — Anesthetic complications: blok tinggi, toksisitas LA (LAST) → lipid emulsion 20%.",
+      "B — Bleeding: koagulopati, solusio, ruptur uterus → massive transfusion protocol (MTP).",
+      "C — Cardiovascular: kardiomiopati peripartum, diseksi aorta, infark miokard.",
+      "D — Drugs: magnesium toksik, oksitosin, opioid, dinoproston.",
+      "E — Embolic: emboli cairan amnion (AFE) atau emboli paru → MTP jika AFE.",
+      "F — Fever: sepsis (korioamnionitis, endometritis) → antibiotik segera.",
+      "G — General H's & T's: penyebab reversibel umum (hipoksia, hipo/hiperkalemia, tamponade, dll).",
+      "H — Hypertension: preeklampsia berat, eklampsia → MgSO4 STOP + kalsium glukonat.",
+    ],
+  },
+  // [3] Box 2a — Jika henti saat KEHAMILAN (bukan saat persalinan)
+  {
+    kind: "action",
+    title: "Optimasi resusitasi saat kehamilan (Box 3)",
+    sub: "Airway dini · IV di atas diafragma · stop MgSO₄ + beri kalsium · lepas monitor EFM",
+    pearls: [
+      "Akses IV/IO: pilih vena di ATAS diafragma (antekubital, sentral atas) — uterus besar menekan vena cava inferior.",
+      "Jika sedang infus MgSO₄: HENTIKAN segera, berikan kalsium glukonat 1 g IV (antagonis Mg).",
+      "Lepas semua monitor EFM (cardiotocograph) — tidak ada manfaat saat henti jantung, mengganggu tim.",
+      "Aktifkan MTP jika dicurigai emboli cairan amnion (AFE): koagulopati berat, bronkospasme, sianosis mendadak saat persalinan.",
+      "Airway: intubasi lebih sulit pada kehamilan (edema, jarak mulut-glotis pendek) — gunakan ETT 0,5–1 ukuran lebih kecil, preoksigenasi adekuat.",
+    ],
+  },
+  // [4] Box 4 — Decision: ROSC dalam 4–5 menit?
+  {
+    kind: "decision",
+    title: "ROSC tercapai dalam 4–5 menit?",
+    q: "Sirkulasi spontan kembali sebelum batas waktu RCD?",
+    yes: { label: "Ya — lanjut perawatan maternal-fetal", tint: "var(--success)", targetIndex: 8 },
+    no:  { label: "Tidak — siapkan RCD segera", tint: "var(--danger)", targetIndex: 5 },
+  },
+  // [5] Box 6 — Persiapan RCD (jika saat persalinan, langsung ke sini)
+  {
+    kind: "action",
+    title: "Persiapan Resusitasi Caesar Darurat / RCD (Box 6)",
+    sub: "Target insisi ≤ 5 menit dari henti jantung · dapat dilakukan di IGD/ICU bila perlu",
+    pearls: [
+      "RCD adalah intervensi RESUSITASI IBU — bukan semata untuk menyelamatkan bayi.",
+      "Mengeluarkan uterus mengurangi kompresi aortocaval → meningkatkan cardiac output → meningkatkan keberhasilan RJP.",
+      "Tidak perlu menunggu OK/kamar operasi — lakukan di tempat (IGD, ICU) bila kondisi kritis.",
+      "Fundus ≥ umbilikus: indikasi RCD. Fundus < umbilikus: RCD tidak membantu secara hemodinamik.",
+    ],
+  },
+  // [6] Box 5 — Lanjut ALS selama persiapan RCD
+  {
+    kind: "action",
+    title: "Lanjut ALS selama persiapan RCD (Box 5)",
+    sub: "RJP tidak berhenti · epinefrin sesuai protokol · defibrilasi sesuai indikasi",
+    pearls: "RJP dan ALS harus terus berjalan paralel dengan persiapan RCD — jangan ada interupsi untuk prosedur.",
+  },
+  // [7] Box 7 — Resusitasi neonatus
+  {
+    kind: "outcome",
+    title: "Resusitasi neonatus (Box 7)",
+    sub: "Gunakan Algoritma Resusitasi Neonatus · panggil neonatologi",
+    pearls: [
+      "Tim neonatologi harus sudah hadir sebelum RCD dilakukan.",
+      "Neonatus pasca-RCD berisiko asfiksia — perlu resusitasi neonatus lengkap.",
+      "Prognosis neonatus tergantung usia gestasi, durasi henti jantung ibu, dan kecepatan RCD.",
+    ],
+  },
+  // [8] Pasca-ROSC — perawatan maternal-fetal
+  {
+    kind: "outcome",
+    title: "Pasca-ROSC — Perawatan ICU perinatal",
+    sub: "Monitor fetal · TTM 32–37,5°C aman pada kehamilan · konsul multidisiplin",
+    pearls: [
+      "TTM (32–37,5°C) dapat diterapkan pada ibu hamil pasca-ROSC — pantau kesejahteraan fetal secara ketat.",
+      "Target: MAP ≥ 65 mmHg · SpO₂ 90–98% · PaCO₂ 35–45 mmHg · glukosa 70–180 mg/dL.",
+      "Konsultasi wajib: kardiologi, obstetri, neonatologi, anestesi, ICU.",
+      "Jika RCD sudah dilakukan: lanjut perawatan neonatus paralel dengan perawatan ibu.",
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------
