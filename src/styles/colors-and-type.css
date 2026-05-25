@@ -11,6 +11,8 @@
    and fall back to Inter (loaded via fonts/) for non-Apple. */
 @import url('https://rsms.me/inter/inter.css');
 
+html { font-size: clamp(13px, 1.5vw, 15px); }
+
 :root {
   /* --- Font families ------------------------------------- */
   --font-sans:
@@ -32,17 +34,17 @@
 
   /* --- Type scale (iOS Human Interface Guidelines) -------- */
   /* size / line-height / weight / tracking */
-  --type-large-title:   34px / 41px 700 0.011em;          /* Large Title */
-  --type-title-1:       28px / 34px 700 0.007em;          /* Title 1 */
-  --type-title-2:       22px / 28px 700 0.005em;          /* Title 2 */
-  --type-title-3:       20px / 25px 600 0.002em;          /* Title 3 */
-  --type-headline:      17px / 22px 600  -0.022em;        /* Headline */
-  --type-body:          17px / 22px 400  -0.022em;        /* Body */
-  --type-callout:       16px / 21px 400  -0.018em;        /* Callout */
-  --type-subheadline:   15px / 20px 400  -0.011em;        /* Subheadline */
-  --type-footnote:      13px / 18px 400  -0.005em;        /* Footnote */
-  --type-caption-1:     12px / 16px 400      0;           /* Caption 1 */
-  --type-caption-2:     11px / 13px 400  0.005em;         /* Caption 2 */
+  --type-large-title:   2.125rem / 2.5rem     700  0.011em;  /* Large Title */
+  --type-title-1:       1.75rem  / 2.125rem   700  0.007em;  /* Title 1 */
+  --type-title-2:       1.375rem / 1.75rem    700  0.005em;  /* Title 2 */
+  --type-title-3:       1.25rem  / 1.5625rem  600  0.002em;  /* Title 3 */
+  --type-headline:      1.0625rem / 1.375rem  600  -0.022em; /* Headline */
+  --type-body:          1.0625rem / 1.375rem  400  -0.022em; /* Body */
+  --type-callout:       1rem     / 1.3125rem  400  -0.018em; /* Callout */
+  --type-subheadline:   0.9375rem / 1.25rem   400  -0.011em; /* Subheadline */
+  --type-footnote:      0.8125rem / 1.125rem  400  -0.005em; /* Footnote */
+  --type-caption-1:     0.75rem  / 1rem       400  0;        /* Caption 1 */
+  --type-caption-2:     0.6875rem / 0.8125rem 400  0.005em;  /* Caption 2 */
 
   /* ============================================================
      LIGHT MODE — iOS System Colors

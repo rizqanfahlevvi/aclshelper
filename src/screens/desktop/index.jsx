@@ -214,7 +214,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
         <div style={{ display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
           <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
-            <div style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, lineHeight: 1.0,
+            <div style={{ fontSize: 'clamp(22px, 2.6vw, 34px)', fontWeight: 800, lineHeight: 1.0,
               letterSpacing: '-0.03em', marginBottom: 8 }}>
               <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>

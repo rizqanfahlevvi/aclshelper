@@ -254,11 +254,11 @@ export function MobileHome({ nav, openCPR }) {
         <div style={{ fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 8 }}>
           <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            fontSize: 'clamp(44px, 13vw, 58px)' }}>
+            fontSize: 'clamp(36px, 11vw, 48px)' }}>
             ACLS
           </span>
           {' '}
-          <span style={{ color: 'var(--label-primary)', fontSize: 'clamp(32px, 10vw, 42px)' }}>Helper</span>
+          <span style={{ color: 'var(--label-primary)', fontSize: 'clamp(26px, 8vw, 36px)' }}>Helper</span>
         </div>
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 16 }}>
           Alat bantu kognitif cepat untuk ACLS, code blue, dan manajemen irama emergensi.
