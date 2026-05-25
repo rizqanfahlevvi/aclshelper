@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
-import { RhythmStrip } from '../../components/acls';
+import { RhythmStrip, EkgImage } from '../../components/acls';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_FLOW_ARREST, ACLS_FLOW_BRADY, ACLS_FLOW_TACHY,
@@ -652,7 +652,15 @@ export function DesktopDrugs({ initialId, onPick }) {
 /* ============================================================
    ECG Library
    ============================================================ */
-const EKG_SEVERITY_LABELS = { shockable: 'Shockable', 'non-shockable': 'Non-shock', stable: 'Stabil', unstable: 'Tdk stabil', critical: 'Kritis' };
+const EKG_SEVERITY_LABELS = { shockable: 'Shockable', 'non-shockable': 'Non-shock', stable: 'Stabil', unstable: 'Tdk stabil', critical: 'Kritis', normal: 'Normal' };
+const D_MORPH_FIELDS = [
+  { key: 'rate',        label: 'Rate' },
+  { key: 'rhythm',      label: 'Irama' },
+  { key: 'pWave',       label: 'Gel. P' },
+  { key: 'prInterval',  label: 'Interval PR' },
+  { key: 'qrsDuration', label: 'Durasi QRS' },
+  { key: 'stT',         label: 'ST / T' },
+];
 
 export function DesktopEkg({ initialId, onPick }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
@@ -693,25 +701,147 @@ export function DesktopEkg({ initialId, onPick }) {
         </div>
       </div>
       <div style={{ overflowY: "auto", padding: "20px 28px 40px" }}>
+        {/* [1] Header */}
         <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ANALISIS IRAMA</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <h2 className="t-title-1" style={{ margin: "2px 0 6px" }}>{r.name}</h2>
-          <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase" }}>{r.severity}</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 4 }}>
+          <h2 className="t-title-1" style={{ margin: "2px 0 0" }}>{r.name}</h2>
+          <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase", flexShrink: 0, marginLeft: 12 }}>
+            {EKG_SEVERITY_LABELS[r.severity] || r.severity}
+          </span>
         </div>
-        <div style={{ marginTop: 18, padding: 14, background: "var(--bg-tertiary)", borderRadius: 16, boxShadow: "var(--shadow-1)" }}>
-          <RhythmStrip kind={r.key} width={640} height={200} color={r.tint}/>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)", textAlign: "right", marginTop: 6 }}>Lead II · 25 mm/s · 10 mm/mV</div>
-        </div>
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          <div className="acls-card-lg">
-            <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>PENGENALAN</div>
-            <div className="t-body" style={{ marginTop: 6, lineHeight: 1.45 }}>{r.features}</div>
+
+        {/* [2] EKG Image */}
+        <EkgImage rhythm={r} style={{ marginTop: 16, marginBottom: 20, minHeight: 100 }} />
+
+        {/* [3] Definisi + [4] Ciri Pengenalan — side by side if both exist */}
+        {(r.definition || r.features) && (
+          <div style={{ display: "grid", gridTemplateColumns: r.definition ? "1fr 1fr" : "1fr", gap: 14, marginBottom: 20 }}>
+            {r.definition && (
+              <div className="acls-card-lg">
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 6 }}>DEFINISI</div>
+                <div className="t-body" style={{ lineHeight: 1.5 }}>{r.definition}</div>
+              </div>
+            )}
+            <div className="acls-card-lg">
+              <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 6 }}>CIRI PENGENALAN</div>
+              <div className="t-body" style={{ lineHeight: 1.45 }}>{r.features}</div>
+            </div>
           </div>
-          <div className="acls-card-lg" style={{ background: "linear-gradient(180deg, " + r.tint + "12, " + r.tint + "04)", boxShadow: "inset 0 0 0 0.5px " + r.tint + "33" }}>
-            <div className="t-caption-2" style={{ color: r.tint, fontWeight: 700 }}>TINDAKAN</div>
-            <div className="t-body" style={{ marginTop: 6, lineHeight: 1.45 }}>{r.action}</div>
+        )}
+
+        {/* [5] Morfologi */}
+        {D_MORPH_FIELDS.some(f => r.morphology?.[f.key]) && (
+          <div style={{ marginBottom: 20 }}>
+            <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>MORFOLOGI EKG</div>
+            <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                {D_MORPH_FIELDS.filter(f => r.morphology?.[f.key]).map((f, i) => (
+                  <div key={f.key} style={{ padding: "9px 14px", borderTop: i >= 2 ? "0.5px solid var(--separator)" : "none", borderRight: i % 2 === 0 ? "0.5px solid var(--separator)" : "none" }}>
+                    <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 3 }}>{f.label}</div>
+                    <div className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.4 }}>{r.morphology[f.key]}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* [6] Kriteria + [7] Tatalaksana — kriteria kiri, tatalaksana kanan */}
+        {(r.criteria?.length > 0 || (r.management?.immediate?.length || r.management?.drugs?.length || r.management?.notes?.length)) && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20, alignItems: "start" }}>
+            {r.criteria?.length > 0 && (
+              <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>KRITERIA DIAGNOSTIK</div>
+                {r.criteria.map((c, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
+                    <span style={{ color: r.tint, fontWeight: 700, flexShrink: 0, fontSize: 12, marginTop: 2 }}>✓</span>
+                    <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{c}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {(r.management?.immediate?.length || r.management?.drugs?.length || r.management?.notes?.length) && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {r.management.immediate?.length > 0 && (
+                  <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden", background: r.tint + "08", boxShadow: "inset 0 0 0 0.5px " + r.tint + "33" }}>
+                    <div className="t-caption-2" style={{ color: r.tint, fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid " + r.tint + "25" }}>TINDAKAN SEGERA</div>
+                    {r.management.immediate.map((item, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid " + r.tint + "20" : "none", alignItems: "flex-start" }}>
+                        <span className="t-caption-2" style={{ color: r.tint, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{i + 1}.</span>
+                        <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {r.management.drugs?.length > 0 && (
+                  <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
+                    <div className="t-caption-2" style={{ color: "var(--label-secondary)", fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>OBAT-OBATAN</div>
+                    {r.management.drugs.map((drug, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
+                        <span className="t-footnote" style={{ color: "var(--accent)", flexShrink: 0, marginTop: 1 }}>💊</span>
+                        <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{drug}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {r.management.notes?.length > 0 && (
+                  <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
+                    <div className="t-caption-2" style={{ color: "var(--label-secondary)", fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>CATATAN KLINIS</div>
+                    {r.management.notes.map((note, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
+                        <span className="t-footnote" style={{ color: "var(--label-tertiary)", flexShrink: 0, marginTop: 1 }}>•</span>
+                        <span className="t-footnote" style={{ color: "var(--label-secondary)", lineHeight: 1.45 }}>{note}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* [8] DDx + [9] Pitfalls — side by side */}
+        {(r.ddx?.length > 0 || r.pitfalls?.length > 0) && (
+          <div style={{ display: "grid", gridTemplateColumns: r.ddx?.length && r.pitfalls?.length ? "1fr 1fr" : "1fr", gap: 14, marginBottom: 20, alignItems: "start" }}>
+            {r.ddx?.length > 0 && (
+              <div className="acls-card-lg" style={{ padding: 0, overflow: "hidden" }}>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>DIAGNOSIS BANDING</div>
+                {r.ddx.map((d, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
+                    <span style={{ color: "var(--label-tertiary)", flexShrink: 0, fontSize: 13, marginTop: 2 }}>↔</span>
+                    <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{d}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {r.pitfalls?.length > 0 && (
+              <div style={{ background: "rgba(255,196,0,0.10)", borderRadius: 12, border: "0.5px solid rgba(255,196,0,0.45)", overflow: "hidden" }}>
+                <div className="t-caption-2" style={{ color: "#b38600", fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid rgba(255,196,0,0.3)" }}>⚠️ PITFALLS &amp; PEARLS</div>
+                {r.pitfalls.map((p, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid rgba(255,196,0,0.2)" : "none", alignItems: "flex-start" }}>
+                    <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* [10] Referensi */}
+        {r.references?.length > 0 && (
+          <div>
+            <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>REFERENSI</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {r.references.map((ref, i) => (
+                <div key={i} style={{ fontSize: 11, color: "var(--label-tertiary)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "2px solid var(--fill-secondary)" }}>
+                  {ref.url
+                    ? <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>{ref.text}</a>
+                    : ref.text}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       </div>
     </div>
