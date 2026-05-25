@@ -3,6 +3,16 @@
    Layered on top of the ICU Helper iOS design system.
    ============================================================ */
 
+/* ---------- Theme transition -------------------------------- */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition-property: background-color, color, border-color, fill, stroke, box-shadow !important;
+  transition-duration: 300ms !important;
+  transition-timing-function: ease !important;
+}
+
 /* ---------- App layout -------------------------------------- */
 html, body, #root { height: 100%; }
 body {

@@ -67,7 +67,7 @@ function MoonIcon() {
   );
 }
 
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false }) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome }) {
   const time = useClock();
   return (
     <div style={{
@@ -97,18 +97,23 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false })
             </svg>
           </button>
         )}
-        <span style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: 'var(--danger)',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-          </svg>
-        </span>
-        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.022em', color: 'var(--label-primary)' }}>
-          ACLS Helper
-        </span>
+        <button onClick={onGoHome}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: 'none', border: 0, padding: 0,
+            cursor: onGoHome ? 'pointer' : 'default' }}>
+          <span style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: 'var(--danger)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </span>
+          <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.022em', color: 'var(--label-primary)' }}>
+            ACLS Helper
+          </span>
+        </button>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span style={{
@@ -266,7 +271,11 @@ export default function App() {
     root.style.setProperty('--label-link', isDark ? ACCENT.dark : ACCENT.color);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
+  const toggleTheme = () => {
+    document.documentElement.classList.add('theme-transitioning');
+    setTheme(t => t === 'light' ? 'dark' : 'light');
+    setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
+  };
 
   /* Mobile nav state */
   const [tab, setTab] = useState('home');
@@ -427,7 +436,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }}/>
         </div>
 
         <MobileSidebar
@@ -482,7 +491,7 @@ export default function App() {
   return (
     <div className="acls-app-desktop">
       {/* Full-width topbar — same structure as mobile */}
-      <AppTopBar theme={theme} onToggleTheme={toggleTheme}/>
+      <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
