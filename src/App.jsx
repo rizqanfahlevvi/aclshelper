@@ -294,7 +294,7 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }) {
               borderRadius: 12, fontSize: 15, fontWeight: 700, display: 'flex', gap: 8,
               boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer',
               justifyContent: 'center', alignItems: 'center' }}>
-            <Icons.heartFill size={18}/> Code Blue
+            <Icons.boltFill size={18}/> Code Blue
           </button>
         </div>
       </div>
@@ -494,7 +494,7 @@ export default function App() {
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
 
-  /* ── MOBILE ──────────────────────────────────────────── */
+  /* ── MOBILE ──────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <div className="acls-app-mobile">
@@ -557,7 +557,7 @@ export default function App() {
     );
   }
 
-  /* ── TABLET + DESKTOP ─────────────────────────────────────── */
+  /* ── TABLET + DESKTOP ─────────────────────────────────────────── */
   return (
     <div className="acls-app-desktop">
       {/* Full-width topbar — same structure as mobile */}
