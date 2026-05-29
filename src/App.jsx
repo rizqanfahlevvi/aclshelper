@@ -494,7 +494,7 @@ export default function App() {
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
 
-  /* ── MOBILE ───────────────────────────────────────────────── */
+  /* ── MOBILE ─────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <div className="acls-app-mobile">
@@ -557,16 +557,16 @@ export default function App() {
     );
   }
 
-  /* ── TABLET + DESKTOP ─────────────────────────────────────── */
+  /* ── TABLET + DESKTOP ────────────────────────────────────────── */
   return (
     <div className="acls-app-desktop">
       {/* Full-width topbar — same structure as mobile */}
-      <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}/>
+      <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
+        onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
           collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed(c => !c)}
           active={deskView.screen}
           onChange={(screen, id) => desktopPick(screen, id)}
           onOpenCpr={() => openCPR()}/>
