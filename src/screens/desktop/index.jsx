@@ -41,7 +41,11 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
   const noResults = q && navItems.length === 0 && quickItems.length === 0;
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      {!collapsed && (
+      {collapsed ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 48, flexShrink: 0 }}>
+          <Icons.search size={18} stroke={1.9} style={{ color: 'var(--label-secondary)' }}/>
+        </div>
+      ) : (
         <div style={{ padding: '10px 12px 4px', flexShrink: 0 }}>
           <div className="acls-sidebar-search" style={{ margin: 0, animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
             <Icons.search size={14} stroke={2}/>
