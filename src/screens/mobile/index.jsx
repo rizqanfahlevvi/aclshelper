@@ -379,7 +379,7 @@ export function MobileHome({ nav, openCPR }) {
                       animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Icons.boltFill size={22}/>
+                      <Icons.heartFill size={22}/>
                     </div>
                     <div style={{ flex: 1, textAlign: 'left' }}>
                       <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
