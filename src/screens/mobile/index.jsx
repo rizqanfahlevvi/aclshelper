@@ -13,6 +13,39 @@ import {
 } from '../../data';
 
 /* ============================================================
+   FAVORITES
+   ============================================================ */
+function useFavorites() {
+  const [favs, setFavs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('acls_favorites') || '[]'); } catch { return []; }
+  });
+
+  useEffect(() => {
+    const sync = () => {
+      try { setFavs(JSON.parse(localStorage.getItem('acls_favorites') || '[]')); } catch {}
+    };
+    window.addEventListener('acls-favorites-changed', sync);
+    return () => window.removeEventListener('acls-favorites-changed', sync);
+  }, []);
+
+  const isFav = (type, key) => favs.some(f => f.type === type && f.key === key);
+
+  const toggle = (type, key) => {
+    setFavs(prev => {
+      const exists = prev.some(f => f.type === type && f.key === key);
+      const next = exists
+        ? prev.filter(f => !(f.type === type && f.key === key))
+        : [...prev, { type, key }];
+      try { localStorage.setItem('acls_favorites', JSON.stringify(next)); } catch {}
+      window.dispatchEvent(new Event('acls-favorites-changed'));
+      return next;
+    });
+  };
+
+  return { favs, isFav, toggle };
+}
+
+/* ============================================================
    INSTALL POPUP
    ============================================================ */
 export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
@@ -193,6 +226,20 @@ export function MobileHome({ nav, openCPR }) {
   const [dir, setDir] = useState('right');
   const intervalRef = useRef(null);
   const touchStartX = useRef(null);
+  const { favs } = useFavorites();
+
+  const favItems = useMemo(() => favs.map(f => {
+    if (f.type === 'algo') {
+      const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
+      return a ? { ...f, label: a.label, sub: a.sub, tint: a.tint } : null;
+    }
+    if (f.type === 'drug') {
+      const d = ACLS_DRUGS.find(x => x.key === f.key);
+      return d ? { ...f, label: d.name, sub: d.category || d.class, tint: d.tint } : null;
+    }
+    const r = ACLS_RHYTHMS.find(x => x.key === f.key);
+    return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+  }).filter(Boolean), [favs]);
 
   const switchTo = (idx, direction = 'right') => {
     setDir(direction);
@@ -377,6 +424,33 @@ export function MobileHome({ nav, openCPR }) {
             </div>
           </div>
 
+          {favItems.length > 0 && (
+            <>
+              <SectionHeader>Favorit</SectionHeader>
+              <List>
+                {favItems.map(f => (
+                  <Row
+                    key={f.type + f.key}
+                    glyph={
+                      f.type === 'algo' ? <Icons.algo size={16} stroke={2.4}/> :
+                      f.type === 'drug' ? <Icons.pill size={16} stroke={2.4}/> :
+                      <Icons.ekg size={16} stroke={2.4}/>
+                    }
+                    tint={f.tint}
+                    label={f.label}
+                    sub={f.sub}
+                    right={<Icons.starFill size={13} style={{ color: 'var(--warning)', flexShrink: 0 }}/>}
+                    onClick={() => {
+                      if (f.type === 'algo') nav.push({ screen: 'algo', id: f.key });
+                      else if (f.type === 'drug') nav.push({ screen: 'drug', id: f.key });
+                      else nav.push({ screen: 'ekg', id: f.key });
+                    }}
+                  />
+                ))}
+              </List>
+            </>
+          )}
+
           <SectionHeader>Akses Cepat</SectionHeader>
           <div style={{ padding: '0 16px 12px', display: 'grid',
             gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -556,12 +630,22 @@ export function MobileAlgorithmDetail({ nav, id }) {
     }
   };
 
+  const { isFav: isFavAlgo, toggle: toggleAlgo } = useFavorites();
+
   return (
     <>
       <NavBar
         back="Algoritma"
         onBack={nav.pop}
-        right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}
+        right={
+          <button className="nb-btn glyph"
+            onClick={() => toggleAlgo('algo', id)}
+            style={{ color: isFavAlgo('algo', id) ? 'var(--warning)' : undefined }}>
+            {isFavAlgo('algo', id)
+              ? <Icons.starFill size={18}/>
+              : <Icons.star size={18} stroke={2}/>}
+          </button>
+        }
       />
       <div style={{ padding: "0 20px 12px" }}>
         <div className="t-title-2">{algo.label}</div>
@@ -714,9 +798,18 @@ export function MobileDrugList({ nav }) {
    ============================================================ */
 export function MobileDrugDetail({ nav, id }) {
   const d = ACLS_DRUGS.find(x => x.key === id) || ACLS_DRUGS[0];
+  const { isFav: isFavDrug, toggle: toggleDrug } = useFavorites();
   return (
     <>
-      <NavBar back="Obat" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.star size={18} stroke={2}/></button>}/>
+      <NavBar back="Obat" onBack={nav.pop} right={
+        <button className="nb-btn glyph"
+          onClick={() => toggleDrug('drug', id)}
+          style={{ color: isFavDrug('drug', id) ? 'var(--warning)' : undefined }}>
+          {isFavDrug('drug', id)
+            ? <Icons.starFill size={18}/>
+            : <Icons.star size={18} stroke={2}/>}
+        </button>
+      }/>
       <div style={{ padding: "0 20px 16px", display: "flex", gap: 14, alignItems: "center" }}>
         <div style={{ width: 64, height: 64, borderRadius: 16, flexShrink: 0, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
           <Icons.pill size={32} stroke={2}/>
@@ -870,11 +963,20 @@ export function MobileEkgDetail({ nav, id }) {
   const r = ACLS_RHYTHMS.find(x => x.key === id) || ACLS_RHYTHMS[0];
   const hasMorph = r.morphology && Object.values(r.morphology).some(v => v);
   const hasMgmt  = r.management && (r.management.immediate?.length || r.management.drugs?.length || r.management.notes?.length);
+  const { isFav: isFavEkg, toggle: toggleEkg } = useFavorites();
 
   return (
     <>
       {/* [1] Header */}
-      <NavBar back="EKG" onBack={nav.pop} right={<button className="nb-btn glyph"><Icons.share size={18} stroke={1.8}/></button>}/>
+      <NavBar back="EKG" onBack={nav.pop} right={
+        <button className="nb-btn glyph"
+          onClick={() => toggleEkg('ekg', id)}
+          style={{ color: isFavEkg('ekg', id) ? 'var(--warning)' : undefined }}>
+          {isFavEkg('ekg', id)
+            ? <Icons.starFill size={18}/>
+            : <Icons.star size={18} stroke={2}/>}
+        </button>
+      }/>
       <div style={{ padding: "4px 20px 10px" }}>
         <div className="t-title-2">{r.name}</div>
         <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
