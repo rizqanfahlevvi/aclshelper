@@ -117,7 +117,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
               color: '#fff', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 6px 16px rgba(255,59,48,0.35)' }}>
-            <Icons.boltFill size={20}/>
+            <Icons.heartFill size={20}/>
           </button>
         ) : (
           <button onClick={onOpenCpr} className="ios-btn block"
@@ -125,7 +125,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
               borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8,
               boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
               justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-            <Icons.boltFill size={18}/> Code Blue
+            <Icons.heartFill size={18}/> Code Blue
           </button>
         )}
       </div>
@@ -259,7 +259,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
                     borderRadius: 16, border: 0, cursor: 'pointer',
                     boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
-                  <Icons.boltFill size={26}/>
+                  <Icons.heartFill size={26}/>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
                     <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
