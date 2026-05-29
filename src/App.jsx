@@ -28,6 +28,55 @@ function useBreakpoint() {
   return bp;
 }
 
+/* ============================================================
+   HASH ROUTING
+   ============================================================ */
+function stateToHash(bp, tab, stack, deskView) {
+  if (bp === 'desktop') {
+    const { screen, id } = deskView;
+    if (screen === 'dashboard') return '/';
+    return id ? `/${screen}/${id}` : `/${screen}`;
+  }
+  const frame = stack[tab][stack[tab].length - 1];
+  const { screen, id } = frame;
+  if (screen === 'home')     return '/';
+  if (screen === 'algoList') return '/algo';
+  if (screen === 'algo')     return `/algo/${id}`;
+  if (screen === 'drugList') return '/drugs';
+  if (screen === 'drug')     return `/drugs/${id}`;
+  if (screen === 'ekgList')  return '/ekg';
+  if (screen === 'ekg')      return `/ekg/${id}`;
+  if (screen === 'hsts')     return '/hsts';
+  return '/';
+}
+
+function hashToNav(hash) {
+  const path = hash.replace(/^#\/?/, '');
+  const [section = '', id = null] = path.split('/');
+  switch (section) {
+    case 'algo':  return { tab: 'algo',  frame: id ? { screen: 'algo', id }  : { screen: 'algoList' }, deskScreen: 'algo',      deskId: id  };
+    case 'drugs': return { tab: 'drugs', frame: id ? { screen: 'drug', id }  : { screen: 'drugList' }, deskScreen: 'drugs',     deskId: id  };
+    case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
+    case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                     deskScreen: 'hsts',      deskId: null };
+    default:      return { tab: 'home',  frame: { screen: 'home' },                                     deskScreen: 'dashboard', deskId: null };
+  }
+}
+
+// Compute initial nav state from URL (once on module load)
+const _initNav = (() => {
+  const n = hashToNav(window.location.hash);
+  return {
+    tab: n.tab,
+    stack: {
+      home:  n.tab === 'home'  && n.frame.screen !== 'home'    ? [{ screen: 'home' },    n.frame] : [{ screen: 'home' }],
+      algo:  n.tab === 'algo'  && n.frame.screen !== 'algoList'? [{ screen: 'algoList' },n.frame] : [{ screen: 'algoList' }],
+      drugs: n.tab === 'drugs' && n.frame.screen !== 'drugList'? [{ screen: 'drugList' },n.frame] : [{ screen: 'drugList' }],
+      tools: n.tab === 'tools' && n.frame.screen !== 'ekgList' ? [{ screen: 'ekgList' }, n.frame] : [{ screen: 'ekgList' }],
+    },
+    deskView: n.deskId ? { screen: n.deskScreen, id: n.deskId } : { screen: n.deskScreen },
+  };
+})();
+
 function useClock() {
   const fmt = () => {
     const d = new Date();
@@ -277,19 +326,15 @@ export default function App() {
     setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
   };
 
-  /* Mobile nav state */
-  const [tab, setTab] = useState('home');
-  const [stack, setStack] = useState({
-    home:  [{ screen: 'home' }],
-    algo:  [{ screen: 'algoList' }],
-    drugs: [{ screen: 'drugList' }],
-    tools: [{ screen: 'ekgList' }],
-  });
+  /* Mobile nav state — initialised from URL hash */
+  const [tab, setTab] = useState(_initNav.tab);
+  const [stack, setStack] = useState(_initNav.stack);
   const topFrame = stack[tab][stack[tab].length - 1];
 
   const nav = {
     push: (frame) => {
-      window.history.pushState(null, '', location.href);
+      const ns = { ...stack, [tab]: [...stack[tab], frame] };
+      window.history.pushState(null, '', '#' + stateToHash(bp, tab, ns, deskView));
       setStack(s => ({ ...s, [tab]: [...s[tab], frame] }));
     },
     pop: () => setStack(s => {
@@ -300,9 +345,10 @@ export default function App() {
   };
 
   const openAlgoFromHome = (id) => {
-    window.history.pushState(null, '', location.href);
+    const ns = { ...stack, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] };
+    window.history.pushState(null, '', '#' + stateToHash(bp, 'algo', ns, deskView));
     setTab('algo');
-    setStack(s => ({ ...s, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] }));
+    setStack(() => ns);
   };
 
   const [cprOpen, setCprOpen] = useState(false);
@@ -328,38 +374,51 @@ export default function App() {
 
   const mobileNavFromSidebar = (key, id) => {
     if (key === 'hsts') {
-      window.history.pushState(null, '', location.href);
+      window.history.pushState(null, '', '#/hsts');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'hsts' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
-      if (key !== 'home') window.history.pushState(null, '', location.href);
+      if (key !== 'home') {
+        const path = { algo: '/algo', drugs: '/drugs', tools: '/ekg' }[key] || '/';
+        window.history.pushState(null, '', '#' + path);
+      }
       setTab(key);
     }
   };
 
-  /* Browser back-button integration */
+  /* Browser back/forward — restore state from URL hash */
   useEffect(() => {
     const handle = () => {
-      const { tab, stack, cprOpen, bp, deskView } = navRef.current;
-      if (cprOpen) {
-        setCprOpen(false);
-        setCprRhythm(null);
-      } else if (bp === 'mobile' || bp === 'tablet') {
-        const cur = stack[tab];
-        if (cur.length > 1) {
-          setStack(s => ({ ...s, [tab]: s[tab].slice(0, -1) }));
-        } else if (tab !== 'home') {
-          setTab('home');
-        }
+      const { cprOpen, bp } = navRef.current;
+      if (cprOpen) { setCprOpen(false); setCprRhythm(null); return; }
+      const n = hashToNav(window.location.hash);
+      if (bp === 'mobile' || bp === 'tablet') {
+        const base = { home: 'home', algo: 'algoList', drugs: 'drugList', tools: 'ekgList' };
+        setTab(n.tab);
+        setStack(s => ({
+          ...s,
+          [n.tab]: n.frame.screen === base[n.tab]
+            ? [{ screen: base[n.tab] }]
+            : [{ screen: base[n.tab] }, n.frame],
+        }));
       } else {
-        if (deskView.screen !== 'dashboard') setDeskView({ screen: 'dashboard' });
+        setDeskView(n.deskId ? { screen: n.deskScreen, id: n.deskId } : { screen: n.deskScreen });
       }
     };
     window.addEventListener('popstate', handle);
     return () => window.removeEventListener('popstate', handle);
   }, []);
+
+  /* Keep URL in sync with nav state (replaceState — no extra history entries) */
+  useEffect(() => {
+    const path = stateToHash(bp, tab, stack, deskView);
+    const newHash = '#' + path;
+    if (window.location.hash !== newHash) {
+      window.history.replaceState(null, '', newHash);
+    }
+  }, [bp, tab, stack, deskView]);
 
   /* PWA install prompt */
   const deferredPromptRef = useRef(null);
@@ -380,11 +439,14 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  /* Desktop state */
-  const [deskView, setDeskView] = useState({ screen: 'dashboard' });
+  /* Desktop state — initialised from URL hash */
+  const [deskView, setDeskView] = useState(_initNav.deskView);
   const desktopPick = (screen, id) => {
-    if (screen !== 'dashboard') window.history.pushState(null, '', location.href);
-    setDeskView({ screen, id });
+    const newView = { screen, id };
+    if (screen !== 'dashboard') {
+      window.history.pushState(null, '', '#' + stateToHash('desktop', tab, stack, newView));
+    }
+    setDeskView(newView);
   };
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
@@ -476,7 +538,14 @@ export default function App() {
           <div className="acls-mobile-bottomnav">
             <BottomNav
               active={tab === 'tools' ? 'tools' : tab}
-              onChange={(k) => { setFabOpen(false); if (k !== 'home') window.history.pushState(null, '', location.href); setTab(k); }}
+              onChange={(k) => {
+                setFabOpen(false);
+                if (k !== 'home') {
+                  const path = { algo: '/algo', drugs: '/drugs', tools: '/ekg' }[k] || '/';
+                  window.history.pushState(null, '', '#' + path);
+                }
+                setTab(k);
+              }}
               fabShape="circle"
               accent="var(--danger)"
               fabOpen={fabOpen}
@@ -498,7 +567,7 @@ export default function App() {
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(c => !c)}
           active={deskView.screen}
-          onChange={(screen, id) => setDeskView({ screen, id })}
+          onChange={(screen, id) => desktopPick(screen, id)}
           onOpenCpr={() => openCPR()}/>
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
