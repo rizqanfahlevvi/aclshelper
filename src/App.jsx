@@ -485,7 +485,7 @@ export default function App() {
 
   const renderDesktop = () => {
     const v = deskView;
-    if (v.screen === 'algo')  return <DesktopAlgorithm id={v.id || 'arrest'} onPick={desktopPick}/>;
+    if (v.screen === 'algo')  return <DesktopAlgorithm id={v.id} onPick={desktopPick}/>;
     if (v.screen === 'drugs') return <DesktopDrugs initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
