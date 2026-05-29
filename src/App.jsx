@@ -326,6 +326,16 @@ export default function App() {
     setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
   };
 
+  /* Desktop state — initialised from URL hash (declared early — used in effects below) */
+  const [deskView, setDeskView] = useState(_initNav.deskView);
+  const desktopPick = (screen, id) => {
+    const newView = { screen, id };
+    if (screen !== 'dashboard') {
+      window.history.pushState(null, '', '#' + stateToHash('desktop', tab, stack, newView));
+    }
+    setDeskView(newView);
+  };
+
   /* Mobile nav state — initialised from URL hash */
   const [tab, setTab] = useState(_initNav.tab);
   const [stack, setStack] = useState(_initNav.stack);
@@ -439,15 +449,6 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  /* Desktop state — initialised from URL hash */
-  const [deskView, setDeskView] = useState(_initNav.deskView);
-  const desktopPick = (screen, id) => {
-    const newView = { screen, id };
-    if (screen !== 'dashboard') {
-      window.history.pushState(null, '', '#' + stateToHash('desktop', tab, stack, newView));
-    }
-    setDeskView(newView);
-  };
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
   useEffect(() => { navRef.current = { tab, stack, cprOpen, bp, deskView }; });
