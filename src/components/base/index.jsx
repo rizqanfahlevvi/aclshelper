@@ -75,11 +75,6 @@ export const Icons = {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
     </svg>,
-  heartFill: ({ size = 24 }) =>
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M6 13 Q5 9 7 7 Q9 5.5 11.5 6.5 L13 8 Q15 6 17 6 Q20 6.5 20.5 10 Q21 13.5 18.5 16.5 Q16 19.5 12 21 Q8.5 19 6.5 16 Z"/>
-      <path d="M13 8 Q12.5 5.5 14.5 4 Q17 2 19.5 3.5 Q21.5 5 20.5 7.5 Q20 9 18.5 9.5 Q17 10 15.5 9 Q14 8.5 13 8Z"/>
-    </svg>,
   timer: ({ size = 24, stroke = 1.75 }) =>
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2M9 2h6M19 5l2 2" />
