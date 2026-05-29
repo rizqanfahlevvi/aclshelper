@@ -125,6 +125,7 @@ body {
   border-right: 0.5px solid var(--separator-opaque);
   display: flex; flex-direction: column;
   flex-shrink: 0;
+  padding-top: 8px;
   transition: width 240ms var(--ease-out);
   overflow: hidden;
 }
@@ -464,5 +465,4 @@ body {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0.25; }
 }
-
 

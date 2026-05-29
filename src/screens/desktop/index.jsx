@@ -33,7 +33,7 @@ const SIDEBAR_QUICK = [
   { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
 ];
 
-export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false, onToggleCollapse }) {
+export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }) {
   const [query, setQuery] = React.useState('');
   const q = query.trim().toLowerCase();
   const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
@@ -41,29 +41,13 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
   const noResults = q && navItems.length === 0 && quickItems.length === 0;
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 13px 0',
-        overflow: 'hidden' }}>
-        <button onClick={onToggleCollapse}
-          style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--fill-tertiary)',
-            border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            position: 'relative' }}>
-          {/* Hamburger — visible when collapsed */}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
-            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
-              opacity: collapsed ? 1 : 0, transform: collapsed ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-          {/* X — visible when expanded */}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
-            style={{ position: 'absolute', transition: 'opacity 180ms, transform 220ms var(--ease-out)',
-              opacity: collapsed ? 0 : 1, transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-        {!collapsed && (
-          <div className="acls-sidebar-search" style={{ flex: 1, margin: 0,
-            animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
+      {collapsed ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 48, flexShrink: 0 }}>
+          <Icons.search size={18} stroke={1.9} style={{ color: 'var(--label-secondary)' }}/>
+        </div>
+      ) : (
+        <div style={{ padding: '10px 12px 4px', flexShrink: 0 }}>
+          <div className="acls-sidebar-search" style={{ margin: 0, animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
             <Icons.search size={14} stroke={2}/>
             <input
               value={query}
@@ -83,8 +67,8 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
               </button>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <nav className="acls-sidebar-nav">
         {(collapsed ? SIDEBAR_NAV : navItems).map(it => (
@@ -133,7 +117,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
               color: '#fff', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 6px 16px rgba(255,59,48,0.35)' }}>
-            <Icons.boltFill size={20}/>
+            <Icons.heartFill size={20}/>
           </button>
         ) : (
           <button onClick={onOpenCpr} className="ios-btn block"
@@ -141,7 +125,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false,
               borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8,
               boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
               justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-            <Icons.boltFill size={18}/> Code Blue
+            <Icons.heartFill size={18}/> Code Blue
           </button>
         )}
       </div>
@@ -264,7 +248,6 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 
       <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 14,
         animation: 'acls-fadeslide 400ms 120ms var(--ease-out) both' }}>
-        {/* Left column: spotlight — Code Blue ↔ Saweria */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ overflow: 'hidden', borderRadius: 16, flex: 1 }}
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
@@ -276,7 +259,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
                     borderRadius: 16, border: 0, cursor: 'pointer',
                     boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
-                  <Icons.boltFill size={26}/>
+                  <Icons.heartFill size={26}/>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
                     <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
@@ -310,7 +293,6 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
             ))}
           </div>
         </div>
-        {/* Right column: 2×2 algo cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           {[
             { key: "vfvt",  label: "VF / pVT",       sub: "Shockable rhythm",   tint: "var(--danger)",     icon: <Icons.boltFill size={16}/> },
@@ -769,7 +751,6 @@ export function DesktopEkg({ initialId, onPick }) {
         </div>
       </div>
       <div style={{ overflowY: "auto", padding: "20px 28px 40px" }}>
-        {/* [1] Header */}
         <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ANALISIS IRAMA</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 4 }}>
           <h2 className="t-title-1" style={{ margin: "2px 0 0" }}>{r.name}</h2>
@@ -778,10 +759,8 @@ export function DesktopEkg({ initialId, onPick }) {
           </span>
         </div>
 
-        {/* [2] EKG Image */}
         <EkgImage rhythm={r} style={{ marginTop: 16, marginBottom: 20, minHeight: 100 }} />
 
-        {/* [3] Definisi + [4] Ciri Pengenalan */}
         {(r.definition || r.features) && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.definition && (
@@ -797,7 +776,6 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [5] Morfologi */}
         {D_MORPH_FIELDS.some(f => r.morphology?.[f.key]) && (
           <div style={{ marginBottom: 20 }}>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>MORFOLOGI EKG</div>
@@ -814,7 +792,6 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [6] Kriteria + [7] Tatalaksana */}
         {(r.criteria?.length > 0 || (r.management?.immediate?.length || r.management?.drugs?.length || r.management?.notes?.length)) && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.criteria?.length > 0 && (
@@ -868,7 +845,6 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [8] DDx + [9] Pitfalls */}
         {(r.ddx?.length > 0 || r.pitfalls?.length > 0) && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
             {r.ddx?.length > 0 && (
@@ -895,7 +871,6 @@ export function DesktopEkg({ initialId, onPick }) {
           </div>
         )}
 
-        {/* [10] Referensi */}
         {r.references?.length > 0 && (
           <div>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>REFERENSI</div>
