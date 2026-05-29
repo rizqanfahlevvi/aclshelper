@@ -447,119 +447,177 @@ export function DesktopAlgorithm({ id, onPick }) {
     return ACLS_DRUGS.find(d => txt.includes(d.name.toLowerCase().split(" ")[0]));
   }, [selected, id]);
 
+  const [algoQ, setAlgoQ] = useState('');
+  const filteredAlgos = useMemo(() => {
+    const q = algoQ.trim().toLowerCase();
+    return q
+      ? ACLS_ALGORITHMS.filter(a => (a.label + ' ' + (a.sub || '')).toLowerCase().includes(q))
+      : ACLS_ALGORITHMS;
+  }, [algoQ]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <DesktopTopbar crumb={['Algoritma', algo.label]}/>
-      <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", flex: 1, overflow: "hidden" }}>
-      <div style={{ overflowY: "auto", padding: "20px 24px 40px", borderRight: "0.5px solid var(--separator-opaque)" }}>
-        <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ALUR ALGORITMA</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <h2 className="t-title-1" style={{ margin: "4px 0 4px" }}>{algo.label}</h2>
-          <span className="ios-tag" style={{ background: algo.tint + "1F", color: algo.tint, textTransform: "uppercase" }}>{algo.tag}</span>
-        </div>
-        <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16 }}>{algo.sub} · sumber: {algo.source || "AHA 2025"}</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {flow.map((s, i) => {
-            const active = selected === i;
-            const tone = TONE_MAP[s.kind] || "var(--accent)";
-            const connColor = i < selected ? "var(--accent)" : (i === selected ? tone : "var(--separator)");
-            return (
-              <React.Fragment key={i}>
-                <button ref={active ? activeRef : null}
-                  onClick={() => setSelected(i)} className={"acls-desk-flowstep" + (active ? " active" : "")}
-                  style={{ background: active ? tone + "14" : "var(--bg-tertiary)", boxShadow: active ? "inset 0 0 0 1px " + tone : "var(--shadow-1)" }}>
-                  <span className="kind" style={{ background: tone + "1F", color: tone }}>{s.kind === "decision" ? "?" : s.kind === "shock" ? "⚡" : i + 1}</span>
-                  <div style={{ textAlign: "left", flex: 1 }}>
-                    <div className="t-callout" style={{ fontWeight: 600 }}>{s.title}</div>
-                    {s.sub && <div className="t-footnote" style={{ color: "var(--label-secondary)" }}>{s.sub}</div>}
-                    {s.kind === "decision" && <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{s.q}</div>}
+      <DesktopTopbar crumb={id ? ['Algoritma', algo.label] : ['Algoritma']}/>
+      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", flex: 1, overflow: "hidden" }}>
+
+        {/* LEFT: algo list */}
+        <div style={{ borderRight: "0.5px solid var(--separator-opaque)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div style={{ padding: "12px 12px 8px", flexShrink: 0 }}>
+            <div className="acls-sidebar-search" style={{ margin: 0 }}>
+              <Icons.search size={13} stroke={2}/>
+              <input value={algoQ} onChange={e => setAlgoQ(e.target.value)} placeholder="Cari algoritma…"
+                style={{ flex: 1, background: 'none', border: 0, outline: 'none',
+                  color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}/>
+              {algoQ && <button onClick={() => setAlgoQ('')}
+                style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
+                  color: 'var(--label-tertiary)', display: 'flex' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>}
+            </div>
+          </div>
+          <div style={{ overflowY: "auto", padding: "0 12px 16px", flex: 1 }}>
+            <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>
+              ALGORITMA · {filteredAlgos.length}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {filteredAlgos.length === 0
+                ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+                : filteredAlgos.map(a => (
+                <button key={a.key} onClick={() => onPick('algo', a.key)}
+                  className={"acls-list-item " + (id === a.key ? "active" : "")}>
+                  <span style={{ width: 6, height: 30, borderRadius: 3, background: a.tint, flexShrink: 0 }}/>
+                  <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                    <div className="t-callout" style={{ fontWeight: 600 }}>{a.label}</div>
+                    <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{a.sub}</div>
                   </div>
                 </button>
-                {i < flow.length - 1 && <div style={{ marginLeft: 20, height: 16, borderLeft: "2px dashed " + connColor, transition: "border-color 200ms" }}/>}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ overflowY: "auto", padding: "20px 24px 40px", background: "var(--bg-secondary)" }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LANGKAH {selected + 1} DARI {flow.length}</div>
-          <div className="t-caption-2" style={{ color: currentTone, fontWeight: 700 }}>{step.kind?.toUpperCase()}</div>
-        </div>
-        <div style={{ height: 3, background: 'var(--fill-secondary)', borderRadius: 2, margin: '6px 0 14px' }}>
-          <div style={{ width: ((selected + 1) / flow.length * 100) + '%', height: '100%',
-            background: currentTone, borderRadius: 2, transition: 'width 300ms var(--ease-out)' }}/>
-        </div>
-        <h3 className="t-title-2" style={{ margin: "0 0 6px" }}>{step.title}</h3>
-        {step.sub && <div className="t-callout" style={{ color: "var(--label-primary)" }}>{step.sub}</div>}
-        {step.kind === "decision" && (
-          <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <button
-              onClick={() => {
-                const target = step.yes?.targetIndex ?? Math.min(selected + 1, flow.length - 1);
-                setSelected(target);
-              }}
-              style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,59,48,0.10)",
-                boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "55", border: 0, cursor: "pointer",
-                textAlign: "left", transition: "opacity 150ms" }}
-            >
-              <div className="t-caption-2" style={{ color: step.yes.tint, fontWeight: 700 }}>YES →</div>
-              <div className="t-headline" style={{ color: step.yes.tint, marginTop: 4 }}>{step.yes.label}</div>
-            </button>
-            <button
-              onClick={() => {
-                const target = step.no?.targetIndex ?? Math.min(selected + 2, flow.length - 1);
-                setSelected(target);
-              }}
-              style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(0,122,255,0.08)",
-                boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "55", border: 0, cursor: "pointer",
-                textAlign: "left", transition: "opacity 150ms" }}
-            >
-              <div className="t-caption-2" style={{ color: step.no.tint, fontWeight: 700 }}>NO →</div>
-              <div className="t-headline" style={{ color: step.no.tint, marginTop: 4 }}>{step.no.label}</div>
-            </button>
-          </div>
-        )}
-        {step.pearls && (
-          <div style={{ marginTop: 14 }}>
-            <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>CATATAN KLINIS</div>
-            <div style={{ marginTop: 4, padding: "12px 14px", borderRadius: 12, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", lineHeight: 1.5 }} className="t-footnote">{step.pearls}</div>
-          </div>
-        )}
-        {relatedDrug && (
-          <div style={{ marginTop: 18 }}>
-            <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>OBAT TERKAIT</div>
-            <button onClick={() => onPick("drugs", relatedDrug.key)} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", width: "100%", border: 0, cursor: "pointer", display: "block" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 38, height: 38, borderRadius: 10, background: relatedDrug.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Icons.pill size={18} stroke={2}/></span>
-                <div style={{ flex: 1 }}>
-                  <div className="t-headline">{relatedDrug.name}</div>
-                  <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{relatedDrug.class}</div>
-                </div>
-                <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)" }}/>
-              </div>
-              <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "linear-gradient(180deg, " + relatedDrug.tint + "10, " + relatedDrug.tint + "04)" }}>
-                <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DOSIS</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 700, color: relatedDrug.tint, marginTop: 2 }}>{relatedDrug.dose}</div>
-                <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 8 }}>PENGULANGAN</div>
-                <div className="t-footnote">{relatedDrug.repeat}</div>
-              </div>
-            </button>
-          </div>
-        )}
-        <div style={{ marginTop: 18 }}>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
-          <button onClick={() => onPick("hsts")} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", width: "100%", border: 0 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 10, background: "var(--tint-theory)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Icons.clipboard size={18} stroke={2}/></span>
-            <div style={{ flex: 1 }}>
-              <div className="t-headline">Hs &amp; Ts — Penyebab reversibel</div>
-              <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>10 mnemonic penyebab · cari sistematis</div>
+              ))}
             </div>
-            <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)" }}/>
-          </button>
+          </div>
         </div>
-      </div>
+
+        {/* RIGHT: flow view or placeholder */}
+        {!id ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", gap: 10, color: "var(--label-tertiary)" }}>
+            <Icons.algo size={48} stroke={1} style={{ opacity: 0.25 }}/>
+            <div className="t-callout">Pilih algoritma dari daftar</div>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", overflow: "hidden" }}>
+            <div style={{ overflowY: "auto", padding: "20px 24px 40px", borderRight: "0.5px solid var(--separator-opaque)" }}>
+              <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ALUR ALGORITMA</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <h2 className="t-title-1" style={{ margin: "4px 0 4px" }}>{algo.label}</h2>
+                <span className="ios-tag" style={{ background: algo.tint + "1F", color: algo.tint, textTransform: "uppercase" }}>{algo.tag}</span>
+              </div>
+              <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16 }}>{algo.sub} · sumber: {algo.source || "AHA 2025"}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {flow.map((s, i) => {
+                  const active = selected === i;
+                  const tone = TONE_MAP[s.kind] || "var(--accent)";
+                  const connColor = i < selected ? "var(--accent)" : (i === selected ? tone : "var(--separator)");
+                  return (
+                    <React.Fragment key={i}>
+                      <button ref={active ? activeRef : null}
+                        onClick={() => setSelected(i)} className={"acls-desk-flowstep" + (active ? " active" : "")}
+                        style={{ background: active ? tone + "14" : "var(--bg-tertiary)", boxShadow: active ? "inset 0 0 0 1px " + tone : "var(--shadow-1)" }}>
+                        <span className="kind" style={{ background: tone + "1F", color: tone }}>{s.kind === "decision" ? "?" : s.kind === "shock" ? "⚡" : i + 1}</span>
+                        <div style={{ textAlign: "left", flex: 1 }}>
+                          <div className="t-callout" style={{ fontWeight: 600 }}>{s.title}</div>
+                          {s.sub && <div className="t-footnote" style={{ color: "var(--label-secondary)" }}>{s.sub}</div>}
+                          {s.kind === "decision" && <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 4 }}>{s.q}</div>}
+                        </div>
+                      </button>
+                      {i < flow.length - 1 && <div style={{ marginLeft: 20, height: 16, borderLeft: "2px dashed " + connColor, transition: "border-color 200ms" }}/>}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ overflowY: "auto", padding: "20px 24px 40px", background: "var(--bg-secondary)" }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LANGKAH {selected + 1} DARI {flow.length}</div>
+                <div className="t-caption-2" style={{ color: currentTone, fontWeight: 700 }}>{step.kind?.toUpperCase()}</div>
+              </div>
+              <div style={{ height: 3, background: 'var(--fill-secondary)', borderRadius: 2, margin: '6px 0 14px' }}>
+                <div style={{ width: ((selected + 1) / flow.length * 100) + '%', height: '100%',
+                  background: currentTone, borderRadius: 2, transition: 'width 300ms var(--ease-out)' }}/>
+              </div>
+              <h3 className="t-title-2" style={{ margin: "0 0 6px" }}>{step.title}</h3>
+              {step.sub && <div className="t-callout" style={{ color: "var(--label-primary)" }}>{step.sub}</div>}
+              {step.kind === "decision" && (
+                <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <button
+                    onClick={() => {
+                      const target = step.yes?.targetIndex ?? Math.min(selected + 1, flow.length - 1);
+                      setSelected(target);
+                    }}
+                    style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,59,48,0.10)",
+                      boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "55", border: 0, cursor: "pointer",
+                      textAlign: "left", transition: "opacity 150ms" }}
+                  >
+                    <div className="t-caption-2" style={{ color: step.yes.tint, fontWeight: 700 }}>YES →</div>
+                    <div className="t-headline" style={{ color: step.yes.tint, marginTop: 4 }}>{step.yes.label}</div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      const target = step.no?.targetIndex ?? Math.min(selected + 2, flow.length - 1);
+                      setSelected(target);
+                    }}
+                    style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(0,122,255,0.08)",
+                      boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "55", border: 0, cursor: "pointer",
+                      textAlign: "left", transition: "opacity 150ms" }}
+                  >
+                    <div className="t-caption-2" style={{ color: step.no.tint, fontWeight: 700 }}>NO →</div>
+                    <div className="t-headline" style={{ color: step.no.tint, marginTop: 4 }}>{step.no.label}</div>
+                  </button>
+                </div>
+              )}
+              {step.pearls && (
+                <div style={{ marginTop: 14 }}>
+                  <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>CATATAN KLINIS</div>
+                  <div style={{ marginTop: 4, padding: "12px 14px", borderRadius: 12, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", lineHeight: 1.5 }} className="t-footnote">{step.pearls}</div>
+                </div>
+              )}
+              {relatedDrug && (
+                <div style={{ marginTop: 18 }}>
+                  <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>OBAT TERKAIT</div>
+                  <button onClick={() => onPick("drugs", relatedDrug.key)} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", width: "100%", border: 0, cursor: "pointer", display: "block" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ width: 38, height: 38, borderRadius: 10, background: relatedDrug.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Icons.pill size={18} stroke={2}/></span>
+                      <div style={{ flex: 1 }}>
+                        <div className="t-headline">{relatedDrug.name}</div>
+                        <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{relatedDrug.class}</div>
+                      </div>
+                      <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)" }}/>
+                    </div>
+                    <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "linear-gradient(180deg, " + relatedDrug.tint + "10, " + relatedDrug.tint + "04)" }}>
+                      <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DOSIS</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 700, color: relatedDrug.tint, marginTop: 2 }}>{relatedDrug.dose}</div>
+                      <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 8 }}>PENGULANGAN</div>
+                      <div className="t-footnote">{relatedDrug.repeat}</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+              <div style={{ marginTop: 18 }}>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
+                <button onClick={() => onPick("hsts")} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", width: "100%", border: 0 }}>
+                  <span style={{ width: 38, height: 38, borderRadius: 10, background: "var(--tint-theory)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Icons.clipboard size={18} stroke={2}/></span>
+                  <div style={{ flex: 1 }}>
+                    <div className="t-headline">Hs &amp; Ts — Penyebab reversibel</div>
+                    <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>10 mnemonic penyebab · cari sistematis</div>
+                  </div>
+                  <Icons.chevR size={14} stroke={2.4} style={{ color: "var(--label-tertiary)" }}/>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
