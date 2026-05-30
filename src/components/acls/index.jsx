@@ -578,6 +578,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
     try { return localStorage.getItem('acls_sound_enabled') === '1'; } catch { return false; }
   });
   const [stepIdx, setStepIdx] = useState(0);
+  const [everShockable, setEverShockable] = useState(() => initialRhythm === 'shockable');
+  const [stopAlsOpen, setStopAlsOpen] = useState(false);
   const [pulseCheckOpen, setPulseCheckOpen] = useState(false);
   const [logModalOpen, setLogModalOpen] = useState(false);
   const [shockCharging, setShockCharging] = useState(false);
@@ -703,6 +705,18 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
       setEpiNextMs(0);
     }
   }, [stepIdx, rhythm, phase, epiNextMs]);
+
+  // Track apakah VF/pVT pernah terdeteksi — relevan untuk pertimbangan terminasi ALS
+  useEffect(() => {
+    if (rhythm === 'shockable') setEverShockable(true);
+  }, [rhythm]);
+
+  const handleStopALS = () => {
+    addLog('Resusitasi dihentikan — keputusan tim', 'danger');
+    addLog(`Durasi total: ${fmt(elapsed)} · Epi: ${epiDoses} dosis · Shock: ${shocks}x`, 'info');
+    setRunning(false);
+    setStopAlsOpen(false);
+  };
 
   // Pulse check countdown — ticks tiap detik, pause timer CPR selama check
   useEffect(() => {
@@ -1141,6 +1155,19 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
                 <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>Hentikan resusitasi · mulai post-cardiac arrest care</div>
               </div>
             </button>
+
+            {elapsed >= 600 && (
+              <button onClick={() => setStopAlsOpen(true)}
+                style={{ padding: "16px 18px", borderRadius: 14, background: "rgba(142,142,147,0.10)", boxShadow: "0 0 0 1px rgba(142,142,147,0.3)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--label-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icons.cross size={20} stroke={2.4} style={{ color: "#fff" }}/>
+                </div>
+                <div>
+                  <div className="t-headline" style={{ color: "var(--label-primary)" }}>Pertimbangkan Menghentikan ALS</div>
+                  <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>Evaluasi kriteria terminasi · durasi {fmt(elapsed)}</div>
+                </div>
+              </button>
+            )}
           </div>
 
           <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)" }}>
@@ -1160,6 +1187,78 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
             </div>
           </div>
         </div>
+
+        {/* Stop ALS confirmation modal */}
+        {stopAlsOpen && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 0 env(safe-area-inset-bottom,0)" }}>
+            <div style={{ width: "100%", maxWidth: 480, background: "var(--bg-secondary)", borderRadius: "20px 20px 0 0", boxShadow: "var(--shadow-2), 0 0 0 0.5px var(--separator)", overflow: "hidden", animation: "acls-sheet-in 260ms var(--ease-out) both" }}>
+              {/* Handle */}
+              <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: "var(--fill-tertiary)" }}/>
+              </div>
+
+              <div style={{ padding: "4px 20px 20px", overflowY: "auto", maxHeight: "80vh" }}>
+                <div className="t-title-2" style={{ marginBottom: 4 }}>Pertimbangkan Menghentikan ALS</div>
+                <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16, lineHeight: 1.5 }}>
+                  Keputusan tim — dokumentasikan waktu dan alasan penghentian.
+                </div>
+
+                {/* Ringkasan */}
+                <div style={{ padding: "12px 14px", borderRadius: 12, background: "var(--fill-quaternary)", marginBottom: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div className="t-caption-2" style={{ color: "var(--label-secondary)", fontWeight: 700, marginBottom: 2 }}>RINGKASAN RESUSITASI</div>
+                  {[
+                    ["Durasi total", fmt(elapsed)],
+                    ["Irama selama resusitasi", everShockable ? "Pernah VF/pVT" : "Tidak pernah shockable (Asistol/PEA)"],
+                    ["Epinefrin diberikan", `${epiDoses} dosis`],
+                    ["Defibrilasi", `${shocks}×`],
+                  ].map(([label, value]) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                      <span className="t-footnote" style={{ color: "var(--label-secondary)" }}>{label}</span>
+                      <span className="t-footnote" style={{ fontWeight: 600, color: "var(--label-primary)", textAlign: "right" }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Warning jika pernah VF/pVT */}
+                {everShockable && (
+                  <div style={{ padding: "10px 12px", borderRadius: 10, background: "rgba(255,196,0,0.12)", boxShadow: "inset 0 0 0 0.5px rgba(255,196,0,0.45)", marginBottom: 14, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+                    <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
+                      <strong>VF/pVT pernah terdeteksi</strong> selama resusitasi. Pada irama shockable, pertimbangkan upaya lebih lanjut sebelum menghentikan ALS.
+                    </span>
+                  </div>
+                )}
+
+                {/* Kriteria AHA */}
+                <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)", marginBottom: 20 }}>
+                  <div className="t-caption-2" style={{ color: "var(--info)", fontWeight: 700, marginBottom: 8 }}>KRITERIA TERMINASI AHA 2025</div>
+                  {[
+                    "CPR berkualitas tinggi telah dilakukan sepanjang resusitasi",
+                    "Semua penyebab reversibel (Hs & Ts) telah dievaluasi dan dikoreksi",
+                    "Tidak ada respons terhadap intervensi ALS yang adekuat",
+                  ].map((item, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginTop: i > 0 ? 7 : 0, alignItems: "flex-start" }}>
+                      <span style={{ color: "var(--info)", fontWeight: 700, flexShrink: 0, fontSize: 13 }}>✓</span>
+                      <span className="t-footnote" style={{ color: "var(--label-secondary)", lineHeight: 1.45 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button onClick={handleStopALS}
+                    style={{ width: "100%", height: 50, borderRadius: 14, background: "var(--label-primary)", color: "var(--bg-primary)", border: 0, cursor: "pointer", fontSize: 16, fontWeight: 700 }}>
+                    Akhiri Resusitasi
+                  </button>
+                  <button onClick={() => setStopAlsOpen(false)}
+                    style={{ width: "100%", height: 44, borderRadius: 14, background: "var(--fill-tertiary)", color: "var(--label-primary)", border: 0, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+                    Lanjutkan ALS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
