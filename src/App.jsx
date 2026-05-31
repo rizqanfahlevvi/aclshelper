@@ -118,6 +118,21 @@ function MoonIcon() {
 
 function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome }) {
   const time = useClock();
+  const [updateState, setUpdateState] = useState('idle'); // idle | checking | latest
+
+  const checkUpdate = async () => {
+    if (updateState !== 'idle') return;
+    setUpdateState('checking');
+    try {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      if (reg) await reg.update();
+    } catch (_) {}
+    setTimeout(() => {
+      setUpdateState('latest');
+      setTimeout(() => setUpdateState('idle'), 2500);
+    }, 2500);
+  };
+
   return (
     <div style={{
       height: 'calc(52px + env(safe-area-inset-top))',
@@ -174,6 +189,24 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
         }}>
           {time}
         </span>
+        <button
+          onClick={checkUpdate}
+          title={updateState === 'checking' ? 'Memeriksa...' : updateState === 'latest' ? 'Sudah versi terbaru' : 'Cek pembaruan'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: 8,
+            background: updateState === 'latest' ? 'rgba(52,199,89,0.15)' : 'var(--fill-tertiary)',
+            border: 0, cursor: updateState === 'idle' ? 'pointer' : 'default',
+            color: updateState === 'latest' ? 'var(--success)' : 'var(--label-secondary)',
+            transition: 'background 200ms, color 200ms',
+          }}
+          aria-label="Cek pembaruan">
+          {updateState === 'latest'
+            ? <Icons.check size={15} stroke={2.5}/>
+            : <Icons.reset size={15} stroke={2}
+                style={{ animation: updateState === 'checking' ? 'acls-spin 0.8s linear infinite' : 'none' }}/>
+          }
+        </button>
         <button
           onClick={onToggleTheme}
           style={{

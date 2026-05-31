@@ -74,6 +74,10 @@ body {
 }
 
 /* Screen enter animation */
+@keyframes acls-spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes acls-fadeslide {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
