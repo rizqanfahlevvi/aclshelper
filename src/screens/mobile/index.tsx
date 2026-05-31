@@ -437,7 +437,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
             <>
               <SectionHeader>Favorit</SectionHeader>
               <List>
-                {favItems.map(f => (
+                {favItems.map((f: { type: string; key: string; label: string; sub: string; tint: string }) => (
                   <Row
                     key={f.type + f.key}
                     glyph={
@@ -515,7 +515,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
 /* ============================================================
    ALGORITHM LIST
    ============================================================ */
-export function MobileAlgoList({ nav }) {
+export function MobileAlgoList({ nav }: { nav: Nav }) {
   const [q, setQ] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -602,7 +602,7 @@ export function MobileAlgoList({ nav }) {
 /* ============================================================
    ALGORITHM DETAIL
    ============================================================ */
-export function MobileAlgorithmDetail({ nav, id }) {
+export function MobileAlgorithmDetail({ nav, id }: { nav: Nav; id: string }) {
   const flow =
     id === "brady"       ? ACLS_FLOW_BRADY :
     id === "tachy"       ? ACLS_FLOW_TACHY :
@@ -621,7 +621,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
   const [activeStep, setActiveStep] = useState(null);
   const stepRefs = useRef([]);
 
-  const scrollToStep = (idx) => {
+  const scrollToStep = (idx: number) => {
     const clamped = Math.max(0, Math.min(idx, flow.length - 1));
     setActiveStep(clamped);
     setTimeout(() => {
@@ -629,7 +629,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
     }, 50);
   };
 
-  const handleAction = (step, index, dir) => {
+  const handleAction = (step: FlowStepType, index: number, dir: string) => {
     if (dir === "yes") {
       const target = step.yes?.targetIndex ?? Math.min(index + 1, flow.length - 1);
       scrollToStep(target);
@@ -683,7 +683,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
                 index={i}
                 total={flow.length}
                 expandable={true}
-                onAction={step.kind === "decision" ? (dir) => handleAction(step, i, dir) : undefined}
+                onAction={step.kind === "decision" ? (dir: string) => handleAction(step, i, dir) : undefined}
               />
             </div>
             {i < flow.length - 1 && <FlowConnector />}
@@ -708,7 +708,7 @@ const DRUG_FILTERS = [
   { v: "antidot",    label: "Antidot" },
 ];
 
-function DrugCard({ d, onPress }) {
+function DrugCard({ d, onPress }: { d: Drug; onPress: () => void }) {
   return (
     <button onClick={onPress}
       style={{ padding: "12px 14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start", border: 0 }}>
@@ -727,7 +727,7 @@ function DrugCard({ d, onPress }) {
   );
 }
 
-export function MobileDrugList({ nav }) {
+export function MobileDrugList({ nav }: { nav: Nav }) {
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -805,7 +805,7 @@ export function MobileDrugList({ nav }) {
 /* ============================================================
    DRUG DETAIL
    ============================================================ */
-export function MobileDrugDetail({ nav, id }) {
+export function MobileDrugDetail({ nav, id }: { nav: Nav; id: string }) {
   const d = ACLS_DRUGS.find(x => x.key === id) || ACLS_DRUGS[0];
   const { isFav: isFavDrug, toggle: toggleDrug } = useFavorites();
   return (
@@ -846,7 +846,7 @@ export function MobileDrugDetail({ nav, id }) {
       <List><Row label="Cara persiapan" sub={d.prep} chev={false}/></List>
       <SectionHeader>Catatan klinis</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 6 }}>
-        {d.pearls.map((p, i) => (
+        {(Array.isArray(d.pearls) ? d.pearls : [d.pearls]).map((p: string, i: number) => (
           <div key={i} style={{ padding: "10px 12px", borderRadius: 10, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", display: "flex", gap: 8, alignItems: "flex-start" }}>
             <span style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 10, background: "var(--accent-tint)", color: "var(--accent)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{i + 1}</span>
             <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.4 }}>{p}</span>
@@ -873,7 +873,7 @@ const EKG_SEV_FILTERS = [
   { v: 'stable',        label: 'Stabil' },
 ];
 
-export function MobileEkgList({ nav }) {
+export function MobileEkgList({ nav }: { nav: Nav }) {
   const [q, setQ] = useState('');
   const [sev, setSev] = useState('all');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -886,7 +886,7 @@ export function MobileEkgList({ nav }) {
     !q.trim() || (r.name + ' ' + (r.short || '')).toLowerCase().includes(q.toLowerCase())
   );
 
-  const RhythmCard = ({ r }) => (
+  const RhythmCard = ({ r }: { r: Rhythm }) => (
     <button onClick={() => nav.push({ screen: "ekg", id: r.key })}
       style={{ padding: "10px 12px 12px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -968,7 +968,7 @@ const MORPH_FIELDS = [
   { key: 'stT',         label: 'ST / T' },
 ];
 
-export function MobileEkgDetail({ nav, id }) {
+export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
   const r = ACLS_RHYTHMS.find(x => x.key === id) || ACLS_RHYTHMS[0];
   const hasMorph = r.morphology && Object.values(r.morphology).some(v => v);
   const hasMgmt  = r.management && (r.management.immediate?.length || r.management.drugs?.length || r.management.notes?.length);
@@ -990,7 +990,7 @@ export function MobileEkgDetail({ nav, id }) {
         <div className="t-title-2">{r.name}</div>
         <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
           <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase" }}>
-            {EKG_SEV_LABEL[r.severity] || r.severity}
+            {(EKG_SEV_LABEL as Record<string, string>)[r.severity] || r.severity}
           </span>
         </div>
       </div>
@@ -1155,16 +1155,16 @@ export function MobileEkgDetail({ nav, id }) {
 /* ============================================================
    Hs & Ts
    ============================================================ */
-export function MobileHsTs({ nav }) {
+export function MobileHsTs({ nav }: { nav: Nav }) {
   const [expanded, setExpanded] = useState(new Set());
 
-  const toggle = (key) => setExpanded(prev => {
+  const toggle = (key: string) => setExpanded(prev => {
     const next = new Set(prev);
     next.has(key) ? next.delete(key) : next.add(key);
     return next;
   });
 
-  const renderItem = (c, letter) => {
+  const renderItem = (c: Record<string, string>, letter: string) => {
     const open = expanded.has(c.key);
     return (
       <button key={c.key} onClick={() => toggle(c.key)}
@@ -1208,12 +1208,12 @@ export function MobileHsTs({ nav }) {
    Speed Dial FAB
    ============================================================ */
 const SPEED_DIAL_ITEMS = [
-  { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
-  { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
-  { key: 'awaiting',     label: 'Belum terpasang', sub: 'Box 1 — pasang monitor', icon: (s) => <Icons.heart size={s} stroke={2}/>,   tint: 'var(--label-tertiary)' },
+  { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s: number) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
+  { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s: number) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
+  { key: 'awaiting',     label: 'Belum terpasang', sub: 'Box 1 — pasang monitor', icon: (s: number) => <Icons.heart size={s} stroke={2}/>,   tint: 'var(--label-tertiary)' },
 ];
 
-export function SpeedDial({ onClose, onPick }) {
+export function SpeedDial({ onClose, onPick }: { onClose: () => void; onPick: (key: string) => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 160,

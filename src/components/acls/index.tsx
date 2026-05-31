@@ -394,7 +394,7 @@ export function FlowConnector({ tone = "var(--label-tertiary)" }) {
 /* ============================================================
    BottomNav with center FAB
    ============================================================ */
-export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen }) {
+export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen }: { active: string; onChange: (key: string) => void; fabShape?: string; onFabClick: () => void; accent?: string; fabOpen: boolean }) {
   const fabRadius = fabShape === "circle" ? 30 : fabShape === "squircle" ? 18 : 30;
   const fabWidth = fabShape === "pill" ? 90 : 60;
 
@@ -439,7 +439,7 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
 /* ============================================================
    BottomSheet
    ============================================================ */
-export function BottomSheet({ open, onClose, title, children, height }) {
+export function BottomSheet({ open, onClose, title, children, height }: { open: boolean; onClose: () => void; title?: string; children: React.ReactNode; height?: string }) {
   return (
     <div className={"acls-sheet-root " + (open ? "open" : "")}>
       <div className="acls-sheet-backdrop" onClick={onClose} />
@@ -466,7 +466,7 @@ export function BottomSheet({ open, onClose, title, children, height }) {
 const CPR_BPM = 110;
 
 // AHA 2025: VF/pVT path — 6 langkah, loop kembali ke index 2 (Shock = AHA Step 5)
-const VF_STEPS = [
+const VF_STEPS: FlowStepType[] = [
   { kind:'shock', title:'Shock pertama (AHA Step 3)',         sub:'120–200J bifasik · 360J monofasik · pastikan semua menjauh',  cta:'shock' },
   { kind:'cpr',   title:'CPR 2 menit + IV/IO access (Step 4)',sub:'Bag-mask + O₂ · pasang IV/IO · pantau EtCO₂ · 100–120/mnt',  auto:true   },
   { kind:'shock', title:'Shock kedua (AHA Step 5)',           sub:'120–200J bifasik · 360J monofasik',                            cta:'shock' },
@@ -477,14 +477,14 @@ const VF_STEPS = [
 ];
 
 // AHA 2025: PEA/Asistol path — Epi ASAP pertama, 3 langkah, loop ke index 1 (CPR = Step 10)
-const PEA_STEPS = [
+const PEA_STEPS: FlowStepType[] = [
   { kind:'drug',  title:'Epinefrin ASAP (Step 9)',             sub:'1 mg IV/IO sesegera mungkin — prioritas pertama sebelum CPR 2 mnt', cta:'epi', urgent:true },
   { kind:'cpr',   title:'CPR 2 menit + IV/IO access (Step 10)',sub:'Epi 1mg q3–5 mnt · pertimbangkan intubasi/SGA · capnografi',        auto:true,  actions:['epi','airway'] },
   { kind:'cpr',   title:'CPR 2 menit (Step 11)',               sub:'Cari & atasi penyebab reversibel · Hs & Ts · Epi q3–5 mnt',          auto:true,  actions:['epi'] },
   // Setelah index 2: rhythm check → no ROSC → wrap ke index 1 (CPR = Step 10)
 ];
 
-function useMetronome(active) {
+function useMetronome(active: boolean) {
   const ctxRef = useRef(null);
   const schedRef = useRef(null);
   const nextRef = useRef(0);
@@ -538,16 +538,16 @@ const SETUP_OPTS = [
 ];
 
 // AHA 2025 Box 1: CPR berlangsung sambil monitor dipasang — state pra-keputusan
-const AWAIT_STEPS = [
+const AWAIT_STEPS: FlowStepType[] = [
   { kind:'cpr', title:'CPR berkualitas tinggi (AHA Box 1)', sub:'100–120/mnt · kedalaman 5–6 cm · BVM + O₂ · rasio 30:2', auto:true },
   { kind:'cpr', title:'Pasang monitor/defibrilator', sub:'Tempel pad anterior-lateral · jangan tunda CPR — pemasangan paralel', auto:true },
   { kind:'opt', title:'Akses IV/IO', sub:'Sambil CPR berlangsung · siapkan jalur untuk obat', auto:true },
 ];
 
 
-function StepCard({ step, idx }) {
-  const colMap = { shock:'var(--danger)', drug:'var(--warning)', opt:'var(--label-tertiary)', cpr:'var(--info)' };
-  const lblMap = { shock:'Shock', drug:'Obat', opt:'Opsional', cpr:'CPR Aktif' };
+function StepCard({ step, idx }: { step: FlowStepType; idx: number }) {
+  const colMap: Record<string, string> = { shock:'var(--danger)', drug:'var(--warning)', opt:'var(--label-tertiary)', cpr:'var(--info)' };
+  const lblMap: Record<string, string> = { shock:'Shock', drug:'Obat', opt:'Opsional', cpr:'CPR Aktif' };
   const color = colMap[step.kind] || 'var(--accent)';
   return (
     <div className="acls-step-card">
@@ -563,7 +563,7 @@ function StepCard({ step, idx }) {
   );
 }
 
-export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
+export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose: () => void; isMobile?: boolean; initialRhythm?: CprRhythm }) {
   const [phase, setPhase] = useState("setup");
   const [rhythm, setRhythm] = useState(null);
 
@@ -600,9 +600,9 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
     return `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}:${String(t.getSeconds()).padStart(2, "0")}`;
   };
 
-  const [log, setLog] = useState([]);
+  const [log, setLog] = useState<LogEntry[]>([]);
 
-  const startCPR = (selected) => {
+  const startCPR = (selected: string) => {
     setStepIdx(0);
     wallStartRef.current = new Date();
 
@@ -677,15 +677,15 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
     }
   }, [cycles, phase]);
 
-  const fmtMs = (ms) => {
+  const fmtMs = (ms: number) => {
     const total = Math.floor(ms / 10);
     const m = Math.floor(total / 6000);
     const s = Math.floor(total % 6000 / 100);
     const c = total % 100;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(c).padStart(2, "0")}`;
   };
-  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-  const addLog = (action, tone = "info") => setLog(l => [...l, { t: elapsed, wall: nowWall(elapsedMs), action, tone }]);
+  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const addLog = (action: string, tone: LogEntry['tone'] = "info") => setLog(l => [...l, { t: elapsed, wall: nowWall(elapsedMs), action, tone }]);
 
   const epiRemainMs = epiNextMs != null ? Math.max(0, epiNextMs - elapsedMs) : null;
   const epiReady = epiRemainMs != null && epiRemainMs === 0;
@@ -753,7 +753,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
   });
 
   // Transition dari unknownRhythm → active setelah monitor terpasang
-  const confirmRhythmFromUnknown = (selectedRhythm) => {
+  const confirmRhythmFromUnknown = (selectedRhythm: string) => {
     setRhythm(selectedRhythm);
     setStepIdx(0);
     setPhase('active');
@@ -787,7 +787,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
       setShocks(s => s + 1);
       const now = new Date();
       const wall = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-      const tSec = wallStartRef.current ? Math.floor((now - wallStartRef.current) / 1000) : 0;
+      const tSec = wallStartRef.current ? Math.floor((now.getTime() - wallStartRef.current.getTime()) / 1000) : 0;
       setLog(l => [...l, { t: tSec, wall, action: `Defibrilasi ${shockNum} — 120-200J bifasik / 360J monofasik`, tone: 'danger' }]);
       advanceStep();
     }, 1800);
@@ -835,7 +835,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
     if (wasRunningRef.current) setRunning(true);
   };
 
-  const handleRhythmResult = (result) => {
+  const handleRhythmResult = (result: string) => {
     if (result === "rosc") {
       addLog("ROSC tercapai — alihkan ke post-cardiac arrest care", "success");
       setPhase("active");
@@ -1016,7 +1016,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
           </div>
           <div style={{ padding:"0 20px 20px", display:"flex", flexDirection:"column", gap:6 }}>
             {[...log].reverse().slice(0,6).map((e,i) => {
-              const tc = { info:"var(--label-primary)", warn:"var(--warning)", danger:"var(--danger)", success:"var(--success)" }[e.tone];
+              const tc = ({ info:"var(--label-primary)", warn:"var(--warning)", danger:"var(--danger)", success:"var(--success)" } as Record<string, string>)[e.tone];
               return (
                 <div key={i} className="t-footnote" style={{ display:"flex", justifyContent:"space-between", gap:12, padding:"8px 12px", borderRadius:8, background:"var(--fill-quaternary)" }}>
                   <span style={{ color:tc, fontWeight:600, flex:1, minWidth:0 }}>{e.action}</span>
@@ -1456,7 +1456,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
               </div>
               <div style={{ overflowY: 'auto', padding: '8px 12px 20px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                 {[...log].reverse().map((e, i) => {
-                  const tc = { info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' }[e.tone];
+                  const tc = ({ info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' } as Record<string, string>)[e.tone];
                   return (
                     <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
                       <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
@@ -1538,7 +1538,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
               </div>
               <div style={{ overflowY: 'auto', padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {[...log].reverse().map((e, i) => {
-                  const tc = { info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' }[e.tone];
+                  const tc = ({ info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' } as Record<string, string>)[e.tone];
                   return (
                     <div key={i} className="t-footnote" style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '8px 12px', borderRadius: 8, background: 'var(--bg-tertiary)', boxShadow: 'var(--shadow-1)' }}>
                       <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
@@ -1760,7 +1760,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }) {
         </div>
         <div style={{ padding: "0 20px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
           {[...log].reverse().slice(0, 6).map((e, i) => {
-            const tc = { info: "var(--label-primary)", warn: "var(--warning)", danger: "var(--danger)", success: "var(--success)" }[e.tone];
+            const tc = ({ info: "var(--label-primary)", warn: "var(--warning)", danger: "var(--danger)", success: "var(--success)" } as Record<string, string>)[e.tone];
             return (
               <div key={i} className="t-footnote" style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "8px 12px", borderRadius: 8, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)" }}>
                 <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>

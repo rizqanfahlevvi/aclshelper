@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
 import { Icons } from './components/base';
+import type { Tab, DeskScreen, NavFrame, DeskView, NavStack, CprRhythm } from './types';
+
+declare global {
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
 import {
   MobileHome, MobileAlgoList, MobileAlgorithmDetail,
   MobileDrugList, MobileDrugDetail,
@@ -31,14 +38,15 @@ function useBreakpoint() {
 /* ============================================================
    HASH ROUTING
    ============================================================ */
-function stateToHash(bp, tab, stack, deskView) {
+function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView): string {
   if (bp === 'desktop') {
     const { screen, id } = deskView;
     if (screen === 'dashboard') return '/';
     return id ? `/${screen}/${id}` : `/${screen}`;
   }
   const frame = stack[tab][stack[tab].length - 1];
-  const { screen, id } = frame;
+  const screen = frame.screen;
+  const id = 'id' in frame ? frame.id : undefined;
   if (screen === 'home')     return '/';
   if (screen === 'algoList') return '/algo';
   if (screen === 'algo')     return `/algo/${id}`;
@@ -50,7 +58,7 @@ function stateToHash(bp, tab, stack, deskView) {
   return '/';
 }
 
-function hashToNav(hash) {
+function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskScreen; deskId: string | null } {
   const path = hash.replace(/^#\/?/, '');
   const [section = '', id = null] = path.split('/');
   switch (section) {
@@ -116,7 +124,14 @@ function MoonIcon() {
   );
 }
 
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome }) {
+interface AppTopBarProps {
+  theme: string;
+  onToggleTheme: () => void;
+  onOpenSidebar?: () => void;
+  sidebarOpen?: boolean;
+  onGoHome?: () => void;
+}
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome }: AppTopBarProps) {
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
 
@@ -247,7 +262,14 @@ const MOBILE_QUICK = [
   { key: 'hypothermia', label: 'Hipotermia Berat', tint: 'var(--accent)' },
 ];
 
-function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }) {
+interface MobileSidebarProps {
+  open: boolean;
+  onClose: () => void;
+  activeTab: string;
+  onNavigate: (key: string, id?: string) => void;
+  onOpenCpr: () => void;
+}
+function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: MobileSidebarProps) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
   const menuFiltered = q ? MOBILE_MENU.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : MOBILE_MENU;
@@ -341,7 +363,7 @@ export default function App() {
   const [theme, setTheme] = useState('light');
 
   /* Ref always holds latest nav state — used by popstate to avoid stale closures */
-  const navRef = useRef({});
+  const navRef = useRef<{ cprOpen: boolean; bp: string; tab?: Tab; stack?: NavStack; deskView?: DeskView }>({ cprOpen: false, bp: 'mobile' });
 
   useEffect(() => {
     const root = document.documentElement;
