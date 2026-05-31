@@ -1,9 +1,26 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /* ------------------------------------------------------------
    ICONS — Lucide-style SVG glyphs
    ------------------------------------------------------------ */
-const Icon = ({ d, size = 24, stroke = 1.75, fill = "none", children, paths, ...rest }) => (
+interface IconBaseProps {
+  d?: string;
+  size?: number;
+  stroke?: number;
+  fill?: string;
+  children?: React.ReactNode;
+  paths?: string[];
+  style?: React.CSSProperties;
+  [key: string]: unknown;
+}
+
+interface IconProps {
+  size?: number;
+  stroke?: number;
+  style?: React.CSSProperties;
+}
+
+const Icon = ({ d, size = 24, stroke = 1.75, fill = "none", children, paths, ...rest }: IconBaseProps) => (
   <svg
     width={size} height={size} viewBox="0 0 24 24"
     fill={fill} stroke="currentColor" strokeWidth={stroke}
@@ -168,7 +185,14 @@ export const StatusBar = ({ time = "9:41", dark }) => (
 /* ------------------------------------------------------------
    NavBar
    ------------------------------------------------------------ */
-export const NavBar = ({ title, back, onBack, right, large }) => (
+interface NavBarProps {
+  title?: React.ReactNode;
+  back?: React.ReactNode;
+  onBack?: () => void;
+  right?: React.ReactNode;
+  large?: boolean;
+}
+export const NavBar = ({ title, back, onBack, right, large }: NavBarProps) => (
   <div className="ios-navbar" style={{ minHeight: 44 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 0, flex: 1, zIndex: 2 }}>
       {back && (
@@ -185,7 +209,7 @@ export const NavBar = ({ title, back, onBack, right, large }) => (
   </div>
 );
 
-export const LargeTitle = ({ children, right }) => (
+export const LargeTitle = ({ children, right }: { children?: React.ReactNode; right?: React.ReactNode }) => (
   <div style={{ padding: "4px 20px 14px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
     <h1 className="t-large-title" style={{ margin: 0 }}>{children}</h1>
     {right}

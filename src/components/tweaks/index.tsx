@@ -47,18 +47,18 @@ const __TWEAKS_STYLE = `
   .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
 `;
 
-export function useTweaks(defaults) {
+export function useTweaks(defaults: Record<string, unknown>) {
   const [values, setValues] = useState(defaults);
-  const setTweak = useCallback((keyOrEdits, val) => {
+  const setTweak = useCallback((keyOrEdits: string | Record<string, unknown>, val?: unknown) => {
     const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null ? keyOrEdits : { [keyOrEdits]: val };
-    setValues(prev => ({ ...prev, ...edits }));
+    setValues((prev: Record<string, unknown>) => ({ ...prev, ...edits }));
     window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
     window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
   }, []);
   return [values, setTweak];
 }
 
-export function TweaksPanel({ title = 'Tweaks', children }) {
+export function TweaksPanel({ title = 'Tweaks', children }: { title?: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const dragRef = useRef(null);
   const offsetRef = useRef({ x: 16, y: 16 });
@@ -88,7 +88,7 @@ export function TweaksPanel({ title = 'Tweaks', children }) {
   }, [open, clampToViewport]);
 
   useEffect(() => {
-    const onMsg = (e) => {
+    const onMsg = (e: MessageEvent) => {
       const t = e?.data?.type;
       if (t === '__activate_edit_mode') setOpen(true);
       else if (t === '__deactivate_edit_mode') setOpen(false);
@@ -100,14 +100,14 @@ export function TweaksPanel({ title = 'Tweaks', children }) {
 
   const dismiss = () => { setOpen(false); window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); };
 
-  const onDragStart = (e) => {
+  const onDragStart = (e: React.MouseEvent) => {
     const panel = dragRef.current;
     if (!panel) return;
     const r = panel.getBoundingClientRect();
     const sx = e.clientX, sy = e.clientY;
     const startRight = window.innerWidth - r.right;
     const startBottom = window.innerHeight - r.bottom;
-    const move = (ev) => { offsetRef.current = { x: startRight - (ev.clientX - sx), y: startBottom - (ev.clientY - sy) }; clampToViewport(); };
+    const move = (ev: MouseEvent) => { offsetRef.current = { x: startRight - (ev.clientX - sx), y: startBottom - (ev.clientY - sy) }; clampToViewport(); };
     const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
@@ -128,11 +128,11 @@ export function TweaksPanel({ title = 'Tweaks', children }) {
   );
 }
 
-export function TweakSection({ label, children }) {
+export function TweakSection({ label, children }: { label: string; children: React.ReactNode }) {
   return <><div className="twk-sect">{label}</div>{children}</>;
 }
 
-export function TweakRow({ label, value, children, inline = false }) {
+export function TweakRow({ label, value, children, inline = false }: { label: string; value?: unknown; children: React.ReactNode; inline?: boolean }) {
   return (
     <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
       <div className="twk-lbl"><span>{label}</span>{value != null && <span>{value}</span>}</div>
