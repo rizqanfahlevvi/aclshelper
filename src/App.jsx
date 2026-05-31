@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { BottomNav, CPRTimer } from './components/acls';
 import { Icons } from './components/base';
 import {
@@ -630,6 +631,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      <Analytics />
     </div>
   );
 }
