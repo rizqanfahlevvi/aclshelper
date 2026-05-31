@@ -25,8 +25,8 @@ export interface FlowStep {
   sub?: string;
   pearls?: string | string[];
   q?: string;
-  yes?: { label: string; tint: string };
-  no?: { label: string; tint: string };
+  yes?: { label: string; tint: string; targetIndex?: number };
+  no?: { label: string; tint: string; targetIndex?: number };
   cta?: string;
   urgent?: boolean;
   auto?: boolean;

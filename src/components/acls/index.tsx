@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Icons, NavBar, SectionHeader } from '../base';
 import { sfx } from '../../utils/sfx';
 import { haptic } from '../../utils/haptic';
+import type { FlowStep as FlowStepType, CprRhythm, LogEntry, Rhythm } from '../../types';
 
 /* ============================================================
    RhythmStrip — inline SVG ECG waveform
@@ -11,7 +12,7 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
     const out = [];
     const w = width;
     const cy = height / 2;
-    const seed = (s) => { let x = s; return () => { x = (x * 9301 + 49297) % 233280; return x / 233280; }; };
+    const seed = (s: number) => { let x = s; return () => { x = (x * 9301 + 49297) % 233280; return x / 233280; }; };
     const rnd = seed(kind.length * 17 + 3);
 
     if (kind === "vf") {
@@ -228,7 +229,7 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
 /* ============================================================
    EkgImage — real photo strip with RhythmStrip SVG fallback
    ============================================================ */
-export function EkgImage({ rhythm, style = {} }) {
+export function EkgImage({ rhythm, style = {} }: { rhythm: Rhythm; style?: React.CSSProperties }) {
   const [status, setStatus] = React.useState('loading'); // loading | loaded | error
 
   if (!rhythm.imageFile) {
@@ -278,17 +279,17 @@ export function EkgImage({ rhythm, style = {} }) {
   );
 }
 
-export function FlowStep({ step, index, total, onAction, expandable = true }) {
+export function FlowStep({ step, index, total, onAction, expandable = true }: { step: FlowStepType; index: number; total: number; onAction?: (result: string) => void; expandable?: boolean }) {
   const [open, setOpen] = useState(false);
 
-  const tone = {
+  const tone = ({
     action:   { tint: "var(--accent)",      label: "Tindakan",  bg: "var(--bg-tertiary)" },
     shock:    { tint: "var(--danger)",       label: "Shock",     bg: "rgba(255,59,48,0.10)" },
     drug:     { tint: "var(--tint-drug)",    label: "Obat",      bg: "var(--bg-tertiary)" },
     note:     { tint: "var(--tint-theory)", label: "Catatan",   bg: "var(--bg-tertiary)" },
     outcome:  { tint: "var(--success)",      label: "Hasil",     bg: "rgba(52,199,89,0.10)" },
     decision: { tint: "var(--warning)",      label: "Keputusan", bg: "var(--bg-tertiary)" },
-  }[step.kind] || { tint: "var(--accent)", label: "Langkah", bg: "var(--bg-tertiary)" };
+  } as Record<string, { tint: string; label: string; bg: string }>)[step.kind] || { tint: "var(--accent)", label: "Langkah", bg: "var(--bg-tertiary)" };
 
   // Decision step — tidak berubah dari versi asli
   if (step.kind === "decision") {
@@ -359,7 +360,7 @@ export function FlowStep({ step, index, total, onAction, expandable = true }) {
       {step.pearls && !expandable && (
         <div className="t-caption-1" style={{ marginTop: 8, padding: "8px 10px", borderRadius: 8, background: "var(--fill-quaternary)", color: "var(--label-secondary)", lineHeight: 1.4 }}>
           {Array.isArray(step.pearls)
-            ? step.pearls.map((p, pi) => <div key={pi} style={{ marginBottom: pi < step.pearls.length - 1 ? 4 : 0 }}>· {p}</div>)
+            ? (step.pearls as string[]).map((p: string, pi: number) => <div key={pi} style={{ marginBottom: pi < (step.pearls as string[]).length - 1 ? 4 : 0 }}>· {p}</div>)
             : step.pearls}
         </div>
       )}
@@ -368,8 +369,8 @@ export function FlowStep({ step, index, total, onAction, expandable = true }) {
         <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "var(--fill-quaternary)", animation: "acls-fade-in 150ms ease both" }}>
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: tone.tint, marginBottom: 6 }}>CATATAN KLINIS</div>
           {Array.isArray(step.pearls)
-            ? step.pearls.map((p, pi) => (
-                <div key={pi} className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5, marginBottom: pi < step.pearls.length - 1 ? 4 : 0 }}>· {p}</div>
+            ? (step.pearls as string[]).map((p: string, pi: number) => (
+                <div key={pi} className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5, marginBottom: pi < (step.pearls as string[]).length - 1 ? 4 : 0 }}>· {p}</div>
               ))
             : <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5 }}>{step.pearls}</div>
           }

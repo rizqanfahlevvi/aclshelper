@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import type { Nav, Algorithm, Drug, Rhythm, CprRhythm, FlowStep as FlowStepType } from '../../types';
 import {
   Icons, NavBar, LargeTitle, SearchField,
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
@@ -11,6 +12,14 @@ import {
   ACLS_FLOW_OPIOID, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_PREGNANCY,
   ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
+
+declare global {
+  interface Window { MSStream?: unknown; }
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+}
 
 /* ============================================================
    FAVORITES
@@ -28,13 +37,13 @@ function useFavorites() {
     return () => window.removeEventListener('acls-favorites-changed', sync);
   }, []);
 
-  const isFav = (type, key) => favs.some(f => f.type === type && f.key === key);
+  const isFav = (type: string, key: string) => favs.some((f: { type: string; key: string }) => f.type === type && f.key === key);
 
-  const toggle = (type, key) => {
-    setFavs(prev => {
-      const exists = prev.some(f => f.type === type && f.key === key);
+  const toggle = (type: string, key: string) => {
+    setFavs((prev: { type: string; key: string }[]) => {
+      const exists = prev.some((f: { type: string; key: string }) => f.type === type && f.key === key);
       const next = exists
-        ? prev.filter(f => !(f.type === type && f.key === key))
+        ? prev.filter((f: { type: string; key: string }) => !(f.type === type && f.key === key))
         : [...prev, { type, key }];
       try { localStorage.setItem('acls_favorites', JSON.stringify(next)); } catch {}
       window.dispatchEvent(new Event('acls-favorites-changed'));
@@ -48,7 +57,7 @@ function useFavorites() {
 /* ============================================================
    INSTALL POPUP
    ============================================================ */
-export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
+export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredPrompt?: BeforeInstallPromptEvent | null; onClose: () => void; onDismiss: () => void }) {
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const [platform, setPlatform] = useState(isIOS ? 'ios' : 'android');
@@ -220,7 +229,7 @@ const STAT_CARDS = [
   { value: '2025', label: 'Panduan',   color: 'var(--success)', screen: null },
 ];
 
-export function MobileHome({ nav, openCPR }) {
+export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprRhythm) => void }) {
   const [query, setQuery] = useState('');
   const [spotlight, setSpotlight] = useState(0);
   const [dir, setDir] = useState('right');
@@ -228,7 +237,7 @@ export function MobileHome({ nav, openCPR }) {
   const touchStartX = useRef(null);
   const { favs } = useFavorites();
 
-  const favItems = useMemo(() => favs.map(f => {
+  const favItems = useMemo(() => favs.map((f: { type: string; key: string }) => {
     if (f.type === 'algo') {
       const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
       return a ? { ...f, label: a.label, sub: a.sub, tint: a.tint } : null;
@@ -241,7 +250,7 @@ export function MobileHome({ nav, openCPR }) {
     return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
   }).filter(Boolean), [favs]);
 
-  const switchTo = (idx, direction = 'right') => {
+  const switchTo = (idx: number, direction = 'right') => {
     setDir(direction);
     setSpotlight(idx);
     clearInterval(intervalRef.current);
@@ -258,8 +267,8 @@ export function MobileHome({ nav, openCPR }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e) => {
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(delta) > 50) switchTo((spotlight + 1) % 2, delta < 0 ? 'right' : 'left');
@@ -282,7 +291,7 @@ export function MobileHome({ nav, openCPR }) {
     ].slice(0, 8);
   }, [query]);
 
-  const iconFor = (type) => {
+  const iconFor = (type: string) => {
     if (type === 'algo') return <Icons.algo size={16} stroke={2.4}/>;
     if (type === 'drug') return <Icons.pill size={16} stroke={2.4}/>;
     return <Icons.ekg size={16} stroke={2.4}/>;
@@ -323,7 +332,7 @@ export function MobileHome({ nav, openCPR }) {
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           {STAT_CARDS.map((c) => (
             <button key={c.label}
-              onClick={() => c.screen && nav.push({ screen: c.screen })}
+              onClick={() => c.screen && nav.push({ screen: c.screen as 'algoList' | 'drugList' | 'ekgList' })}
               style={{ flex: 1, background: 'var(--fill-secondary)',
                 borderRadius: 14, padding: '10px 8px', textAlign: 'center',
                 border: 0, cursor: c.screen ? 'pointer' : 'default',
@@ -370,7 +379,7 @@ export function MobileHome({ nav, openCPR }) {
             <div style={{ overflow: 'hidden', borderRadius: 16 }}
               onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
               {spotlight === 0
-                ? <button key="cb" onClick={openCPR}
+                ? <button key="cb" onClick={() => openCPR()}
                     style={{ width: '100%', borderRadius: 16,
                       background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
                       display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',

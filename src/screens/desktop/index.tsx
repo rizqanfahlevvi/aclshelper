@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
 import { RhythmStrip, EkgImage } from '../../components/acls';
+import type { Algorithm, Drug, Rhythm } from '../../types';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_FLOW_ARREST, ACLS_FLOW_BRADY, ACLS_FLOW_TACHY,
@@ -33,7 +34,7 @@ const SIDEBAR_QUICK = [
   { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
 ];
 
-export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }) {
+export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onOpenCpr: () => void; collapsed?: boolean }) {
   const [query, setQuery] = React.useState('');
   const q = query.trim().toLowerCase();
   const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
@@ -136,11 +137,11 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
 /* ============================================================
    Topbar
    ============================================================ */
-export function DesktopTopbar({ crumb }) {
+export function DesktopTopbar({ crumb }: { crumb: string[] }) {
   return (
     <div className="acls-topbar">
       <div className="t-footnote" style={{ color: "var(--label-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
-        {crumb.map((c, i) => (
+        {crumb.map((c: string, i: number) => (
           <React.Fragment key={i}>
             {i > 0 && <Icons.chevR size={12} stroke={2}/>}
             <span style={{ color: i === crumb.length - 1 ? "var(--label-primary)" : "inherit", fontWeight: i === crumb.length - 1 ? 600 : 400 }}>{c}</span>
@@ -154,13 +155,13 @@ export function DesktopTopbar({ crumb }) {
 /* ============================================================
    Dashboard
    ============================================================ */
-export function DesktopDashboard({ onPick, onOpenCpr }) {
+export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string, id?: string) => void; onOpenCpr: () => void }) {
   const [spotlight, setSpotlight] = useState(0);
   const [dir, setDir] = useState('right');
-  const intervalRef = useRef(null);
-  const touchStartX = useRef(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
-  const switchTo = (idx, direction = 'right') => {
+  const switchTo = (idx: number, direction = 'right') => {
     setDir(direction);
     setSpotlight(idx);
     clearInterval(intervalRef.current);
@@ -177,8 +178,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e) => {
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(delta) > 50) switchTo((spotlight + 1) % 2, delta < 0 ? 'right' : 'left');
@@ -392,7 +393,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }) {
 /* ============================================================
    Algorithm — split panel
    ============================================================ */
-export function DesktopAlgorithm({ id, onPick }) {
+export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: string, id: string) => void }) {
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
   const flow =
     id === "brady"       ? ACLS_FLOW_BRADY :
@@ -409,13 +410,13 @@ export function DesktopAlgorithm({ id, onPick }) {
   const [selected, setSelected] = useState(0);
   useEffect(() => { setSelected(0); }, [id]);
   const step = flow[selected];
-  const TONE_MAP = { action: "var(--accent)", shock: "var(--danger)", drug: "var(--tint-drug)", note: "var(--tint-theory)", outcome: "var(--success)", decision: "var(--warning)" };
+  const TONE_MAP: Record<string, string> = { action: "var(--accent)", shock: "var(--danger)", drug: "var(--tint-drug)", note: "var(--tint-theory)", outcome: "var(--success)", decision: "var(--warning)" };
   const currentTone = step ? (TONE_MAP[step.kind] || "var(--accent)") : "var(--accent)";
 
   const activeRef = useRef(null);
   useEffect(() => { activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, [selected]);
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') setSelected(s => Math.min(s + 1, flow.length - 1));
       if (e.key === 'ArrowUp')   setSelected(s => Math.max(s - 1, 0));
     };
@@ -588,7 +589,7 @@ export function DesktopAlgorithm({ id, onPick }) {
               )}
               <div style={{ marginTop: 18 }}>
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DIFERENSIAL</div>
-                <button onClick={() => onPick("hsts")} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", width: "100%", border: 0 }}>
+                <button onClick={() => onPick("hsts", "")} className="acls-card-lg" style={{ marginTop: 4, textAlign: "left", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", width: "100%", border: 0 }}>
                   <span style={{ width: 38, height: 38, borderRadius: 10, background: "var(--tint-theory)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Icons.clipboard size={18} stroke={2}/></span>
                   <div style={{ flex: 1 }}>
                     <div className="t-headline">Hs &amp; Ts — Penyebab reversibel</div>
@@ -608,7 +609,7 @@ export function DesktopAlgorithm({ id, onPick }) {
 /* ============================================================
    Drugs — split panel
    ============================================================ */
-export function DesktopDrugs({ initialId, onPick }) {
+export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_DRUGS[0].key);
   const [drugQ, setDrugQ] = useState('');
   const d = ACLS_DRUGS.find(x => x.key === selectedKey) || ACLS_DRUGS[0];
@@ -681,7 +682,7 @@ export function DesktopDrugs({ initialId, onPick }) {
         <div style={{ marginTop: 14 }} className="acls-card-lg">
           <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>CATATAN KLINIS</div>
           <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-            {d.pearls.map((p, i) => (
+            {(Array.isArray(d.pearls) ? d.pearls : [d.pearls]).map((p: string, i: number) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                 <span style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, background: d.tint + "22", color: d.tint, display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{i + 1}</span>
                 <span className="t-footnote" style={{ flex: 1, lineHeight: 1.5 }}>{p}</span>
@@ -702,7 +703,7 @@ export function DesktopDrugs({ initialId, onPick }) {
 /* ============================================================
    ECG Library
    ============================================================ */
-const EKG_SEVERITY_LABELS = { shockable: 'Shockable', 'non-shockable': 'Non-shock', stable: 'Stabil', unstable: 'Tdk stabil', critical: 'Kritis', normal: 'Normal' };
+const EKG_SEVERITY_LABELS: Record<string, string> = { shockable: 'Shockable', 'non-shockable': 'Non-shock', stable: 'Stabil', unstable: 'Tdk stabil', critical: 'Kritis', normal: 'Normal' };
 const D_MORPH_FIELDS = [
   { key: 'rate',        label: 'Rate' },
   { key: 'rhythm',      label: 'Irama' },
@@ -712,7 +713,7 @@ const D_MORPH_FIELDS = [
   { key: 'stT',         label: 'ST / T' },
 ];
 
-export function DesktopEkg({ initialId, onPick }) {
+export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
   const [ekgFilter, setEkgFilter] = useState('all');
   const r = ACLS_RHYTHMS.find(x => x.key === selectedKey) || ACLS_RHYTHMS[0];
@@ -894,9 +895,9 @@ export function DesktopEkg({ initialId, onPick }) {
 /* ============================================================
    Hs & Ts
    ============================================================ */
-export function DesktopHsTs({ onPick }) {
-  const [exp, setExp] = useState(new Set());
-  const toggle = (key) => setExp(prev => {
+export function DesktopHsTs({ onPick }: { onPick?: (type: string, id: string) => void }) {
+  const [exp, setExp] = useState(new Set<string>());
+  const toggle = (key: string) => setExp(prev => {
     const next = new Set(prev);
     next.has(key) ? next.delete(key) : next.add(key);
     return next;

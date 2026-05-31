@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const __TWEAKS_STYLE = `
   .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
@@ -50,7 +50,7 @@ const __TWEAKS_STYLE = `
 export function useTweaks(defaults: Record<string, unknown>) {
   const [values, setValues] = useState(defaults);
   const setTweak = useCallback((keyOrEdits: string | Record<string, unknown>, val?: unknown) => {
-    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null ? keyOrEdits : { [keyOrEdits]: val };
+    const edits: Record<string, unknown> = typeof keyOrEdits === 'object' && keyOrEdits !== null ? keyOrEdits : { [keyOrEdits as string]: val };
     setValues((prev: Record<string, unknown>) => ({ ...prev, ...edits }));
     window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
     window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
@@ -135,13 +135,13 @@ export function TweakSection({ label, children }: { label: string; children: Rea
 export function TweakRow({ label, value, children, inline = false }: { label: string; value?: unknown; children: React.ReactNode; inline?: boolean }) {
   return (
     <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
-      <div className="twk-lbl"><span>{label}</span>{value != null && <span>{value}</span>}</div>
+      <div className="twk-lbl"><span>{label}</span>{value != null && <span>{value as React.ReactNode}</span>}</div>
       {children}
     </div>
   );
 }
 
-export function TweakToggle({ label, value, onChange }) {
+export function TweakToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="twk-row twk-row-h">
       <div className="twk-lbl"><span>{label}</span></div>
@@ -150,28 +150,28 @@ export function TweakToggle({ label, value, onChange }) {
   );
 }
 
-export function TweakRadio({ label, value, options, onChange }) {
-  const trackRef = useRef(null);
+export function TweakRadio({ label, value, options, onChange }: { label: string; value: unknown; options: unknown[]; onChange: (v: unknown) => void }) {
+  const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const valueRef = useRef(value);
   valueRef.current = value;
 
-  const opts = options.map(o => (typeof o === 'object' ? o : { value: o, label: o }));
-  const idx = Math.max(0, opts.findIndex(o => o.value === value));
+  const opts = options.map((o: any) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o: any) => o.value === value));
   const n = opts.length;
 
-  const segAt = (clientX) => {
-    const r = trackRef.current.getBoundingClientRect();
+  const segAt = (clientX: number) => {
+    const r = trackRef.current!.getBoundingClientRect();
     const inner = r.width - 4;
     const i = Math.floor(((clientX - r.left - 2) / inner) * n);
     return opts[Math.max(0, Math.min(n - 1, i))].value;
   };
 
-  const onPointerDown = (e) => {
+  const onPointerDown = (e: React.PointerEvent) => {
     setDragging(true);
     const v0 = segAt(e.clientX);
     if (v0 !== valueRef.current) onChange(v0);
-    const move = (ev) => { if (trackRef.current) { const v = segAt(ev.clientX); if (v !== valueRef.current) onChange(v); } };
+    const move = (ev: PointerEvent) => { if (trackRef.current) { const v = segAt(ev.clientX); if (v !== valueRef.current) onChange(v); } };
     const up = () => { setDragging(false); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -187,7 +187,7 @@ export function TweakRadio({ label, value, options, onChange }) {
   );
 }
 
-function __twkIsLight(hex) {
+function __twkIsLight(hex: unknown) {
   const h = String(hex).replace('#', '');
   const x = h.length === 3 ? h.replace(/./g, c => c + c) : h.padEnd(6, '0');
   const n = parseInt(x.slice(0, 6), 16);
@@ -196,25 +196,25 @@ function __twkIsLight(hex) {
   return r * 299 + g * 587 + b * 114 > 148000;
 }
 
-const TwkCheck = ({ light }) => (
+const TwkCheck = ({ light }: { light: boolean }) => (
   <svg viewBox="0 0 14 14" aria-hidden="true">
     <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
   </svg>
 );
 
-export function TweakColor({ label, value, options, onChange }) {
-  const key = o => String(JSON.stringify(o)).toLowerCase();
+export function TweakColor({ label, value, options, onChange }: { label: string; value: unknown; options: unknown[]; onChange: (v: unknown) => void }) {
+  const key = (o: unknown) => String(JSON.stringify(o)).toLowerCase();
   const cur = key(value);
   return (
     <TweakRow label={label}>
       <div className="twk-chips" role="radiogroup">
         {options.map((o, i) => {
-          const colors = Array.isArray(o) ? o : [o];
+          const colors = Array.isArray(o) ? (o as unknown[]) : [o];
           const [hero, ...rest] = colors;
           const on = key(o) === cur;
           return (
-            <button key={i} type="button" className="twk-chip" role="radio" aria-checked={on} data-on={on ? '1' : '0'} style={{ background: hero }} onClick={() => onChange(o)}>
-              {rest.length > 0 && <span>{rest.slice(0, 4).map((c, j) => <i key={j} style={{ background: c }} />)}</span>}
+            <button key={i} type="button" className="twk-chip" role="radio" aria-checked={on} data-on={on ? '1' : '0'} style={{ background: hero as string }} onClick={() => onChange(o)}>
+              {rest.length > 0 && <span>{rest.slice(0, 4).map((c, j) => <i key={j} style={{ background: c as string }} />)}</span>}
               {on && <TwkCheck light={__twkIsLight(hero)} />}
             </button>
           );
@@ -224,6 +224,6 @@ export function TweakColor({ label, value, options, onChange }) {
   );
 }
 
-export function TweakButton({ label, onClick, secondary = false }) {
+export function TweakButton({ label, onClick, secondary = false }: { label: string; onClick: () => void; secondary?: boolean }) {
   return <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'} onClick={onClick}>{label}</button>;
 }
