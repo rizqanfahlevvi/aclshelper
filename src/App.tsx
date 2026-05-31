@@ -382,9 +382,9 @@ export default function App() {
   };
 
   /* Desktop state — initialised from URL hash (declared early — used in effects below) */
-  const [deskView, setDeskView] = useState(_initNav.deskView);
-  const desktopPick = (screen, id) => {
-    const newView = { screen, id };
+  const [deskView, setDeskView] = useState<DeskView>(_initNav.deskView);
+  const desktopPick = (screen: string, id?: string) => {
+    const newView: DeskView = { screen: screen as DeskScreen, id };
     if (screen !== 'dashboard') {
       window.history.pushState(null, '', '#' + stateToHash('desktop', tab, stack, newView));
     }
@@ -392,13 +392,13 @@ export default function App() {
   };
 
   /* Mobile nav state — initialised from URL hash */
-  const [tab, setTab] = useState(_initNav.tab);
-  const [stack, setStack] = useState(_initNav.stack);
+  const [tab, setTab] = useState<Tab>(_initNav.tab);
+  const [stack, setStack] = useState<NavStack>(_initNav.stack as NavStack);
   const topFrame = stack[tab][stack[tab].length - 1];
 
   const nav = {
-    push: (frame) => {
-      const ns = { ...stack, [tab]: [...stack[tab], frame] };
+    push: (frame: NavFrame) => {
+      const ns: NavStack = { ...stack, [tab]: [...stack[tab], frame] };
       window.history.pushState(null, '', '#' + stateToHash(bp, tab, ns, deskView));
       setStack(s => ({ ...s, [tab]: [...s[tab], frame] }));
     },
@@ -409,19 +409,19 @@ export default function App() {
     }),
   };
 
-  const openAlgoFromHome = (id) => {
-    const ns = { ...stack, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] };
+  const openAlgoFromHome = (id: string) => {
+    const ns: NavStack = { ...stack, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] };
     window.history.pushState(null, '', '#' + stateToHash(bp, 'algo', ns, deskView));
     setTab('algo');
     setStack(() => ns);
   };
 
   const [cprOpen, setCprOpen] = useState(false);
-  const [cprRhythm, setCprRhythm] = useState(null);
+  const [cprRhythm, setCprRhythm] = useState<CprRhythm | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  const openCPR = (rhythm = null) => {
+  const openCPR = (rhythm: CprRhythm | null = null) => {
     window.history.pushState(null, '', location.href);
     setCprRhythm(rhythm);
     setCprOpen(true);
@@ -432,12 +432,12 @@ export default function App() {
     setCprRhythm(null);
   };
 
-  const onSpeedDialPick = (key) => {
+  const onSpeedDialPick = (key: CprRhythm) => {
     setFabOpen(false);
     openCPR(key);
   };
 
-  const mobileNavFromSidebar = (key, id) => {
+  const mobileNavFromSidebar = (key: string, id?: string) => {
     if (key === 'hsts') {
       window.history.pushState(null, '', '#/hsts');
       setTab('home');
@@ -446,27 +446,28 @@ export default function App() {
       openAlgoFromHome(id);
     } else {
       if (key !== 'home') {
-        const path = { algo: '/algo', drugs: '/drugs', tools: '/ekg' }[key] || '/';
+        const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs', tools: '/ekg' };
+        const path = pathMap[key] || '/';
         window.history.pushState(null, '', '#' + path);
       }
-      setTab(key);
+      setTab(key as Tab);
     }
   };
 
   /* Browser back/forward — restore state from URL hash */
   useEffect(() => {
     const handle = () => {
-      const { cprOpen, bp } = navRef.current;
-      if (cprOpen) { setCprOpen(false); setCprRhythm(null); return; }
+      const { cprOpen: isCprOpen, bp: currentBp } = navRef.current;
+      if (isCprOpen) { setCprOpen(false); setCprRhythm(null); return; }
       const n = hashToNav(window.location.hash);
-      if (bp === 'mobile' || bp === 'tablet') {
-        const base = { home: 'home', algo: 'algoList', drugs: 'drugList', tools: 'ekgList' };
+      if (currentBp === 'mobile' || currentBp === 'tablet') {
+        const base: Record<string, string> = { home: 'home', algo: 'algoList', drugs: 'drugList', tools: 'ekgList' };
         setTab(n.tab);
         setStack(s => ({
           ...s,
           [n.tab]: n.frame.screen === base[n.tab]
-            ? [{ screen: base[n.tab] }]
-            : [{ screen: base[n.tab] }, n.frame],
+            ? [{ screen: base[n.tab] } as NavFrame]
+            : [{ screen: base[n.tab] } as NavFrame, n.frame],
         }));
       } else {
         setDeskView(n.deskId ? { screen: n.deskScreen, id: n.deskId } : { screen: n.deskScreen });
@@ -494,7 +495,7 @@ export default function App() {
     if (localStorage.getItem('acls_install_dismissed')) return;
     const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const handler = (e) => {
+    const handler = (e: Event) => {
       e.preventDefault();
       deferredPromptRef.current = e;
       setTimeout(() => setInstallOpen(true), 1200);
@@ -547,7 +548,7 @@ export default function App() {
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
-  const screenKey = tab + '-' + topFrame.screen + '-' + (topFrame.id || '');
+  const screenKey = tab + '-' + topFrame.screen + '-' + (('id' in topFrame ? topFrame.id : '') || '');
 
   /* ── MOBILE ──────────────────────────────────────────────── */
   if (isMobile) {
@@ -597,10 +598,11 @@ export default function App() {
               onChange={(k) => {
                 setFabOpen(false);
                 if (k !== 'home') {
-                  const path = { algo: '/algo', drugs: '/drugs', tools: '/ekg' }[k] || '/';
+                  const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs', tools: '/ekg' };
+                  const path = pathMap[k] || '/';
                   window.history.pushState(null, '', '#' + path);
                 }
-                setTab(k);
+                setTab(k as Tab);
               }}
               fabShape="circle"
               accent="var(--danger)"
