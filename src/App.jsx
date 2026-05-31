@@ -118,19 +118,23 @@ function MoonIcon() {
 
 function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome }) {
   const time = useClock();
-  const [updateState, setUpdateState] = useState('idle'); // idle | checking | latest
+  const [updateState, setUpdateState] = useState('idle'); // idle | checking
 
   const checkUpdate = async () => {
     if (updateState !== 'idle') return;
     setUpdateState('checking');
     try {
+      // 1. Minta SW baru dari server (lewati cache HTTP)
       const reg = await navigator.serviceWorker?.getRegistration();
       if (reg) await reg.update();
+      // 2. Bersihkan semua cache Workbox agar reload tidak sajikan aset lama
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
     } catch (_) {}
-    setTimeout(() => {
-      setUpdateState('latest');
-      setTimeout(() => setUpdateState('idle'), 2500);
-    }, 2500);
+    // 3. Selalu reload — jaminan pengguna dapat versi terbaru
+    window.location.reload();
   };
 
   return (
@@ -191,21 +195,17 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
         </span>
         <button
           onClick={checkUpdate}
-          title={updateState === 'checking' ? 'Memeriksa...' : updateState === 'latest' ? 'Sudah versi terbaru' : 'Cek pembaruan'}
+          title={updateState === 'checking' ? 'Memeriksa pembaruan...' : 'Cek pembaruan'}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 32, height: 32, borderRadius: 8,
-            background: updateState === 'latest' ? 'rgba(52,199,89,0.15)' : 'var(--fill-tertiary)',
+            background: 'var(--fill-tertiary)',
             border: 0, cursor: updateState === 'idle' ? 'pointer' : 'default',
-            color: updateState === 'latest' ? 'var(--success)' : 'var(--label-secondary)',
-            transition: 'background 200ms, color 200ms',
+            color: 'var(--label-secondary)',
           }}
           aria-label="Cek pembaruan">
-          {updateState === 'latest'
-            ? <Icons.check size={15} stroke={2.5}/>
-            : <Icons.reset size={15} stroke={2}
-                style={{ animation: updateState === 'checking' ? 'acls-spin 0.8s linear infinite' : 'none' }}/>
-          }
+          <Icons.reset size={15} stroke={2}
+            style={{ animation: updateState === 'checking' ? 'acls-spin 0.8s linear infinite' : 'none' }}/>
         </button>
         <button
           onClick={onToggleTheme}
