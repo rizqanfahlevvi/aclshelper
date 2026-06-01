@@ -394,20 +394,30 @@ export function FlowConnector({ tone = "var(--label-tertiary)" }) {
 /* ============================================================
    BottomNav with center FAB
    ============================================================ */
-export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen }: { active: string; onChange: (key: string) => void; fabShape?: string; onFabClick: () => void; accent?: string; fabOpen: boolean }) {
+export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, accent, fabOpen, moreActive = false, onMore }: { active: string; onChange: (key: string) => void; fabShape?: string; onFabClick: () => void; accent?: string; fabOpen: boolean; moreActive?: boolean; onMore?: () => void }) {
   const fabRadius = fabShape === "circle" ? 30 : fabShape === "squircle" ? 18 : 30;
   const fabWidth = fabShape === "pill" ? 90 : 60;
 
   return (
     <div className="acls-bottomnav">
       {[
-        { key: "home",  label: "Beranda",  icon: Icons.house,   iconFill: Icons.houseFill },
-        { key: "algo",  label: "Algoritma",icon: Icons.algo,    iconFill: Icons.algoFill },
+        { key: "home",  label: "Beranda",  icon: Icons.house,    iconFill: Icons.houseFill },
+        { key: "algo",  label: "Algoritma",icon: Icons.algo,     iconFill: Icons.algoFill },
         { key: null,    label: "",         icon: null },
-        { key: "drugs", label: "Obat",     icon: Icons.pill,    iconFill: Icons.pillFill },
-        { key: "tools", label: "EKG",      icon: Icons.ekg,     iconFill: Icons.ekgFill },
+        { key: "drugs", label: "Obat",     icon: Icons.pill,     iconFill: Icons.pillFill },
+        { key: "more",  label: "Lainnya",  icon: Icons.grid,     iconFill: Icons.gridFill },
       ].map((t, i) => {
         if (!t.icon) return <div key={i} />;
+        if (t.key === "more") {
+          const isActive = moreActive;
+          const I = isActive ? t.iconFill : t.icon;
+          return (
+            <button key="more" className={"nav-btn " + (isActive ? "active" : "")} onClick={onMore}>
+              <I size={24} />
+              <span>{t.label}</span>
+            </button>
+          );
+        }
         const isActive = active === t.key;
         const I = isActive ? t.iconFill : t.icon;
         return (

@@ -425,6 +425,7 @@ export default function App() {
   const [cprRhythm, setCprRhythm] = useState<CprRhythm | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const openCPR = (rhythm: CprRhythm | null = null) => {
     window.history.pushState(null, '', location.href);
@@ -604,23 +605,74 @@ export default function App() {
         )}
 
         {!cprOpen && (
-          <div className="acls-mobile-bottomnav">
-            <BottomNav
-              active={tab === 'tools' ? 'tools' : tab}
-              onChange={(k) => {
-                setFabOpen(false);
-                if (k !== 'home') {
-                  const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs', tools: '/ekg' };
-                  const path = pathMap[k] || '/';
-                  window.history.pushState(null, '', '#' + path);
-                }
-                setTab(k as Tab);
-              }}
-              fabShape="circle"
-              accent="var(--danger)"
-              fabOpen={fabOpen}
-              onFabClick={() => setFabOpen(o => !o)}/>
-          </div>
+          <>
+            {/* Lainnya sheet — slides up above bottom nav */}
+            {moreSheetOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 180 }} onClick={() => setMoreSheetOpen(false)}/>
+                <div style={{
+                  position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0,
+                  zIndex: 181, padding: '0 12px 8px',
+                  animation: 'acls-fadeslide 200ms var(--ease-out) both',
+                }}>
+                  <div style={{
+                    background: 'var(--bg-primary)',
+                    borderRadius: 18,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
+                    overflow: 'hidden',
+                  }}>
+                    {([
+                      { key: 'tools', label: 'Pustaka EKG',  sub: '16 ritme kardiologi',     IconC: Icons.ekg,        bg: 'var(--accent-tint)', color: 'var(--accent)' },
+                      { key: 'hsts',  label: 'Hs & Ts',      sub: '10 penyebab reversibel',  IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)', color: 'var(--info)' },
+                      { key: 'calc',  label: 'Kalkulator',   sub: '8 skoring kardiovaskular', IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)', color: '#AF52DE' },
+                    ] as const).map(({ key, label, sub, IconC, bg, color }, idx, arr) => (
+                      <button key={key}
+                        onClick={() => {
+                          setMoreSheetOpen(false);
+                          setFabOpen(false);
+                          mobileNavFromSidebar(key);
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 14,
+                          width: '100%', padding: '13px 16px',
+                          background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                          borderBottom: idx < arr.length - 1 ? '0.5px solid var(--separator)' : 'none',
+                        }}>
+                        <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                          background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <IconC size={20} stroke={1.9} style={{ color }}/>
+                        </div>
+                        <div>
+                          <div className="t-callout" style={{ fontWeight: 600 }}>{label}</div>
+                          <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{sub}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="acls-mobile-bottomnav">
+              <BottomNav
+                active={tab}
+                moreActive={tab === 'tools' || (tab === 'home' && (topFrame.screen === 'hsts' || topFrame.screen === 'calcList' || topFrame.screen === 'calc'))}
+                onChange={(k) => {
+                  setFabOpen(false);
+                  setMoreSheetOpen(false);
+                  if (k !== 'home') {
+                    const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs' };
+                    const path = pathMap[k] || '/';
+                    window.history.pushState(null, '', '#' + path);
+                  }
+                  setTab(k as Tab);
+                }}
+                onMore={() => { setFabOpen(false); setMoreSheetOpen(o => !o); }}
+                fabShape="circle"
+                accent="var(--danger)"
+                fabOpen={fabOpen}
+                onFabClick={() => { setMoreSheetOpen(false); setFabOpen(o => !o); }}/>
+            </div>
+          </>
         )}
       </div>
     );
