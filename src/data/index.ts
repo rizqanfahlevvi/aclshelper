@@ -6,10 +6,12 @@
    Bilingual: istilah klinis EN/akronim, narasi ID.
    ============================================================ */
 
+import type { Algorithm, Drug, Rhythm, FlowStep } from '../types';
+
 /* ------------------------------------------------------------
    SUMBER & METADATA
    ------------------------------------------------------------ */
-export const ACLS_SOURCES = [
+export const ACLS_SOURCES: Array<{ key: string; short: string; long: string }> = [
   { key: "perki", short: "PERKI 2021", long: "Buku Panduan Kursus BHJL & BHJD — Perhimpunan Dokter Spesialis Kardiovaskular Indonesia, Cetakan 2021 (diselaraskan AHA 2025 Guidelines)" },
   { key: "aha",   short: "AHA 2025",  long: "American Heart Association Guidelines for CPR and Emergency Cardiovascular Care, 2025" },
 ];
@@ -17,7 +19,7 @@ export const ACLS_SOURCES = [
 /* ------------------------------------------------------------
    QUICK ACTIONS (Code Blue FAB sheet)
    ------------------------------------------------------------ */
-export const ACLS_QUICK_ACTIONS = [
+export const ACLS_QUICK_ACTIONS: Array<{ key: string; label: string; sub: string; tint: string; glyph: string }> = [
   { key: "vf",    label: "VF / pVT",        sub: "Irama shockable",        tint: "var(--danger)",     glyph: "shock" },
   { key: "pea",   label: "PEA / Asistol",   sub: "Irama non-shockable",    tint: "var(--info)",       glyph: "flatline" },
   { key: "brady", label: "Bradikardi",      sub: "HR < 50 · simptomatik",  tint: "var(--warning)",    glyph: "slow" },
@@ -28,7 +30,7 @@ export const ACLS_QUICK_ACTIONS = [
 /* ------------------------------------------------------------
    ALGORITHM CATALOG
    ------------------------------------------------------------ */
-export const ACLS_ALGORITHMS = [
+export const ACLS_ALGORITHMS: Algorithm[] = [
   /* Algoritma Utama */
   { key: "bhjd",      label: "BHJD Dewasa",              sub: "Bantuan Hidup Jantung Dasar · CABD",      tint: "var(--accent)",      tag: "BLS",                   source: "PERKI 2021" },
   { key: "arrest",    label: "Henti Jantung Dewasa",     sub: "Algoritma utama BHJL · AHA 2025",         tint: "var(--danger)",      tag: "Code Blue",             source: "PERKI 2021" },
@@ -50,7 +52,7 @@ export const ACLS_ALGORITHMS = [
 /* ------------------------------------------------------------
    BHJD (BLS) — Dewasa, sesuai PERKI 2025
    ------------------------------------------------------------ */
-export const ACLS_FLOW_BHJD = [
+export const ACLS_FLOW_BHJD: FlowStep[] = [
   { kind: "action", title: "Pastikan keamanan", sub: "Aman diri · aman lingkungan · aman pasien",
     pearls: "DRSCAB tidak relevan jika tempat tidak aman. Cek bahaya kebakaran, listrik, dll." },
   { kind: "action", title: "Cek respons", sub: "Tepuk bahu · panggil pasien",
@@ -80,7 +82,7 @@ export const ACLS_FLOW_BHJD = [
 /* ------------------------------------------------------------
    HENTI JANTUNG DEWASA — algoritma utama (PERKI + AHA)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_ARREST = [
+export const ACLS_FLOW_ARREST: FlowStep[] = [
   { kind: "action", title: "Mulai RJP berkualitas tinggi", sub: "100–120/mnt · kedalaman 5–6 cm · recoil penuh · rasio 30:2",
     pearls: "Minimalkan interupsi kompresi. Ganti compressor tiap 2 menit. Hindari hiperventilasi." },
   { kind: "action", title: "Pasang monitor / defibrilator", sub: "Pad pediatrik bila < 8 thn / < 25 kg",
@@ -108,7 +110,7 @@ export const ACLS_FLOW_ARREST = [
 /* ------------------------------------------------------------
    BRADIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_BRADY = [
+export const ACLS_FLOW_BRADY: FlowStep[] = [
   // [0] Box 1 — AHA 2025
   {
     kind: "action",
@@ -186,7 +188,7 @@ export const ACLS_FLOW_BRADY = [
 /* ------------------------------------------------------------
    TAKIKARDI (PERKI 2025)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_TACHY = [
+export const ACLS_FLOW_TACHY: FlowStep[] = [
   // [0] Box 1 — AHA 2025: Assess appropriateness
   {
     kind: "action",
@@ -310,7 +312,7 @@ export const ACLS_FLOW_TACHY = [
 /* ------------------------------------------------------------
    SKA (Sindrom Koroner Akut · PERKI 2025)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_SKA = [
+export const ACLS_FLOW_SKA: FlowStep[] = [
   { kind: "action", title: "Kecurigaan SKA", sub: "Nyeri dada > 20 mnt · keringat dingin · sesak",
     pearls: "Wanita, lansia, diabetes: gejala atipikal (dispnea, fatigue, nyeri epigastrik) lebih sering." },
   { kind: "action", title: "EKG 12-sandapan ≤ 10 menit", sub: "Cari ST elevasi / depresi / LBBB baru",
@@ -335,7 +337,7 @@ export const ACLS_FLOW_SKA = [
 /* ------------------------------------------------------------
    PASCA HENTI JANTUNG (Perawatan Pasca Henti Jantung · PERKI 2025)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_ROSC = [
+export const ACLS_FLOW_ROSC: FlowStep[] = [
   // [0] Box 1 — ROSC diperoleh
   {
     kind: "outcome",
@@ -471,7 +473,7 @@ export const ACLS_FLOW_ROSC = [
 /* ------------------------------------------------------------
    OVERDOSIS OPIOID — Keadaan Khusus (AHA 2025 Part 10)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_OPIOID = [
+export const ACLS_FLOW_OPIOID: FlowStep[] = [
   { kind: "action", title: "Kenali overdosis opioid", sub: "Napas lambat / tidak ada · miosis · tidak responsif",
     pearls: "Trias klasik: miosis (pupil pinpoint) · penurunan kesadaran · depresi napas. Tanyakan riwayat opioid, temukan jarum/obat." },
   { kind: "action", title: "Aktifkan bantuan · panggil SPGDT / 119",
@@ -498,7 +500,7 @@ export const ACLS_FLOW_OPIOID = [
 /* ------------------------------------------------------------
    ANAFILAKSIS — Keadaan Khusus (AHA 2025 · PERKI BHJL)
    ------------------------------------------------------------ */
-export const ACLS_FLOW_ANAPHYLAXIS = [
+export const ACLS_FLOW_ANAPHYLAXIS: FlowStep[] = [
   { kind: "action", title: "Kenali anafilaksis", sub: "Onset cepat · multiorganic · setelah pajanan alergen",
     pearls: "Kriteria: (1) kulit/mukosa + satu organ lain (resp/kardio); atau (2) dua sistem+ setelah pajanan; atau (3) hipotensi setelah pajanan. Alergen umum: makanan, antibiotik, NSAID, media kontras, bisa serangga." },
   { kind: "drug", title: "Epinefrin 0,5 mg IM (anterolateral paha)", sub: "LINI PERTAMA — berikan segera tanpa menunggu akses IV",
@@ -523,7 +525,7 @@ export const ACLS_FLOW_ANAPHYLAXIS = [
 /* ------------------------------------------------------------
    HENTI JANTUNG PADA KEHAMILAN — AHA 2025 Part 10
    ------------------------------------------------------------ */
-export const ACLS_FLOW_PREGNANCY = [
+export const ACLS_FLOW_PREGNANCY: FlowStep[] = [
   // [0] Box 1 — Mulai BLS/ALS
   {
     kind: "action",
@@ -630,7 +632,7 @@ export const ACLS_FLOW_PREGNANCY = [
 /* ------------------------------------------------------------
    TENGGELAM (Drowning) — AHA 2025 Part 10
    ------------------------------------------------------------ */
-export const ACLS_FLOW_DROWNING = [
+export const ACLS_FLOW_DROWNING: FlowStep[] = [
   { kind: "action", title: "Keamanan & ekstraksi dari air", sub: "Jangan masuk air tanpa perlindungan · aktivasi SPGDT",
     pearls: "Bahaya bagi penyelamat: arus, kedalaman, panik korban. Gunakan alat bantu (pelampung, tali). Panggil 119 segera." },
   { kind: "action", title: "Mulai ventilasi penyelamatan di air (bila aman)", sub: "5 napas penyelamatan sesegera mungkin",
@@ -654,7 +656,7 @@ export const ACLS_FLOW_DROWNING = [
 /* ------------------------------------------------------------
    HIPOTERMIA BERAT — AHA 2025 Part 10
    ------------------------------------------------------------ */
-export const ACLS_FLOW_HYPOTHERMIA = [
+export const ACLS_FLOW_HYPOTHERMIA: FlowStep[] = [
   { kind: "action", title: "Kenali & ukur suhu inti", sub: "Termometer rektal / esofageal · bukan aksila/timpani",
     pearls: "Klasifikasi: I: 32–35°C (menggigil); II: 28–32°C (tidak menggigil, ataksia); III: 24–28°C (tidak sadar); IV: < 24°C (henti jantung)." },
   { kind: "action", title: "Cegah kehilangan panas lebih lanjut", sub: "Lepas pakaian basah · selimut hangat · lindungi dari angin",
@@ -679,7 +681,7 @@ export const ACLS_FLOW_HYPOTHERMIA = [
 /* ------------------------------------------------------------
    OBAT-OBATAN (per PERKI 2025 · AHA 2025)
    ------------------------------------------------------------ */
-export const ACLS_DRUGS = [
+export const ACLS_DRUGS: Drug[] = [
   /* === Vasopresor / inotropik === */
   {
     key: "epi",
@@ -1131,7 +1133,7 @@ export const ACLS_DRUGS = [
 /* ------------------------------------------------------------
    IRAMA EKG — sesuai BHJD Bab III + tambahan
    ------------------------------------------------------------ */
-export const ACLS_RHYTHMS = [
+export const ACLS_RHYTHMS: Rhythm[] = [
   /* ── NSR — referensi normal ── */
   {
     key: "nsr",
@@ -2226,7 +2228,7 @@ export const ACLS_RHYTHMS = [
 /* ------------------------------------------------------------
    Hs & Ts (diferensial reversibel · standar internasional)
    ------------------------------------------------------------ */
-export const ACLS_HS_TS = [
+export const ACLS_HS_TS: Array<Record<string, string>> = [
   { key: "hypovol", group: "H", name: "Hipovolemia",            tint: "var(--info)",
     clue: "Trauma, perdarahan, dehidrasi · narrow PP · USG: IVC kolaps.",
     rx: "Bolus 30 mL/kg NaCl 0,9% / RL · transfusi · hentikan perdarahan." },
@@ -2262,7 +2264,7 @@ export const ACLS_HS_TS = [
 /* ------------------------------------------------------------
    CPR Workspace timeline prompts (1 cycle 2 menit)
    ------------------------------------------------------------ */
-export const ACLS_CPR_PROMPTS = [
+export const ACLS_CPR_PROMPTS: Array<{ at: number; action: string; tone: string }> = [
   { at: 0,   action: "Mulai RJP · 100–120/menit", tone: "info" },
   { at: 30,  action: "Konfirmasi akses IV/IO",     tone: "info" },
   { at: 60,  action: "Cek kapnografi (EtCO₂ > 10)", tone: "info" },

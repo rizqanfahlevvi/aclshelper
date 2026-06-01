@@ -5,14 +5,14 @@
 
 let _enabled = true;
 
-const v = (pattern) => {
+const v = (pattern: number | number[]): void => {
   if (!_enabled) return;
   if (typeof navigator === 'undefined' || !navigator.vibrate) return;
   try { navigator.vibrate(pattern); } catch (_) {}
 };
 
 export const haptic = {
-  setEnabled: (val) => { _enabled = !!val; },
+  setEnabled: (val: boolean): void => { _enabled = !!val; },
   isEnabled: () => _enabled,
 
   shock:      () => v(120),

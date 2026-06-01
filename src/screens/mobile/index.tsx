@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import type { Nav, Algorithm, Drug, Rhythm, CprRhythm, FlowStep as FlowStepType } from '../../types';
 import {
   Icons, NavBar, LargeTitle, SearchField,
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
@@ -11,6 +12,14 @@ import {
   ACLS_FLOW_OPIOID, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_PREGNANCY,
   ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
+
+declare global {
+  interface Window { MSStream?: unknown; }
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+}
 
 /* ============================================================
    FAVORITES
@@ -28,13 +37,13 @@ function useFavorites() {
     return () => window.removeEventListener('acls-favorites-changed', sync);
   }, []);
 
-  const isFav = (type, key) => favs.some(f => f.type === type && f.key === key);
+  const isFav = (type: string, key: string) => favs.some((f: { type: string; key: string }) => f.type === type && f.key === key);
 
-  const toggle = (type, key) => {
-    setFavs(prev => {
-      const exists = prev.some(f => f.type === type && f.key === key);
+  const toggle = (type: string, key: string) => {
+    setFavs((prev: { type: string; key: string }[]) => {
+      const exists = prev.some((f: { type: string; key: string }) => f.type === type && f.key === key);
       const next = exists
-        ? prev.filter(f => !(f.type === type && f.key === key))
+        ? prev.filter((f: { type: string; key: string }) => !(f.type === type && f.key === key))
         : [...prev, { type, key }];
       try { localStorage.setItem('acls_favorites', JSON.stringify(next)); } catch {}
       window.dispatchEvent(new Event('acls-favorites-changed'));
@@ -48,7 +57,7 @@ function useFavorites() {
 /* ============================================================
    INSTALL POPUP
    ============================================================ */
-export function InstallPopup({ deferredPrompt, onClose, onDismiss }) {
+export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredPrompt?: BeforeInstallPromptEvent | null; onClose: () => void; onDismiss: () => void }) {
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const [platform, setPlatform] = useState(isIOS ? 'ios' : 'android');
@@ -220,7 +229,7 @@ const STAT_CARDS = [
   { value: '2025', label: 'Panduan',   color: 'var(--success)', screen: null },
 ];
 
-export function MobileHome({ nav, openCPR }) {
+export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprRhythm) => void }) {
   const [query, setQuery] = useState('');
   const [spotlight, setSpotlight] = useState(0);
   const [dir, setDir] = useState('right');
@@ -228,7 +237,7 @@ export function MobileHome({ nav, openCPR }) {
   const touchStartX = useRef(null);
   const { favs } = useFavorites();
 
-  const favItems = useMemo(() => favs.map(f => {
+  const favItems = useMemo(() => favs.map((f: { type: string; key: string }) => {
     if (f.type === 'algo') {
       const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
       return a ? { ...f, label: a.label, sub: a.sub, tint: a.tint } : null;
@@ -241,7 +250,7 @@ export function MobileHome({ nav, openCPR }) {
     return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
   }).filter(Boolean), [favs]);
 
-  const switchTo = (idx, direction = 'right') => {
+  const switchTo = (idx: number, direction = 'right') => {
     setDir(direction);
     setSpotlight(idx);
     clearInterval(intervalRef.current);
@@ -258,8 +267,8 @@ export function MobileHome({ nav, openCPR }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e) => {
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(delta) > 50) switchTo((spotlight + 1) % 2, delta < 0 ? 'right' : 'left');
@@ -282,7 +291,7 @@ export function MobileHome({ nav, openCPR }) {
     ].slice(0, 8);
   }, [query]);
 
-  const iconFor = (type) => {
+  const iconFor = (type: string) => {
     if (type === 'algo') return <Icons.algo size={16} stroke={2.4}/>;
     if (type === 'drug') return <Icons.pill size={16} stroke={2.4}/>;
     return <Icons.ekg size={16} stroke={2.4}/>;
@@ -323,7 +332,7 @@ export function MobileHome({ nav, openCPR }) {
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
           {STAT_CARDS.map((c) => (
             <button key={c.label}
-              onClick={() => c.screen && nav.push({ screen: c.screen })}
+              onClick={() => c.screen && nav.push({ screen: c.screen as 'algoList' | 'drugList' | 'ekgList' })}
               style={{ flex: 1, background: 'var(--fill-secondary)',
                 borderRadius: 14, padding: '10px 8px', textAlign: 'center',
                 border: 0, cursor: c.screen ? 'pointer' : 'default',
@@ -370,7 +379,7 @@ export function MobileHome({ nav, openCPR }) {
             <div style={{ overflow: 'hidden', borderRadius: 16 }}
               onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
               {spotlight === 0
-                ? <button key="cb" onClick={openCPR}
+                ? <button key="cb" onClick={() => openCPR()}
                     style={{ width: '100%', borderRadius: 16,
                       background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
                       display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
@@ -379,7 +388,7 @@ export function MobileHome({ nav, openCPR }) {
                       animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Icons.boltFill size={22}/>
+                      <Icons.heartFill size={22}/>
                     </div>
                     <div style={{ flex: 1, textAlign: 'left' }}>
                       <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
@@ -428,7 +437,7 @@ export function MobileHome({ nav, openCPR }) {
             <>
               <SectionHeader>Favorit</SectionHeader>
               <List>
-                {favItems.map(f => (
+                {favItems.map((f: { type: string; key: string; label: string; sub: string; tint: string }) => (
                   <Row
                     key={f.type + f.key}
                     glyph={
@@ -506,7 +515,7 @@ export function MobileHome({ nav, openCPR }) {
 /* ============================================================
    ALGORITHM LIST
    ============================================================ */
-export function MobileAlgoList({ nav }) {
+export function MobileAlgoList({ nav }: { nav: Nav }) {
   const [q, setQ] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -593,7 +602,7 @@ export function MobileAlgoList({ nav }) {
 /* ============================================================
    ALGORITHM DETAIL
    ============================================================ */
-export function MobileAlgorithmDetail({ nav, id }) {
+export function MobileAlgorithmDetail({ nav, id }: { nav: Nav; id: string }) {
   const flow =
     id === "brady"       ? ACLS_FLOW_BRADY :
     id === "tachy"       ? ACLS_FLOW_TACHY :
@@ -612,7 +621,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
   const [activeStep, setActiveStep] = useState(null);
   const stepRefs = useRef([]);
 
-  const scrollToStep = (idx) => {
+  const scrollToStep = (idx: number) => {
     const clamped = Math.max(0, Math.min(idx, flow.length - 1));
     setActiveStep(clamped);
     setTimeout(() => {
@@ -620,7 +629,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
     }, 50);
   };
 
-  const handleAction = (step, index, dir) => {
+  const handleAction = (step: FlowStepType, index: number, dir: string) => {
     if (dir === "yes") {
       const target = step.yes?.targetIndex ?? Math.min(index + 1, flow.length - 1);
       scrollToStep(target);
@@ -674,7 +683,7 @@ export function MobileAlgorithmDetail({ nav, id }) {
                 index={i}
                 total={flow.length}
                 expandable={true}
-                onAction={step.kind === "decision" ? (dir) => handleAction(step, i, dir) : undefined}
+                onAction={step.kind === "decision" ? (dir: string) => handleAction(step, i, dir) : undefined}
               />
             </div>
             {i < flow.length - 1 && <FlowConnector />}
@@ -699,7 +708,7 @@ const DRUG_FILTERS = [
   { v: "antidot",    label: "Antidot" },
 ];
 
-function DrugCard({ d, onPress }) {
+function DrugCard({ d, onPress }: { d: Drug; onPress: () => void }) {
   return (
     <button onClick={onPress}
       style={{ padding: "12px 14px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start", border: 0 }}>
@@ -718,7 +727,7 @@ function DrugCard({ d, onPress }) {
   );
 }
 
-export function MobileDrugList({ nav }) {
+export function MobileDrugList({ nav }: { nav: Nav }) {
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -766,7 +775,7 @@ export function MobileDrugList({ nav }) {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {searchDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/>)}
+                {searchDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/> )}
               </div>
             )}
           </div>
@@ -783,7 +792,7 @@ export function MobileDrugList({ nav }) {
           </div>
           <SectionHeader>{categoryDrugs.length} obat · PERKI 2021 · AHA 2025</SectionHeader>
           <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-            {categoryDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/>)}
+            {categoryDrugs.map(d => <DrugCard key={d.key} d={d} onPress={() => nav.push({ screen: "drug", id: d.key })}/> )}
           </div>
         </>
       )}
@@ -796,7 +805,7 @@ export function MobileDrugList({ nav }) {
 /* ============================================================
    DRUG DETAIL
    ============================================================ */
-export function MobileDrugDetail({ nav, id }) {
+export function MobileDrugDetail({ nav, id }: { nav: Nav; id: string }) {
   const d = ACLS_DRUGS.find(x => x.key === id) || ACLS_DRUGS[0];
   const { isFav: isFavDrug, toggle: toggleDrug } = useFavorites();
   return (
@@ -837,7 +846,7 @@ export function MobileDrugDetail({ nav, id }) {
       <List><Row label="Cara persiapan" sub={d.prep} chev={false}/></List>
       <SectionHeader>Catatan klinis</SectionHeader>
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 6 }}>
-        {d.pearls.map((p, i) => (
+        {(Array.isArray(d.pearls) ? d.pearls : [d.pearls]).map((p: string, i: number) => (
           <div key={i} style={{ padding: "10px 12px", borderRadius: 10, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", display: "flex", gap: 8, alignItems: "flex-start" }}>
             <span style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 10, background: "var(--accent-tint)", color: "var(--accent)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{i + 1}</span>
             <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.4 }}>{p}</span>
@@ -864,7 +873,7 @@ const EKG_SEV_FILTERS = [
   { v: 'stable',        label: 'Stabil' },
 ];
 
-export function MobileEkgList({ nav }) {
+export function MobileEkgList({ nav }: { nav: Nav }) {
   const [q, setQ] = useState('');
   const [sev, setSev] = useState('all');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -877,7 +886,7 @@ export function MobileEkgList({ nav }) {
     !q.trim() || (r.name + ' ' + (r.short || '')).toLowerCase().includes(q.toLowerCase())
   );
 
-  const RhythmCard = ({ r }) => (
+  const RhythmCard = ({ r }: { r: Rhythm }) => (
     <button onClick={() => nav.push({ screen: "ekg", id: r.key })}
       style={{ padding: "10px 12px 12px", borderRadius: 14, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: 0, display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -959,7 +968,7 @@ const MORPH_FIELDS = [
   { key: 'stT',         label: 'ST / T' },
 ];
 
-export function MobileEkgDetail({ nav, id }) {
+export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
   const r = ACLS_RHYTHMS.find(x => x.key === id) || ACLS_RHYTHMS[0];
   const hasMorph = r.morphology && Object.values(r.morphology).some(v => v);
   const hasMgmt  = r.management && (r.management.immediate?.length || r.management.drugs?.length || r.management.notes?.length);
@@ -981,7 +990,7 @@ export function MobileEkgDetail({ nav, id }) {
         <div className="t-title-2">{r.name}</div>
         <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
           <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase" }}>
-            {EKG_SEV_LABEL[r.severity] || r.severity}
+            {(EKG_SEV_LABEL as Record<string, string>)[r.severity] || r.severity}
           </span>
         </div>
       </div>
@@ -1146,16 +1155,16 @@ export function MobileEkgDetail({ nav, id }) {
 /* ============================================================
    Hs & Ts
    ============================================================ */
-export function MobileHsTs({ nav }) {
+export function MobileHsTs({ nav }: { nav: Nav }) {
   const [expanded, setExpanded] = useState(new Set());
 
-  const toggle = (key) => setExpanded(prev => {
+  const toggle = (key: string) => setExpanded(prev => {
     const next = new Set(prev);
     next.has(key) ? next.delete(key) : next.add(key);
     return next;
   });
 
-  const renderItem = (c, letter) => {
+  const renderItem = (c: Record<string, string>, letter: string) => {
     const open = expanded.has(c.key);
     return (
       <button key={c.key} onClick={() => toggle(c.key)}
@@ -1199,12 +1208,12 @@ export function MobileHsTs({ nav }) {
    Speed Dial FAB
    ============================================================ */
 const SPEED_DIAL_ITEMS = [
-  { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
-  { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
-  { key: 'awaiting',     label: 'Belum terpasang', sub: 'Box 1 — pasang monitor', icon: (s) => <Icons.heart size={s} stroke={2}/>,   tint: 'var(--label-tertiary)' },
+  { key: 'shockable',    label: 'VF / pVT',       sub: 'Irama shockable',    icon: (s: number) => <Icons.boltFill size={s}/>,              tint: 'var(--danger)' },
+  { key: 'nonshockable', label: 'PEA / Asistol',  sub: 'Irama non-shockable', icon: (s: number) => <Icons.flatline size={s} stroke={2.2}/>, tint: 'var(--info)' },
+  { key: 'awaiting',     label: 'Belum terpasang', sub: 'Box 1 — pasang monitor', icon: (s: number) => <Icons.heart size={s} stroke={2}/>,   tint: 'var(--label-tertiary)' },
 ];
 
-export function SpeedDial({ onClose, onPick }) {
+export function SpeedDial({ onClose, onPick }: { onClose: () => void; onPick: (key: string) => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 160,

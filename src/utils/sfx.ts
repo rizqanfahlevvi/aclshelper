@@ -4,16 +4,21 @@
    Master toggle: sfx.setEnabled(bool)
    ============================================================ */
 
-let _ctx = null;
+declare global {
+  interface Window { webkitAudioContext?: typeof AudioContext; }
+}
+
+let _ctx: AudioContext | null = null;
 let _enabled = true;
 
-const ctx = () => {
-  if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+const ctx = (): AudioContext => {
+  if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext!)();
   if (_ctx.state === 'suspended') _ctx.resume();
   return _ctx;
 };
 
-const beep = ({ freq = 800, duration = 0.1, type = 'sine', gain = 0.2, attack = 0.005, release = 0.05, when = 0 } = {}) => {
+interface BeepOpts { freq?: number; duration?: number; type?: OscillatorType; gain?: number; attack?: number; release?: number; when?: number; }
+const beep = ({ freq = 800, duration = 0.1, type = 'sine' as OscillatorType, gain = 0.2, attack = 0.005, release = 0.05, when = 0 }: BeepOpts = {}) => {
   if (!_enabled) return;
   try {
     const c = ctx();
@@ -31,7 +36,8 @@ const beep = ({ freq = 800, duration = 0.1, type = 'sine', gain = 0.2, attack = 
   } catch (_) {}
 };
 
-const sweep = ({ from = 400, to = 1200, duration = 1.5, type = 'sine', gain = 0.15 } = {}) => {
+interface SweepOpts { from?: number; to?: number; duration?: number; type?: OscillatorType; gain?: number; }
+const sweep = ({ from = 400, to = 1200, duration = 1.5, type = 'sine' as OscillatorType, gain = 0.15 }: SweepOpts = {}) => {
   if (!_enabled) return;
   try {
     const c = ctx();
@@ -50,7 +56,8 @@ const sweep = ({ from = 400, to = 1200, duration = 1.5, type = 'sine', gain = 0.
   } catch (_) {}
 };
 
-const noise = ({ duration = 0.08, gain = 0.3, filter = 800 } = {}) => {
+interface NoiseOpts { duration?: number; gain?: number; filter?: number; }
+const noise = ({ duration = 0.08, gain = 0.3, filter = 800 }: NoiseOpts = {}) => {
   if (!_enabled) return;
   try {
     const c = ctx();
@@ -71,7 +78,7 @@ const noise = ({ duration = 0.08, gain = 0.3, filter = 800 } = {}) => {
 };
 
 export const sfx = {
-  setEnabled: (v) => { _enabled = !!v; },
+  setEnabled: (v: boolean): void => { _enabled = !!v; },
   isEnabled: () => _enabled,
 
   /* ── Shock sequence ──────────────────────────────────── */

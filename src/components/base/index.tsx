@@ -1,9 +1,26 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /* ------------------------------------------------------------
    ICONS — Lucide-style SVG glyphs
    ------------------------------------------------------------ */
-const Icon = ({ d, size = 24, stroke = 1.75, fill = "none", children, paths, ...rest }) => (
+interface IconBaseProps {
+  d?: string;
+  size?: number;
+  stroke?: number;
+  fill?: string;
+  children?: React.ReactNode;
+  paths?: string[];
+  style?: React.CSSProperties;
+  [key: string]: unknown;
+}
+
+interface IconProps {
+  size?: number;
+  stroke?: number;
+  style?: React.CSSProperties;
+}
+
+const Icon = ({ d, size = 24, stroke = 1.75, fill = "none", children, paths, ...rest }: IconBaseProps) => (
   <svg
     width={size} height={size} viewBox="0 0 24 24"
     fill={fill} stroke="currentColor" strokeWidth={stroke}
@@ -15,7 +32,7 @@ const Icon = ({ d, size = 24, stroke = 1.75, fill = "none", children, paths, ...
   </svg>
 );
 
-export const Icons = {
+export const Icons: Record<string, (props: IconProps) => React.ReactElement> = {
   house:        ({size, stroke}) => <Icon size={size} stroke={stroke} d="M3 11 12 3l9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/>,
   houseFill:    ({size}) => <Icon size={size} fill="currentColor" stroke={0} d="M3 11 12 3l9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/>,
   calculator:   ({size, stroke}) => <Icon size={size} stroke={stroke}><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h2M12 18h4"/></Icon>,
@@ -35,6 +52,8 @@ export const Icons = {
   check:        ({size, stroke}) => <Icon size={size} stroke={stroke || 2.4} d="M20 6 9 17l-5-5"/>,
   plus:         ({size, stroke}) => <Icon size={size} stroke={stroke || 2} d="M12 5v14M5 12h14"/>,
   ellipsis:     ({size, stroke}) => <Icon size={size} stroke={stroke}><circle cx="5" cy="12" r="0.5"/><circle cx="12" cy="12" r="0.5"/><circle cx="19" cy="12" r="0.5"/></Icon>,
+  grid:         ({size, stroke}) => <Icon size={size} stroke={stroke}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></Icon>,
+  gridFill:     ({size}) => <Icon size={size} fill="currentColor" stroke={0}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></Icon>,
   info:         ({size, stroke}) => <Icon size={size} stroke={stroke}><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16v.5"/></Icon>,
   warning:      ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17v.5"/></Icon>,
   share:        ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></Icon>,
@@ -74,6 +93,11 @@ export const Icons = {
   boltFill: ({ size = 24 }) =>
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+    </svg>,
+  heartFill: ({ size = 24 }) =>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 21.5C5.5 17 1.5 13 1.5 8.5 1.5 5.2 4.2 2.5 7.5 2.5c1.9 0 3.6 1 4.5 2.5 1-1.5 2.6-2.5 4.5-2.5 3.3 0 6 2.7 6 6 0 4.5-4 8.5-10.5 13z"/>
+      <path fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" d="M12 5.5c0-1.5 1-2.5 2.5-2.5s2 1 2 2"/>
     </svg>,
   timer: ({ size = 24, stroke = 1.75 }) =>
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
@@ -149,7 +173,7 @@ export const Icons = {
 /* ------------------------------------------------------------
    StatusBar
    ------------------------------------------------------------ */
-export const StatusBar = ({ time = "9:41", dark }) => (
+export const StatusBar = ({ time = "9:41", dark }: { time?: string; dark?: boolean }) => (
   <div className="ios-statusbar" style={{ color: dark ? "#fff" : "#000" }}>
     <span>{time}</span>
     <div className="right icons">
@@ -163,7 +187,14 @@ export const StatusBar = ({ time = "9:41", dark }) => (
 /* ------------------------------------------------------------
    NavBar
    ------------------------------------------------------------ */
-export const NavBar = ({ title, back, onBack, right, large }) => (
+interface NavBarProps {
+  title?: React.ReactNode;
+  back?: React.ReactNode;
+  onBack?: () => void;
+  right?: React.ReactNode;
+  large?: boolean;
+}
+export const NavBar = ({ title, back, onBack, right, large }: NavBarProps) => (
   <div className="ios-navbar" style={{ minHeight: 44 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 0, flex: 1, zIndex: 2 }}>
       {back && (
@@ -180,14 +211,14 @@ export const NavBar = ({ title, back, onBack, right, large }) => (
   </div>
 );
 
-export const LargeTitle = ({ children, right }) => (
+export const LargeTitle = ({ children, right }: { children?: React.ReactNode; right?: React.ReactNode }) => (
   <div style={{ padding: "4px 20px 14px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
     <h1 className="t-large-title" style={{ margin: 0 }}>{children}</h1>
     {right}
   </div>
 );
 
-export const SearchField = ({ placeholder = "Cari", value = "", onChange, onFocus }) => (
+export const SearchField = ({ placeholder = "Cari", value = "", onChange, onFocus }: { placeholder?: string; value?: string; onChange?: (v: string) => void; onFocus?: () => void }) => (
   <div className="ios-search" style={{ cursor: "text" }}>
     <Icons.search size={17} stroke={2} style={{ flexShrink: 0, color: "var(--label-tertiary)" }}/>
     <input
@@ -215,7 +246,7 @@ export const SearchField = ({ placeholder = "Cari", value = "", onChange, onFocu
 /* ------------------------------------------------------------
    TabBar
    ------------------------------------------------------------ */
-export const TabBar = ({ tabs, active, onChange }) => (
+export const TabBar = ({ tabs, active, onChange }: { tabs: { key: string; label: string; icon: (p: { size: number; stroke: number; fill: string }) => React.ReactNode }[]; active: string; onChange: (key: string) => void }) => (
   <div className="ios-tabbar">
     {tabs.map(t => (
       <button key={t.key} className={"tab " + (active === t.key ? "active" : "")} onClick={() => onChange(t.key)}>
@@ -230,26 +261,26 @@ export const TabBar = ({ tabs, active, onChange }) => (
 /* ------------------------------------------------------------
    List / Row
    ------------------------------------------------------------ */
-export const SectionHeader = ({ children, action }) => (
+export const SectionHeader = ({ children, action }: { children?: React.ReactNode; action?: React.ReactNode }) => (
   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "22px 32px 6px 32px" }}>
     <span className="t-footnote" style={{ color: "var(--label-secondary)", textTransform: "uppercase", letterSpacing: "-0.005em" }}>{children}</span>
     {action && <span className="t-footnote" style={{ color: "var(--accent)" }}>{action}</span>}
   </div>
 );
 
-export const SectionFooter = ({ children }) => (
+export const SectionFooter = ({ children }: { children?: React.ReactNode }) => (
   <div style={{ padding: "8px 32px 14px", fontSize: 13, color: "var(--label-secondary)", letterSpacing: "-0.005em" }}>{children}</div>
 );
 
-export const List = ({ children, style }) => (
+export const List = ({ children, style }: { children?: React.ReactNode; style?: React.CSSProperties }) => (
   <div className="ios-list" style={style}>{children}</div>
 );
 
-export const GlyphTile = ({ tint, children, size = 29, radius = 7, style }) => (
+export const GlyphTile = ({ tint, children, size = 29, radius = 7, style }: { tint?: string; children?: React.ReactNode; size?: number; radius?: number; style?: React.CSSProperties }) => (
   <span style={{ width: size, height: size, borderRadius: radius, background: tint, color: "#fff", flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 14, ...style }}>{children}</span>
 );
 
-export const Row = ({ glyph, tint, label, sub, value, valueColor, chev = true, onClick, right }) => (
+export const Row = ({ glyph, tint, label, sub, value, valueColor, chev = true, onClick, right }: { glyph?: React.ReactNode; tint?: string; label?: React.ReactNode; sub?: React.ReactNode; value?: React.ReactNode; valueColor?: string; chev?: boolean; onClick?: () => void; right?: React.ReactNode }) => (
   <button className="ios-row" style={{ border: 0, width: "100%", textAlign: "left" }} onClick={onClick}>
     {glyph && <GlyphTile tint={tint}>{glyph}</GlyphTile>}
     <div className="label">
@@ -264,7 +295,7 @@ export const Row = ({ glyph, tint, label, sub, value, valueColor, chev = true, o
 /* ------------------------------------------------------------
    Form controls
    ------------------------------------------------------------ */
-export const Field = ({ label, value, onChange, unit, type = "text", placeholder, options }) => (
+export const Field = ({ label, value, onChange, unit, type = "text", placeholder, options }: { label?: React.ReactNode; value?: string | number; onChange?: (v: string | number) => void; unit?: string; type?: string; placeholder?: string; options?: { value: string; label: string }[] }) => (
   <div className="ios-field" style={{ borderBottom: "0.5px solid var(--separator)" }}>
     <label>{label}</label>
     {options ? (
@@ -279,11 +310,11 @@ export const Field = ({ label, value, onChange, unit, type = "text", placeholder
   </div>
 );
 
-export const Switch = ({ on, onChange }) => (
+export const Switch = ({ on, onChange }: { on?: boolean; onChange?: (v: boolean) => void }) => (
   <button className={"ios-switch " + (on ? "on" : "")} onClick={() => onChange && onChange(!on)} aria-pressed={on}/>
 );
 
-export const Segmented = ({ value, onChange, options }) => (
+export const Segmented = ({ value, onChange, options }: { value?: string; onChange?: (v: string) => void; options?: { value: string; label: string }[] }) => (
   <div className="ios-segmented">
     {options.map(o => (
       <button key={o.value} className={value === o.value ? "active" : ""} onClick={() => onChange(o.value)}>{o.label}</button>
@@ -291,18 +322,18 @@ export const Segmented = ({ value, onChange, options }) => (
   </div>
 );
 
-export const Stepper = ({ value, min = 0, max = 99, onChange }) => (
+export const Stepper = ({ value, min = 0, max = 99, onChange }: { value?: number; min?: number; max?: number; onChange?: (v: number) => void }) => (
   <div className="ios-stepper">
     <button onClick={() => onChange(Math.max(min, value - 1))}>−</button>
     <button onClick={() => onChange(Math.min(max, value + 1))}>+</button>
   </div>
 );
 
-export const Pill = ({ tone = "blue", children }) => (
+export const Pill = ({ tone = "blue", children }: { tone?: string; children?: React.ReactNode }) => (
   <span className={"ios-tag " + tone}>{children}</span>
 );
 
-export const Button = ({ kind = "primary", size, block, children, onClick }) => {
+export const Button = ({ kind = "primary", size, block, children, onClick }: { kind?: string; size?: string; block?: boolean; children?: React.ReactNode; onClick?: () => void }) => {
   const cls = ["ios-btn"];
   if (kind === "tinted") cls.push("tinted");
   if (kind === "gray") cls.push("gray");
@@ -313,7 +344,7 @@ export const Button = ({ kind = "primary", size, block, children, onClick }) => 
   return <button className={cls.join(" ")} onClick={onClick}>{children}</button>;
 };
 
-export const Alert = ({ kind = "info", title, children, icon }) => {
+export const Alert = ({ kind = "info", title, children, icon }: { kind?: string; title?: React.ReactNode; children?: React.ReactNode; icon?: React.ComponentType<{ size?: number; stroke?: number }> }) => {
   const map = {
     info:   { color: "var(--info)",    Icon: Icons.info },
     warn:   { color: "var(--warning)", Icon: Icons.warning },
@@ -331,7 +362,7 @@ export const Alert = ({ kind = "info", title, children, icon }) => {
   );
 };
 
-export const ResultTile = ({ label, value, sub, tint = "var(--tint-fluid)" }) => (
+export const ResultTile = ({ label, value, sub, tint = "var(--tint-fluid)" }: { label?: React.ReactNode; value?: React.ReactNode; sub?: React.ReactNode; tint?: string }) => (
   <div style={{ background: "var(--bg-tertiary)", borderRadius: "var(--r-card)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 2, boxShadow: "var(--shadow-1)" }}>
     <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>{label}</div>
     <div style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: tint, fontFeatureSettings: '"tnum"' }}>{value}</div>
