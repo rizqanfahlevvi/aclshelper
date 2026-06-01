@@ -609,7 +609,14 @@ export default function App() {
             {/* Lainnya sheet — slides up above bottom nav */}
             {moreSheetOpen && (
               <>
-                <div style={{ position: 'fixed', inset: 0, zIndex: 180 }} onClick={() => setMoreSheetOpen(false)}/>
+                <div style={{
+                  position: 'fixed', top: 0, left: 0, right: 0,
+                  bottom: 'calc(60px + env(safe-area-inset-bottom))',
+                  zIndex: 180,
+                  background: 'rgba(0,0,0,0.25)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                }} onClick={() => setMoreSheetOpen(false)}/>
                 <div style={{
                   position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0,
                   zIndex: 181, padding: '0 12px 8px',
