@@ -1,6 +1,6 @@
 // Navigation
 export type Tab = 'home' | 'algo' | 'drugs' | 'tools';
-export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc' | 'pals' | 'vaso' | 'rosc';
+export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc';
 export type NavFrame =
   | { screen: 'home' }
   | { screen: 'algoList' }

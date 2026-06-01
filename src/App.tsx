@@ -19,7 +19,7 @@ import {
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
-import { PalsScreen, VasoScreen, RoscScreen, DesktopPals, DesktopVaso, DesktopRosc } from './screens/tools';
+import { PalsScreen, VasoScreen, RoscScreen } from './screens/tools';
 
 function useBreakpoint() {
   const get = () => {
@@ -44,6 +44,9 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (bp === 'desktop') {
     const { screen, id } = deskView;
     if (screen === 'dashboard') return '/';
+    if (screen === 'algo' && id === 'pals')      return '/pals';
+    if (screen === 'algo' && id === 'rosc-care') return '/rosc';
+    if (screen === 'calc' && id === 'vaso')       return '/vaso';
     return id ? `/${screen}/${id}` : `/${screen}`;
   }
   const frame = stack[tab][stack[tab].length - 1];
@@ -73,10 +76,10 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'drugs': return { tab: 'drugs', frame: id ? { screen: 'drug', id }  : { screen: 'drugList' }, deskScreen: 'drugs',     deskId: id  };
     case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
     case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
-    case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id  };
-    case 'pals':  return { tab: 'home',  frame: { screen: 'pals' },                                        deskScreen: 'pals',      deskId: null };
-    case 'vaso':  return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'vaso',      deskId: null };
-    case 'rosc':  return { tab: 'home',  frame: { screen: 'rosc' },                                        deskScreen: 'rosc',      deskId: null };
+    case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id          };
+    case 'pals':  return { tab: 'algo',  frame: { screen: 'pals' },                                        deskScreen: 'algo',      deskId: 'pals'      };
+    case 'vaso':  return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
+    case 'rosc':  return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
     default:      return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
@@ -459,18 +462,6 @@ export default function App() {
       window.history.pushState(null, '', '#/calc');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calcList' }] }));
-    } else if (key === 'pals') {
-      window.history.pushState(null, '', '#/pals');
-      setTab('home');
-      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'pals' }] }));
-    } else if (key === 'vaso') {
-      window.history.pushState(null, '', '#/vaso');
-      setTab('home');
-      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'vaso' }] }));
-    } else if (key === 'rosc') {
-      window.history.pushState(null, '', '#/rosc');
-      setTab('home');
-      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'rosc' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
@@ -549,9 +540,7 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
-      if (f.screen === 'pals') return <PalsScreen nav={nav} isMobile/>;
       if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
-      if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -559,6 +548,8 @@ export default function App() {
     if (tab === 'algo') {
       if (f.screen === 'algo') return <MobileAlgorithmDetail nav={nav} id={f.id}/>;
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
+      if (f.screen === 'pals') return <PalsScreen nav={nav} isMobile/>;
+      if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
       return <MobileAlgoList nav={nav}/>;
     }
     if (tab === 'drugs') {
@@ -580,9 +571,6 @@ export default function App() {
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
     if (v.screen === 'calc')  return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
-    if (v.screen === 'pals')  return <DesktopPals onPick={desktopPick}/>;
-    if (v.screen === 'vaso')  return <DesktopVaso onPick={desktopPick}/>;
-    if (v.screen === 'rosc')  return <DesktopRosc onPick={desktopPick}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
@@ -661,9 +649,6 @@ export default function App() {
                       { key: 'tools', label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)' },
                       { key: 'hsts',  label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'   },
                       { key: 'calc',  label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'       },
-                      { key: 'pals',  label: 'PALS',         IconC: Icons.heart,      bg: 'rgba(255,59,48,0.12)',     color: 'var(--danger)' },
-                      { key: 'vaso',  label: 'Vasopressor',  IconC: Icons.droplet,    bg: 'rgba(52,199,89,0.12)',     color: '#34C759'       },
-                      { key: 'rosc',  label: 'Post-ROSC',    IconC: Icons.activity,   bg: 'rgba(255,149,0,0.12)',     color: 'var(--warning)'},
                     ] as const).map(({ key, label, IconC, bg, color }) => (
                       <button key={key}
                         onClick={() => {
@@ -691,7 +676,7 @@ export default function App() {
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','pals','vaso','rosc'] as string[]).includes(topFrame.screen))}
+                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);

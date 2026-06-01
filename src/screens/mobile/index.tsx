@@ -519,8 +519,15 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
   const [q, setQ] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const SPECIAL_ENTRIES = [
+    { key: 'pals', label: 'PALS', sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)', screen: 'pals' as const, icon: 'heart' },
+    { key: 'rosc-care', label: 'Post-ROSC Care', sub: 'Checklist perawatan pasca ROSC', tint: 'var(--warning)', screen: 'rosc' as const, icon: 'activity' },
+  ];
   const filtered = ACLS_ALGORITHMS.filter(a =>
     (a.label + ' ' + a.sub).toLowerCase().includes(q.toLowerCase())
+  );
+  const filteredSpecial = SPECIAL_ENTRIES.filter(e =>
+    (e.label + ' ' + e.sub).toLowerCase().includes(q.toLowerCase())
   );
 
   const toggleSearch = () => {
@@ -549,7 +556,7 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
             <SearchField placeholder="Cari algoritma…" value={q} onChange={setQ}/>
           </div>
           <div style={{ padding: "0 16px 12px", animation: 'acls-fadeslide 260ms 60ms var(--ease-out) both' }}>
-            {filtered.length === 0 ? (
+            {filtered.length === 0 && filteredSpecial.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 0", color: "var(--label-secondary)" }}>
                 <div className="t-headline" style={{ marginBottom: 6 }}>Tidak ditemukan</div>
                 <div className="t-footnote">Coba kata kunci lain</div>
@@ -558,6 +565,12 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
               <List>
                 {filtered.map(a => (
                   <Row key={a.key} glyph={<Icons.algo size={16} stroke={2.4}/>} tint={a.tint} label={a.label} sub={a.sub} onClick={() => nav.push({ screen: "algo", id: a.key })}/>
+                ))}
+                {filteredSpecial.map(e => (
+                  <Row key={e.key}
+                    glyph={e.icon === 'heart' ? <Icons.heart size={16} stroke={2.4}/> : <Icons.activity size={16} stroke={2.4}/>}
+                    tint={e.tint} label={e.label} sub={e.sub}
+                    onClick={() => nav.push({ screen: e.screen })}/>
                 ))}
               </List>
             )}
@@ -590,6 +603,11 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
           <SectionHeader>Diferensial</SectionHeader>
           <List>
             <Row glyph={<Icons.clipboard size={16} stroke={2.4}/>} tint="var(--tint-theory)" label="Hs &amp; Ts" sub="10 penyebab reversibel" onClick={() => nav.push({ screen: "hsts" })}/>
+          </List>
+          <SectionHeader>Protokol Lanjutan</SectionHeader>
+          <List>
+            <Row glyph={<Icons.heart size={16} stroke={2.4}/>} tint="var(--danger)" label="PALS" sub="Dosis pediatri & algoritma resusitasi" onClick={() => nav.push({ screen: "pals" })}/>
+            <Row glyph={<Icons.activity size={16} stroke={2.4}/>} tint="var(--warning)" label="Post-ROSC Care" sub="Checklist perawatan pasca ROSC" onClick={() => nav.push({ screen: "rosc" })}/>
           </List>
           <SectionFooter>Mengikuti AHA 2025 + PERKI 2021 (BHJL &amp; BHJD).</SectionFooter>
           <div style={{ height: 24 }}/>

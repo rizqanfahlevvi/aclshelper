@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
 import { RhythmStrip, EkgImage } from '../../components/acls';
+import { PalsScreen, RoscScreen } from '../tools';
 import type { Algorithm, Drug, Rhythm } from '../../types';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
@@ -19,10 +20,7 @@ const SIDEBAR_NAV = [
   { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
   { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
-  { key: "calc",      label: "Kalkulator",  desc: "8 skoring kardiovaskular", icon: Icons.calculator },
-  { key: "pals",      label: "PALS",        desc: "Protokol pediatri",         icon: Icons.heart      },
-  { key: "vaso",      label: "Vasopressor", desc: "Panduan titrasi infus",     icon: Icons.droplet    },
-  { key: "rosc",      label: "Post-ROSC",   desc: "Perawatan pasca ROSC",      icon: Icons.activity   },
+  { key: "calc",      label: "Kalkulator",  desc: "8 kalkulator + vasopressor",  icon: Icons.calculator },
 ];
 const SIDEBAR_QUICK = [
   { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
@@ -434,6 +432,11 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
     return ACLS_DRUGS.find(d => txt.includes(d.name.toLowerCase().split(" ")[0]));
   }, [selected, id]);
 
+  const SPECIAL_ALGOS = [
+    { key: 'pals',      label: 'PALS',          sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)' },
+    { key: 'rosc-care', label: 'Post-ROSC Care', sub: 'Checklist perawatan pasca ROSC',        tint: 'var(--warning)' },
+  ];
+
   const [algoQ, setAlgoQ] = useState('');
   const filteredAlgos = useMemo(() => {
     const q = algoQ.trim().toLowerCase();
@@ -441,10 +444,21 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
       ? ACLS_ALGORITHMS.filter(a => (a.label + ' ' + (a.sub || '')).toLowerCase().includes(q))
       : ACLS_ALGORITHMS;
   }, [algoQ]);
+  const filteredSpecial = useMemo(() => {
+    const q = algoQ.trim().toLowerCase();
+    return q ? SPECIAL_ALGOS.filter(e => (e.label + ' ' + e.sub).toLowerCase().includes(q)) : SPECIAL_ALGOS;
+  }, [algoQ]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isPals = id === 'pals';
+  const isRoscCare = id === 'rosc-care';
+  const crumb =
+    isPals     ? ['Algoritma', 'PALS'] :
+    isRoscCare ? ['Algoritma', 'Post-ROSC Care'] :
+    id ? ['Algoritma', algo.label] : ['Algoritma'];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <DesktopTopbar crumb={id ? ['Algoritma', algo.label] : ['Algoritma']}/>
+      <DesktopTopbar crumb={crumb}/>
       <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", flex: 1, overflow: "hidden" }}>
 
         {/* LEFT: algo list */}
@@ -469,11 +483,11 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
               ALGORITMA · {filteredAlgos.length}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {filteredAlgos.length === 0
+              {filteredAlgos.length === 0 && filteredSpecial.length === 0
                 ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
                 : filteredAlgos.map(a => (
                 <button key={a.key} onClick={() => onPick('algo', a.key)}
-                  className={"acls-list-item " + (id === a.key ? "active" : "")}>
+                  className={"acls-list-item " + (!isPals && !isRoscCare && id === a.key ? "active" : "")}>
                   <span style={{ width: 6, height: 30, borderRadius: 3, background: a.tint, flexShrink: 0 }}/>
                   <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                     <div className="t-callout" style={{ fontWeight: 600 }}>{a.label}</div>
@@ -482,11 +496,34 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
                 </button>
               ))}
             </div>
+            {filteredSpecial.length > 0 && (
+              <>
+                <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 6px 8px" }}>
+                  PROTOKOL LANJUTAN
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {filteredSpecial.map(e => (
+                    <button key={e.key} onClick={() => onPick('algo', e.key)}
+                      className={"acls-list-item " + (id === e.key ? "active" : "")}>
+                      <span style={{ width: 6, height: 30, borderRadius: 3, background: e.tint, flexShrink: 0 }}/>
+                      <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                        <div className="t-callout" style={{ fontWeight: 600 }}>{e.label}</div>
+                        <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{e.sub}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
-        {/* RIGHT: flow view or placeholder */}
-        {!id ? (
+        {/* RIGHT: special screens, flow view, or placeholder */}
+        {isPals ? (
+          <PalsScreen/>
+        ) : isRoscCare ? (
+          <RoscScreen/>
+        ) : !id ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
             justifyContent: "center", gap: 10, color: "var(--label-tertiary)" }}>
             <Icons.algo size={48} stroke={1} style={{ opacity: 0.25 }}/>
