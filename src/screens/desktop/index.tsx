@@ -19,6 +19,7 @@ const SIDEBAR_NAV = [
   { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
   { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
+  { key: "calc",      label: "Kalkulator",  desc: "8 skoring kardiovaskular", icon: Icons.calculator },
 ];
 const SIDEBAR_QUICK = [
   { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },

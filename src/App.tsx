@@ -18,6 +18,7 @@ import {
   DesktopSidebar, DesktopDashboard,
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
+import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 
 function useBreakpoint() {
   const get = () => {
@@ -55,6 +56,8 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'ekgList')  return '/ekg';
   if (screen === 'ekg')      return `/ekg/${id}`;
   if (screen === 'hsts')     return '/hsts';
+  if (screen === 'calcList') return '/calc';
+  if (screen === 'calc')     return `/calc/${id}`;
   return '/';
 }
 
@@ -65,8 +68,9 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'algo':  return { tab: 'algo',  frame: id ? { screen: 'algo', id }  : { screen: 'algoList' }, deskScreen: 'algo',      deskId: id  };
     case 'drugs': return { tab: 'drugs', frame: id ? { screen: 'drug', id }  : { screen: 'drugList' }, deskScreen: 'drugs',     deskId: id  };
     case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
-    case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                     deskScreen: 'hsts',      deskId: null };
-    default:      return { tab: 'home',  frame: { screen: 'home' },                                     deskScreen: 'dashboard', deskId: null };
+    case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
+    case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id  };
+    default:      return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
 
@@ -247,6 +251,7 @@ const MOBILE_MENU = [
   { key: 'drugs', label: 'Obat',        desc: '25 obat emergensi',      icon: Icons.pill },
   { key: 'tools', label: 'Pustaka EKG', desc: '16 ritme kardiologi',    icon: Icons.ekg },
   { key: 'hsts',  label: 'Hs & Ts',     desc: '10 penyebab reversibel', icon: Icons.clipboard },
+  { key: 'calc',  label: 'Kalkulator',  desc: '8 skoring kardiovaskular', icon: Icons.calculator },
 ];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
@@ -442,6 +447,10 @@ export default function App() {
       window.history.pushState(null, '', '#/hsts');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'hsts' }] }));
+    } else if (key === 'calc') {
+      window.history.pushState(null, '', '#/calc');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calcList' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
@@ -518,6 +527,8 @@ export default function App() {
       if (f.screen === 'ekgList') return <MobileEkgList nav={nav}/>;
       if (f.screen === 'ekg') return <MobileEkgDetail nav={nav} id={f.id}/>;
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
+      if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
+      if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -545,6 +556,7 @@ export default function App() {
     if (v.screen === 'drugs') return <DesktopDrugs initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
+    if (v.screen === 'calc')  return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
