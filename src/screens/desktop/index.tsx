@@ -20,6 +20,9 @@ const SIDEBAR_NAV = [
   { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
   { key: "calc",      label: "Kalkulator",  desc: "8 skoring kardiovaskular", icon: Icons.calculator },
+  { key: "pals",      label: "PALS",        desc: "Protokol pediatri",         icon: Icons.heart      },
+  { key: "vaso",      label: "Vasopressor", desc: "Panduan titrasi infus",     icon: Icons.droplet    },
+  { key: "rosc",      label: "Post-ROSC",   desc: "Perawatan pasca ROSC",      icon: Icons.activity   },
 ];
 const SIDEBAR_QUICK = [
   { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },

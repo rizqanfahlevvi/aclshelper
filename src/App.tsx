@@ -19,6 +19,7 @@ import {
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
+import { PalsScreen, VasoScreen, RoscScreen, DesktopPals, DesktopVaso, DesktopRosc } from './screens/tools';
 
 function useBreakpoint() {
   const get = () => {
@@ -58,6 +59,9 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'hsts')     return '/hsts';
   if (screen === 'calcList') return '/calc';
   if (screen === 'calc')     return `/calc/${id}`;
+  if (screen === 'pals')     return '/pals';
+  if (screen === 'vaso')     return '/vaso';
+  if (screen === 'rosc')     return '/rosc';
   return '/';
 }
 
@@ -70,6 +74,9 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
     case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
     case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id  };
+    case 'pals':  return { tab: 'home',  frame: { screen: 'pals' },                                        deskScreen: 'pals',      deskId: null };
+    case 'vaso':  return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'vaso',      deskId: null };
+    case 'rosc':  return { tab: 'home',  frame: { screen: 'rosc' },                                        deskScreen: 'rosc',      deskId: null };
     default:      return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
@@ -452,6 +459,18 @@ export default function App() {
       window.history.pushState(null, '', '#/calc');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calcList' }] }));
+    } else if (key === 'pals') {
+      window.history.pushState(null, '', '#/pals');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'pals' }] }));
+    } else if (key === 'vaso') {
+      window.history.pushState(null, '', '#/vaso');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'vaso' }] }));
+    } else if (key === 'rosc') {
+      window.history.pushState(null, '', '#/rosc');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'rosc' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
@@ -530,6 +549,9 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
+      if (f.screen === 'pals') return <PalsScreen nav={nav} isMobile/>;
+      if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
+      if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -558,6 +580,9 @@ export default function App() {
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
     if (v.screen === 'calc')  return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
+    if (v.screen === 'pals')  return <DesktopPals onPick={desktopPick}/>;
+    if (v.screen === 'vaso')  return <DesktopVaso onPick={desktopPick}/>;
+    if (v.screen === 'rosc')  return <DesktopRosc onPick={desktopPick}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
@@ -627,12 +652,19 @@ export default function App() {
                     borderRadius: 18,
                     boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
                     overflow: 'hidden',
+                    padding: 10,
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr 1fr',
+                    gap: 6,
                   }}>
                     {([
-                      { key: 'tools', label: 'Pustaka EKG',  sub: '16 ritme kardiologi',     IconC: Icons.ekg,        bg: 'var(--accent-tint)', color: 'var(--accent)' },
-                      { key: 'hsts',  label: 'Hs & Ts',      sub: '10 penyebab reversibel',  IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)', color: 'var(--info)' },
-                      { key: 'calc',  label: 'Kalkulator',   sub: '8 skoring kardiovaskular', IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)', color: '#AF52DE' },
-                    ] as const).map(({ key, label, sub, IconC, bg, color }, idx, arr) => (
+                      { key: 'tools', label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)' },
+                      { key: 'hsts',  label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'   },
+                      { key: 'calc',  label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'       },
+                      { key: 'pals',  label: 'PALS',         IconC: Icons.heart,      bg: 'rgba(255,59,48,0.12)',     color: 'var(--danger)' },
+                      { key: 'vaso',  label: 'Vasopressor',  IconC: Icons.droplet,    bg: 'rgba(52,199,89,0.12)',     color: '#34C759'       },
+                      { key: 'rosc',  label: 'Post-ROSC',    IconC: Icons.activity,   bg: 'rgba(255,149,0,0.12)',     color: 'var(--warning)'},
+                    ] as const).map(({ key, label, IconC, bg, color }) => (
                       <button key={key}
                         onClick={() => {
                           setMoreSheetOpen(false);
@@ -640,19 +672,16 @@ export default function App() {
                           mobileNavFromSidebar(key);
                         }}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: 14,
-                          width: '100%', padding: '13px 16px',
-                          background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
-                          borderBottom: idx < arr.length - 1 ? '0.5px solid var(--separator)' : 'none',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                          padding: '12px 8px',
+                          background: 'var(--fill-quaternary)', borderRadius: 12,
+                          border: 'none', cursor: 'pointer',
                         }}>
-                        <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                        <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0,
                           background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <IconC size={20} stroke={1.9} style={{ color }}/>
                         </div>
-                        <div>
-                          <div className="t-callout" style={{ fontWeight: 600 }}>{label}</div>
-                          <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{sub}</div>
-                        </div>
+                        <span className="t-caption-2" style={{ fontWeight: 600, color: 'var(--label-primary)', textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
                       </button>
                     ))}
                   </div>
@@ -662,7 +691,7 @@ export default function App() {
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (topFrame.screen === 'hsts' || topFrame.screen === 'calcList' || topFrame.screen === 'calc'))}
+                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','pals','vaso','rosc'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);
