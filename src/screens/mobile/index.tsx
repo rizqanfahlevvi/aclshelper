@@ -520,8 +520,9 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   const SPECIAL_ENTRIES = [
-    { key: 'pals', label: 'PALS', sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)', screen: 'pals' as const, icon: 'heart' },
-    { key: 'rosc-care', label: 'Post-ROSC Care', sub: 'Checklist perawatan pasca ROSC', tint: 'var(--warning)', screen: 'rosc' as const, icon: 'activity' },
+    { key: 'pals',      label: 'PALS',          sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)',  screen: 'pals' as const, icon: 'heart'    },
+    { key: 'rosc-care', label: 'Post-ROSC Care', sub: 'Checklist perawatan pasca ROSC',        tint: 'var(--warning)', screen: 'rosc' as const, icon: 'activity' },
+    { key: 'vaso',      label: 'Vasopressor',    sub: 'Panduan & kalkulator vasopressor',      tint: '#34C759',        screen: 'vaso' as const, icon: 'vaso'     },
   ];
   const filtered = ACLS_ALGORITHMS.filter(a =>
     (a.label + ' ' + a.sub).toLowerCase().includes(q.toLowerCase())
@@ -568,7 +569,11 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
                 ))}
                 {filteredSpecial.map(e => (
                   <Row key={e.key}
-                    glyph={e.icon === 'heart' ? <Icons.heart size={16} stroke={2.4}/> : <Icons.activity size={16} stroke={2.4}/>}
+                    glyph={
+                      e.icon === 'heart'    ? <Icons.heart     size={16} stroke={2.4}/> :
+                      e.icon === 'activity' ? <Icons.activity  size={16} stroke={2.4}/> :
+                                             <Icons.calculator size={16} stroke={2.4}/>
+                    }
                     tint={e.tint} label={e.label} sub={e.sub}
                     onClick={() => nav.push({ screen: e.screen })}/>
                 ))}
@@ -608,6 +613,7 @@ export function MobileAlgoList({ nav }: { nav: Nav }) {
           <List>
             <Row glyph={<Icons.heart size={16} stroke={2.4}/>} tint="var(--danger)" label="PALS" sub="Dosis pediatri & algoritma resusitasi" onClick={() => nav.push({ screen: "pals" })}/>
             <Row glyph={<Icons.activity size={16} stroke={2.4}/>} tint="var(--warning)" label="Post-ROSC Care" sub="Checklist perawatan pasca ROSC" onClick={() => nav.push({ screen: "rosc" })}/>
+            <Row glyph={<Icons.calculator size={16} stroke={2.4}/>} tint="#34C759" label="Vasopressor" sub="Panduan & kalkulator vasopressor" onClick={() => nav.push({ screen: "vaso" })}/>
           </List>
           <SectionFooter>Mengikuti AHA 2025 + PERKI 2021 (BHJL &amp; BHJD).</SectionFooter>
           <div style={{ height: 24 }}/>

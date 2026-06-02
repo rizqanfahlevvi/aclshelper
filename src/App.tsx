@@ -46,7 +46,7 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
     if (screen === 'dashboard') return '/';
     if (screen === 'algo' && id === 'pals')      return '/pals';
     if (screen === 'algo' && id === 'rosc-care') return '/rosc';
-    if (screen === 'calc' && id === 'vaso')       return '/vaso';
+    if (screen === 'algo' && id === 'vaso')       return '/vaso';
     return id ? `/${screen}/${id}` : `/${screen}`;
   }
   const frame = stack[tab][stack[tab].length - 1];
@@ -78,7 +78,7 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
     case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id          };
     case 'pals':  return { tab: 'algo',  frame: { screen: 'pals' },                                        deskScreen: 'algo',      deskId: 'pals'      };
-    case 'vaso':  return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
+    case 'vaso':  return { tab: 'algo',  frame: { screen: 'vaso' },                                        deskScreen: 'algo',      deskId: 'vaso'      };
     case 'rosc':  return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
     default:      return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
@@ -540,7 +540,6 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
-      if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -550,6 +549,7 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       if (f.screen === 'pals') return <PalsScreen nav={nav} isMobile/>;
       if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
+      if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
       return <MobileAlgoList nav={nav}/>;
     }
     if (tab === 'drugs') {
@@ -676,7 +676,7 @@ export default function App() {
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso'] as string[]).includes(topFrame.screen))}
+                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);

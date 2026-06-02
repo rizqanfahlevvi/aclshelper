@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
 import { RhythmStrip, EkgImage } from '../../components/acls';
-import { PalsScreen, RoscScreen } from '../tools';
+import { PalsScreen, RoscScreen, VasoScreen } from '../tools';
 import type { Algorithm, Drug, Rhythm } from '../../types';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
@@ -20,7 +20,7 @@ const SIDEBAR_NAV = [
   { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
   { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
-  { key: "calc",      label: "Kalkulator",  desc: "8 kalkulator + vasopressor",  icon: Icons.calculator },
+  { key: "calc",      label: "Kalkulator",  desc: "8 skoring kardiovaskular",     icon: Icons.calculator },
 ];
 const SIDEBAR_QUICK = [
   { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
@@ -433,8 +433,9 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
   }, [selected, id]);
 
   const SPECIAL_ALGOS = [
-    { key: 'pals',      label: 'PALS',          sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)' },
+    { key: 'pals',      label: 'PALS',          sub: 'Dosis pediatri & algoritma resusitasi', tint: 'var(--danger)'  },
     { key: 'rosc-care', label: 'Post-ROSC Care', sub: 'Checklist perawatan pasca ROSC',        tint: 'var(--warning)' },
+    { key: 'vaso',      label: 'Vasopressor',    sub: 'Panduan & kalkulator vasopressor',      tint: '#34C759'        },
   ];
 
   const [algoQ, setAlgoQ] = useState('');
@@ -451,9 +452,11 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
 
   const isPals = id === 'pals';
   const isRoscCare = id === 'rosc-care';
+  const isVaso = id === 'vaso';
   const crumb =
     isPals     ? ['Algoritma', 'PALS'] :
     isRoscCare ? ['Algoritma', 'Post-ROSC Care'] :
+    isVaso     ? ['Algoritma', 'Vasopressor'] :
     id ? ['Algoritma', algo.label] : ['Algoritma'];
 
   return (
@@ -487,7 +490,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
                 ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
                 : filteredAlgos.map(a => (
                 <button key={a.key} onClick={() => onPick('algo', a.key)}
-                  className={"acls-list-item " + (!isPals && !isRoscCare && id === a.key ? "active" : "")}>
+                  className={"acls-list-item " + (!isPals && !isRoscCare && !isVaso && id === a.key ? "active" : "")}>
                   <span style={{ width: 6, height: 30, borderRadius: 3, background: a.tint, flexShrink: 0 }}/>
                   <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                     <div className="t-callout" style={{ fontWeight: 600 }}>{a.label}</div>
@@ -523,6 +526,8 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
           <PalsScreen/>
         ) : isRoscCare ? (
           <RoscScreen/>
+        ) : isVaso ? (
+          <VasoScreen/>
         ) : !id ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
             justifyContent: "center", gap: 10, color: "var(--label-tertiary)" }}>

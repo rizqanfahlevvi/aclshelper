@@ -3,7 +3,6 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
-import { VasoScreen } from '../tools';
 
 /* ============================================================
    CalcFieldInput
@@ -283,33 +282,6 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
           </div>
         </div>
       ))}
-      {/* Vasopressor — special entry */}
-      <div style={{ marginBottom: 24 }}>
-        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>PANDUAN KLINIS</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <button
-            onClick={() => nav.push({ screen: 'vaso' })}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px',
-              background: 'var(--bg-primary)', border: 'none', cursor: 'pointer',
-              textAlign: 'left', width: '100%',
-            }}
-          >
-            <div style={{
-              width: 40, height: 40, borderRadius: 11, background: '#34C759',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(52,199,89,0.35)',
-            }}>
-              <Icons.droplet size={20} stroke={1.8} style={{ color: '#fff' }}/>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="t-callout" style={{ fontWeight: 600 }}>Vasopressor & Inotrope</div>
-              <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Referensi & kalkulator titrasi infus</div>
-            </div>
-            <Icons.chevR size={16} stroke={2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -435,15 +407,13 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
   const [selectedKey, setSelectedKey] = useState(initialId || CALCULATORS[0].key);
   const [calcQ, setCalcQ] = useState('');
-  const isVaso = selectedKey === 'vaso';
-  const calc = isVaso ? CALCULATORS[0] : (CALCULATORS.find(c => c.key === selectedKey) || CALCULATORS[0]);
+  const calc = CALCULATORS.find(c => c.key === selectedKey) || CALCULATORS[0];
   const filtered = calcQ.trim()
     ? CALCULATORS.filter(c =>
         c.name.toLowerCase().includes(calcQ.toLowerCase()) ||
         c.description.toLowerCase().includes(calcQ.toLowerCase())
       )
     : CALCULATORS;
-  const showVaso = !calcQ || 'vasopressor inotrope'.includes(calcQ.toLowerCase());
 
   const initValues = useMemo(() => {
     const v: Record<string, number | string | boolean> = {};
@@ -462,7 +432,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
     setValues(initValues);
   }, [calc.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const result = useMemo(() => isVaso ? null : calc.compute(values), [calc, values, isVaso]);
+  const result = useMemo(() => calc.compute(values), [calc, values]);
   const isFibrinolytic = calc.key === 'fibrinolytic';
 
   return (
@@ -470,12 +440,6 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
       <div className="acls-topbar">
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ color: 'var(--label-primary)', fontWeight: 600 }}>Kalkulator</span>
-          {isVaso && (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              <span style={{ color: 'var(--label-primary)', fontWeight: 600 }}>Vasopressor & Inotrope</span>
-            </>
-          )}
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', flex: 1, overflow: 'hidden' }}>
@@ -512,13 +476,13 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 6px 8px' }}>
               KALKULATOR · {filtered.length}
             </div>
-            {filtered.length === 0 && !showVaso
+            {filtered.length === 0
               ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
               : filtered.map(c => (
                 <button
                   key={c.key}
                   onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                  className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
+                  className={'acls-list-item ' + (selectedKey === c.key ? 'active' : '')}
                 >
                   <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
                   <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -528,89 +492,70 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                 </button>
               ))
             }
-            {showVaso && (
-              <>
-                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '10px 6px 8px' }}>PANDUAN KLINIS</div>
-                <button
-                  onClick={() => { setSelectedKey('vaso'); onPick('calc', 'vaso'); }}
-                  className={'acls-list-item ' + (isVaso ? 'active' : '')}
-                >
-                  <span style={{ width: 6, height: 30, borderRadius: 3, background: '#34C759', flexShrink: 0 }}/>
-                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <div className="t-callout" style={{ fontWeight: 600 }}>Vasopressor & Inotrope</div>
-                    <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Referensi & kalkulator titrasi</div>
-                  </div>
-                </button>
-              </>
-            )}
           </div>
         </div>
 
-        {/* Right panel */}
-        {isVaso ? (
-          <VasoScreen/>
-        ) : (
-          <div style={{ overflowY: 'auto', padding: '20px 28px 40px' }}>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 14, background: calc.tint,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 6px 18px ${calc.tint}44`,
-              }}>
-                <Icons.calculator size={26} stroke={1.8} style={{ color: '#fff' }}/>
-              </div>
-              <div>
-                <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KALKULATOR KLINIS</div>
-                <h2 className="t-title-1" style={{ margin: '2px 0 2px' }}>{calc.name}</h2>
-                <div className="t-callout" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
-              </div>
+        {/* Right panel: detail */}
+        <div style={{ overflowY: 'auto', padding: '20px 28px 40px' }}>
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 14, background: calc.tint,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 6px 18px ${calc.tint}44`,
+            }}>
+              <Icons.calculator size={26} stroke={1.8} style={{ color: '#fff' }}/>
             </div>
-
-            <CalcResultBadge result={result} tint={calc.tint}/>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-              {isFibrinolytic ? (
-                <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
-              ) : (
-                calc.fields.map(f => (
-                  <CalcFieldInput
-                    key={f.key}
-                    field={f}
-                    value={values[f.key] ?? (f.type === 'checkbox' ? false : f.defaultValue ?? 0)}
-                    onChange={val => setValues(v => ({ ...v, [f.key]: val }))}
-                  />
-                ))
-              )}
+            <div>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KALKULATOR KLINIS</div>
+              <h2 className="t-title-1" style={{ margin: '2px 0 2px' }}>{calc.name}</h2>
+              <div className="t-callout" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
             </div>
-
-            <button
-              onClick={() => setValues(initValues)}
-              style={{
-                padding: '10px 20px', borderRadius: 10, background: 'var(--fill-quaternary)',
-                border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 500,
-              }}
-            >
-              Reset
-            </button>
-
-            {calc.notes && calc.notes.length > 0 && (
-              <div style={{
-                marginTop: 20, padding: '14px 16px', borderRadius: 12,
-                background: 'rgba(0,0,0,0.03)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
-              }}>
-                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>CATATAN KLINIS</div>
-                {calc.notes.map((n, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < calc.notes!.length - 1 ? 6 : 0 }}>
-                    <span style={{ color: 'var(--label-tertiary)' }}>•</span>
-                    <span className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, flex: 1 }}>{n}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div style={{ marginTop: 16, color: 'var(--label-tertiary)', fontSize: 11 }}>{calc.source}</div>
           </div>
-        )}
+
+          <CalcResultBadge result={result} tint={calc.tint}/>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+            {isFibrinolytic ? (
+              <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
+            ) : (
+              calc.fields.map(f => (
+                <CalcFieldInput
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? (f.type === 'checkbox' ? false : f.defaultValue ?? 0)}
+                  onChange={val => setValues(v => ({ ...v, [f.key]: val }))}
+                />
+              ))
+            )}
+          </div>
+
+          <button
+            onClick={() => setValues(initValues)}
+            style={{
+              padding: '10px 20px', borderRadius: 10, background: 'var(--fill-quaternary)',
+              border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 500,
+            }}
+          >
+            Reset
+          </button>
+
+          {calc.notes && calc.notes.length > 0 && (
+            <div style={{
+              marginTop: 20, padding: '14px 16px', borderRadius: 12,
+              background: 'rgba(0,0,0,0.03)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
+            }}>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>CATATAN KLINIS</div>
+              {calc.notes.map((n, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < calc.notes!.length - 1 ? 6 : 0 }}>
+                  <span style={{ color: 'var(--label-tertiary)' }}>•</span>
+                  <span className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, flex: 1 }}>{n}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ marginTop: 16, color: 'var(--label-tertiary)', fontSize: 11 }}>{calc.source}</div>
+        </div>
       </div>
     </div>
   );

@@ -273,7 +273,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
           <button onClick={nav.pop}
             style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
             <Icons.chevL size={16} stroke={2.5}/>
-            <span className="t-callout" style={{ fontWeight: 500 }}>Kalkulator</span>
+            <span className="t-callout" style={{ fontWeight: 500 }}>Algoritma</span>
           </button>
         </div>
       )}
