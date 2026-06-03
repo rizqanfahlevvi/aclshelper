@@ -155,7 +155,7 @@ body {
   background: var(--bg-tertiary);
   border-radius: 4px;
   padding: 1px 6px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-family: var(--font-mono);
   box-shadow: inset 0 0 0 0.5px var(--separator);
   color: var(--label-tertiary);
@@ -171,7 +171,7 @@ body {
   padding: 8px 12px;
   border-radius: 8px;
   color: var(--label-primary);
-  font-size: 14px; font-weight: 500;
+  font-size: 0.875rem; font-weight: 500;
   letter-spacing: -0.011em;
   text-align: left;
   border: 0; background: transparent;
@@ -238,7 +238,7 @@ body {
   width: 28px; height: 28px; border-radius: 8px;
   flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 13px;
+  font-weight: 700; font-size: 0.8125rem;
   font-family: var(--font-mono);
 }
 
@@ -293,7 +293,7 @@ body {
   width: 28px; height: 28px; border-radius: 8px;
   background: var(--accent-tint); color: var(--accent);
   display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 13px;
+  font-weight: 700; font-size: 0.8125rem;
   font-family: var(--font-mono);
   flex-shrink: 0;
 }
@@ -317,7 +317,7 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   border: 0; background: transparent; cursor: pointer;
   color: var(--label-tertiary);
-  font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
+  font-size: 0.625rem; font-weight: 500; letter-spacing: 0.005em;
   padding: 4px 0;
   touch-action: manipulation;
   transition: color var(--dur-fast), transform 120ms;
@@ -400,7 +400,7 @@ body {
 .flow-tag {
   display: inline-block;
   align-self: flex-start;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 2px 7px;
   border-radius: 5px;

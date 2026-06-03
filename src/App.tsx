@@ -449,7 +449,7 @@ export default function App() {
     return !isNaN(saved) && saved >= 0.75 && saved <= 1.5 ? saved : 1;
   });
   useEffect(() => {
-    document.documentElement.style.fontSize = fontScale === 1 ? '' : `${Math.round(fontScale * 100)}%`;
+    document.documentElement.style.fontSize = fontScale === 1 ? '' : `calc(clamp(13px, 1.5vw, 15px) * ${fontScale})`;
     localStorage.setItem('acls_font_scale', String(fontScale));
   }, [fontScale]);
 

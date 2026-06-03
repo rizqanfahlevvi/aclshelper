@@ -19,7 +19,7 @@ a { color: var(--accent); text-decoration: none; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px 0 28px;
   font-family: var(--font-sans);
-  font-weight: 600; font-size: 17px;
+  font-weight: 600; font-size: 1.0625rem;
   color: var(--label-primary);
 }
 .ios-statusbar .right {
@@ -39,7 +39,7 @@ a { color: var(--accent); text-decoration: none; }
 .ios-navbar .nb-btn {
   display: inline-flex; align-items: center; gap: 4px;
   color: var(--accent);
-  font-size: 17px; letter-spacing: -0.022em;
+  font-size: 1.0625rem; letter-spacing: -0.022em;
   font-weight: 400;
   height: 32px;
   border-radius: 16px;
@@ -54,14 +54,14 @@ a { color: var(--accent); text-decoration: none; }
 .ios-navbar .nb-title {
   position: absolute; left: 0; right: 0; top: 0; bottom: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 600; letter-spacing: -0.022em;
+  font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.022em;
   pointer-events: none;
 }
 
 /* Large title block (sits below nav bar) */
 .ios-large-title {
   padding: 4px 20px 8px;
-  font-size: 34px; font-weight: 700; letter-spacing: 0.011em;
+  font-size: 2.125rem; font-weight: 700; letter-spacing: 0.011em;
   line-height: 41px;
   color: var(--label-primary);
 }
@@ -75,7 +75,7 @@ a { color: var(--accent); text-decoration: none; }
   display: flex; align-items: center; gap: 6px;
   padding: 0 8px;
   color: var(--label-secondary);
-  font-size: 17px; letter-spacing: -0.022em;
+  font-size: 1.0625rem; letter-spacing: -0.022em;
 }
 .ios-search svg { flex-shrink: 0; }
 
@@ -93,7 +93,7 @@ a { color: var(--accent); text-decoration: none; }
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   color: var(--label-tertiary);
   padding: 4px 2px;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.005em;
+  font-size: 0.625rem; font-weight: 500; letter-spacing: 0.005em;
 }
 .ios-tabbar .tab.active { color: var(--accent); }
 .ios-tabbar .tab svg { width: 26px; height: 26px; }
@@ -111,13 +111,13 @@ a { color: var(--accent); text-decoration: none; }
    ============================================================ */
 .ios-section-header {
   padding: 22px 32px 6px;
-  font-size: 13px; font-weight: 400; letter-spacing: -0.005em;
+  font-size: 0.8125rem; font-weight: 400; letter-spacing: -0.005em;
   color: var(--label-secondary);
   text-transform: uppercase;
 }
 .ios-section-footer {
   padding: 8px 32px 14px;
-  font-size: 13px; color: var(--label-secondary); letter-spacing: -0.005em;
+  font-size: 0.8125rem; color: var(--label-secondary); letter-spacing: -0.005em;
 }
 
 .ios-list {
@@ -166,16 +166,16 @@ a { color: var(--accent); text-decoration: none; }
 }
 .ios-row .label {
   flex: 1; min-width: 0;
-  font-size: 17px; letter-spacing: -0.022em; color: var(--label-primary);
+  font-size: 1.0625rem; letter-spacing: -0.022em; color: var(--label-primary);
 }
 .ios-row .label .sub {
   display: block;
-  font-size: 13px; color: var(--label-secondary);
+  font-size: 0.8125rem; color: var(--label-secondary);
   margin-top: 2px;
 }
 .ios-row .value {
   margin-left: 8px;
-  font-size: 17px; letter-spacing: -0.022em;
+  font-size: 1.0625rem; letter-spacing: -0.022em;
   color: var(--label-secondary);
 }
 .ios-row .chev { margin-left: 6px; color: var(--label-tertiary); flex-shrink: 0; }
@@ -189,7 +189,7 @@ a { color: var(--accent); text-decoration: none; }
   height: 50px;
   padding: 0 18px;
   border-radius: var(--r-lg);
-  font-size: 17px; font-weight: 600; letter-spacing: -0.022em;
+  font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.022em;
   background: var(--accent);
   color: var(--accent-fg);
   box-shadow: none;
@@ -217,7 +217,7 @@ a { color: var(--accent); text-decoration: none; }
   box-shadow: none;
 }
 .ios-btn.destructive:active { opacity: 0.75; transform: scale(0.97); }
-.ios-btn.sm { height: 34px; padding: 0 14px; font-size: 15px; border-radius: 10px; }
+.ios-btn.sm { height: 34px; padding: 0 14px; font-size: 0.9375rem; border-radius: 10px; }
 .ios-btn.pill { border-radius: 999px; }
 .ios-btn.block { width: 100%; }
 
@@ -248,7 +248,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 .ios-segmented button {
   padding: 5px 12px;
-  font-size: 13px; font-weight: 500; letter-spacing: -0.005em;
+  font-size: 0.8125rem; font-weight: 500; letter-spacing: -0.005em;
   color: var(--label-primary);
   border-radius: 7px;
   min-height: 28px;
@@ -296,7 +296,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 .ios-field label {
   flex: 0 0 130px;
-  font-size: 17px; letter-spacing: -0.022em;
+  font-size: 1.0625rem; letter-spacing: -0.022em;
   color: var(--label-primary);
 }
 .ios-field input,
@@ -305,14 +305,14 @@ a { color: var(--accent); text-decoration: none; }
   border: none; outline: none;
   background: transparent;
   text-align: right;
-  font-size: 17px; letter-spacing: -0.022em;
+  font-size: 1.0625rem; letter-spacing: -0.022em;
   color: var(--label-primary);
   font-family: inherit;
 }
 .ios-field input::placeholder { color: var(--label-tertiary); }
 .ios-field .unit {
   margin-left: 6px;
-  font-size: 17px; color: var(--label-secondary);
+  font-size: 1.0625rem; color: var(--label-secondary);
 }
 
 /* Toggle (iOS switch) — flat iOS style */
@@ -349,7 +349,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 .ios-stepper button {
   width: 44px; height: 32px;
-  font-size: 18px; font-weight: 500;
+  font-size: 1.125rem; font-weight: 500;
   color: var(--label-primary);
   position: relative;
 }
@@ -365,13 +365,13 @@ a { color: var(--accent); text-decoration: none; }
   display: inline-flex; align-items: center; gap: 4px;
   min-height: 20px; padding: 2px 8px;
   border-radius: 999px;
-  font-size: 12px; font-weight: 600; letter-spacing: 0.005em;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.005em;
   background: var(--fill-tertiary);
   color: var(--label-primary);
 }
 .ios-badge.notification {
   background: var(--danger); color: #fff;
-  font-size: 13px; font-weight: 700; padding: 0 7px;
+  font-size: 0.8125rem; font-weight: 700; padding: 0 7px;
   min-width: 20px; height: 20px; justify-content: center;
   border-radius: 10px;
 }
@@ -379,7 +379,7 @@ a { color: var(--accent); text-decoration: none; }
   display: inline-flex; align-items: center;
   height: 22px; padding: 0 8px;
   border-radius: 6px;
-  font-size: 12px; font-weight: 600; letter-spacing: -0.005em;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: -0.005em;
 }
 .ios-tag.blue   { background: rgba(0,122,255,0.12);  color: var(--sys-blue); }
 .ios-tag.green  { background: rgba(52,199,89,0.16);  color: var(--sys-green); }
@@ -401,11 +401,11 @@ a { color: var(--accent); text-decoration: none; }
 }
 .ios-alert .icon { flex-shrink: 0; }
 .ios-alert .title {
-  font-size: 15px; font-weight: 600; letter-spacing: -0.011em;
+  font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.011em;
   margin-bottom: 2px;
 }
 .ios-alert .body {
-  font-size: 14px; color: var(--label-secondary); letter-spacing: -0.005em;
+  font-size: 0.875rem; color: var(--label-secondary); letter-spacing: -0.005em;
 }
 .ios-alert.warn { background: rgba(255,149,0,0.10); }
 .ios-alert.warn .title { color: var(--warning); }
