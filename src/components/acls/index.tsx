@@ -224,6 +224,183 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
 }
 
 /* ============================================================
+   ConductionDiagram — cardiac conduction system schematic
+   ============================================================ */
+type NodeState = 'active' | 'blocked' | 'ectopic' | 'inactive' | 'dim';
+interface ConductionState {
+  sa: NodeState; av: NodeState; his: NodeState;
+  lbb: NodeState; rbb: NodeState;
+  raPath: NodeState; laPath: NodeState;
+  rvFill: NodeState; lvFill: NodeState;
+  ectopicLabel?: string;
+  ectopicPos?: 'rv' | 'lv' | 'ra' | 'la';
+  caption?: string;
+}
+const CD_COLORS: Record<NodeState, string> = {
+  active:   '#34C759',
+  blocked:  '#FF3B30',
+  ectopic:  '#FF9500',
+  inactive: 'var(--label-quaternary)',
+  dim:      'var(--label-quaternary)',
+};
+const CONDUCTION_MAP: Record<string, ConductionState> = {
+  nsr:      { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'Konduksi Normal' },
+  af:       { sa:'inactive', av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'inactive', laPath:'inactive', rvFill:'active', lvFill:'active',
+               caption:'Fibrilasi Atrium — SA inaktif, AV konduksi ireguler' },
+  flutter:  { sa:'inactive', av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'ectopic', laPath:'inactive', rvFill:'active', lvFill:'active',
+               ectopicPos:'ra', ectopicLabel:'Reentry RA',
+               caption:'Flutter Atrium — sirkuit reentry RA' },
+  svt:      { sa:'inactive', av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'inactive', laPath:'inactive', rvFill:'active', lvFill:'active',
+               caption:'SVT — reentry nodal AV' },
+  av3:      { sa:'active',   av:'blocked',  his:'inactive', lbb:'inactive', rbb:'inactive',
+               raPath:'active', laPath:'active', rvFill:'ectopic', lvFill:'inactive',
+               ectopicPos:'rv', ectopicLabel:'Escape IDV',
+               caption:'AV Blok Komplit — escape idioventrikular' },
+  vt:       { sa:'inactive', av:'inactive', his:'inactive', lbb:'inactive', rbb:'inactive',
+               raPath:'inactive', laPath:'inactive', rvFill:'inactive', lvFill:'ectopic',
+               ectopicPos:'lv', ectopicLabel:'Fokus VT',
+               caption:'VT Monomorfik — fokus ektopik ventrikel' },
+  vf:       { sa:'inactive', av:'inactive', his:'inactive', lbb:'inactive', rbb:'inactive',
+               raPath:'inactive', laPath:'inactive', rvFill:'inactive', lvFill:'inactive',
+               caption:'VF — aktivitas chaotic tanpa konduksi terorganisir' },
+  torsades: { sa:'inactive', av:'inactive', his:'inactive', lbb:'inactive', rbb:'inactive',
+               raPath:'inactive', laPath:'inactive', rvFill:'inactive', lvFill:'inactive',
+               caption:'TdP — VT polimorfik terkait pemanjangan QT' },
+  asys:     { sa:'inactive', av:'inactive', his:'inactive', lbb:'inactive', rbb:'inactive',
+               raPath:'inactive', laPath:'inactive', rvFill:'inactive', lvFill:'inactive',
+               caption:'Asistol — tidak ada aktivitas listrik' },
+  pea:      { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'PEA — konduksi normal, tanpa output mekanik' },
+  lbbb:     { sa:'active',   av:'active',   his:'active', lbb:'blocked',  rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'dim',
+               caption:'LBBB — LBB terblokir, LV aktif via RBB (lambat)' },
+  wpw:      { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'WPW — jalur aksesori + konduksi normal' },
+  stemi:    { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'STEMI — konduksi normal, iskemia miokard' },
+  hyperk:   { sa:'dim',      av:'dim',      his:'dim',    lbb:'dim',      rbb:'dim',
+               raPath:'dim', laPath:'dim', rvFill:'dim', lvFill:'dim',
+               caption:'Hiperkalemia — konduksi melambat di seluruh sistem' },
+  brugada:  { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'blocked',
+               raPath:'active', laPath:'active', rvFill:'dim', lvFill:'active',
+               caption:'Brugada — pola RBB + repolarisasi abnormal RV' },
+  wellens:  { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'Wellens — konduksi normal, perubahan reperfusi gelombang T' },
+  dewinter: { sa:'active',   av:'active',   his:'active', lbb:'active',   rbb:'active',
+               raPath:'active', laPath:'active', rvFill:'active', lvFill:'active',
+               caption:'De Winter — konduksi normal, pola iskemia LAD proksimal' },
+};
+
+export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): JSX.Element | null {
+  const state = CONDUCTION_MAP[rhythmKey];
+  if (!state) return null;
+  const c = (s: NodeState) => CD_COLORS[s];
+  const ectopicCoords: Record<string, [number, number]> = {
+    ra: [70, 38], la: [130, 38], rv: [68, 105], lv: [132, 105],
+  };
+  const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
+  const atrialStroke = c(state.raPath === 'active' || state.laPath === 'active' ? 'active'
+    : state.raPath === 'ectopic' || state.laPath === 'ectopic' ? 'ectopic'
+    : state.raPath === 'dim' ? 'dim' : 'inactive');
+  const ventStroke = c(state.rvFill === 'active' || state.lvFill === 'active' ? 'active'
+    : state.rvFill === 'ectopic' || state.lvFill === 'ectopic' ? 'ectopic'
+    : state.rvFill === 'dim' ? 'dim' : 'inactive');
+
+  return (
+    <div style={{ background: 'var(--bg-tertiary)', borderRadius: 14, padding: '12px 14px 8px', boxShadow: 'var(--shadow-1)' }}>
+      <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>
+        SISTEM KONDUKSI JANTUNG
+      </div>
+      <svg viewBox="0 0 200 130" width="100%" style={{ display: 'block', overflow: 'visible' }}>
+        {/* Atrial chamber */}
+        <rect x="30" y="18" width="140" height="40" rx="14"
+          fill="none" stroke={atrialStroke} strokeWidth="1.5" opacity="0.5" />
+        {/* RA / LA divider */}
+        <line x1="100" y1="18" x2="100" y2="58" stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" />
+        {/* RA / LA fills */}
+        <rect x="31" y="19" width="68" height="38" rx="13" fill={c(state.raPath)} opacity="0.10" />
+        <rect x="101" y="19" width="68" height="38" rx="13" fill={c(state.laPath)} opacity="0.10" />
+        {/* RA / LA labels */}
+        <text x="65" y="44" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">RA</text>
+        <text x="135" y="44" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">LA</text>
+        {/* SA node */}
+        <circle cx="148" cy="28" r="6" fill={c(state.sa)} opacity="0.9" />
+        <text x="148" y="43" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="600">SA</text>
+        {/* SA → AV path */}
+        <line x1="148" y1="34" x2="100" y2="54" stroke={c(state.raPath)} strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+        {/* AV node */}
+        <circle cx="100" cy="58" r="6" fill={c(state.av)} opacity="0.9" />
+        <text x="113" y="56" textAnchor="start" fontSize="6.5" fill="var(--label-secondary)" fontWeight="600">AV</text>
+        {state.av === 'blocked' && (
+          <text x="114" y="65" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700">✕</text>
+        )}
+        {/* Bundle of His */}
+        <line x1="100" y1="64" x2="100" y2="74" stroke={c(state.his)} strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+        {/* Ventricular chamber */}
+        <path d="M40,72 L160,72 L172,128 L28,128 Z"
+          fill="none" stroke={ventStroke} strokeWidth="1.5" opacity="0.5" />
+        {/* RV / LV divider */}
+        <line x1="100" y1="72" x2="100" y2="128" stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" />
+        {/* RV / LV fills */}
+        <path d="M41,73 L99,73 L99,127 L29,127 Z" fill={c(state.rvFill)} opacity="0.10" />
+        <path d="M101,73 L159,73 L171,127 L101,127 Z" fill={c(state.lvFill)} opacity="0.10" />
+        {/* RBB */}
+        <line x1="100" y1="74" x2="65" y2="90" stroke={c(state.rbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
+        <circle cx="65" cy="90" r="3" fill={c(state.rbb)} opacity="0.8" />
+        <text x="46" y="91" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)" dominantBaseline="middle">RBB</text>
+        {state.rbb === 'blocked' && (
+          <text x="80" y="84" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700" dominantBaseline="middle">✕</text>
+        )}
+        {/* LBB */}
+        <line x1="100" y1="74" x2="135" y2="90" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
+        <circle cx="135" cy="90" r="3" fill={c(state.lbb)} opacity="0.8" />
+        <text x="154" y="91" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)" dominantBaseline="middle">LBB</text>
+        {state.lbb === 'blocked' && (
+          <text x="120" y="84" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700" dominantBaseline="middle">✕</text>
+        )}
+        {/* RV / LV labels */}
+        <text x="64" y="112" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">RV</text>
+        <text x="136" y="112" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">LV</text>
+        {/* AF — 3 staggered ectopic dots in RA */}
+        {rhythmKey === 'af' && (<>
+          <circle cx="55" cy="32" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.8" />
+          <circle cx="75" cy="40" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.8" style={{ animationDelay: '0.4s' }} />
+          <circle cx="60" cy="50" r="3.5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.7" style={{ animationDelay: '0.8s' }} />
+        </>)}
+        {/* WPW — dashed accessory pathway arc */}
+        {rhythmKey === 'wpw' && (
+          <path d="M148,30 Q178,55 162,76" fill="none" stroke="#FF9500"
+            strokeWidth="1.4" strokeDasharray="4 3" opacity="0.75" />
+        )}
+        {/* Generic ectopic dot (non-af) */}
+        {state.ectopicPos && rhythmKey !== 'af' && (
+          <circle cx={ex} cy={ey} r="6" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.85" />
+        )}
+        {state.ectopicPos && state.ectopicLabel && rhythmKey !== 'af' && (
+          <text x={ex} y={ey + 13} textAnchor="middle" fontSize="6"
+            fill={CD_COLORS.ectopic} fontWeight="600">{state.ectopicLabel}</text>
+        )}
+      </svg>
+      {state.caption && (
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 4, textAlign: 'center', lineHeight: 1.4 }}>
+          {state.caption}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
    FlowStep
    ============================================================ */
 /* ============================================================

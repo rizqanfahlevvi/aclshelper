@@ -470,3 +470,14 @@ body {
   50.01%, 100% { opacity: 0.25; }
 }
 
+/* ---------- Conduction Diagram ----------------------------- */
+@keyframes acls-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1;   }
+  50%       { transform: scale(1.6); opacity: 0.55; }
+}
+.acls-conduction-ectopic {
+  animation: acls-pulse 1.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
