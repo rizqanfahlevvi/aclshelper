@@ -609,4 +609,181 @@ export const CALCULATORS: Calculator[] = [
       'Etomidat dikontraindikasikan relatif pada sepsis — pertimbangkan ketamin sebagai alternatif',
     ],
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 11. TIMI Risk Score for UA/NSTEMI                                   */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'timi-ua',
+    name: 'TIMI UA/NSTEMI',
+    short: 'TIMI UA',
+    category: 'ACS / Koroner',
+    tint: '#FF6B35',
+    description: 'Risiko 14 hari MACE pada UA/NSTEMI',
+    source: 'Antman et al. JAMA 2000; AHA/ACC Guidelines',
+    fields: [
+      { key: 'age65',      label: 'Usia ≥ 65 tahun',                               type: 'checkbox', points: 1 },
+      { key: 'riskFactor', label: '≥ 3 faktor risiko KAD',                         type: 'checkbox', points: 1,
+        description: 'Riwayat keluarga, hipertensi, hiperkolesterol, DM, perokok aktif' },
+      { key: 'stenosis',   label: 'Stenosis koroner ≥ 50% yang diketahui',         type: 'checkbox', points: 1 },
+      { key: 'stChange',   label: 'Deviasi segmen ST ≥ 0.5 mm pada EKG',           type: 'checkbox', points: 1 },
+      { key: 'angina2',    label: '≥ 2 episode angina dalam 24 jam terakhir',       type: 'checkbox', points: 1 },
+      { key: 'aspirin',    label: 'Penggunaan Aspirin dalam 7 hari terakhir',       type: 'checkbox', points: 1 },
+      { key: 'marker',     label: 'Peningkatan marker jantung (Troponin / CK-MB)', type: 'checkbox', points: 1 },
+    ],
+    compute: (v) => {
+      const score = (['age65','riskFactor','stenosis','stChange','angina2','aspirin','marker'] as const)
+        .reduce((s, k) => s + (v[k] ? 1 : 0), 0);
+      const riskMap: Record<number, { pct: string; label: string; color: string }> = {
+        0: { pct: '5%',  label: 'Risiko Rendah',          color: '#34C759' },
+        1: { pct: '5%',  label: 'Risiko Rendah',          color: '#34C759' },
+        2: { pct: '8%',  label: 'Risiko Rendah',          color: '#34C759' },
+        3: { pct: '13%', label: 'Risiko Menengah',        color: '#FF9500' },
+        4: { pct: '20%', label: 'Risiko Menengah',        color: '#FF9500' },
+        5: { pct: '26%', label: 'Risiko Tinggi',          color: '#FF3B30' },
+        6: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#FF3B30' },
+        7: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#FF3B30' },
+      };
+      const r = riskMap[score] || riskMap[7];
+      return {
+        score,
+        label: r.label,
+        risk: `Risiko MACE 14 hari: ${r.pct}`,
+        color: r.color,
+        detail: score <= 2
+          ? 'Pertimbangkan observasi + strategi konservatif dengan evaluasi ulang'
+          : score <= 4
+          ? 'Pertimbangkan early invasive strategy dalam 24–48 jam (angiografi)'
+          : 'Strategi invasif dini direkomendasikan (angiografi segera)',
+      };
+    },
+    notes: [
+      'TIMI UA/NSTEMI memprediksi gabungan: kematian, MI baru, atau iskemia berat yang butuh revaskularisasi darurat dalam 14 hari',
+      'Skor ≥3 → strategi invasif dini (NSTEMI ESC Grade I-A)',
+      'Faktor risiko KAD: riwayat keluarga 1st-degree, HTN, hiperlipidemia, DM, merokok aktif',
+      'Gunakan bersama GRACE score untuk stratifikasi lebih komprehensif',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 12. TIMI Risk Score for STEMI                                       */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'timi-stemi',
+    name: 'TIMI STEMI',
+    short: 'TIMI STEMI',
+    category: 'ACS / Koroner',
+    tint: '#FF3B30',
+    description: 'Prediksi mortalitas 30 hari pada STEMI',
+    source: 'Morrow et al. Circulation 2000; InTIME II Trial',
+    fields: [
+      { key: 'age',       label: 'Usia',                            type: 'select', defaultValue: 'lt65',
+        options: [
+          { label: '< 65 tahun',   value: 'lt65'  },
+          { label: '65–74 tahun',  value: '65-74' },
+          { label: '≥ 75 tahun',   value: 'gte75' },
+        ] },
+      { key: 'dm_htn',    label: 'DM, Hipertensi, atau Angina',      type: 'checkbox', points: 1 },
+      { key: 'sbpLow',    label: 'Tekanan Sistolik < 100 mmHg',      type: 'checkbox', points: 3 },
+      { key: 'hrHigh',    label: 'Laju Jantung > 100 bpm',           type: 'checkbox', points: 2 },
+      { key: 'killip',    label: 'Killip Kelas II–IV',               type: 'checkbox', points: 2,
+        description: 'Kelas II: ronki / S3; III: edema paru; IV: syok kardiogenik' },
+      { key: 'weightLow', label: 'Berat Badan < 67 kg',              type: 'checkbox', points: 1 },
+      { key: 'anterior',  label: 'Elevasi ST anterior atau LBBB',    type: 'checkbox', points: 1 },
+      { key: 'timeDelay', label: 'Waktu ke reperfusi > 4 jam',       type: 'checkbox', points: 1 },
+    ],
+    compute: (v) => {
+      const agePts = v.age === 'gte75' ? 3 : v.age === '65-74' ? 2 : 0;
+      const score = agePts +
+        (v.dm_htn ? 1 : 0) + (v.sbpLow ? 3 : 0) + (v.hrHigh ? 2 : 0) +
+        (v.killip ? 2 : 0) + (v.weightLow ? 1 : 0) + (v.anterior ? 1 : 0) + (v.timeDelay ? 1 : 0);
+
+      // Approximate 30-day mortality from InTIME II
+      const mortalityMap: Array<[number, string, string, string]> = [
+        [1,  '0.8%',  'Risiko Rendah',    '#34C759'],
+        [2,  '1.6%',  'Risiko Rendah',    '#34C759'],
+        [3,  '2.2%',  'Risiko Rendah',    '#34C759'],
+        [4,  '4.4%',  'Risiko Menengah',  '#FF9500'],
+        [5,  '7.3%',  'Risiko Menengah',  '#FF9500'],
+        [6,  '10.6%', 'Risiko Tinggi',    '#FF3B30'],
+        [7,  '12.9%', 'Risiko Tinggi',    '#FF3B30'],
+        [8,  '17.4%', 'Risiko Tinggi',    '#FF3B30'],
+        [Infinity, '22–35%+', 'Risiko Sangat Tinggi', '#FF3B30'],
+      ];
+      const row = mortalityMap.find(([max]) => score <= max) || mortalityMap[mortalityMap.length - 1];
+      const [, pct, label, color] = row;
+
+      return {
+        score,
+        label,
+        risk: `Mortalitas 30 hari: ${pct}`,
+        color,
+        detail: score <= 3
+          ? 'Reperfusi segera, standar perawatan STEMI. Pertimbangkan fibrinolisis jika PCI tidak tersedia'
+          : score <= 5
+          ? 'PCI primer lebih diutamakan daripada fibrinolisis. Monitoring intensif 24–48 jam'
+          : 'Risiko tinggi — pertimbangkan IABP, dukungan hemodinamik, atau transfer emergensi ke pusat PCI',
+      };
+    },
+    notes: [
+      'TIMI STEMI memprediksi mortalitas 30 hari; skor lebih tinggi = mortalitas lebih tinggi',
+      'Killip I: tidak ada gagal jantung; II: ronki, S3, atau JVD; III: edema paru akut; IV: syok kardiogenik',
+      'Skor ≥5 → pertimbangkan PCI primer lebih aktif, transfer ke pusat kardiologi tersier jika diperlukan',
+      'Gunakan bersama GRACE dan strategi reperfusi untuk pengambilan keputusan STEMI',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 13. Wells Score for PE                                              */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'wells-pe',
+    name: 'Wells Score PE',
+    short: 'Wells PE',
+    category: 'Tromboembolisme',
+    tint: '#5856D6',
+    description: 'Probabilitas klinis emboli paru (PE)',
+    source: 'Wells et al. Lancet 1999; Thromb Haemost 2000',
+    fields: [
+      { key: 'dvtSigns',   label: 'Tanda/gejala klinis DVT',                             type: 'checkbox', points: 3,
+        description: 'Nyeri tekan ekstremitas bawah + pembengkakan' },
+      { key: 'altDx',      label: 'Diagnosis alternatif kurang mungkin dari PE',          type: 'checkbox', points: 3 },
+      { key: 'hrHigh',     label: 'Denyut jantung > 100 bpm',                            type: 'checkbox', points: 2 },
+      { key: 'immobile',   label: 'Imobilisasi atau operasi dalam 4 minggu terakhir',    type: 'checkbox', points: 2 },
+      { key: 'priorDvtPe', label: 'DVT atau PE sebelumnya',                              type: 'checkbox', points: 2 },
+      { key: 'hemoptysis', label: 'Hemoptisis',                                          type: 'checkbox', points: 1 },
+      { key: 'malignancy', label: 'Keganasan aktif',                                     type: 'checkbox', points: 1,
+        description: 'Terapi dalam 6 bulan terakhir atau paliatif' },
+    ],
+    compute: (v) => {
+      const score = (v.dvtSigns ? 3 : 0) + (v.altDx ? 3 : 0) + (v.hrHigh ? 2 : 0) +
+        (v.immobile ? 2 : 0) + (v.priorDvtPe ? 2 : 0) + (v.hemoptysis ? 1 : 0) + (v.malignancy ? 1 : 0);
+
+      // Two-level Wells (most commonly used in ED)
+      if (score > 4) {
+        return {
+          score,
+          label: 'PE Likely — Lakukan CT-PA',
+          risk: `Skor ${score} > 4 — probabilitas PE tinggi`,
+          color: '#FF3B30',
+          detail: 'CT pulmonary angiography (CT-PA) direkomendasikan sebagai langkah diagnostik berikutnya. Pertimbangkan antikoagulasi empiris sambil menunggu hasil imaging jika tidak ada kontraindikasi',
+        };
+      }
+      return {
+        score,
+        label: 'PE Unlikely — Periksa D-Dimer',
+        risk: `Skor ${score} ≤ 4 — probabilitas PE rendah`,
+        color: score <= 1 ? '#34C759' : '#FF9500',
+        detail: score <= 1
+          ? 'Pertimbangkan PERC Rule: jika semua 8 kriteria PERC terpenuhi, PE dapat disingkirkan tanpa D-dimer. Jika tidak, lakukan D-dimer'
+          : 'D-dimer sensitif; jika negatif (<500 ng/mL), PE dapat disingkirkan. Jika positif → CT-PA',
+      };
+    },
+    notes: [
+      'Two-level Wells (PE Likely vs Unlikely, cut-off 4) lebih direkomendasikan dibanding three-level untuk penggunaan klinis sehari-hari',
+      'Jika Wells ≤1 DAN PERC negatif → PE dapat disingkirkan tanpa D-dimer (ESC 2019)',
+      'D-dimer age-adjusted: batas atas = usia × 10 mcg/L untuk pasien ≥50 tahun',
+      'Pertimbangkan antikoagulasi empiris pada skor tinggi atau kondisi pasien tidak stabil',
+    ],
+  },
 ];
