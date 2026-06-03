@@ -269,7 +269,7 @@ export function EkgImage({ rhythm, style = {} }: { rhythm: Rhythm; style?: React
 
       {/* Credit label */}
       {status === 'loaded' && rhythm.imageCredit && (
-        <div style={{ fontSize: 10, color: 'var(--label-tertiary)',
+        <div style={{ fontSize: '0.625rem', color: 'var(--label-tertiary)',
           padding: '3px 8px', background: 'var(--fill-quaternary)',
           textAlign: 'right' }}>
           {rhythm.imageCredit}
@@ -338,7 +338,7 @@ export function FlowStep({ step, index, total, onAction, expandable = true }: { 
           <span className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>{index + 1} / {total}</span>
           {hasPearls && (
             <span style={{
-              fontSize: 16,
+              fontSize: '1rem',
               color: tone.tint,
               display: "inline-block",
               transform: open ? "rotate(90deg)" : "rotate(0deg)",
@@ -367,7 +367,7 @@ export function FlowStep({ step, index, total, onAction, expandable = true }: { 
 
       {hasPearls && open && (
         <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "var(--fill-quaternary)", animation: "acls-fade-in 150ms ease both" }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: tone.tint, marginBottom: 6 }}>CATATAN KLINIS</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: 700, letterSpacing: "0.06em", color: tone.tint, marginBottom: 6 }}>CATATAN KLINIS</div>
           {Array.isArray(step.pearls)
             ? (step.pearls as string[]).map((p: string, pi: number) => (
                 <div key={pi} className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5, marginBottom: pi < (step.pearls as string[]).length - 1 ? 4 : 0 }}>· {p}</div>
@@ -876,7 +876,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     return (
       <div className="cpr-workspace" style={{ justifyContent: "flex-start" }}>
         <div style={{ padding: "14px 16px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "0.5px solid var(--separator)" }}>
-          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: 15 }}>
+          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: '0.9375rem' }}>
             <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Keluar</span>
           </button>
           <div className="t-caption-2" style={{ color: "var(--danger)", letterSpacing: 0.5 }}>
@@ -1123,7 +1123,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     return (
       <div className="cpr-workspace" style={{ justifyContent: "flex-start" }}>
         <div style={{ padding: "14px 16px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "0.5px solid var(--separator)" }}>
-          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: 15 }}>
+          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: '0.9375rem' }}>
             <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Keluar</span>
           </button>
           <div className="t-caption-2" style={{ color: "var(--danger)", letterSpacing: 0.5 }}>
@@ -1233,7 +1233,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 {/* Warning jika pernah VF/pVT */}
                 {everShockable && (
                   <div style={{ padding: "10px 12px", borderRadius: 10, background: "rgba(255,196,0,0.12)", boxShadow: "inset 0 0 0 0.5px rgba(255,196,0,0.45)", marginBottom: 14, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+                    <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>⚠️</span>
                     <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
                       <strong>VF/pVT pernah terdeteksi</strong> selama resusitasi. Pada irama shockable, pertimbangkan upaya lebih lanjut sebelum menghentikan ALS.
                     </span>
@@ -1249,7 +1249,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                     "Tidak ada respons terhadap intervensi ALS yang adekuat",
                   ].map((item, i) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginTop: i > 0 ? 7 : 0, alignItems: "flex-start" }}>
-                      <span style={{ color: "var(--info)", fontWeight: 700, flexShrink: 0, fontSize: 13 }}>✓</span>
+                      <span style={{ color: "var(--info)", fontWeight: 700, flexShrink: 0, fontSize: '0.8125rem' }}>✓</span>
                       <span className="t-footnote" style={{ color: "var(--label-secondary)", lineHeight: 1.45 }}>{item}</span>
                     </div>
                   ))}
@@ -1258,11 +1258,11 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 {/* Actions */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <button onClick={handleStopALS}
-                    style={{ width: "100%", height: 50, borderRadius: 14, background: "var(--label-primary)", color: "var(--bg-primary)", border: 0, cursor: "pointer", fontSize: 16, fontWeight: 700 }}>
+                    style={{ width: "100%", height: 50, borderRadius: 14, background: "var(--label-primary)", color: "var(--bg-primary)", border: 0, cursor: "pointer", fontSize: '1rem', fontWeight: 700 }}>
                     Akhiri Resusitasi
                   </button>
                   <button onClick={() => setStopAlsOpen(false)}
-                    style={{ width: "100%", height: 44, borderRadius: 14, background: "var(--fill-tertiary)", color: "var(--label-primary)", border: 0, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+                    style={{ width: "100%", height: 44, borderRadius: 14, background: "var(--fill-tertiary)", color: "var(--label-primary)", border: 0, cursor: "pointer", fontSize: '0.9375rem', fontWeight: 600 }}>
                     Lanjutkan ALS
                   </button>
                 </div>
@@ -1281,7 +1281,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           {/* Header row — full width */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: '0.5px solid var(--separator)', flexShrink: 0, gap: 8 }}>
-            <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: 'var(--label-secondary)', fontSize: 15 }}>
+            <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: 'var(--label-secondary)', fontSize: '0.9375rem' }}>
               <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Keluar</span>
             </button>
             <div className="t-caption-2" style={{ color: 'var(--danger)', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
@@ -1292,7 +1292,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
               </svg>
-              <span style={{ fontSize: 11, fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
                 {soundOn ? `♩ ${CPR_BPM} BPM` : 'SENYAP'}
               </span>
             </button>
@@ -1308,14 +1308,14 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 10, alignItems: 'center' }}>
                   <div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>SIKLUS 2 MNT</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 40, fontWeight: 700, color: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--label-primary)', lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: '-0.02em' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2.5rem', fontWeight: 700, color: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--label-primary)', lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: '-0.02em' }}>
                       {fmtMs(cycleRemainingMs)}
                     </div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>tersisa · siklus {cycles}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>TOTAL</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.375rem', fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
                   </div>
                 </div>
                 <div style={{ height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', marginTop: 10, overflow: 'hidden' }}>
@@ -1373,7 +1373,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                       <div style={{ width: 9, height: 9, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
                       <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
                       {epiNextMs != null && !epiReady && (
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
                       )}
                     </div>
                     {curStep.actions?.includes('epi') && (
@@ -1472,7 +1472,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                       <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
                       <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
                         <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
-                        <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                        <div style={{ fontSize: '0.625rem', opacity: 0.85 }}>+{fmt(e.t)}</div>
                       </span>
                     </div>
                   );
@@ -1501,8 +1501,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                     style={{ transition: 'stroke-dashoffset 1s linear, stroke 300ms' }}/>
                 </svg>
                 <div style={{ position: 'absolute', textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 700, color: pulseCountdown > 3 ? 'var(--success)' : pulseCountdown > 0 ? 'var(--warning)' : 'var(--danger)', lineHeight: 1 }}>{pulseCountdown ?? 0}</div>
-                  <div style={{ fontSize: 10, color: 'var(--label-tertiary)', marginTop: 2 }}>dtk</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2.25rem', fontWeight: 700, color: pulseCountdown > 3 ? 'var(--success)' : pulseCountdown > 0 ? 'var(--warning)' : 'var(--danger)', lineHeight: 1 }}>{pulseCountdown ?? 0}</div>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--label-tertiary)', marginTop: 2 }}>dtk</div>
                 </div>
               </div>
               <div className="t-caption-1" style={{ color: 'var(--label-secondary)', textAlign: 'center' }}>Raba arteri karotis · jangan &gt; 10 detik</div>
@@ -1518,7 +1518,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                   </div>
                 </button>
                 <button onClick={closePulseCheck}
-                  style={{ height: 40, width: '100%', borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 13, fontWeight: 600, border: 0, cursor: 'pointer' }}>
+                  style={{ height: 40, width: '100%', borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: '0.8125rem', fontWeight: 600, border: 0, cursor: 'pointer' }}>
                   Tidak ada nadi — lanjut CPR
                 </button>
               </div>
@@ -1541,7 +1541,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div className="t-title-3">Log Kejadian ({log.length})</div>
                   <button onClick={() => setLogModalOpen(false)}
-                    style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--fill-tertiary)', border: 0, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--label-secondary)' }}>
+                    style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--fill-tertiary)', border: 0, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--label-secondary)' }}>
                     Tutup
                   </button>
                 </div>
@@ -1554,7 +1554,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                       <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
                       <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
                         <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
-                        <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                        <div style={{ fontSize: '0.625rem', opacity: 0.85 }}>+{fmt(e.t)}</div>
                       </span>
                     </div>
                   );
@@ -1573,7 +1573,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     <div className="cpr-workspace">
       <div className="cpr-header">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px 4px", gap: 8 }}>
-          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: 15 }}>
+          <button onClick={onClose} className="ios-btn plain" style={{ height: 32, padding: 0, color: "var(--label-secondary)", fontSize: '0.9375rem' }}>
             <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Keluar</span>
           </button>
           <div className="t-caption-2" style={{ color: "var(--danger)", letterSpacing: 0.5, whiteSpace: "nowrap" }}>
@@ -1584,7 +1584,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
             </svg>
-            <span style={{ fontSize: 11, fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
               {soundOn ? `♩ ${CPR_BPM} BPM` : 'SENYAP'}
             </span>
           </button>
@@ -1594,14 +1594,14 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, alignItems: "center" }}>
             <div>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>SIKLUS 2 MNT</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 32, fontWeight: 700, color: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--label-primary)", lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: "-0.02em" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: '2rem', fontWeight: 700, color: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--label-primary)", lineHeight: 1.1, fontFeatureSettings: '"tnum"', marginTop: 1, letterSpacing: "-0.02em" }}>
                 {fmtMs(cycleRemainingMs)}
               </div>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 2 }}>tersisa · siklus {cycles}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>TOTAL</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.125rem', fontWeight: 600, fontFeatureSettings: '"tnum"', marginTop: 1 }}>{fmt(elapsed)}</div>
             </div>
           </div>
           <div style={{ height: 5, borderRadius: 3, background: "var(--fill-tertiary)", marginTop: 8, overflow: "hidden" }}>
@@ -1665,7 +1665,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <div style={{ width: 9, height: 9, borderRadius: 5, background: 'var(--info)', animation: 'acls-blink 1s infinite', flexShrink: 0 }}/>
               <span className="t-caption-1" style={{ color: 'var(--info)', fontWeight: 600, flex: 1 }}>CPR berjalan · cek irama saat timer selesai</span>
               {epiNextMs != null && !epiReady && (
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--warning)', fontWeight: 600, whiteSpace: 'nowrap' }}>Epi {fmt(Math.ceil(epiRemainMs / 1000))}</span>
               )}
             </div>
 
@@ -1763,7 +1763,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
           <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LOG KEJADIAN</div>
           {log.length > 6 && (
             <button onClick={() => setLogModalOpen(true)}
-              style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', background: 'none', border: 0, cursor: 'pointer', padding: '2px 0' }}>
+              style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)', background: 'none', border: 0, cursor: 'pointer', padding: '2px 0' }}>
               Tampilkan semua ({log.length})
             </button>
           )}
@@ -1776,7 +1776,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
                 <span style={{ color: "var(--label-tertiary)", fontFamily: "var(--font-mono)", fontFeatureSettings: '"tnum"', textAlign: "right", flexShrink: 0, lineHeight: 1.25 }}>
                   <div style={{ color: "var(--label-secondary)", fontWeight: 600 }}>{e.wall}</div>
-                  <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                  <div style={{ fontSize: '0.625rem', opacity: 0.85 }}>+{fmt(e.t)}</div>
                 </span>
               </div>
             );
@@ -1804,8 +1804,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 style={{ transition: 'stroke-dashoffset 1s linear, stroke 300ms' }}/>
             </svg>
             <div style={{ position: 'absolute', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 700, color: pulseCountdown > 3 ? 'var(--success)' : pulseCountdown > 0 ? 'var(--warning)' : 'var(--danger)', lineHeight: 1 }}>{pulseCountdown ?? 0}</div>
-              <div style={{ fontSize: 10, color: 'var(--label-tertiary)', marginTop: 2 }}>dtk</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2.25rem', fontWeight: 700, color: pulseCountdown > 3 ? 'var(--success)' : pulseCountdown > 0 ? 'var(--warning)' : 'var(--danger)', lineHeight: 1 }}>{pulseCountdown ?? 0}</div>
+              <div style={{ fontSize: '0.625rem', color: 'var(--label-tertiary)', marginTop: 2 }}>dtk</div>
             </div>
           </div>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)', textAlign: 'center' }}>Raba arteri karotis · jangan &gt; 10 detik</div>
@@ -1821,7 +1821,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               </div>
             </button>
             <button onClick={closePulseCheck}
-              style={{ height: 40, width: '100%', borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 13, fontWeight: 600, border: 0, cursor: 'pointer' }}>
+              style={{ height: 40, width: '100%', borderRadius: 10, background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: '0.8125rem', fontWeight: 600, border: 0, cursor: 'pointer' }}>
               Tidak ada nadi — lanjut CPR
             </button>
           </div>
@@ -1844,7 +1844,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div className="t-title-3">Log Kejadian ({log.length})</div>
               <button onClick={() => setLogModalOpen(false)}
-                style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--fill-tertiary)', border: 0, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--label-secondary)' }}>
+                style={{ padding: '4px 12px', borderRadius: 8, background: 'var(--fill-tertiary)', border: 0, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--label-secondary)' }}>
                 Tutup
               </button>
             </div>
@@ -1857,7 +1857,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                   <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
                   <span style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', fontFeatureSettings: '"tnum"', textAlign: 'right', flexShrink: 0, lineHeight: 1.25 }}>
                     <div style={{ color: 'var(--label-secondary)', fontWeight: 600 }}>{e.wall}</div>
-                    <div style={{ fontSize: 10, opacity: 0.85 }}>+{fmt(e.t)}</div>
+                    <div style={{ fontSize: '0.625rem', opacity: 0.85 }}>+{fmt(e.t)}</div>
                   </span>
                 </div>
               );

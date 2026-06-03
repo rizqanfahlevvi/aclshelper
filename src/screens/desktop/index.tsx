@@ -57,7 +57,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari…"
               style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none',
-                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}
+                color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}
             />
             {query && (
               <button onClick={() => setQuery('')}
@@ -96,7 +96,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
         {!collapsed && (
           <>
             {noResults && (
-              <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+              <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
             )}
             {quickItems.length > 0 && (
               <>
@@ -125,7 +125,7 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
         ) : (
           <button onClick={onOpenCpr} className="ios-btn block"
             style={{ background: "var(--danger)", color: "#fff", height: 46,
-              borderRadius: 12, fontSize: 15, fontWeight: 700, display: "flex", gap: 8,
+              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 700, display: "flex", gap: 8,
               boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
               justifyContent: 'center', alignItems: 'center', width: '100%' }}>
             <Icons.heartFill size={18}/> Code Blue
@@ -192,7 +192,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
       <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
           background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)',
+          <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
           </span>
@@ -220,7 +220,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
               <svg width="11" height="11" viewBox="0 0 24 24" fill="#0A66C2">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
               </svg>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2',
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#0A66C2',
                 letterSpacing: '0.06em', textTransform: 'uppercase' }}>Made by Rizqanfahlevvi</span>
             </a>
           </div>
@@ -239,8 +239,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
                   transition: 'transform 160ms', cursor: screen ? 'pointer' : 'default' }}
                 onMouseEnter={e => { if (screen) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 3 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -264,8 +264,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                   <Icons.heartFill size={26}/>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, fontSize: 17 }}>Code Blue</div>
-                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.0625rem' }}>Code Blue</div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: 3 }}>CPR Workspace</div>
                   </div>
                 </button>
               : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
@@ -277,8 +277,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                   <Icons.coffee size={26} stroke={2}/>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, fontSize: 17 }}>Dukung</div>
-                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 3 }}>saweria.co</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.0625rem' }}>Dukung</div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: 3 }}>saweria.co</div>
                   </div>
                 </a>
             }
@@ -322,7 +322,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
               <div className="t-caption-2" style={{ color: "var(--label-secondary)", whiteSpace: "nowrap" }}>ALGORITMA UTAMA</div>
               <div className="t-title-3" style={{ marginTop: 2 }}>Adult Cardiac Arrest</div>
             </div>
-            <button onClick={() => onPick("algo", "arrest")} style={{ color: "var(--accent)", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>Lihat lengkap →</button>
+            <button onClick={() => onPick("algo", "arrest")} style={{ color: "var(--accent)", fontSize: '0.8125rem', fontWeight: 600, whiteSpace: "nowrap" }}>Lihat lengkap →</button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {ACLS_FLOW_ARREST.slice(0, 5).map((s, i) => (
@@ -346,7 +346,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
               <div className="t-caption-2" style={{ color: "var(--label-secondary)", whiteSpace: "nowrap" }}>OBAT CODE BLUE</div>
               <div className="t-title-3" style={{ marginTop: 2 }}>Referensi cepat</div>
             </div>
-            <button onClick={() => onPick("drugs")} style={{ color: "var(--accent)", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>Semua obat →</button>
+            <button onClick={() => onPick("drugs")} style={{ color: "var(--accent)", fontSize: '0.8125rem', fontWeight: 600, whiteSpace: "nowrap" }}>Semua obat →</button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {ACLS_DRUGS.slice(0, 4).map(d => (
@@ -369,7 +369,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", whiteSpace: "nowrap" }}>PUSTAKA IRAMA</div>
             <div className="t-title-3" style={{ marginTop: 2 }}>Kenali sekilas</div>
           </div>
-          <button onClick={() => onPick("ekg")} style={{ color: "var(--accent)", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>Pustaka EKG →</button>
+          <button onClick={() => onPick("ekg")} style={{ color: "var(--accent)", fontSize: '0.8125rem', fontWeight: 600, whiteSpace: "nowrap" }}>Pustaka EKG →</button>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           {ACLS_RHYTHMS.slice(0, 4).map(r => (
@@ -468,7 +468,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
               <Icons.search size={13} stroke={2}/>
               <input value={algoQ} onChange={e => setAlgoQ(e.target.value)} placeholder="Cari algoritma…"
                 style={{ flex: 1, background: 'none', border: 0, outline: 'none',
-                  color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}/>
+                  color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}/>
               {algoQ && <button onClick={() => setAlgoQ('')}
                 style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
                   color: 'var(--label-tertiary)', display: 'flex' }}>
@@ -484,7 +484,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {filteredAlgos.length === 0 && filteredSpecial.length === 0
-                ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+                ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
                 : filteredAlgos.map(a => (
                 <button key={a.key} onClick={() => onPick('algo', a.key)}
                   className={"acls-list-item " + (!isPals && !isRoscCare && id === a.key ? "active" : "")}>
@@ -621,7 +621,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
                     </div>
                     <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "linear-gradient(180deg, " + relatedDrug.tint + "10, " + relatedDrug.tint + "04)" }}>
                       <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DOSIS</div>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 700, color: relatedDrug.tint, marginTop: 2 }}>{relatedDrug.dose}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: '0.9375rem', fontWeight: 700, color: relatedDrug.tint, marginTop: 2 }}>{relatedDrug.dose}</div>
                       <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 8 }}>PENGULANGAN</div>
                       <div className="t-footnote">{relatedDrug.repeat}</div>
                     </div>
@@ -667,7 +667,7 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
             <Icons.search size={13} stroke={2}/>
             <input value={drugQ} onChange={e => setDrugQ(e.target.value)} placeholder="Cari obat…"
               style={{ flex: 1, background: 'none', border: 0, outline: 'none',
-                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}/>
+                color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}/>
             {drugQ && <button onClick={() => setDrugQ('')}
               style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0, color: 'var(--label-tertiary)', display: 'flex' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -680,7 +680,7 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
           <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "0 6px 8px" }}>OBAT ACLS · {filteredDrugs.length}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {filteredDrugs.length === 0
-              ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+              ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
               : filteredDrugs.map(it => (
               <button key={it.key} onClick={() => setSelectedKey(it.key)} className={"acls-list-item " + (selectedKey === it.key ? "active" : "")}>
                 <span style={{ width: 6, height: 30, borderRadius: 3, background: it.tint, flexShrink: 0 }}/>
@@ -711,7 +711,7 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
           </div>
           <div className="acls-card-lg" style={{ background: "linear-gradient(180deg, " + d.tint + "12, " + d.tint + "04)" }}>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>DOSIS</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: d.tint, marginTop: 6 }}>{d.dose}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.375rem', fontWeight: 700, color: d.tint, marginTop: 6 }}>{d.dose}</div>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 14 }}>PENGULANGAN</div>
             <div className="t-callout" style={{ marginTop: 2 }}>{d.repeat}</div>
           </div>
@@ -725,7 +725,7 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
           <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
             {(Array.isArray(d.pearls) ? d.pearls : [d.pearls]).map((p: string, i: number) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, background: d.tint + "22", color: d.tint, display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{i + 1}</span>
+                <span style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, background: d.tint + "22", color: d.tint, display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: '0.75rem' }}>{i + 1}</span>
                 <span className="t-footnote" style={{ flex: 1, lineHeight: 1.5 }}>{p}</span>
               </div>
             ))}
@@ -770,7 +770,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
             {['all', ...allSeverities].map(f => (
               <button key={f} onClick={() => setEkgFilter(f)}
                 className={`ios-btn sm pill${ekgFilter === f ? ' active' : ''}`}
-                style={{ fontSize: 11, height: 26, padding: '0 9px' }}>
+                style={{ fontSize: '0.6875rem', height: 26, padding: '0 9px' }}>
                 {f === 'all' ? 'Semua' : (EKG_SEVERITY_LABELS[f] || f)}
               </button>
             ))}
@@ -841,7 +841,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>KRITERIA DIAGNOSTIK</div>
                 {r.criteria.map((c, i) => (
                   <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
-                    <span style={{ color: r.tint, fontWeight: 700, flexShrink: 0, fontSize: 12, marginTop: 2 }}>✓</span>
+                    <span style={{ color: r.tint, fontWeight: 700, flexShrink: 0, fontSize: '0.75rem', marginTop: 2 }}>✓</span>
                     <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{c}</span>
                   </div>
                 ))}
@@ -894,7 +894,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
                 <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "10px 14px 8px", borderBottom: "0.5px solid var(--separator)" }}>DIAGNOSIS BANDING</div>
                 {r.ddx.map((d, i) => (
                   <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
-                    <span style={{ color: "var(--label-tertiary)", flexShrink: 0, fontSize: 13, marginTop: 2 }}>↔</span>
+                    <span style={{ color: "var(--label-tertiary)", flexShrink: 0, fontSize: '0.8125rem', marginTop: 2 }}>↔</span>
                     <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{d}</span>
                   </div>
                 ))}
@@ -918,7 +918,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
             <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 8 }}>REFERENSI</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               {r.references.map((ref, i) => (
-                <div key={i} style={{ fontSize: 11, color: "var(--label-tertiary)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "2px solid var(--fill-secondary)" }}>
+                <div key={i} style={{ fontSize: '0.6875rem', color: "var(--label-tertiary)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "2px solid var(--fill-secondary)" }}>
                   {ref.url
                     ? <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>{ref.text}</a>
                     : ref.text}
@@ -952,7 +952,7 @@ export function DesktopHsTs({ onPick }: { onPick?: (type: string, id: string) =>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div className="t-callout" style={{ color: "var(--label-secondary)" }}>Ketuk untuk melihat clue klinis + tatalaksana. Cari sistematis tiap rhythm check.</div>
         {exp.size > 0 && <button onClick={() => setExp(new Set())}
-          style={{ fontSize: 12, color: "var(--accent)", background: "none", border: 0, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}>
+          style={{ fontSize: '0.75rem', color: "var(--accent)", background: "none", border: 0, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}>
           Tutup semua
         </button>}
       </div>
@@ -969,7 +969,7 @@ export function DesktopHsTs({ onPick }: { onPick?: (type: string, id: string) =>
                       cursor: "pointer", width: "100%", padding: "14px 16px",
                       background: open ? c.tint + "08" : "var(--bg-tertiary)", transition: "background 150ms, border-color 150ms" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>{g}</span>
+                      <span style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: '0.875rem' }}>{g}</span>
                       <div className="t-headline" style={{ flex: 1 }}>{c.name}</div>
                       <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform var(--dur-fast)", color: open ? c.tint : "var(--label-tertiary)" }}><Icons.chevDown size={16} stroke={2}/></span>
                     </div>

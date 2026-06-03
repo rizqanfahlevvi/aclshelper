@@ -134,7 +134,7 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
                 background: platform === k ? 'var(--bg-secondary)' : 'transparent',
                 color: platform === k ? 'var(--label-primary)' : 'var(--label-secondary)',
                 fontWeight: platform === k ? 600 : 400,
-                fontSize: 13,
+                fontSize: '0.8125rem',
                 boxShadow: platform === k ? 'var(--shadow-1)' : 'none',
                 transition: 'background 160ms, color 160ms, box-shadow 160ms',
               }}>
@@ -156,7 +156,7 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
                 </div>
                 <button onClick={handleInstall} className="ios-btn block" style={{
                   background: 'var(--danger)', color: '#fff',
-                  height: 50, borderRadius: 14, fontSize: 16, fontWeight: 700,
+                  height: 50, borderRadius: 14, fontSize: '1rem', fontWeight: 700,
                 }}>
                   Install Sekarang
                 </button>
@@ -189,7 +189,7 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
                   width: 24, height: 24, borderRadius: 12, flexShrink: 0,
                   background: 'var(--danger)', color: '#fff',
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 700, fontSize: 13,
+                  fontWeight: 700, fontSize: '0.8125rem',
                 }}>{i + 1}</span>
                 <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.55 }}>
                   {text}
@@ -203,13 +203,13 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
         <div style={{ borderTop: '0.5px solid var(--separator)', padding: '12px 20px 16px', display: 'flex', gap: 8 }}>
           <button onClick={onClose} style={{
             flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
-            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: '0.875rem',
           }}>
             Nanti
           </button>
           <button onClick={onDismiss} style={{
             flex: 1, height: 40, borderRadius: 12, border: 0, cursor: 'pointer',
-            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: 14,
+            background: 'var(--fill-tertiary)', color: 'var(--label-secondary)', fontSize: '0.875rem',
           }}>
             Jangan tampilkan lagi
           </button>
@@ -302,7 +302,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
       <div style={{ padding: '14px 20px 4px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
           background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)',
+          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
           </span>
@@ -326,7 +326,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#0A66C2">
             <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
           </svg>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2',
+          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#0A66C2',
             letterSpacing: '0.06em', textTransform: 'uppercase' }}>Made by Rizqanfahlevvi</span>
         </a>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -340,8 +340,8 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
               }}
               onMouseEnter={e => { if (c.screen) e.currentTarget.style.opacity = '0.75'; }}
               onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: c.color, lineHeight: 1 }}>{c.value}</div>
-              <div style={{ fontSize: 10, color: 'var(--label-secondary)', marginTop: 3 }}>{c.label}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700, color: c.color, lineHeight: 1 }}>{c.value}</div>
+              <div style={{ fontSize: '0.625rem', color: 'var(--label-secondary)', marginTop: 3 }}>{c.label}</div>
             </button>
           ))}
         </div>
@@ -391,8 +391,8 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                       <Icons.heartFill size={22}/>
                     </div>
                     <div style={{ flex: 1, textAlign: 'left' }}>
-                      <div style={{ fontSize: 15, fontWeight: 700 }}>Aktifkan Code Blue</div>
-                      <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
+                      <div style={{ fontSize: '0.9375rem', fontWeight: 700 }}>Aktifkan Code Blue</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: 2 }}>Ketuk untuk masuk CPR Workspace · timer aktif</div>
                     </div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
                       <polyline points="9 18 15 12 9 6"/>
@@ -410,8 +410,8 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                       <Icons.coffee size={22} stroke={2}/>
                     </div>
                     <div style={{ flex: 1, textAlign: 'left' }}>
-                      <div style={{ fontSize: 15, fontWeight: 700 }}>Dukung Pengembangan</div>
-                      <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>saweria.co/rizqanfahlevvi</div>
+                      <div style={{ fontSize: '0.9375rem', fontWeight: 700 }}>Dukung Pengembangan</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: 2 }}>saweria.co/rizqanfahlevvi</div>
                     </div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
                       <polyline points="9 18 15 12 9 6"/>
@@ -479,8 +479,8 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: '#fff',
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
                 </div>
               </button>
             ))}
@@ -803,7 +803,7 @@ export function MobileDrugList({ nav }: { nav: Nav }) {
           <div className="chips-scroll" style={{ padding: "0 16px 8px", display: "flex", gap: 6, overflowX: "auto" }}>
             {DRUG_FILTERS.map(f => (
               <button key={f.v} onClick={() => setFilter(f.v)} className="ios-btn sm pill"
-                style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
+                style={{ background: filter === f.v ? "var(--accent)" : "var(--fill-tertiary)", color: filter === f.v ? "var(--accent-fg)" : "var(--label-primary)", fontSize: '0.8125rem', height: 30, padding: "0 14px", flexShrink: 0 }}>
                 {f.label}
               </button>
             ))}
@@ -855,7 +855,7 @@ export function MobileDrugDetail({ nav, id }: { nav: Nav; id: string }) {
       <div style={{ padding: "0 16px" }}>
         <div style={{ padding: "14px 16px", borderRadius: 14, background: "linear-gradient(180deg, " + d.tint + "14, " + d.tint + "06)", boxShadow: "inset 0 0 0 0.5px " + d.tint + "33" }}>
           <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>Dosis awal</div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, color: d.tint, marginTop: 2 }}>{d.dose}</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.125rem', fontWeight: 700, color: d.tint, marginTop: 2 }}>{d.dose}</div>
           <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 12 }}>Pengulangan</div>
           <div className="t-callout" style={{ marginTop: 2 }}>{d.repeat}</div>
         </div>
@@ -866,7 +866,7 @@ export function MobileDrugDetail({ nav, id }: { nav: Nav; id: string }) {
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 6 }}>
         {(Array.isArray(d.pearls) ? d.pearls : [d.pearls]).map((p: string, i: number) => (
           <div key={i} style={{ padding: "10px 12px", borderRadius: 10, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", display: "flex", gap: 8, alignItems: "flex-start" }}>
-            <span style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 10, background: "var(--accent-tint)", color: "var(--accent)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{i + 1}</span>
+            <span style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 10, background: "var(--accent-tint)", color: "var(--accent)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: '0.75rem' }}>{i + 1}</span>
             <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.4 }}>{p}</span>
           </div>
         ))}
@@ -956,7 +956,7 @@ export function MobileEkgList({ nav }: { nav: Nav }) {
           <div className="chips-scroll" style={{ padding: "6px 16px 10px", display: "flex", gap: 6, overflowX: "auto" }}>
             {EKG_SEV_FILTERS.map(f => (
               <button key={f.v} onClick={() => setSev(f.v)} className={`ios-btn sm pill${sev === f.v ? ' active' : ''}`}
-                style={{ fontSize: 13, height: 30, padding: "0 14px", flexShrink: 0 }}>
+                style={{ fontSize: '0.8125rem', height: 30, padding: "0 14px", flexShrink: 0 }}>
                 {f.label}
               </button>
             ))}
@@ -1063,7 +1063,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
             <div style={{ background: "var(--bg-tertiary)", borderRadius: 12, boxShadow: "var(--shadow-1)", overflow: "hidden" }}>
               {r.criteria.map((c, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, padding: "9px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
-                  <span style={{ color: r.tint, fontWeight: 700, flexShrink: 0, fontSize: 13, marginTop: 1 }}>✓</span>
+                  <span style={{ color: r.tint, fontWeight: 700, flexShrink: 0, fontSize: '0.8125rem', marginTop: 1 }}>✓</span>
                   <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{c}</span>
                 </div>
               ))}
@@ -1122,7 +1122,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
             <div style={{ background: "var(--bg-tertiary)", borderRadius: 12, boxShadow: "var(--shadow-1)", overflow: "hidden" }}>
               {r.ddx.map((d, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, padding: "9px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
-                  <span style={{ color: "var(--label-tertiary)", flexShrink: 0, fontSize: 14, marginTop: 1 }}>↔</span>
+                  <span style={{ color: "var(--label-tertiary)", flexShrink: 0, fontSize: '0.875rem', marginTop: 1 }}>↔</span>
                   <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{d}</span>
                 </div>
               ))}
@@ -1139,7 +1139,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
             <div style={{ background: "rgba(255,196,0,0.10)", borderRadius: 12, border: "0.5px solid rgba(255,196,0,0.45)", padding: "12px 14px" }}>
               {r.pitfalls.map((p, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginTop: i > 0 ? 8 : 0, alignItems: "flex-start" }}>
-                  <span style={{ flexShrink: 0, fontSize: 13 }}>⚠️</span>
+                  <span style={{ flexShrink: 0, fontSize: '0.8125rem' }}>⚠️</span>
                   <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{p}</span>
                 </div>
               ))}
@@ -1154,7 +1154,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
           <SectionHeader>Referensi</SectionHeader>
           <div style={{ padding: "0 16px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
             {r.references.map((ref, i) => (
-              <div key={i} style={{ fontSize: 11, color: "var(--label-tertiary)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "2px solid var(--fill-secondary)" }}>
+              <div key={i} style={{ fontSize: '0.6875rem', color: "var(--label-tertiary)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "2px solid var(--fill-secondary)" }}>
                 {ref.url
                   ? <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>{ref.text}</a>
                   : ref.text}
@@ -1188,7 +1188,7 @@ export function MobileHsTs({ nav }: { nav: Nav }) {
       <button key={c.key} onClick={() => toggle(c.key)}
         style={{ padding: "12px 14px", borderRadius: 12, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)", textAlign: "left", border: open ? "0.5px solid " + c.tint + "55" : "0.5px solid transparent", display: "flex", flexDirection: "column", gap: open ? 8 : 0, transition: "border-color var(--dur-fast)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{letter}</span>
+          <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: c.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: '0.875rem' }}>{letter}</span>
           <span className="t-headline" style={{ flex: 1 }}>{c.name}</span>
           <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform var(--dur-fast)", color: "var(--label-tertiary)" }}><Icons.chevDown size={16} stroke={2}/></span>
         </div>
@@ -1265,8 +1265,8 @@ export function SpeedDial({ onClose, onPick }: { onClose: () => void; onPick: (k
               whiteSpace: 'nowrap',
               textAlign: 'right',
             }}>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</div>
-              {item.sub && <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginTop: 2 }}>{item.sub}</div>}
+              <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{item.label}</div>
+              {item.sub && <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2 }}>{item.sub}</div>}
             </div>
             {/* Icon circle */}
             <div style={{

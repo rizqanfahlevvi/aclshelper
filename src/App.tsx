@@ -210,7 +210,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
             </svg>
           </span>
-          <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.022em', color: 'var(--label-primary)' }}>
+          <span style={{ fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.022em', color: 'var(--label-primary)' }}>
             ACLS Helper
           </span>
         </button>
@@ -218,7 +218,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span style={{
           fontFamily: 'var(--font-mono)',
-          fontSize: 14,
+          fontSize: '0.875rem',
           fontWeight: 500,
           color: 'var(--label-secondary)',
           letterSpacing: '0.02em',
@@ -252,7 +252,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
               transition: 'background 200ms, color 200ms',
             }}
             aria-label="Ubah ukuran teks">
-            <span style={{ fontWeight: 700, fontSize: 14, lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em' }}>A</span>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em' }}>A</span>
           </button>
 
           {fontPopoverOpen && (
@@ -270,12 +270,12 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <span className="t-footnote" style={{ fontWeight: 600, color: 'var(--label-secondary)' }}>Ukuran Teks</span>
-                  <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
                     {Math.round(fontScale * 100)}%
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
                   <input
                     type="range"
                     min={0.75}
@@ -285,7 +285,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
                     onChange={e => onFontScaleChange(parseFloat(e.target.value))}
                     style={{ flex: 1, accentColor: 'var(--accent)', cursor: 'pointer', height: 4 }}
                   />
-                  <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
+                  <span style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
                 </div>
                 {fontScale !== 1 && (
                   <button
@@ -293,7 +293,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
                     style={{
                       marginTop: 14, width: '100%', padding: '9px', borderRadius: 10,
                       background: 'var(--fill-quaternary)', border: 'none', cursor: 'pointer',
-                      color: 'var(--label-secondary)', fontSize: 13, fontWeight: 500,
+                      color: 'var(--label-secondary)', fontSize: '0.8125rem', fontWeight: 500,
                     }}
                   >
                     Reset ke Normal
@@ -378,7 +378,7 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: Mobi
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari…"
               style={{ flex: 1, background: 'none', border: 0, outline: 'none',
-                color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit' }}
+                color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}
             />
             {query && (
               <button onClick={() => setQuery('')}
@@ -393,7 +393,7 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: Mobi
         </div>
         <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
           {noResults && (
-            <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+            <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
           )}
           {menuFiltered.map(it => (
             <button key={it.key}
@@ -428,7 +428,7 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: Mobi
         <div style={{ padding: '10px 14px 16px' }}>
           <button onClick={() => { onOpenCpr(); onClose(); }}
             style={{ background: 'var(--danger)', color: '#fff', height: 46, width: '100%',
-              borderRadius: 12, fontSize: 15, fontWeight: 700, display: 'flex', gap: 8,
+              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 700, display: 'flex', gap: 8,
               boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer',
               justifyContent: 'center', alignItems: 'center' }}>
             <Icons.heartFill size={18}/> Code Blue

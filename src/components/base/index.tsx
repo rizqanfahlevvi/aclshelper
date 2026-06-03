@@ -229,7 +229,7 @@ export const SearchField = ({ placeholder = "Cari", value = "", onChange, onFocu
       placeholder={placeholder}
       style={{
         flex: 1, border: "none", background: "transparent", outline: "none",
-        font: "inherit", color: "var(--label-primary)", fontSize: 17,
+        font: "inherit", color: "var(--label-primary)", fontSize: '1.0625rem',
         letterSpacing: "-0.022em", WebkitAppearance: "none", appearance: "none",
         minWidth: 0,
       }}
@@ -269,7 +269,7 @@ export const SectionHeader = ({ children, action }: { children?: React.ReactNode
 );
 
 export const SectionFooter = ({ children }: { children?: React.ReactNode }) => (
-  <div style={{ padding: "8px 32px 14px", fontSize: 13, color: "var(--label-secondary)", letterSpacing: "-0.005em" }}>{children}</div>
+  <div style={{ padding: "8px 32px 14px", fontSize: '0.8125rem', color: "var(--label-secondary)", letterSpacing: "-0.005em" }}>{children}</div>
 );
 
 export const List = ({ children, style }: { children?: React.ReactNode; style?: React.CSSProperties }) => (
@@ -365,7 +365,7 @@ export const Alert = ({ kind = "info", title, children, icon }: { kind?: string;
 export const ResultTile = ({ label, value, sub, tint = "var(--tint-fluid)" }: { label?: React.ReactNode; value?: React.ReactNode; sub?: React.ReactNode; tint?: string }) => (
   <div style={{ background: "var(--bg-tertiary)", borderRadius: "var(--r-card)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 2, boxShadow: "var(--shadow-1)" }}>
     <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>{label}</div>
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: tint, fontFeatureSettings: '"tnum"' }}>{value}</div>
+    <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.5rem', fontWeight: 700, color: tint, fontFeatureSettings: '"tnum"' }}>{value}</div>
     {sub && <div className="t-caption-1" style={{ color: "var(--label-tertiary)" }}>{sub}</div>}
   </div>
 );

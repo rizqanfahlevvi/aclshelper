@@ -70,7 +70,7 @@ function CalcFieldInput({ field, value, onChange }: {
               onClick={() => onChange(Math.max(field.min ?? -Infinity, num - step))}
               style={{
                 width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
-                border: 'none', cursor: 'pointer', fontSize: 18, fontWeight: 300,
+                border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
                 color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >−</button>
@@ -83,7 +83,7 @@ function CalcFieldInput({ field, value, onChange }: {
               }}
               style={{
                 width: 64, textAlign: 'center', background: 'var(--bg-primary)', border: 'none',
-                borderRadius: 8, padding: '6px 4px', fontSize: 16, fontWeight: 600,
+                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
                 color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
                 boxShadow: 'inset 0 0 0 0.5px var(--separator)', outline: 'none',
               }}
@@ -92,7 +92,7 @@ function CalcFieldInput({ field, value, onChange }: {
               onClick={() => onChange(Math.min(field.max ?? Infinity, num + step))}
               style={{
                 width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
-                border: 'none', cursor: 'pointer', fontSize: 18, fontWeight: 300,
+                border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
                 color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >+</button>
@@ -147,11 +147,11 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8 }}>
         <div style={{
-          fontSize: 48, fontWeight: 800, fontFamily: 'var(--font-mono)',
+          fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
           color: result.color, lineHeight: 1,
         }}>{result.score}</div>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 17, color: result.color }}>{result.label}</div>
+          <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: result.color }}>{result.label}</div>
           {result.risk && (
             <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
           )}
@@ -401,7 +401,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           style={{
             marginTop: 16, width: '100%', padding: '12px', borderRadius: 12,
             background: 'var(--fill-quaternary)', border: 'none', cursor: 'pointer',
-            color: 'var(--label-secondary)', fontSize: 14, fontWeight: 500,
+            color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500,
           }}
         >
           Reset
@@ -486,7 +486,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                 placeholder="Cari kalkulator…"
                 style={{
                   flex: 1, background: 'none', border: 0, outline: 'none',
-                  color: 'var(--label-primary)', fontSize: 13, fontFamily: 'inherit',
+                  color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit',
                 }}
               />
               {calcQ && (
@@ -509,7 +509,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
               KALKULATOR · {filtered.length}
             </div>
             {filtered.length === 0 && !filteredVaso
-              ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: 13 }}>Tidak ditemukan</div>
+              ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
               : filtered.map(c => (
                 <button
                   key={c.key}
@@ -583,7 +583,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             onClick={() => setValues(initValues)}
             style={{
               padding: '10px 20px', borderRadius: 10, background: 'var(--fill-quaternary)',
-              border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 500,
+              border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500,
             }}
           >
             Reset
@@ -604,7 +604,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             </div>
           )}
 
-          <div style={{ marginTop: 16, color: 'var(--label-tertiary)', fontSize: 11 }}>{calc.source}</div>
+          <div style={{ marginTop: 16, color: 'var(--label-tertiary)', fontSize: '0.6875rem' }}>{calc.source}</div>
         </div>
       </div>
     </div>

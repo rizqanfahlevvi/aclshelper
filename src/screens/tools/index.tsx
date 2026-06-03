@@ -29,14 +29,14 @@ function Stepper({ value, onChange, min = 1, max = 200, step = 1, unit = '' }: {
     style: {
       width: 34, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
       background: 'var(--fill-secondary)', color: 'var(--label-primary)',
-      fontSize: 20, fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '1.25rem', fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center',
     } as React.CSSProperties,
   });
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <button {...btn(-step)}>−</button>
-      <div style={{ minWidth: 60, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, color: 'var(--label-primary)' }}>
-        {value}{unit && <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 2, color: 'var(--label-secondary)' }}>{unit}</span>}
+      <div style={{ minWidth: 60, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: 'var(--label-primary)' }}>
+        {value}{unit && <span style={{ fontSize: '0.75rem', fontWeight: 400, marginLeft: 2, color: 'var(--label-secondary)' }}>{unit}</span>}
       </div>
       <button {...btn(+step)}>+</button>
     </div>
@@ -49,7 +49,7 @@ function TabBar({ tabs, active, onChange }: { tabs: string[]; active: string; on
       {tabs.map(t => (
         <button key={t} onClick={() => onChange(t)}
           style={{
-            flex: 1, padding: '6px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+            flex: 1, padding: '6px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600,
             background: active === t ? 'var(--bg-primary)' : 'none',
             color: active === t ? 'var(--label-primary)' : 'var(--label-secondary)',
             boxShadow: active === t ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
@@ -127,7 +127,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                       <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{drug.indication}</div>
                     </div>
                     <span style={{ marginLeft: 8, padding: '3px 8px', borderRadius: 6,
-                      background: drug.tint + '18', color: drug.tint, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                      background: drug.tint + '18', color: drug.tint, fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
                       {drug.route}
                     </span>
                   </div>
@@ -137,7 +137,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                       <span className="t-caption-2" style={{ color: drug.tint, fontWeight: 600 }}>
                         {drug.dosePerKg} {drug.doseUnit} × {weight} kg
                       </span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 18, color: drug.tint }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.125rem', color: drug.tint }}>
                         {fmt(clamped, unit)}
                       </span>
                     </div>
@@ -172,7 +172,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                   {algo.steps.map((step, i) => (
                     <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < algo.steps.length - 1 ? 8 : 0 }}>
                       <span style={{ width: 20, height: 20, borderRadius: 10, background: algo.tint + '22',
-                        color: algo.tint, fontSize: 11, fontWeight: 700, flexShrink: 0,
+                        color: algo.tint, fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0,
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</span>
                       <span className="t-footnote" style={{ lineHeight: 1.5, flex: 1, color: 'var(--label-primary)' }}>{step}</span>
                     </div>
@@ -218,8 +218,8 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
               style={{ padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
                 background: selKey === v.key ? v.tint + '18' : 'var(--fill-secondary)',
                 boxShadow: selKey === v.key ? `inset 0 0 0 1px ${v.tint}55` : 'none',
-                color: selKey === v.key ? v.tint : 'var(--label-primary)', fontSize: 13, fontWeight: selKey === v.key ? 700 : 400 }}>
-              {v.name} <span style={{ color: 'var(--label-secondary)', fontWeight: 400, fontSize: 12 }}>{v.doseRange}</span>
+                color: selKey === v.key ? v.tint : 'var(--label-primary)', fontSize: '0.8125rem', fontWeight: selKey === v.key ? 700 : 400 }}>
+              {v.name} <span style={{ color: 'var(--label-secondary)', fontWeight: 400, fontSize: '0.75rem' }}>{v.doseRange}</span>
             </button>
           ))}
         </div>
@@ -231,7 +231,7 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
             boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <div className="t-callout" style={{ fontWeight: 600 }}>Dosis</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 16 }}>{dose.toFixed(2)} {sel.doseUnit}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1rem' }}>{dose.toFixed(2)} {sel.doseUnit}</div>
             </div>
             <input type="range" min={sel.doseMin} max={sel.doseMax} step={(sel.doseMax - sel.doseMin) / 100}
               value={dose} onChange={e => setDose(parseFloat(e.target.value))}
@@ -253,7 +253,7 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
                 borderTop: i > 0 ? `0.5px solid ${sel.tint}22` : 'none', paddingTop: i > 0 ? 6 : 0, marginTop: i > 0 ? 6 : 0 }}>
                 <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{label}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 14, color: sel.tint }}>{value}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.875rem', color: sel.tint }}>{value}</span>
               </div>
             ))}
           </div>
@@ -304,7 +304,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                       <span className="t-callout" style={{ fontWeight: 700, color: v.tint }}>{v.name}</span>
                       {v.altName && <span className="t-caption-1" style={{ color: 'var(--label-secondary)', marginLeft: 6 }}>({v.altName})</span>}
                     </div>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: v.tint }}>{v.doseRange}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 600, color: v.tint }}>{v.doseRange}</span>
                   </div>
                   <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{v.mechanism}</div>
                 </div>
@@ -404,7 +404,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>PROGRES</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
-              <span style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-mono)', color: doneCount === totalItems ? '#34C759' : 'var(--label-primary)' }}>{doneCount}</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: doneCount === totalItems ? '#34C759' : 'var(--label-primary)' }}>{doneCount}</span>
               <span className="t-footnote" style={{ color: 'var(--label-secondary)' }}>/ {totalItems} item</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: 'var(--fill-secondary)', marginTop: 4 }}>
@@ -417,7 +417,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
               background: roscTime ? 'rgba(255,59,48,0.1)' : 'rgba(52,199,89,0.1)',
               color: roscTime ? 'var(--danger)' : '#34C759' }}>
             <div className="t-caption-2" style={{ fontWeight: 700 }}>{roscTime ? 'ROSC' : 'Catat'}</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 800, marginTop: 2 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 800, marginTop: 2 }}>
               {roscTime ? fmtElapsed(elapsed) : 'ROSC'}
             </div>
           </button>
@@ -457,7 +457,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                           <span className="t-callout" style={{ fontWeight: done ? 600 : 500, color: done ? 'var(--label-primary)' : 'var(--label-primary)' }}>{item.label}</span>
                           {item.target && (
                             <span style={{ padding: '2px 8px', borderRadius: 6, background: section.tint + '18',
-                              color: section.tint, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                              color: section.tint, fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
                               {item.target}
                             </span>
                           )}
@@ -476,7 +476,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
 
         <button onClick={() => { setChecked(new Set()); sessionStorage.removeItem('acls_rosc_checks'); }}
           style={{ width: '100%', padding: 12, borderRadius: 12, border: 'none', cursor: 'pointer',
-            background: 'var(--fill-quaternary)', color: 'var(--label-secondary)', fontSize: 14, fontWeight: 500 }}>
+            background: 'var(--fill-quaternary)', color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500 }}>
           Reset semua
         </button>
       </div>
