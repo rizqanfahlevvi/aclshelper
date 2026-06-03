@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Nav, Algorithm, Drug, Rhythm, CprRhythm, FlowStep as FlowStepType } from '../../types';
+import { useFavorites } from '../../utils/favorites';
 import {
   Icons, NavBar, LargeTitle, SearchField,
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
@@ -21,38 +22,7 @@ declare global {
   }
 }
 
-/* ============================================================
-   FAVORITES
-   ============================================================ */
-function useFavorites() {
-  const [favs, setFavs] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('acls_favorites') || '[]'); } catch { return []; }
-  });
-
-  useEffect(() => {
-    const sync = () => {
-      try { setFavs(JSON.parse(localStorage.getItem('acls_favorites') || '[]')); } catch {}
-    };
-    window.addEventListener('acls-favorites-changed', sync);
-    return () => window.removeEventListener('acls-favorites-changed', sync);
-  }, []);
-
-  const isFav = (type: string, key: string) => favs.some((f: { type: string; key: string }) => f.type === type && f.key === key);
-
-  const toggle = (type: string, key: string) => {
-    setFavs((prev: { type: string; key: string }[]) => {
-      const exists = prev.some((f: { type: string; key: string }) => f.type === type && f.key === key);
-      const next = exists
-        ? prev.filter((f: { type: string; key: string }) => !(f.type === type && f.key === key))
-        : [...prev, { type, key }];
-      try { localStorage.setItem('acls_favorites', JSON.stringify(next)); } catch {}
-      window.dispatchEvent(new Event('acls-favorites-changed'));
-      return next;
-    });
-  };
-
-  return { favs, isFav, toggle };
-}
+/* useFavorites imported from ../../utils/favorites */
 
 /* ============================================================
    INSTALL POPUP

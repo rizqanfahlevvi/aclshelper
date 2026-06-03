@@ -3,6 +3,7 @@ import { Icons } from '../../components/base';
 import { RhythmStrip, EkgImage } from '../../components/acls';
 import { PalsScreen, RoscScreen } from '../tools';
 import type { Algorithm, Drug, Rhythm } from '../../types';
+import { useFavorites } from '../../utils/favorites';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_FLOW_ARREST, ACLS_FLOW_BRADY, ACLS_FLOW_TACHY,
@@ -384,6 +385,8 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
         </div>
       </div>
 
+      <DesktopFavSection onPick={onPick}/>
+
       <div style={{ marginTop: 24, padding: "10px 16px", display: "flex", justifyContent: "space-between", gap: 12 }}>
         <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>ACLS Helper · v1.1 · Bagian dari ekosistem MDKit · penilaian klinis tetap diperlukan.</div>
         <div className="t-caption-2" style={{ color: "var(--label-tertiary)" }}>Sumber: PERKI 2021 + AHA 2025 · terakhir diperbarui 2026-05</div>
@@ -393,9 +396,71 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
 }
 
 /* ============================================================
+   DesktopFavSection — shown in Dashboard
+   ============================================================ */
+function DesktopFavSection({ onPick }: { onPick: (type: string, id?: string) => void }) {
+  const { favs } = useFavorites();
+  const favItems = useMemo(() => favs.slice(0, 6).map(f => {
+    if (f.type === 'algo') {
+      const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
+      return a ? { ...f, label: a.label, sub: a.sub, tint: a.tint } : null;
+    }
+    if (f.type === 'drug') {
+      const d = ACLS_DRUGS.find(x => x.key === f.key);
+      return d ? { ...f, label: d.name, sub: d.class, tint: d.tint } : null;
+    }
+    const r = ACLS_RHYTHMS.find(x => x.key === f.key);
+    return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+  }).filter(Boolean), [favs]);
+
+  const typeLabel = (type: string) =>
+    type === 'algo' ? 'Algoritma' : type === 'drug' ? 'Obat' : 'EKG';
+  const typeTarget = (type: string) =>
+    type === 'algo' ? 'algo' : type === 'drug' ? 'drugs' : 'ekg';
+
+  return (
+    <div style={{ marginTop: 20 }} className="acls-card-lg">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>FAVORIT SAYA</div>
+          <div className="t-title-3" style={{ marginTop: 2 }}>Akses cepat</div>
+        </div>
+        <Icons.bookmark size={18} stroke={2} style={{ color: "var(--label-tertiary)" }}/>
+      </div>
+      {favItems.length === 0 ? (
+        <div style={{ padding: "16px 0", textAlign: "center" }}>
+          <div className="t-callout" style={{ color: "var(--label-tertiary)", marginBottom: 4 }}>Belum ada favorit</div>
+          <div className="t-caption-1" style={{ color: "var(--label-quaternary)" }}>
+            Ketuk ikon 🔖 di algoritma, obat, atau ritme EKG untuk menyimpan
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {(favItems as Array<{ type: string; key: string; label: string; sub: string; tint: string }>).map(f => (
+            <button key={f.type + f.key}
+              onClick={() => onPick(typeTarget(f.type), f.key)}
+              className="acls-list-item"
+              style={{ borderRadius: 10, padding: "10px 10px", border: "0.5px solid var(--separator)" }}
+            >
+              <span style={{ width: 6, height: 32, borderRadius: 3, background: f.tint, flexShrink: 0 }}/>
+              <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                <div className="t-caption-2" style={{ color: "var(--label-tertiary)", marginBottom: 1 }}>{typeLabel(f.type).toUpperCase()}</div>
+                <div className="t-callout" style={{ fontWeight: 600 }}>{f.label}</div>
+                <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{f.sub}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
    Algorithm — split panel
    ============================================================ */
 export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: string, id: string) => void }) {
+  const { isFav, toggle } = useFavorites();
   const algo = ACLS_ALGORITHMS.find(a => a.key === id) || ACLS_ALGORITHMS[0];
   const flow =
     id === "brady"       ? ACLS_FLOW_BRADY :
@@ -533,9 +598,18 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
           <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", overflow: "hidden" }}>
             <div style={{ overflowY: "auto", padding: "20px 24px 40px", borderRight: "0.5px solid var(--separator-opaque)" }}>
               <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ALUR ALGORITMA</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                <h2 className="t-title-1" style={{ margin: "4px 0 4px" }}>{algo.label}</h2>
-                <span className="ios-tag" style={{ background: algo.tint + "1F", color: algo.tint, textTransform: "uppercase" }}>{algo.tag}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                <h2 className="t-title-1" style={{ margin: "4px 0 4px", flex: 1 }}>{algo.label}</h2>
+                <span className="ios-tag" style={{ background: algo.tint + "1F", color: algo.tint, textTransform: "uppercase", flexShrink: 0 }}>{algo.tag}</span>
+                <button onClick={() => toggle('algo', algo.key)} style={{
+                  width: 32, height: 32, borderRadius: 8, border: 0, cursor: 'pointer', flexShrink: 0,
+                  background: isFav('algo', algo.key) ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+                  color: isFav('algo', algo.key) ? 'var(--accent)' : 'var(--label-secondary)',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 180ms',
+                }}>
+                  <Icons.bookmark size={15} stroke={2}/>
+                </button>
               </div>
               <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16 }}>{algo.sub} · sumber: {algo.source || "AHA 2025"}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -651,6 +725,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
    Drugs — split panel
    ============================================================ */
 export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
+  const { isFav, toggle } = useFavorites();
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_DRUGS[0].key);
   const [drugQ, setDrugQ] = useState('');
   const d = ACLS_DRUGS.find(x => x.key === selectedKey) || ACLS_DRUGS[0];
@@ -698,11 +773,20 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
           <div style={{ width: 76, height: 76, borderRadius: 18, background: d.tint, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px " + d.tint + "33" }}>
             <Icons.pill size={34} stroke={2}/>
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>REFERENSI OBAT</div>
             <h2 className="t-title-1" style={{ margin: "2px 0 2px" }}>{d.name}</h2>
             <div className="t-callout" style={{ color: "var(--label-secondary)" }}>{d.class}</div>
           </div>
+          <button onClick={() => toggle('drug', d.key)} style={{
+            width: 36, height: 36, borderRadius: 10, border: 0, cursor: 'pointer', flexShrink: 0,
+            background: isFav('drug', d.key) ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+            color: isFav('drug', d.key) ? 'var(--accent)' : 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 180ms',
+          }}>
+            <Icons.bookmark size={17} stroke={2}/>
+          </button>
         </div>
         <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <div className="acls-card-lg">
@@ -755,6 +839,7 @@ const D_MORPH_FIELDS = [
 ];
 
 export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
+  const { isFav, toggle } = useFavorites();
   const [selectedKey, setSelectedKey] = useState(initialId || ACLS_RHYTHMS[0].key);
   const [ekgFilter, setEkgFilter] = useState('all');
   const r = ACLS_RHYTHMS.find(x => x.key === selectedKey) || ACLS_RHYTHMS[0];
@@ -794,11 +879,20 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
       </div>
       <div style={{ overflowY: "auto", padding: "20px 28px 40px" }}>
         <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>ANALISIS IRAMA</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 4 }}>
-          <h2 className="t-title-1" style={{ margin: "2px 0 0" }}>{r.name}</h2>
-          <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase", flexShrink: 0, marginLeft: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, gap: 8 }}>
+          <h2 className="t-title-1" style={{ margin: "2px 0 0", flex: 1 }}>{r.name}</h2>
+          <span className="ios-tag" style={{ background: r.tint + "22", color: r.tint, textTransform: "uppercase", flexShrink: 0 }}>
             {EKG_SEVERITY_LABELS[r.severity] || r.severity}
           </span>
+          <button onClick={() => toggle('ekg', r.key)} style={{
+            width: 32, height: 32, borderRadius: 8, border: 0, cursor: 'pointer', flexShrink: 0,
+            background: isFav('ekg', r.key) ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+            color: isFav('ekg', r.key) ? 'var(--accent)' : 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 180ms',
+          }}>
+            <Icons.bookmark size={15} stroke={2}/>
+          </button>
         </div>
 
         <EkgImage rhythm={r} style={{ marginTop: 16, marginBottom: 20, minHeight: 100 }} />

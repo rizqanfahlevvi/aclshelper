@@ -429,4 +429,184 @@ export const CALCULATORS: Calculator[] = [
       'Target door-to-needle ≤30 menit',
     ],
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 9. ABG / Acid-Base Interpreter                                       */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'abg',
+    name: 'ABG / Asidosis-Alkalosis',
+    short: 'ABG',
+    category: 'Kritis',
+    tint: '#AF52DE',
+    description: 'Interpretasi gas darah arteri step-by-step',
+    source: 'Brandis Acid-Base; AHA/ACCP Critical Care Guidelines',
+    fields: [
+      { key: 'ph',   label: 'pH Darah',       type: 'number', min: 6.5,  max: 8.0,  step: 0.01, defaultValue: 7.40, unit: '' },
+      { key: 'pco2', label: 'PaCO₂',          type: 'number', min: 5,    max: 120,  step: 1,    defaultValue: 40,   unit: 'mmHg' },
+      { key: 'hco3', label: 'HCO₃⁻',         type: 'number', min: 1,    max: 60,   step: 0.5,  defaultValue: 24,   unit: 'mEq/L' },
+      { key: 'na',   label: 'Na⁺ (opsional)', type: 'number', min: 100,  max: 180,  step: 1,    defaultValue: 140,  unit: 'mEq/L' },
+      { key: 'cl',   label: 'Cl⁻ (opsional)', type: 'number', min: 60,   max: 140,  step: 1,    defaultValue: 104,  unit: 'mEq/L' },
+    ],
+    compute: (v) => {
+      const ph   = Number(v.ph)   || 7.40;
+      const pco2 = Number(v.pco2) || 40;
+      const hco3 = Number(v.hco3) || 24;
+      const na   = Number(v.na)   || 140;
+      const cl   = Number(v.cl)   || 104;
+
+      // Step 1 — pH state
+      const phState = ph < 7.35 ? 'acidemia' : ph > 7.45 ? 'alkalemia' : 'normal';
+
+      // Step 2 — Primary disorder
+      let primary = '';
+      let primaryCode = '';
+      if (phState === 'acidemia') {
+        if (pco2 > 45 && hco3 >= 22)         { primary = 'Asidosis Respiratorik'; primaryCode = 'resp-acid'; }
+        else if (hco3 < 22 && pco2 <= 45)    { primary = 'Asidosis Metabolik';    primaryCode = 'met-acid';  }
+        else if (pco2 > 45 && hco3 < 22)     { primary = 'Asidosis Campuran (Respiratorik + Metabolik)'; primaryCode = 'mixed-acid'; }
+        else                                  { primary = 'Asidosis Respiratorik'; primaryCode = 'resp-acid'; }
+      } else if (phState === 'alkalemia') {
+        if (pco2 < 35 && hco3 <= 26)         { primary = 'Alkalosis Respiratorik'; primaryCode = 'resp-alk'; }
+        else if (hco3 > 26 && pco2 >= 35)    { primary = 'Alkalosis Metabolik';    primaryCode = 'met-alk';  }
+        else if (pco2 < 35 && hco3 > 26)     { primary = 'Alkalosis Campuran (Respiratorik + Metabolik)'; primaryCode = 'mixed-alk'; }
+        else                                  { primary = 'Alkalosis Respiratorik'; primaryCode = 'resp-alk'; }
+      } else {
+        // pH normal — could still have compensated or mixed disorder
+        if (pco2 > 45 && hco3 > 26)          { primary = 'Gangguan Campuran Terkompensasi (Resp. Asidosis + Met. Alkalosis)'; primaryCode = 'comp'; }
+        else if (pco2 < 35 && hco3 < 22)     { primary = 'Gangguan Campuran Terkompensasi (Resp. Alkalosis + Met. Asidosis)'; primaryCode = 'comp'; }
+        else                                  { primary = 'Normal'; primaryCode = 'normal'; }
+      }
+
+      // Step 3 — Anion Gap
+      const ag = na - (cl + hco3);
+      const agHigh = ag > 12;
+      const agLine = `AG = ${na} − (${cl} + ${hco3}) = ${ag} mEq/L ${agHigh ? '↑ TINGGI (>12)' : ag < 8 ? '↓ RENDAH (<8)' : '(Normal 8–12)'}`;
+
+      // Step 4 — Expected compensation
+      let compLine = '';
+      let compStatus = '';
+      if (primaryCode === 'met-acid') {
+        const expPco2Low  = Math.round(1.5 * hco3 + 8 - 2);
+        const expPco2High = Math.round(1.5 * hco3 + 8 + 2);
+        compLine = `Expected PaCO₂ (Winter's) = ${expPco2Low}–${expPco2High} mmHg, actual = ${pco2} mmHg`;
+        compStatus = pco2 >= expPco2Low && pco2 <= expPco2High
+          ? 'Kompensasi respiratorik ADEKUAT'
+          : pco2 < expPco2Low ? 'Kompensasi respiratorik BERLEBIH → kemungkinan Mixed Respiratory Alkalosis'
+          : 'Kompensasi respiratorik KURANG → kemungkinan Mixed Respiratory Acidosis';
+      } else if (primaryCode === 'met-alk') {
+        const expPco2Low  = Math.round(0.7 * (hco3 - 24) + 40 - 5);
+        const expPco2High = Math.round(0.7 * (hco3 - 24) + 40 + 5);
+        compLine = `Expected PaCO₂ = ${expPco2Low}–${expPco2High} mmHg, actual = ${pco2} mmHg`;
+        compStatus = pco2 >= expPco2Low && pco2 <= expPco2High
+          ? 'Kompensasi respiratorik ADEKUAT'
+          : pco2 < expPco2Low ? 'Hiperventilasi melebihi kompensasi → Mixed Respiratory Alkalosis'
+          : 'Hipoventilasi → Mixed Respiratory Acidosis';
+      } else if (primaryCode === 'resp-acid') {
+        const expHco3Acute   = Math.round(24 + (pco2 - 40) / 10);
+        const expHco3Chronic = Math.round(24 + 3.5 * (pco2 - 40) / 10);
+        compLine = `Expected HCO₃⁻: Akut ≈ ${expHco3Acute} | Kronik ≈ ${expHco3Chronic} mEq/L, actual = ${hco3}`;
+        const deltaFromAcute   = Math.abs(hco3 - expHco3Acute);
+        const deltaFromChronic = Math.abs(hco3 - expHco3Chronic);
+        compStatus = deltaFromAcute <= 2 ? 'Sesuai asidosis respiratorik AKUT'
+          : deltaFromChronic <= 3 ? 'Sesuai asidosis respiratorik KRONIK'
+          : hco3 > expHco3Chronic + 3 ? 'HCO₃⁻ tinggi melebihi kompensasi → Mixed Metabolic Alkalosis'
+          : 'HCO₃⁻ rendah dari kompensasi → Mixed Metabolic Acidosis';
+      } else if (primaryCode === 'resp-alk') {
+        const expHco3Acute   = Math.round(24 - (40 - pco2) / 5);
+        const expHco3Chronic = Math.round(24 - 5 * (40 - pco2) / 10);
+        compLine = `Expected HCO₃⁻: Akut ≈ ${expHco3Acute} | Kronik ≈ ${expHco3Chronic} mEq/L, actual = ${hco3}`;
+        compStatus = Math.abs(hco3 - expHco3Acute) <= 2 ? 'Sesuai alkalosis respiratorik AKUT'
+          : Math.abs(hco3 - expHco3Chronic) <= 3 ? 'Sesuai alkalosis respiratorik KRONIK'
+          : hco3 < expHco3Chronic - 3 ? 'HCO₃⁻ rendah → Mixed Metabolic Acidosis'
+          : 'HCO₃⁻ tinggi → Mixed Metabolic Alkalosis';
+      }
+
+      // Step 5 — Delta-Delta ratio (for high AG metabolic acidosis)
+      let deltaLine = '';
+      if (primaryCode === 'met-acid' && agHigh) {
+        const deltaAg  = ag - 12;
+        const deltaHco3 = 24 - hco3;
+        const ratio = deltaHco3 !== 0 ? (deltaAg / deltaHco3).toFixed(2) : '—';
+        const ratioNum = Number(ratio);
+        const ddInterp = ratioNum < 0.4 ? 'Normal AG acidosis tambahan (mixed)'
+          : ratioNum < 0.8 ? 'Mixed High AG + Normal AG acidosis'
+          : ratioNum <= 2  ? 'High AG Metabolic Acidosis murni'
+          : 'Underlying Metabolic Alkalosis (HCO₃ lebih tinggi dari expected)';
+        deltaLine = `Delta ratio (ΔAG/ΔHCO₃) = ${deltaAg}/${deltaHco3} = ${ratio} → ${ddInterp}`;
+      }
+
+      const color = phState === 'acidemia' ? '#FF3B30' : phState === 'alkalemia' ? '#007AFF' : '#34C759';
+      const score = phState === 'normal' ? 'Normal' : phState === 'acidemia' ? 'Asidemia' : 'Alkalemia';
+
+      const detail = [primary, agLine, compLine, compStatus, deltaLine].filter(Boolean).join('\n');
+      return { score, label: primary, color, detail };
+    },
+    notes: [
+      'Masukkan nilai Na⁺ dan Cl⁻ untuk menghitung Anion Gap',
+      'Kompensasi dihitung berdasarkan Winter\'s formula (met. acidosis), 0.7×ΔHCO₃ (met. alkalosis), dan formula akut/kronik untuk gangguan respiratorik',
+      'Delta-delta ratio dihitung otomatis bila AG tinggi (>12)',
+      'Interpretasi ini bersifat panduan — korelasikan dengan klinis pasien',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 10. RSI — Rapid Sequence Intubation                                 */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'rsi',
+    name: 'RSI — Intubasi Cepat',
+    short: 'RSI',
+    category: 'Prosedur',
+    tint: '#FF6B35',
+    description: 'Dosis pretreatment, induksi & paralitik berbasis berat badan',
+    source: 'Roberts & Hedges Emergency Medicine; UpToDate RSI 2024',
+    fields: [
+      { key: 'weight', label: 'Berat Badan', type: 'number', min: 10, max: 200, step: 1, defaultValue: 70, unit: 'kg' },
+      {
+        key: 'context', label: 'Konteks Klinis', type: 'select', defaultValue: 'routine',
+        options: [
+          { label: 'Rutin / Airway Protection',        value: 'routine' },
+          { label: 'Instabilitas Hemodinamik',         value: 'hemodynamic' },
+          { label: 'TIK Meningkat / Trauma Kepala',    value: 'icp' },
+          { label: 'Asma / Bronkospasme',              value: 'asthma' },
+        ],
+      },
+      {
+        key: 'suxContra', label: 'Suksinilkolin dikontraindikasikan?', type: 'checkbox',
+        description: 'Hiperkalemia, rhabdomiolisis, cedera tulang belakang kronik, luka bakar >24 jam, denervasi',
+      },
+    ],
+    compute: (v) => {
+      const wt = Math.max(10, Math.min(200, Number(v.weight) || 70));
+      const ctx = String(v.context || 'routine');
+      const suxContra = Boolean(v.suxContra);
+
+      // Recommended induction agent per context
+      const inductionRec = ctx === 'hemodynamic' ? 'ketamine' : ctx === 'asthma' ? 'ketamine' : 'etomidate';
+      const paralytic = suxContra ? 'rocuronium' : 'succinylcholine';
+
+      // Summary for CalcResult (actual detail rendered by RsiResultCard)
+      return {
+        score: `${wt} kg`,
+        label: `${inductionRec === 'ketamine' ? 'Ketamin' : 'Etomidat'} + ${paralytic === 'rocuronium' ? 'Rokuronil' : 'Suksinilkolin'}`,
+        color: '#FF6B35',
+        detail: [
+          `Fentanyl pretreatment: ${Math.round(3 * wt)} mcg IV`,
+          `Ketamin: ${Math.round(1.5 * wt)} mg IV`,
+          `Etomidat: ${(0.3 * wt).toFixed(1)} mg IV`,
+          `Propofol: ${Math.round(1.5 * wt)} mg IV`,
+          `Suksinilkolin: ${Math.round(1.5 * wt)} mg IV`,
+          `Rokuronil: ${Math.round(1.2 * wt)} mg IV`,
+          `Sugammadex reversal: ${Math.round(16 * wt)} mg IV`,
+        ].join('\n'),
+      };
+    },
+    notes: [
+      'Dosis disesuaikan ke berat badan ideal pada obesitas untuk agen induksi; gunakan berat aktual untuk suksinilkolin',
+      'Rokuronil dosis tinggi (1.2 mg/kg) memiliki onset setara suksinilkolin — pilih bila sux dikontraindikasikan',
+      'Sugammadex 16 mg/kg dapat mereversibel rokuronil dalam 3 menit (simpan sebagai "cannot intubate, cannot oxygenate" backup)',
+      'Etomidat dikontraindikasikan relatif pada sepsis — pertimbangkan ketamin sebagai alternatif',
+    ],
+  },
 ];

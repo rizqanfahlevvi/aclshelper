@@ -232,6 +232,175 @@ function FibrNolyticFields({ calc, values, setValues }: {
 }
 
 /* ============================================================
+   AbgResultCard
+   ============================================================ */
+function AbgResultCard({ result, values }: { result: ReturnType<Calculator['compute']>; values: Record<string, number | string | boolean> }) {
+  const lines = (result.detail || '').split('\n').filter(Boolean);
+  const ph   = Number(values.ph)   || 7.40;
+  const pco2 = Number(values.pco2) || 40;
+  const hco3 = Number(values.hco3) || 24;
+  const na   = Number(values.na)   || 140;
+  const cl   = Number(values.cl)   || 104;
+  const ag   = na - (cl + hco3);
+  const agHigh = ag > 12;
+
+  const phState = ph < 7.35 ? 'acidemia' : ph > 7.45 ? 'alkalemia' : 'normal';
+  const phLabel = phState === 'normal' ? 'Normal' : phState === 'acidemia' ? 'Asidemia' : 'Alkalemia';
+
+  const sections: Array<{ title: string; content: string; accent: string }> = [];
+  if (lines[0]) sections.push({ title: 'GANGGUAN PRIMER', content: lines[0], accent: result.color });
+  if (lines[1]) sections.push({ title: 'ANION GAP', content: lines[1], accent: agHigh ? '#FF9500' : '#34C759' });
+  if (lines[2]) sections.push({ title: 'EVALUASI KOMPENSASI', content: lines[2], accent: 'var(--label-secondary)' });
+  if (lines[3]) sections.push({ title: 'STATUS KOMPENSASI', content: lines[3], accent: lines[3].includes('ADEKUAT') ? '#34C759' : '#FF9500' });
+  if (lines[4]) sections.push({ title: 'DELTA RATIO', content: lines[4], accent: '#AF52DE' });
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{
+        padding: '16px 18px', borderRadius: 16, marginBottom: 8,
+        background: result.color + '14', boxShadow: `inset 0 0 0 1px ${result.color}44`,
+        display: 'flex', alignItems: 'center', gap: 14,
+      }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: result.color, lineHeight: 1 }}>
+            {ph.toFixed(2)}
+          </div>
+          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: result.color, letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: result.color }}>{phLabel}</div>
+          <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>
+            PaCO₂ {pco2} mmHg · HCO₃⁻ {hco3} mEq/L
+          </div>
+        </div>
+      </div>
+      {sections.map((s, i) => (
+        <div key={i} style={{
+          padding: '12px 14px', borderRadius: 12, marginBottom: 6,
+          background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
+        }}>
+          <div className="t-caption-2" style={{ color: s.accent, fontWeight: 700, marginBottom: 4 }}>{s.title}</div>
+          <div className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{s.content}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ============================================================
+   RsiResultCard
+   ============================================================ */
+function RsiResultCard({ values }: { values: Record<string, number | string | boolean> }) {
+  const wt = Math.max(10, Math.min(200, Number(values.weight) || 70));
+  const ctx = String(values.context || 'routine');
+  const suxContra = Boolean(values.suxContra);
+
+  const inductionRec = ctx === 'hemodynamic' || ctx === 'asthma' ? 'ketamine' : 'etomidate';
+  const paralytic = suxContra ? 'rocuronium' : 'succinylcholine';
+
+  const tag = (text: string, color: string) => (
+    <span style={{
+      fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.06em',
+      background: color + '22', color, borderRadius: 4, padding: '2px 6px',
+      marginLeft: 6, verticalAlign: 'middle',
+    }}>{text}</span>
+  );
+
+  const dose = (label: string, mgKg: number, unit: string, recommended: boolean, accent: string, note?: string) => {
+    const total = unit === 'mcg' ? Math.round(mgKg * wt) : unit === 'mg/1dp' ? (mgKg * wt).toFixed(1) : Math.round(mgKg * wt);
+    return (
+      <div style={{
+        padding: '10px 14px', borderRadius: 10, marginBottom: 6,
+        background: recommended ? accent + '12' : 'var(--fill-quaternary)',
+        boxShadow: recommended ? `inset 0 0 0 1px ${accent}44` : 'inset 0 0 0 0.5px var(--separator)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="t-callout" style={{ fontWeight: 600, color: recommended ? accent : 'var(--label-primary)' }}>
+            {label}
+            {recommended && tag('REKOMEN', accent)}
+          </div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: recommended ? accent : 'var(--label-primary)' }}>
+            {total} {unit === 'mg/1dp' ? 'mg' : unit}
+          </div>
+        </div>
+        <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>
+          {unit === 'mcg' ? `${mgKg} mcg/kg × ${wt} kg` : `${mgKg} mg/kg × ${wt} kg`}{note ? ` · ${note}` : ''}
+        </div>
+      </div>
+    );
+  };
+
+  const section = (title: string, accent: string, children: React.ReactNode) => (
+    <div style={{ marginBottom: 12 }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+      {children}
+    </div>
+  );
+
+  const checkItem = (text: string) => (
+    <div key={text} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 4 }}>
+      <span style={{ color: '#34C759', fontWeight: 700, flexShrink: 0 }}>✓</span>
+      <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{text}</span>
+    </div>
+  );
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{
+        padding: '14px 16px', borderRadius: 14, marginBottom: 12,
+        background: '#FF6B3514', boxShadow: 'inset 0 0 0 1px #FF6B3544',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#FF6B35', lineHeight: 1 }}>{wt}</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: '#FF6B35', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
+        </div>
+        <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
+          Semua dosis dihitung otomatis berdasarkan berat badan. Sesuaikan dengan kondisi klinis.
+        </div>
+      </div>
+
+      {section('1. PREOXYGENASI', '#34C759', (
+        <div style={{ padding: '10px 14px', borderRadius: 10, background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+          {checkItem('O₂ 100% via NRM atau BVM selama ≥3 menit')}
+          {checkItem('Target SpO₂ >95% sebelum induksi')}
+          {checkItem('Posisi sniffing: telinga sejajar sternal notch')}
+        </div>
+      ))}
+
+      {section('2. PRETREATMENT (3 mnt sebelum RSI, opsional)', '#007AFF', (
+        <>
+          {dose('Fentanyl', 3, 'mcg', true, '#007AFF', 'respon simpatis, TIK')}
+          {ctx === 'icp' && dose('Lidokain', 1.5, 'mg', true, '#5856D6', 'TIK — IV lambat 2–3 menit')}
+        </>
+      ))}
+
+      {section('3. INDUKSI (pilih 1)', 'var(--warning)', (
+        <>
+          {dose('Ketamin', 1.5, 'mg', inductionRec === 'ketamine', '#FF9500',
+            ctx === 'hemodynamic' ? 'hemodinamik instabil, asma' : ctx === 'asthma' ? 'bronkospasme' : 'simpatomimetik')}
+          {dose('Etomidat', 0.3, 'mg/1dp', inductionRec === 'etomidate', '#34C759', 'hemodinamik netral')}
+          {dose('Propofol', 1.5, 'mg', false, '#AF52DE', 'awas hipotensi')}
+        </>
+      ))}
+
+      {section('4. PARALITIK (berikan segera setelah induksi)', 'var(--danger)', (
+        <>
+          {!suxContra && dose('Suksinilkolin', 1.5, 'mg', paralytic === 'succinylcholine', '#FF3B30', 'onset 45–60 dtk, durasi ~10 mnt')}
+          {dose('Rokuronil', 1.2, 'mg', paralytic === 'rocuronium', '#FF9500', 'onset setara sux pada dosis ini')}
+          <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.04)', boxShadow: 'inset 0 0 0 0.5px var(--separator)', marginTop: 4 }}>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 3 }}>REVERSAL ROKURONIL (emergensi)</div>
+            <div className="t-footnote" style={{ color: 'var(--label-primary)' }}>
+              Sugammadex <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{Math.round(16 * wt)} mg</span> IV (16 mg/kg) — reversal dalam ~3 menit
+            </div>
+          </div>
+        </>
+      ))}
+    </div>
+  );
+}
+
+/* ============================================================
    MobileCalcList
    ============================================================ */
 export function MobileCalcList({ nav }: { nav: Nav }) {
@@ -344,6 +513,8 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
   if (!calc) return <div style={{ padding: 24 }}>Kalkulator tidak ditemukan</div>;
 
   const isFibrinolytic = calc.key === 'fibrinolytic';
+  const isAbg = calc.key === 'abg';
+  const isRsi = calc.key === 'rsi';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -376,8 +547,14 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 40px' }}>
-        {/* Result */}
-        {result && <CalcResultBadge result={result} tint={calc.tint}/>}
+        {/* Result / custom cards */}
+        {isAbg && result ? (
+          <AbgResultCard result={result} values={values}/>
+        ) : isRsi ? (
+          <RsiResultCard values={values}/>
+        ) : (
+          result && <CalcResultBadge result={result} tint={calc.tint}/>
+        )}
 
         {/* Fields */}
         {isFibrinolytic ? (
@@ -466,6 +643,8 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
 
   const result = useMemo(() => calc.compute(values), [calc, values]);
   const isFibrinolytic = calc.key === 'fibrinolytic';
+  const isAbg = calc.key === 'abg';
+  const isRsi = calc.key === 'rsi';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -562,7 +741,13 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             </div>
           </div>
 
-          <CalcResultBadge result={result} tint={calc.tint}/>
+          {isAbg ? (
+            <AbgResultCard result={result} values={values}/>
+          ) : isRsi ? (
+            <RsiResultCard values={values}/>
+          ) : (
+            <CalcResultBadge result={result} tint={calc.tint}/>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             {isFibrinolytic ? (
