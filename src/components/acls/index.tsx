@@ -305,140 +305,266 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
   if (!state) return null;
   const c = (s: NodeState) => CD_COLORS[s];
 
-  // Standard anterior cardiac view: RA=left, LA=right, RV=lower-left, LV=lower-right
+  // Ectopic positions in 260×228 viewBox  (RA=left, LA=right, RV=lower-left, LV=lower-right)
   const ectopicCoords: Record<string, [number, number]> = {
-    ra: [62, 64], la: [154, 64], rv: [66, 150], lv: [148, 150],
+    ra: [64, 65], la: [172, 65], rv: [68, 158], lv: [172, 158],
   };
   const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
+
+  // Whether a node state is "conducting" (should animate)
+  const on = (s: NodeState) => s === 'active' || s === 'ectopic';
+  // Animated path style with sequential delay
+  const cs = (s: NodeState, delay: number): React.CSSProperties => on(s) ? {
+    animationDelay: `${delay}s`,
+  } : { display: 'none' };
 
   return (
     <div style={{ background: 'var(--bg-tertiary)', borderRadius: 14, padding: '12px 14px 8px', boxShadow: 'var(--shadow-1)' }}>
       <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>
         SISTEM KONDUKSI JANTUNG
       </div>
-      <svg viewBox="0 0 216 196" width="100%" style={{ display: 'block', overflow: 'visible' }}>
 
-        {/* ── Chamber colour fills (drawn first, behind everything) ── */}
-        {/* RA — left half of atria */}
-        <path d="M 108 88 C 62 93 30 86 22 82 C 22 50 46 26 72 26 C 87 26 100 38 108 54 Z"
+      {/* ── Main heart diagram (260 × 228) ── */}
+      <svg viewBox="0 0 260 228" width="100%" style={{ display: 'block', overflow: 'visible' }}>
+
+        {/* === Chamber fills === */}
+        {/* RA: left atrium */}
+        <path d="M 113 104 C 66 110 28 100 22 96 C 22 62 46 36 72 32 C 84 26 98 22 109 30 C 112 34 113 44 113 52 Z"
           fill={c(state.raPath)} opacity="0.14" />
-        {/* LA — right half of atria */}
-        <path d="M 108 88 C 154 93 184 86 192 82 C 192 50 168 26 142 26 C 127 26 116 38 108 54 Z"
+        {/* LA: right atrium */}
+        <path d="M 113 104 C 160 110 202 100 210 96 C 210 62 190 36 164 28 C 150 22 132 24 120 30 C 116 34 113 44 113 52 Z"
           fill={c(state.laPath)} opacity="0.14" />
-        {/* RV — left half of ventricles */}
-        <path d="M 108 90 C 62 93 30 86 22 82 C 22 120 62 156 108 178 Z"
+        {/* RV: left ventricle */}
+        <path d="M 113 106 C 66 110 28 100 22 96 C 22 156 60 196 112 218 Z"
           fill={c(state.rvFill)} opacity="0.14" />
-        {/* LV — right half of ventricles */}
-        <path d="M 108 90 C 154 93 184 86 192 82 C 192 120 162 156 108 178 Z"
+        {/* LV: right ventricle */}
+        <path d="M 113 106 C 160 110 202 100 210 96 C 210 156 178 196 112 218 Z"
           fill={c(state.lvFill)} opacity="0.14" />
 
-        {/* ── Heart silhouette ── */}
-        <path
-          d="M 108 178 C 62 156 22 120 22 84 C 22 50 46 26 72 26 C 87 26 100 38 108 54 C 116 38 129 26 144 26 C 170 26 192 50 192 84 C 192 120 162 156 108 178 Z"
+        {/* === Heart silhouette === */}
+        <path d="M 113 218 C 54 196 20 155 20 108 C 20 64 44 36 70 32 C 82 26 96 22 108 30 C 111 34 113 44 113 52 C 115 44 122 30 136 26 C 150 22 170 26 184 38 C 202 56 218 82 218 110 C 218 156 186 196 113 218 Z"
           fill="none" stroke="var(--separator-opaque)" strokeWidth="1.8" />
 
-        {/* AV groove — separates atria from ventricles */}
-        <path d="M 22 84 Q 108 97 192 84" fill="none" stroke="var(--separator-opaque)"
+        {/* AV groove */}
+        <path d="M 23 104 Q 116 116 213 104" fill="none" stroke="var(--separator-opaque)"
           strokeWidth="0.9" strokeDasharray="4 2" opacity="0.65" />
 
         {/* Interatrial septum */}
-        <line x1="108" y1="28" x2="108" y2="89"
+        <line x1="113" y1="52" x2="115" y2="107"
           stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
 
         {/* Interventricular septum */}
-        <path d="M 108 91 C 108 128 106 163 106 176" fill="none"
+        <path d="M 115 108 C 115 154 113 192 112 216" fill="none"
           stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
 
-        {/* ── Chamber labels ── */}
-        <text x="56" y="78" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RA</text>
-        <text x="158" y="78" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LA</text>
-        <text x="56" y="157" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RV</text>
-        <text x="158" y="157" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LV</text>
+        {/* === Chamber labels === */}
+        <text x="56"  y="78"  textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RA</text>
+        <text x="172" y="78"  textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LA</text>
+        <text x="56"  y="160" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RV</text>
+        <text x="172" y="160" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LV</text>
 
-        {/* ── SA node — upper RA (crista terminalis) ── */}
-        <circle cx="62" cy="44" r="7" fill={c(state.sa)} opacity="0.92" />
-        <text x="62" y="32" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">SA</text>
+        {/* ═══════════════════════════════════════════════════
+            BACKGROUND pathways (always visible, dim)
+        ═══════════════════════════════════════════════════ */}
 
-        {/* SA → AV internodal pathway through RA */}
-        <path d="M 67 50 C 76 67 88 80 94 87" fill="none"
-          stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+        {/* Bachmann's bundle: SA → LA (across atrial roof) */}
+        <path d="M 86 36 C 100 24 124 22 142 26"
+          fill="none" stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.22" />
 
-        {/* ── AV node — lower RA near tricuspid ── */}
-        <circle cx="97" cy="89" r="7" fill={c(state.av)} opacity="0.92" />
-        <text x="97" y="104" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">AV</text>
-        {state.av === 'blocked' && (
-          <text x="112" y="84" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
+        {/* Internodal tract: SA → AV (through RA) */}
+        <path d="M 86 46 C 82 68 98 90 114 106"
+          fill="none" stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.22" />
+
+        {/* Bundle of His */}
+        <line x1="116" y1="114" x2="116" y2="126"
+          stroke={c(state.his)} strokeWidth="2.4" strokeLinecap="round" opacity="0.22" />
+
+        {/* RBB — into RV along right wall of IVS */}
+        <path d="M 116 126 C 110 148 94 166 82 186"
+          fill="none" stroke={c(state.rbb)} strokeWidth="2" strokeLinecap="round" opacity="0.22" />
+
+        {/* LBB main — into LV */}
+        <path d="M 116 126 C 124 144 144 162 158 174"
+          fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round" opacity="0.22" />
+        {/* LBB anterior fascicle */}
+        <path d="M 144 163 C 152 175 152 191 146 204"
+          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.2" />
+        {/* LBB posterior fascicle */}
+        <path d="M 158 174 C 166 184 170 198 164 212"
+          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.2" />
+
+        {/* Purkinje RV */}
+        <path d="M 82 186 C 66 194 52 202 48 213"
+          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+        <path d="M 82 186 C 74 198 70 212 66 218"
+          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+
+        {/* Purkinje LV */}
+        <path d="M 146 204 C 142 213 138 220 134 222"
+          fill="none" stroke={c(state.lvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+        <path d="M 164 212 C 161 219 157 224 154 225"
+          fill="none" stroke={c(state.lvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+        <path d="M 146 204 C 162 198 178 190 182 180"
+          fill="none" stroke={c(state.lvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+
+        {/* ═══════════════════════════════════════════════════
+            ANIMATED OVERLAY — impulse propagation
+            Each path uses pathLength=100 + stroke-dashoffset animation
+        ═══════════════════════════════════════════════════ */}
+
+        {/* SA node firing ring */}
+        {state.sa === 'active' && (
+          <circle cx="83" cy="40" r="8" fill="none" stroke={c('active')} strokeWidth="2.2"
+            className="acls-sa-ring" />
         )}
 
-        {/* Bundle of His — down interventricular septum */}
-        <line x1="100" y1="96" x2="108" y2="110"
-          stroke={c(state.his)} strokeWidth="2.2" strokeLinecap="round" opacity="0.9" />
+        {/* Bachmann's bundle animated */}
+        <path d="M 86 36 C 100 24 124 22 142 26"
+          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0)} />
 
-        {/* RBB — right bundle branch to RV */}
-        <line x1="108" y1="110" x2="72" y2="134"
-          stroke={c(state.rbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.86" />
-        <circle cx="72" cy="134" r="4" fill={c(state.rbb)} opacity="0.86" />
-        <text x="51" y="136" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)"
-          fontWeight="600" dominantBaseline="middle">RBB</text>
-        {state.rbb === 'blocked' && (
-          <text x="88" y="123" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
+        {/* Internodal tract animated */}
+        <path d="M 86 46 C 82 68 98 90 114 106"
+          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.04)} />
+
+        {/* AV node firing ring */}
+        {state.av === 'active' && (
+          <circle cx="116" cy="108" r="8" fill="none" stroke={c('active')} strokeWidth="2.2"
+            className="acls-av-ring" />
         )}
 
-        {/* LBB — left bundle branch to LV */}
-        <line x1="108" y1="110" x2="144" y2="134"
-          stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.86" />
-        <circle cx="144" cy="134" r="4" fill={c(state.lbb)} opacity="0.86" />
-        <text x="165" y="136" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)"
-          fontWeight="600" dominantBaseline="middle">LBB</text>
-        {state.lbb === 'blocked' && (
-          <text x="128" y="123" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
-        )}
+        {/* His bundle animated */}
+        <line x1="116" y1="114" x2="116" y2="126"
+          stroke={c(state.his)} strokeWidth="3" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.his, 0.33)} />
 
-        {/* WPW — dashed accessory bypass arc (lateral, skips AV groove) */}
-        {rhythmKey === 'wpw' && (
-          <path d="M 175 78 Q 200 92 175 108" fill="none" stroke="#FF9500"
-            strokeWidth="1.6" strokeDasharray="4 3" opacity="0.82" />
-        )}
+        {/* RBB animated */}
+        <path d="M 116 126 C 110 148 94 166 82 186"
+          fill="none" stroke={c(state.rbb)} strokeWidth="2.4" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.rbb, 0.40)} />
 
-        {/* AF — chaotic ectopic foci scattered through both atria */}
-        {rhythmKey === 'af' && (<>
-          <circle cx="46" cy="57" r="4.5" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.82" />
-          <circle cx="72" cy="67" r="4" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.75" style={{ animationDelay: '0.3s' }} />
-          <circle cx="150" cy="55" r="4.5" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.82" style={{ animationDelay: '0.55s' }} />
-          <circle cx="166" cy="67" r="4" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.75" style={{ animationDelay: '0.85s' }} />
-          <circle cx="110" cy="62" r="3" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.62" style={{ animationDelay: '1.15s' }} />
+        {/* LBB animated (main + fascicles) */}
+        <path d="M 116 126 C 124 144 144 162 158 174"
+          fill="none" stroke={c(state.lbb)} strokeWidth="2.4" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.40)} />
+        <path d="M 144 163 C 152 175 152 191 146 204"
+          fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.49)} />
+        <path d="M 158 174 C 166 184 170 198 164 212"
+          fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.49)} />
+
+        {/* Purkinje RV animated */}
+        {on(state.rvFill) && (<>
+          <path d="M 82 186 C 66 194 52 202 48 213"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
+          <path d="M 82 186 C 74 198 70 212 66 218"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
         </>)}
 
-        {/* VF / TdP — chaotic micro-foci throughout ventricles */}
+        {/* Purkinje LV animated */}
+        {on(state.lvFill) && (<>
+          <path d="M 146 204 C 142 213 138 220 134 222"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
+          <path d="M 164 212 C 161 219 157 224 154 225"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
+          <path d="M 146 204 C 162 198 178 190 182 180"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
+        </>)}
+
+        {/* ═══════════════════════════════════════════════════
+            NODE CIRCLES — SA and AV
+        ═══════════════════════════════════════════════════ */}
+
+        {/* SA node (crista terminalis, upper RA) */}
+        <circle cx="83" cy="40" r="7.5" fill={c(state.sa)} opacity="0.92" />
+        <text x="83" y="29" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">SA</text>
+
+        {/* AV node (Koch's triangle, lower RA) */}
+        <circle cx="116" cy="108" r="7.5" fill={c(state.av)} opacity="0.92" />
+        <text x="116" y="122" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">AV</text>
+        {state.av === 'blocked' && (
+          <text x="131" y="103" fontSize="14" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
+        )}
+
+        {/* RBB endpoint dot + label */}
+        <circle cx="82" cy="186" r="4" fill={c(state.rbb)} opacity="0.86" />
+        <text x="62" y="184" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)"
+          fontWeight="600" dominantBaseline="middle">RBB</text>
+        {state.rbb === 'blocked' && (
+          <text x="96" y="157" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
+        )}
+
+        {/* LBB endpoint dot + label */}
+        <circle cx="158" cy="174" r="4" fill={c(state.lbb)} opacity="0.86" />
+        <text x="178" y="172" textAnchor="start" fontSize="6" fill="var(--label-tertiary)"
+          fontWeight="600" dominantBaseline="middle">LBB</text>
+        {state.lbb === 'blocked' && (
+          <text x="138" y="153" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
+        )}
+
+        {/* ═══════════════════════════════════════════════════
+            SPECIAL RHYTHM MARKERS
+        ═══════════════════════════════════════════════════ */}
+
+        {/* WPW — accessory pathway arc (right lateral, LA→LV bypassing AV groove) */}
+        {rhythmKey === 'wpw' && (
+          <path d="M 178 80 Q 205 96 178 112" fill="none" stroke="#FF9500"
+            strokeWidth="1.8" strokeDasharray="5 3" opacity="0.85" />
+        )}
+
+        {/* AF — chaotic multi-focal atrial ectopics */}
+        {rhythmKey === 'af' && (<>
+          <circle cx="46" cy="58" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82" />
+          <circle cx="75" cy="68" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
+            style={{ animationDelay: '0.28s' }} />
+          <circle cx="164" cy="56" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82"
+            style={{ animationDelay: '0.55s' }} />
+          <circle cx="182" cy="68" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
+            style={{ animationDelay: '0.84s' }} />
+          <circle cx="115" cy="63" r="3" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.62"
+            style={{ animationDelay: '1.12s' }} />
+        </>)}
+
+        {/* VF / TdP — chaotic multi-focal ventricular */}
         {(rhythmKey === 'vf' || rhythmKey === 'torsades') && (
-          ([[66,120],[88,138],[70,158],[136,118],[148,140],[132,162],[108,132]] as [number,number][]).map(([cx,cy], i) => (
-            <circle key={i} cx={cx} cy={cy} r="3" fill={CD_COLORS.blocked}
-              className="acls-conduction-ectopic" opacity="0.44"
-              style={{ animationDelay: `${i * 0.18}s` }} />
+          ([[66,122],[88,142],[68,162],[152,120],[165,144],[148,166],[115,138]] as [number,number][]).map(([cx,cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="3.5" fill={CD_COLORS.blocked}
+              className="acls-conduction-ectopic" opacity="0.45"
+              style={{ animationDelay: `${i * 0.17}s` }} />
           ))
         )}
 
-        {/* Generic ectopic focus for other rhythms */}
+        {/* Generic ectopic focus */}
         {state.ectopicPos && rhythmKey !== 'af' && (<>
-          <circle cx={ex} cy={ey} r="7.5" fill={CD_COLORS.ectopic}
+          <circle cx={ex} cy={ey} r="8" fill={CD_COLORS.ectopic}
             className="acls-conduction-ectopic" opacity="0.88" />
           {state.ectopicLabel && (
-            <text x={ex} y={ey + 14} textAnchor="middle" fontSize="6.5"
+            <text x={ex} y={ey + 15} textAnchor="middle" fontSize="6.5"
               fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
           )}
         </>)}
 
       </svg>
+
+      {/* ── Mini ECG strip with synchronized scan cursor ── */}
+      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8,
+        marginTop: 6, background: 'var(--bg-secondary)', height: 50 }}>
+        <RhythmStrip kind={rhythmKey} width={500} height={50} grid={false} />
+        <div className="acls-ecg-cursor" style={{ animationDuration: '1.2s' }} />
+      </div>
+
       {state.caption && (
-        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 4, textAlign: 'center', lineHeight: 1.4 }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 6, textAlign: 'center', lineHeight: 1.4 }}>
           {state.caption}
         </div>
       )}
