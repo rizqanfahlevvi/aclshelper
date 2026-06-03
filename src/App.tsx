@@ -756,7 +756,10 @@ export default function App() {
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);
-                  if (k !== 'home') {
+                  if (k === 'home') {
+                    window.history.replaceState(null, '', '#/');
+                    setStack(s => ({ ...s, home: [{ screen: 'home' }] }));
+                  } else {
                     const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs' };
                     const path = pathMap[k] || '/';
                     window.history.pushState(null, '', '#' + path);
