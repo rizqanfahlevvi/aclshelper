@@ -300,96 +300,142 @@ const CONDUCTION_MAP: Record<string, ConductionState> = {
                caption:'De Winter — konduksi normal, pola iskemia LAD proksimal' },
 };
 
-export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): JSX.Element | null {
+export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.ReactElement | null {
   const state = CONDUCTION_MAP[rhythmKey];
   if (!state) return null;
   const c = (s: NodeState) => CD_COLORS[s];
+
+  // Standard anterior cardiac view: RA=left, LA=right, RV=lower-left, LV=lower-right
   const ectopicCoords: Record<string, [number, number]> = {
-    ra: [70, 38], la: [130, 38], rv: [68, 105], lv: [132, 105],
+    ra: [62, 64], la: [154, 64], rv: [66, 150], lv: [148, 150],
   };
   const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
-  const atrialStroke = c(state.raPath === 'active' || state.laPath === 'active' ? 'active'
-    : state.raPath === 'ectopic' || state.laPath === 'ectopic' ? 'ectopic'
-    : state.raPath === 'dim' ? 'dim' : 'inactive');
-  const ventStroke = c(state.rvFill === 'active' || state.lvFill === 'active' ? 'active'
-    : state.rvFill === 'ectopic' || state.lvFill === 'ectopic' ? 'ectopic'
-    : state.rvFill === 'dim' ? 'dim' : 'inactive');
 
   return (
     <div style={{ background: 'var(--bg-tertiary)', borderRadius: 14, padding: '12px 14px 8px', boxShadow: 'var(--shadow-1)' }}>
       <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>
         SISTEM KONDUKSI JANTUNG
       </div>
-      <svg viewBox="0 0 200 130" width="100%" style={{ display: 'block', overflow: 'visible' }}>
-        {/* Atrial chamber */}
-        <rect x="30" y="18" width="140" height="40" rx="14"
-          fill="none" stroke={atrialStroke} strokeWidth="1.5" opacity="0.5" />
-        {/* RA / LA divider */}
-        <line x1="100" y1="18" x2="100" y2="58" stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" />
-        {/* RA / LA fills */}
-        <rect x="31" y="19" width="68" height="38" rx="13" fill={c(state.raPath)} opacity="0.10" />
-        <rect x="101" y="19" width="68" height="38" rx="13" fill={c(state.laPath)} opacity="0.10" />
-        {/* RA / LA labels */}
-        <text x="65" y="44" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">RA</text>
-        <text x="135" y="44" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">LA</text>
-        {/* SA node */}
-        <circle cx="148" cy="28" r="6" fill={c(state.sa)} opacity="0.9" />
-        <text x="148" y="43" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="600">SA</text>
-        {/* SA → AV path */}
-        <line x1="148" y1="34" x2="100" y2="54" stroke={c(state.raPath)} strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
-        {/* AV node */}
-        <circle cx="100" cy="58" r="6" fill={c(state.av)} opacity="0.9" />
-        <text x="113" y="56" textAnchor="start" fontSize="6.5" fill="var(--label-secondary)" fontWeight="600">AV</text>
+      <svg viewBox="0 0 216 196" width="100%" style={{ display: 'block', overflow: 'visible' }}>
+
+        {/* ── Chamber colour fills (drawn first, behind everything) ── */}
+        {/* RA — left half of atria */}
+        <path d="M 108 88 C 62 93 30 86 22 82 C 22 50 46 26 72 26 C 87 26 100 38 108 54 Z"
+          fill={c(state.raPath)} opacity="0.14" />
+        {/* LA — right half of atria */}
+        <path d="M 108 88 C 154 93 184 86 192 82 C 192 50 168 26 142 26 C 127 26 116 38 108 54 Z"
+          fill={c(state.laPath)} opacity="0.14" />
+        {/* RV — left half of ventricles */}
+        <path d="M 108 90 C 62 93 30 86 22 82 C 22 120 62 156 108 178 Z"
+          fill={c(state.rvFill)} opacity="0.14" />
+        {/* LV — right half of ventricles */}
+        <path d="M 108 90 C 154 93 184 86 192 82 C 192 120 162 156 108 178 Z"
+          fill={c(state.lvFill)} opacity="0.14" />
+
+        {/* ── Heart silhouette ── */}
+        <path
+          d="M 108 178 C 62 156 22 120 22 84 C 22 50 46 26 72 26 C 87 26 100 38 108 54 C 116 38 129 26 144 26 C 170 26 192 50 192 84 C 192 120 162 156 108 178 Z"
+          fill="none" stroke="var(--separator-opaque)" strokeWidth="1.8" />
+
+        {/* AV groove — separates atria from ventricles */}
+        <path d="M 22 84 Q 108 97 192 84" fill="none" stroke="var(--separator-opaque)"
+          strokeWidth="0.9" strokeDasharray="4 2" opacity="0.65" />
+
+        {/* Interatrial septum */}
+        <line x1="108" y1="28" x2="108" y2="89"
+          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
+
+        {/* Interventricular septum */}
+        <path d="M 108 91 C 108 128 106 163 106 176" fill="none"
+          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
+
+        {/* ── Chamber labels ── */}
+        <text x="56" y="78" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RA</text>
+        <text x="158" y="78" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LA</text>
+        <text x="56" y="157" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">RV</text>
+        <text x="158" y="157" textAnchor="middle" fontSize="8.5" fill="var(--label-tertiary)" fontWeight="600">LV</text>
+
+        {/* ── SA node — upper RA (crista terminalis) ── */}
+        <circle cx="62" cy="44" r="7" fill={c(state.sa)} opacity="0.92" />
+        <text x="62" y="32" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">SA</text>
+
+        {/* SA → AV internodal pathway through RA */}
+        <path d="M 67 50 C 76 67 88 80 94 87" fill="none"
+          stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+
+        {/* ── AV node — lower RA near tricuspid ── */}
+        <circle cx="97" cy="89" r="7" fill={c(state.av)} opacity="0.92" />
+        <text x="97" y="104" textAnchor="middle" fontSize="6.5" fill="var(--label-secondary)" fontWeight="700">AV</text>
         {state.av === 'blocked' && (
-          <text x="114" y="65" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700">✕</text>
+          <text x="112" y="84" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-        {/* Bundle of His */}
-        <line x1="100" y1="64" x2="100" y2="74" stroke={c(state.his)} strokeWidth="2" strokeLinecap="round" opacity="0.85" />
-        {/* Ventricular chamber */}
-        <path d="M40,72 L160,72 L172,128 L28,128 Z"
-          fill="none" stroke={ventStroke} strokeWidth="1.5" opacity="0.5" />
-        {/* RV / LV divider */}
-        <line x1="100" y1="72" x2="100" y2="128" stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" />
-        {/* RV / LV fills */}
-        <path d="M41,73 L99,73 L99,127 L29,127 Z" fill={c(state.rvFill)} opacity="0.10" />
-        <path d="M101,73 L159,73 L171,127 L101,127 Z" fill={c(state.lvFill)} opacity="0.10" />
-        {/* RBB */}
-        <line x1="100" y1="74" x2="65" y2="90" stroke={c(state.rbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
-        <circle cx="65" cy="90" r="3" fill={c(state.rbb)} opacity="0.8" />
-        <text x="46" y="91" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)" dominantBaseline="middle">RBB</text>
+
+        {/* Bundle of His — down interventricular septum */}
+        <line x1="100" y1="96" x2="108" y2="110"
+          stroke={c(state.his)} strokeWidth="2.2" strokeLinecap="round" opacity="0.9" />
+
+        {/* RBB — right bundle branch to RV */}
+        <line x1="108" y1="110" x2="72" y2="134"
+          stroke={c(state.rbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.86" />
+        <circle cx="72" cy="134" r="4" fill={c(state.rbb)} opacity="0.86" />
+        <text x="51" y="136" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)"
+          fontWeight="600" dominantBaseline="middle">RBB</text>
         {state.rbb === 'blocked' && (
-          <text x="80" y="84" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700" dominantBaseline="middle">✕</text>
+          <text x="88" y="123" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-        {/* LBB */}
-        <line x1="100" y1="74" x2="135" y2="90" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
-        <circle cx="135" cy="90" r="3" fill={c(state.lbb)} opacity="0.8" />
-        <text x="154" y="91" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)" dominantBaseline="middle">LBB</text>
+
+        {/* LBB — left bundle branch to LV */}
+        <line x1="108" y1="110" x2="144" y2="134"
+          stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.86" />
+        <circle cx="144" cy="134" r="4" fill={c(state.lbb)} opacity="0.86" />
+        <text x="165" y="136" textAnchor="middle" fontSize="6" fill="var(--label-tertiary)"
+          fontWeight="600" dominantBaseline="middle">LBB</text>
         {state.lbb === 'blocked' && (
-          <text x="120" y="84" fontSize="10" fill={CD_COLORS.blocked} fontWeight="700" dominantBaseline="middle">✕</text>
+          <text x="128" y="123" fontSize="11" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-        {/* RV / LV labels */}
-        <text x="64" y="112" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">RV</text>
-        <text x="136" y="112" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)" fontWeight="500">LV</text>
-        {/* AF — 3 staggered ectopic dots in RA */}
-        {rhythmKey === 'af' && (<>
-          <circle cx="55" cy="32" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.8" />
-          <circle cx="75" cy="40" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.8" style={{ animationDelay: '0.4s' }} />
-          <circle cx="60" cy="50" r="3.5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.7" style={{ animationDelay: '0.8s' }} />
-        </>)}
-        {/* WPW — dashed accessory pathway arc */}
+
+        {/* WPW — dashed accessory bypass arc (lateral, skips AV groove) */}
         {rhythmKey === 'wpw' && (
-          <path d="M148,30 Q178,55 162,76" fill="none" stroke="#FF9500"
-            strokeWidth="1.4" strokeDasharray="4 3" opacity="0.75" />
+          <path d="M 175 78 Q 200 92 175 108" fill="none" stroke="#FF9500"
+            strokeWidth="1.6" strokeDasharray="4 3" opacity="0.82" />
         )}
-        {/* Generic ectopic dot (non-af) */}
-        {state.ectopicPos && rhythmKey !== 'af' && (
-          <circle cx={ex} cy={ey} r="6" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.85" />
+
+        {/* AF — chaotic ectopic foci scattered through both atria */}
+        {rhythmKey === 'af' && (<>
+          <circle cx="46" cy="57" r="4.5" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.82" />
+          <circle cx="72" cy="67" r="4" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.75" style={{ animationDelay: '0.3s' }} />
+          <circle cx="150" cy="55" r="4.5" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.82" style={{ animationDelay: '0.55s' }} />
+          <circle cx="166" cy="67" r="4" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.75" style={{ animationDelay: '0.85s' }} />
+          <circle cx="110" cy="62" r="3" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.62" style={{ animationDelay: '1.15s' }} />
+        </>)}
+
+        {/* VF / TdP — chaotic micro-foci throughout ventricles */}
+        {(rhythmKey === 'vf' || rhythmKey === 'torsades') && (
+          ([[66,120],[88,138],[70,158],[136,118],[148,140],[132,162],[108,132]] as [number,number][]).map(([cx,cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="3" fill={CD_COLORS.blocked}
+              className="acls-conduction-ectopic" opacity="0.44"
+              style={{ animationDelay: `${i * 0.18}s` }} />
+          ))
         )}
-        {state.ectopicPos && state.ectopicLabel && rhythmKey !== 'af' && (
-          <text x={ex} y={ey + 13} textAnchor="middle" fontSize="6"
-            fill={CD_COLORS.ectopic} fontWeight="600">{state.ectopicLabel}</text>
-        )}
+
+        {/* Generic ectopic focus for other rhythms */}
+        {state.ectopicPos && rhythmKey !== 'af' && (<>
+          <circle cx={ex} cy={ey} r="7.5" fill={CD_COLORS.ectopic}
+            className="acls-conduction-ectopic" opacity="0.88" />
+          {state.ectopicLabel && (
+            <text x={ex} y={ey + 14} textAnchor="middle" fontSize="6.5"
+              fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
+          )}
+        </>)}
+
       </svg>
       {state.caption && (
         <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 4, textAlign: 'center', lineHeight: 1.4 }}>
