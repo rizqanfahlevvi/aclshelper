@@ -328,7 +328,7 @@ const MOBILE_MENU = [
   { key: 'drugs', label: 'Obat',        desc: '25 obat emergensi',      icon: Icons.pill },
   { key: 'tools', label: 'Pustaka EKG', desc: '16 ritme kardiologi',    icon: Icons.ekg },
   { key: 'hsts',  label: 'Hs & Ts',     desc: '10 penyebab reversibel', icon: Icons.clipboard },
-  { key: 'calc',  label: 'Kalkulator',  desc: '8 skoring kardiovaskular', icon: Icons.calculator },
+  { key: 'calc',  label: 'Kalkulator',  desc: '13 kalkulator klinis', icon: Icons.calculator },
 ];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
