@@ -145,9 +145,10 @@ interface AppTopBarProps {
   sidebarOpen?: boolean;
   onGoHome?: () => void;
   fontScale: number;
-  onCycleFontScale: () => void;
+  onFontScaleChange: (v: number) => void;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onCycleFontScale }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange }: AppTopBarProps) {
+  const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
 
@@ -238,20 +239,70 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
           <Icons.reset size={15} stroke={2}
             style={{ animation: updateState === 'checking' ? 'acls-spin 0.8s linear infinite' : 'none' }}/>
         </button>
-        <button
-          onClick={onCycleFontScale}
-          title={fontScale === 1 ? 'Ukuran teks: Normal' : fontScale === 1.125 ? 'Ukuran teks: Besar' : 'Ukuran teks: Ekstra Besar'}
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 32, height: 32, borderRadius: 8,
-            background: fontScale !== 1 ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
-            border: 0, cursor: 'pointer',
-            color: fontScale !== 1 ? 'var(--accent)' : 'var(--label-secondary)',
-            transition: 'background 200ms, color 200ms',
-          }}
-          aria-label="Ubah ukuran teks">
-          <span style={{ fontWeight: 700, fontSize: fontScale === 1 ? 13 : fontScale === 1.125 ? 15 : 17, lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em', transition: 'font-size 150ms' }}>A</span>
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setFontPopoverOpen(o => !o)}
+            title="Ukuran teks"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32, borderRadius: 8,
+              background: fontPopoverOpen || fontScale !== 1 ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer',
+              color: fontPopoverOpen || fontScale !== 1 ? 'var(--accent)' : 'var(--label-secondary)',
+              transition: 'background 200ms, color 200ms',
+            }}
+            aria-label="Ubah ukuran teks">
+            <span style={{ fontWeight: 700, fontSize: 14, lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em' }}>A</span>
+          </button>
+
+          {fontPopoverOpen && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, zIndex: 199 }} onClick={() => setFontPopoverOpen(false)}/>
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                zIndex: 200,
+                background: 'var(--bg-secondary)',
+                borderRadius: 18,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
+                padding: '16px 18px',
+                width: 288,
+                animation: 'acls-fadeslide 200ms var(--ease-out) both',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <span className="t-footnote" style={{ fontWeight: 600, color: 'var(--label-secondary)' }}>Ukuran Teks</span>
+                  <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
+                    {Math.round(fontScale * 100)}%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
+                  <input
+                    type="range"
+                    min={0.75}
+                    max={1.5}
+                    step={0.05}
+                    value={fontScale}
+                    onChange={e => onFontScaleChange(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor: 'var(--accent)', cursor: 'pointer', height: 4 }}
+                  />
+                  <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
+                </div>
+                {fontScale !== 1 && (
+                  <button
+                    onClick={() => onFontScaleChange(1)}
+                    style={{
+                      marginTop: 14, width: '100%', padding: '9px', borderRadius: 10,
+                      background: 'var(--fill-quaternary)', border: 'none', cursor: 'pointer',
+                      color: 'var(--label-secondary)', fontSize: 13, fontWeight: 500,
+                    }}
+                  >
+                    Reset ke Normal
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
         <button
           onClick={onToggleTheme}
           style={{
@@ -388,8 +439,6 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: Mobi
   );
 }
 
-const FONT_SCALES = [1, 1.125, 1.25] as const;
-
 export default function App() {
   const bp = useBreakpoint();
   const isMobile = bp === 'mobile';
@@ -397,18 +446,12 @@ export default function App() {
 
   const [fontScale, setFontScale] = useState<number>(() => {
     const saved = parseFloat(localStorage.getItem('acls_font_scale') || '');
-    return FONT_SCALES.includes(saved as typeof FONT_SCALES[number]) ? saved : 1;
+    return !isNaN(saved) && saved >= 0.75 && saved <= 1.5 ? saved : 1;
   });
   useEffect(() => {
-    document.documentElement.style.fontSize = fontScale === 1 ? '' : `${fontScale * 16}px`;
+    document.documentElement.style.fontSize = fontScale === 1 ? '' : `${Math.round(fontScale * 100)}%`;
     localStorage.setItem('acls_font_scale', String(fontScale));
   }, [fontScale]);
-  const cycleFontScale = () => {
-    setFontScale(cur => {
-      const idx = FONT_SCALES.indexOf(cur as typeof FONT_SCALES[number]);
-      return FONT_SCALES[(idx + 1) % FONT_SCALES.length];
-    });
-  };
 
   /* Ref always holds latest nav state — used by popstate to avoid stale closures */
   const navRef = useRef<{ cprOpen: boolean; bp: string; tab?: Tab; stack?: NavStack; deskView?: DeskView }>({ cprOpen: false, bp: 'mobile' });
@@ -614,7 +657,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onCycleFontScale={cycleFontScale}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
         </div>
 
         <MobileSidebar
@@ -738,7 +781,7 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onCycleFontScale={cycleFontScale}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
