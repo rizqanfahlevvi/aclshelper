@@ -10,7 +10,7 @@ export default defineConfig({
       includeAssets: ['icons/icon-192.svg', 'icons/icon-512.svg'],
       manifest: {
         name: 'ACLS Helper',
-        short_name: 'ACLS',
+        short_name: 'ACLS Helper',
         description: 'Alat bantu kognitif bedside BHJL/BHJD — PERKI 2025 + AHA 2025',
         theme_color: '#FF3B30',
         background_color: '#F2F2F7',
