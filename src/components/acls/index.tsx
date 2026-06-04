@@ -300,309 +300,127 @@ const CONDUCTION_MAP: Record<string, ConductionState> = {
                caption:'De Winter — konduksi normal, pola iskemia LAD proksimal' },
 };
 
+/* SVG1 path data — extracted from Heart_and_electrical_conduction_system.svg (g5805) */
+const S1_SA_CRISTA  = 'M535.06314,311.55716c4.48047,8.79492,9.47324,19.90014,15.28125,32.84375-7.63339-6.47181-12.11-8.94092-13.4375-7.28125-1.16162,1.6593,1.31915,4.46655,7.625,8.78125,4.14856,2.98693,7.14337,5.63574,8.96875,8.125,2.987,4.64636,5.96021,12.30725,8.78125,23.09375,5.47614,20.74267,9.28995,37.33325,11.28125,49.28125-34.848-28.04432-54.09924-43.4795-57.75-45.96875-3.4848-2.48926-5.79745-3.49805-7.125-3-1.16159.66369-.15292,2.15722,3,4.8125,3.31888,2.48913,6.79862,5.4934,10.78125,8.8125,3.81668,3.31872,8.27387,7.12512,13.75,11.9375,6.13992,5.31,6.64423,6.46752,1.5,3.8125a178.43314,178.43314,0,0,1-15.75-9.96875c-5.31018-3.81665-7.31787-4.47754-6.15625-1.65625,1.32755,2.65515,4.98511,6.14233,11.125,10.125a190.13392,190.13392,0,0,0,25.5625,13.625q16.17948,7.46722,21.40625,18.40625c3.65073,7.30151,5.81467,13.77392,6.3125,19.25.49783,2.98706.82437,7.305,1.15625,12.78125a145.43487,145.43487,0,0,1,.5,15.28125c-4.31454-8.96106-8.29428-14.11976-11.28125-15.28125-3.15292-1.16163-2.3436,2.32763,2.46875,10.625,4.64642,8.29711,6.32755,14.93762,5,19.75a6.23571,6.23571,0,0,1-1,2.8125c-1.82538,2.98706-3.319,4.82653-4.8125,5.65625-1.32754.66369-4.98294.8103-10.625.3125a47.48148,47.48148,0,0,1-16.75-4.46875c-5.31018-2.48926-11.96036-5.82019-19.59375-9.96875-12.27978-6.6377-33.02463-23.55689-62.5625-50.9375,9.6247,1.65942,14.764,1.83715,15.59375.34375.82971-1.65955-1.47323-2.5-7.28125-2.5a25.599,25.599,0,0,1-15.4375-4.96875,164.14006,164.14006,0,0,1-15.09375-13.4375c-5.47613-5.64209-10.457-10.46668-14.9375-14.78125,3.15292.82971,4.805.67334,5.46875-.15625.66376-.99573-.32336-1.65857-2.8125-2.15625a12.2592,12.2592,0,0,1-6.65625-3c-2.15726-1.82532-7.62314-6.62854-16.75-14.59375-9.29278-8.13135-17.941-16.45276-25.90625-24.75,4.81238,1.32763,7.3028,1.01513,7.46875-.3125.16589-1.49341-1.49579-2.49268-5.3125-3.15625-3.65076-.82984-8.45166-3.32019-14.09375-7.46875a5.51022,5.51022,0,0,0-1-1c-.17871-.14893-.47363-.44043-.65625-.59375v9.28125c5.85748,5.40612,12.08411,11.42675,18.90625,18.53125q1.24457,1.4934,60.25,58.40625c1.16162,1.16162,9.30542,8.4552,24.40625,22.0625s30.0123,26.05944,44.78125,37.34375a82.23957,82.23957,0,0,0,11.625,7.625c3.81671,1.99121,6.29529,4.83947,7.125,8.65625a48.91967,48.91967,0,0,1,1.1875,13.9375c-.33188,5.8081.6337,7.28015,2.625,4.625,2.15726-2.48914,2.83188-9.4347,2.5-20.71875,14.10516,10.78625,22.57553,19.55944,25.5625,26.03125a23.4813,23.4813,0,0,1,1.65625,8.625,90.5943,90.5943,0,0,1-1.15625,10.8125,48.44808,48.44808,0,0,1-1.65625,8.28125c-1.16159,4.64624-1.181,6.64221.3125,5.8125,3.4848-2.48926,6.32117-11.28394,8.3125-26.21875,6.96961,6.30578,11.26621,8.96435,12.59375,7.96875,1.49347-1.16175,1.6713-2.16065.34375-3.15625a96.01065,96.01065,0,0,1-6.96875-6.625,55.0272,55.0272,0,0,1-7.96875-10.8125,104.7434,104.7434,0,0,0-7.78125-11.28125c9.45874-.166,16.89887-4.48633,22.375-13.28125,5.47614-8.62915,7.30383-21.06946,5.3125-37-.49783-4.31446-1.96991-12.605-4.625-24.71875-2.32324-11.782-3.64654-18.26624-3.8125-19.59375-1.16159-10.95215-2.00217-18.91614-2.5-23.5625q-.99568-11.94782,1-17.90625c2.987-9.95667,4.30063-16.4292,3.96875-19.25-.33188-2.98706-1.3287-2.83851-2.65625.8125a110.84127,110.84127,0,0,0-4.46875,12.78125c-1.4935,4.81237-3.14337,4.67309-4.96875-.96875-1.82538-5.80823-3.485-10.12842-4.8125-13.28125-1.99133-4.31446-3.65307-8.81055-5.3125-13.125a330.10206,330.10206,0,0,0-16.09375-37.15625Zm-76.125,10.9375c-.006,0,18.72922,21.72045,11.40625,26.71875l1.71875-.8125c-.216.16638-.43548.3385-.65625.5-2.11136,2.26294-.63275-1.34156-2.46875-1.53125-3.64142,2.50293-4.118,7.78552-6.65625,11.375q-2.97858,2.81616-5.78125,5.8125c1.141-14.60059-8.39383-31.19214-13.34375-34.5-4.8808-3.26172,14.70783,28.35241,10.71875,37.40625-.92984,1.04565-1.82413,2.09558-2.71875,3.15625-.94742,1.20251-6.1799,5.89025-4.28125,1.5625-.3006-3.02393-2.93637-.27686-4.40625,1.65625,1.42047-16.8982-10.8775-39.17579-13.21875-39.6875-2.858-.62464,14.65955,32.03344,10.65625,42.21875l-4.5,3.25c1.8197-17.48987-10.40854-38.87317-13.125-40.75-2.78351-1.9231,15.54376,33.93249,10.28125,43.0625a56.255,56.255,0,0,1-5.59375,3.375,68.21632,68.21632,0,0,1-17.28125,6.59375l4.81693,4.48437c.78244-.035,1.10437-.66736,1.87057-.82812,7.45-1.96558,13.82822-6.56458,20.53125-10.1875,1.27408-.58362,2.53885-1.22193,3.78125-1.90625,11.06354,13.56372,32.46472,19.6737,38,19.4375,5.527-.23584-27.30963-11.84717-34.51349-21.46875a27.44607,27.44607,0,0,0,5.451-4.25,21.68281,21.68281,0,0,1,3.875-3.125c9.29053,9.30676,29.18311,14.46777,31.8125,13.4375,2.6825-1.05115-22.89819-8.38733-29.43756-15.16517,2.75186-1.627,4.63852-2.0736,7.31256-3.99108,3.47394-.32325,2.53781-5.69288-.625-3.625.14557-.96582,4.42929-5.35669,6.8125-7,.05991-.05506-1.32272-.75525.1875-.15625,1.38385.54895,17.02854,15.93188,21.21875,14.15625,4.19022-1.77576-14.45654-11.24244-19.01791-15.88392a81.32426,81.32426,0,0,0,10.48666-11.86608c1.481-1.89966,5.95252-8.0846,1.53125-8.25a85.25326,85.25326,0,0,1-9.59375,10.90625C475.70087,336.37271,465.84207,324.99429,458.93814,322.49466Z';
+const S1_SA_BODY2   = 'M498.56689,238.542c-2.987-5.808-4.31451-9.95654-4.31451-12.44568a46.70391,46.70391,0,0,1,0-4.97827h-2.65509a18.08636,18.08636,0,0,0-.33188,5.642c0,2.48925,1.32755,6.80371,4.48047,13.27551,2.987,6.30579,4.48047,11.28406,4.64642,14.93494-5.14422-4.14856-9.45877-12.27979-12.77761-24.39368h-2.987c2.48913,9.79065,4.64639,15.93054,6.30581,18.58557,1.4935,1.82544,4.97831,6.80371,10.78629,14.769,4.31451,5.31018,8.29715,10.12256,12.27978,14.76892l3.48481-6.80371c-7.96528-10.12256-12.44574-16.76025-13.1095-19.58117a93.77564,93.77564,0,0,0-5.808-13.77332Z';
+const S1_SA_BODY3   = 'M513.99957,278.70022c1.4935,1.82544,3.15293,3.81665,4.81235,5.64209.33188.4978.82971.99561,1.16159,1.49353,3.65076,4.14856,8.795,12.77759,15.10083,25.72107l10.28848,1.99146c-.82971-1.65955-2.987-5.4762-6.63772-11.782-3.4848-6.13989-5.808-10.45434-7.13556-12.61169a34.92715,34.92715,0,0,1-4.14859-8.29712c-1.32755-3.31885-1.65943-8.13122-.82971-14.10522.66378-6.30579.33188-8.96094-1.32755-7.96534-1.4935.82984-2.65509,7.13562-3.15292,18.91761-1.65943-1.99146-3.31885-3.98267-4.64639-5.80811Z';
+const S1_INTERNODAL = 'M239.56314,304.96341a9.30921,9.30921,0,0,0-1.25-.84375,13.62826,13.62826,0,0,0-2.71875-.5c.72809,2.18774,1.3811,4.3258,2.28125,6.625-2.32324,0-4.82336.30285-7.3125.46875-.055-2.4198.03943-4.792.09369-7.1875-.72235.078-1.36359.042-2.125.1875-.56128.10705-1.20062.35717-1.78125.5-.27234,4.05786-.17364,2.79248-.5,7.6875a36.69236,36.69236,0,0,0-14.28125,6.625c-7.79932,6.13989-12.93866,9.12719-15.59375,9.625-1.74054.23205-4.02258.274-6.25.34375-.417.45251-.90887.8894-1.3125,1.34375-.60614.68225-1.08093,1.37744-1.65625,2.0625,1.75269.142,3.54022.40625,5.25.40625a17.54026,17.54026,0,0,1,3.46875-.1875,87.78635,87.78635,0,0,0-11.78125,11.78125c-1.14893-1.40418-1.97906-2.45874-3.0625-3.78125-.66,1.00756-1.41711,2.03845-2,3.03125-.16235.27661-.25.53735-.40625.8125.84155,1.09387,1.7735,2.20275,2.5,3.28125-2.41736,6.04345-5.15961,10.3883-8.15625,13.46875-.005.01.005.026,0,.031a13.56322,13.56322,0,0,0,.59375,4.4375,9.09164,9.09164,0,0,0,5.4375,5.75,13.60435,13.60435,0,0,0,4.125.78125,76.97447,76.97447,0,0,0,20.90625-10.375c7.79932-5.64209,15.74377-15.08984,23.875-28.53125a34.39249,34.39249,0,0,1,15.84375-14.5,23.72353,23.72353,0,0,0,.5625-3.96875,13.59378,13.59378,0,0,0-.5625-4.28125h-2.0625c-.81952-1.63916-1.43719-3.38818-2.125-5.09375Z';
+const S1_AV_NODE    = 'M343.96939,369.61966h9.25c-.05377-.054-.13385-.10254-.1875-.15625-11.94787-11.94788-19.42145-23.40345-22.90625-34.6875,8.5603,2.97229,20.38562,11.46386,35.1875,25.125v-9.28125c-3.88739-3.26758-8.54632-7.4281-14.09375-12.5a59.89632,59.89632,0,0,0-17.4375-11.78125c-5.97394-2.48926-8.94934-3.98279-9.28125-4.8125-5.808-8.62891-16.7785-12.62281-32.875-12.125-18.58557.82971-34.189.988-46.46875.65625h-1.3125c-.03607,0-.05829-.00025-.09369,0a13.59253,13.59253,0,0,1,.5625,4.28125,23.72194,23.72194,0,0,1-.5625,3.96875q9.66093-4.24659,23-2.78125c17.92182,1.82531,28.54645,3.4945,32.03125,4.65625,3.65076,1.32739,6.13153,2.97961,7.625,5.46875a7.54739,7.54739,0,0,0,6.3125,3.5c2.4892,0,5.13587,1.80835,7.625,5.625a164.71961,164.71961,0,0,1,9.78125,17.09375c2.48914,5.31,6.32453,10.29321,11.46875,15.4375,1.09815,1.13464,1.40821,1.33813,2.375,2.3125Z';
+const S1_HIS        = 'M134.31314,182.65091a36.1,36.1,0,0,0-3.0625-2.375,45.58947,45.58947,0,0,0-4.09375-2.15625c-22.63861,1.80957-37.586,5.38293-44.4375,10.8125-7.76489,6.00695-12.94208,15.82507-15.90625,28.84375.86029.66,1.61194,1.39343,2.5625,2a45.53489,45.53489,0,0,0,6.46875,3.40625c1.43872.62023,3.04028,1.0841,4.59375,1.59375.16919-.38965.25922-.76636.4375-1.15625a81.05942,81.05942,0,0,0,11.28125-1.6875,47.39655,47.39655,0,0,0-5.15625,4.5625c1.49292.30627,2.94208.67138,4.5.875.5556.073,1.1557.066,1.71875.125,5.866-5.34485,13.248-10.15662,22.1875-14.6875a81.55826,81.55826,0,0,1,27.96875-8.4375,18.10292,18.10292,0,0,0,.6875-4.34375c0-.17041-.05768-.33033-.0625-.5a84.90775,84.90775,0,0,0-17.15625,3.1875l1.15625-14.9375a84.83715,84.83715,0,0,0,15.53125,8.75,18.72829,18.72829,0,0,0-.34375-2.125,20.84071,20.84071,0,0,0-1.03125-2.09375,62.59063,62.59063,0,0,1-13.8125-9.34375C130.18558,182.81411,132.38327,182.7709,134.31314,182.65091Z';
+const S1_RBB        = 'M93.21939,227.49466c-.56305-.059-1.16315-.052-1.71875-.125-1.55792-.20362-3.00708-.56873-4.5-.875-1.21344,1.21972-2.39209,2.45788-3.46875,3.75a91.50808,91.50808,0,0,0-7.625,10.28125,58.43257,58.43257,0,0,1,4.53125-15.75c-1.55347-.50965-3.155-.97339-4.59375-1.59375a45.53489,45.53489,0,0,1-6.46875-3.40625c-.95056-.60657-1.70221-1.34-2.5625-2-.39319,1.727-.87652,3.30993-1.1875,5.15625-2.32318,13.77331-1.34576,25.22863,2.96875,34.6875-2.32318,8.96106-3.3103,24.72265-2.8125,47.125.166,22.2362,6.79675,39.343,19.90625,51.125,12.77759,11.61608,25.912,18.23474,39.1875,19.5625a214.70431,214.70431,0,0,0,41.3125,0,81.56757,81.56757,0,0,0,16.9375-3.71875,13.59706,13.59706,0,0,1-4.125-.78125,9.09164,9.09164,0,0,1-5.4375-5.75,13.56169,13.56169,0,0,1-.59375-4.4375,16.02126,16.02126,0,0,1-7.625,4.75c-5.14422,1.16149-11.77722,1.81457-20.40625,2.3125a126.51869,126.51869,0,0,1-31.03125-2.65625c-8.96094-2.15735-15.762-5.45716-20.90625-9.9375-.9956-.66382-4.6532-4.99158-11.125-12.625-8.46307-9.95655-12.4353-27.8844-11.9375-53.9375a121.635,121.635,0,0,1,2.3125-24.375c7.13556,10.45434,20.42841,20.74255,39.84375,31.03125,33.08252,17.46875,55.0708,33.76,66.53125,48.65625.15625-.27515.2439-.53589.40625-.8125.58289-.9928,1.34-2.02369,2-3.03125-3.14166-3.835-6.28381-7.63721-8.875-10.96875a68.89027,68.89027,0,0,0,15,2.75c.57532-.68506,1.05011-1.38025,1.65625-2.0625.40363-.45435.89551-.89136,1.3125-1.34375-.958.03-1.63946.15625-2.6875.15625-3.65076-.166-8.97009-1.50342-16.4375-4.65625a112.67635,112.67635,0,0,1-20.75-11.78125c-6.47174-4.97828-18.41974-12.0918-35.84375-21.21875-19.41534-10.28858-32.51849-20.76441-39.15625-31.21875-.33191-.82972-.82434-1.66065-1.15625-2.65625a.60354.60354,0,0,1,.15625-.5c2.32318-8.13123,6.64356-15.75135,13.28125-23.21875A59.01644,59.01644,0,0,1,93.21939,227.49466Zm-22.625-4.71875a26.72,26.72,0,0,0,6.65625,1,62.33061,62.33061,0,0,0-4.65625,23.21875,27.14947,27.14947,0,0,0-1.5,3.15625c-1.99127-7.63343-2.31567-16.41846-.65625-26.375C70.6041,223.60989,70.59439,223.10781,70.59439,222.77591Z';
+const S1_LBB        = 'M142.15689,192.30716a20.84071,20.84071,0,0,1,1.03125,2.09375,18.72829,18.72829,0,0,1,.34375,2.125c1.82349.8396,3.38178,1.70654,5.40625,2.53125-1.67932.036-3.28674.32287-4.9375.46875.005.16967.0625.32959.0625.5a18.101,18.101,0,0,1-.6875,4.34375,76.101,76.101,0,0,1,9.375-.5,272.92955,272.92955,0,0,1,40.3125,2.96875c11.78192,1.65942,21.0907,8.79235,27.5625,20.90625,5.974,11.61584,8.9353,25.22558,8.4375,41.15625,0,1.09021-1.06146,16.67175-2.3125,35.3125.58063-.14283,1.22-.39295,1.78125-.5.76141-.14515,1.40265-.10938,2.125-.1875.10968-4.83252.3515-9.64966.90625-14.53125a124.12023,124.12023,0,0,0,4.03125,14.625,13.61973,13.61973,0,0,1,2.71875.5,9.28664,9.28664,0,0,1,1.25.84375c-4.18689-10.38208-6.07013-21.93628-5.5-34.90625.99567-16.76026-1.98944-31.51563-9.125-44.625-7.30145-13.77344-17.77734-21.73719-31.21875-23.5625a261.40151,261.40151,0,0,0-34.34375-2.8125A99.86286,99.86286,0,0,1,142.15689,192.30716Z';
+const S1_BRANCHES   = 'M359.46939,115.58841q-17.46679-1.01514-58.875,15.75-55.0101,22.40222-70.1875,27.5625c-9.61631,3.46819-14.89589,5.12381-15.82665,5.56528a1.70393,1.70393,0,0,1-.23208.09655c-24.5115,7.44419-46.70469,11.57232-66.25377,12.40067-5.84235.16689-11.17523.45063-16.21317.802a1.36275,1.36275,0,0,0-.63058,2.51047v0a27.47776,27.47776,0,0,1,2.65106,2.04213,1.35015,1.35015,0,0,0,.93979.3c4.32518-.26976,8.60875-.54294,13.40915-.6546,21.40662-.82959,47.14209-6.3053,77.34375-16.59375,16.09644-5.64222,33.34-12.44324,51.59375-20.90632q72.43415-33.35457,90.625-22.59375a46.22027,46.22027,0,0,1,7.78125,6.00007,39.47573,39.47573,0,0,1,6.15625,6.96868c1.65943,2.48908,1.82758,8.11121.5,16.90632a141.52738,141.52738,0,0,1-7.3125,26.90625c-3.31891,9.29284-4.47412,14.09375-3.3125,14.09375.99567.16577,2.64337-2.81922,4.46875-9.125,1.0487-3.23347,2.10192-6.28479,3.17914-9.0792a1.35326,1.35326,0,0,1,2.6114.56876c-.14724,2.68449-.31434,5.63111-.478,8.82294-.4978,6.4718-.15192,10.12695.84375,10.625.82971.66357,1.471-2.82361,1.96875-10.125.33191-7.46741.5-13.26966.5-17.75-.15734-4.407.29889-13.43566,1.62056-27.23883a1.356,1.356,0,0,1,2.10585-.99991c2.81453,1.89442,5.90523,3.80493,9.55484,5.83242,5.97562,3.31891,10.96838,6.15522,15.28125,8.31257a18.81094,18.81094,0,0,1,9.28125,9.9375c2.15726,4.48034,2.49567,9.96777,1.5,16.9375-.99567,6.63769-.99567,8.63354,0,5.8125,1.32755-3.153,1.82437-6.81055,2.15625-11.125a51.79716,51.79716,0,0,0-.90318-10.8809,1.35659,1.35659,0,0,1,2.249-1.23241c4.68444,4.29382,7.14038,8.9113,7.2792,13.76956q0,13.19256,1.5,0c1.16159-8.79505-5.98108-17.08545-20.75-24.71875q-22.4023-11.45015-28.375-17.4375c-3.98266-3.98273-10.28693-9.10041-18.75-15.40625C366.35361,116.70968,363.35092,115.814,359.46939,115.58841Z';
+
 export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.ReactElement | null {
   const state = CONDUCTION_MAP[rhythmKey];
   if (!state) return null;
   const c = (s: NodeState) => CD_COLORS[s];
-  const clipId = `cd-${rhythmKey}`;
-
   const on = (s: NodeState) => s === 'active' || s === 'ectopic';
   const cs = (s: NodeState, delay: number): React.CSSProperties =>
     on(s) ? { animationDelay: `${delay}s` } : { display: 'none' };
-
-  // Anatomical heart silhouette (300 × 280 viewBox)
-  const HEART = 'M 148 268 C 66 252 24 210 24 162 C 24 110 46 60 84 52 C 100 46 118 42 134 50 C 140 54 145 62 146 72 C 148 62 156 50 172 44 C 192 36 222 44 244 68 C 266 98 274 142 274 174 C 274 224 242 266 148 268 Z';
-
-  // Ectopic positions in 300×280 viewBox
-  const ectopicCoords: Record<string, [number, number]> = {
-    ra: [58, 105], la: [232, 95], rv: [68, 210], lv: [222, 205],
-  };
-  const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
 
   return (
     <div style={{ background: 'var(--bg-tertiary)', borderRadius: 14, padding: '12px 14px 8px', boxShadow: 'var(--shadow-1)' }}>
       <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>
         SISTEM KONDUKSI JANTUNG
       </div>
-
-      {/* ── Anatomical heart diagram (300 × 280) ── */}
-      <svg viewBox="0 0 300 280" width="100%" style={{ display: 'block', overflow: 'visible' }}>
-        <defs>
-          <clipPath id={clipId}>
-            <path d={HEART} />
-          </clipPath>
-        </defs>
-
-        {/* === Chamber fills via clipPath === */}
-        <rect x="0"   y="0"   width="148" height="148" fill={c(state.raPath)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="148" y="0"   width="152" height="148" fill={c(state.laPath)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="0"   y="148" width="148" height="132" fill={c(state.rvFill)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="148" y="148" width="152" height="132" fill={c(state.lvFill)} opacity="0.13" clipPath={`url(#${clipId})`} />
-
-        {/* === Heart silhouette === */}
-        <path d={HEART} fill="none" stroke="var(--separator-opaque)" strokeWidth="1.8" />
-
-        {/* AV groove */}
-        <path d="M 28 148 Q 148 138 272 148" fill="none" stroke="var(--separator-opaque)"
-          strokeWidth="0.9" strokeDasharray="4 2" opacity="0.6" />
-
-        {/* Interatrial septum */}
-        <line x1="148" y1="62" x2="148" y2="148"
-          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
-
-        {/* Interventricular septum */}
-        <line x1="148" y1="148" x2="148" y2="268"
-          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
-
-        {/* === Chamber labels === */}
-        <text x="46"  y="112" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RA</text>
-        <text x="232" y="90"  textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LA</text>
-        <text x="52"  y="205" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RV</text>
-        <text x="240" y="178" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LV</text>
-
-        {/* === BACKGROUND STATIC PATHWAYS === */}
-
-        {/* Bachmann's bundle: SA → LA across atrial roof */}
-        <path d="M 92 66 C 122 46 172 44 202 58"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
-
-        {/* Internodal tract 1 – Anterior (crista terminalis arc) */}
-        <path d="M 94 68 C 124 48 144 62 142 96 C 142 112 138 121 128 125"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* Internodal tract 2 – Middle (direct) */}
-        <path d="M 92 76 C 108 88 124 104 124 122"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* Internodal tract 3 – Posterior (lower arc) */}
-        <path d="M 88 80 C 78 100 88 118 120 128"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* Bundle of His */}
-        <path d="M 128 132 C 136 146 142 158 148 170"
-          fill="none" stroke={c(state.his)} strokeWidth="2.6" strokeLinecap="round" opacity="0.22" />
-
-        {/* RBB – down left side of IVS into RV */}
-        <path d="M 148 170 C 136 186 116 210 100 234 C 90 250 84 260 82 268"
-          fill="none" stroke={c(state.rbb)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
-
-        {/* LBB trunk */}
-        <path d="M 148 170 C 162 182 180 198 186 216"
-          fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
-
-        {/* LBB branch A – lateral wall */}
-        <path d="M 186 216 C 204 206 232 200 252 212"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB branch B – apical */}
-        <path d="M 186 216 C 180 234 173 252 169 268"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB branch C – posterior wall */}
-        <path d="M 186 216 C 204 226 228 240 244 256"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB sub-branches from A */}
-        <path d="M 252 212 C 260 204 265 196 264 190"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 252 212 C 258 220 263 228 262 236"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
-        {/* LBB sub-branches from C */}
-        <path d="M 244 256 C 252 250 257 242 258 236"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 244 256 C 250 264 254 270 254 274"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
-        {/* LBB terminal from B */}
-        <path d="M 169 268 C 172 274 174 278 175 280"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
-        {/* RV Purkinje from RBB terminal */}
-        <path d="M 82 268 C 67 260 52 256 44 260"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.4" strokeLinecap="round" opacity="0.18" />
-        <path d="M 82 268 C 76 276 72 280 68 280"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.4" strokeLinecap="round" opacity="0.18" />
-
-        {/* Papillary muscles (subtle ellipses) */}
-        <ellipse cx="76"  cy="218" rx="9" ry="5" fill="var(--separator-opaque)" opacity="0.16" />
-        <ellipse cx="212" cy="212" rx="9" ry="5" fill="var(--separator-opaque)" opacity="0.16" />
-        <ellipse cx="244" cy="226" rx="7" ry="4" fill="var(--separator-opaque)" opacity="0.13" />
-
-        {/* ═══════════════════════════════════════════════════
-            ANIMATED OVERLAY — impulse propagation
-        ═══════════════════════════════════════════════════ */}
-
-        {/* SA node ripple ring */}
+      <svg viewBox="0 0 615.51631 607.96356" width="100%" style={{ display: 'block' }}>
+        <image href="/heart-anatomy.svg" width="615.51631" height="607.96356" opacity={0.65} />
+        {/* SA node region (cls-17 = yellow) */}
+        <path d={S1_SA_CRISTA} fill={c(state.sa)} opacity={0.75} />
+        <path d={S1_SA_BODY2}  fill={c(state.sa)} opacity={0.70} />
+        <path d={S1_SA_BODY3}  fill={c(state.sa)} opacity={0.70} />
         {state.sa === 'active' && (
-          <ellipse cx="88" cy="74" rx="22" ry="13" fill="none" stroke={c('active')} strokeWidth="2"
+          <circle cx="535" cy="320" r="22" fill="none" stroke={c('active')} strokeWidth="2.5"
             className="acls-sa-ring" />
         )}
-
-        {/* Bachmann's bundle animated */}
-        <path d="M 92 66 C 122 46 172 44 202 58"
-          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0)} />
-
-        {/* Internodal tract 1 – Anterior animated */}
-        <path d="M 94 68 C 124 48 144 62 142 96 C 142 112 138 121 128 125"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.02)} />
-
-        {/* Internodal tract 2 – Middle animated */}
-        <path d="M 92 76 C 108 88 124 104 124 122"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.04)} />
-
-        {/* Internodal tract 3 – Posterior animated */}
-        <path d="M 88 80 C 78 100 88 118 120 128"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.06)} />
-
-        {/* AV node ripple ring */}
+        {/* Internodal tract (cls-19 = blue) — animated */}
+        <path d={S1_INTERNODAL} fill={c(state.raPath)} opacity={0.30} />
+        <path d={S1_INTERNODAL} fill="none" stroke={c(state.raPath)} strokeWidth="4"
+          strokeLinecap="round" strokeLinejoin="round" pathLength={100}
+          className="acls-cs-path" style={cs(state.raPath, 0)} />
+        {/* AV node (cls-18 = gradient) */}
+        <path d={S1_AV_NODE} fill={c(state.av)} opacity={0.85} />
         {state.av === 'active' && (
-          <ellipse cx="124" cy="128" rx="22" ry="13" fill="none" stroke={c('active')} strokeWidth="2"
+          <circle cx="360" cy="378" r="16" fill="none" stroke={c('active')} strokeWidth="2.5"
             className="acls-av-ring" />
         )}
-
-        {/* Bundle of His animated */}
-        <path d="M 128 132 C 136 146 142 158 148 170"
-          fill="none" stroke={c(state.his)} strokeWidth="3" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.his, 0.33)} />
-
-        {/* RBB animated */}
-        <path d="M 148 170 C 136 186 116 210 100 234 C 90 250 84 260 82 268"
-          fill="none" stroke={c(state.rbb)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.rbb, 0.40)} />
-
-        {/* LBB trunk animated */}
-        <path d="M 148 170 C 162 182 180 198 186 216"
-          fill="none" stroke={c(state.lbb)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.40)} />
-
-        {/* LBB major branches animated */}
-        {on(state.lbb) && (<>
-          <path d="M 186 216 C 204 206 232 200 252 212"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.49s' }} />
-          <path d="M 186 216 C 180 234 173 252 169 268"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.50s' }} />
-          <path d="M 186 216 C 204 226 228 240 244 256"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.51s' }} />
-        </>)}
-
-        {/* Purkinje RV animated */}
-        {on(state.rvFill) && (<>
-          <path d="M 82 268 C 67 260 52 256 44 260"
-            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
-          <path d="M 82 268 C 76 276 72 280 68 280"
-            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
-        </>)}
-
-        {/* Purkinje LV sub-branches animated */}
-        {on(state.lvFill) && (<>
-          <path d="M 252 212 C 260 204 265 196 264 190"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
-          <path d="M 252 212 C 258 220 263 228 262 236"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
-          <path d="M 244 256 C 252 250 257 242 258 236"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
-          <path d="M 244 256 C 250 264 254 270 254 274"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.61s' }} />
-          <path d="M 169 268 C 172 274 174 278 175 280"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
-        </>)}
-
-        {/* ═══════════════════════════════════════════════════
-            NODE OVALS — SA and AV (anatomical)
-        ═══════════════════════════════════════════════════ */}
-
-        {/* SA node — upper RA (near SVC junction) */}
-        <ellipse cx="88" cy="74" rx="22" ry="13" fill={c(state.sa)} opacity="0.9" />
-        <text x="88" y="78" textAnchor="middle" fontSize="7.5" fill="white" fontWeight="700">SA</text>
-
-        {/* AV node — Koch's triangle */}
-        <ellipse cx="124" cy="128" rx="22" ry="13" fill={c(state.av)} opacity="0.9" />
-        <text x="124" y="132" textAnchor="middle" fontSize="7.5" fill="white" fontWeight="700">AV</text>
         {state.av === 'blocked' && (
-          <text x="152" y="122" fontSize="17" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="368" y="383" fontSize="22" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-
-        {/* RBB label */}
-        <text x="108" y="224" textAnchor="middle" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
-        {state.rbb === 'blocked' && (
-          <text x="130" y="194" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
-        )}
-
-        {/* LBB label */}
-        <text x="174" y="180" textAnchor="start" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
+        {/* His bundle (cls-21 = orange) — animated */}
+        <path d={S1_HIS} fill={c(state.his)} opacity={0.35} />
+        <path d={S1_HIS} fill="none" stroke={c(state.his)} strokeWidth="4"
+          strokeLinecap="round" strokeLinejoin="round" pathLength={100}
+          className="acls-cs-path" style={cs(state.his, 0.38)} />
+        {/* Bundle branches (cls-20 = red/pink) */}
+        <path d={S1_BRANCHES} fill={c(state.his)} opacity={0.25} />
+        <path d={S1_RBB} fill={c(state.rbb)} opacity={0.35} />
+        <path d={S1_RBB} fill="none" stroke={c(state.rbb)} strokeWidth="4"
+          strokeLinecap="round" strokeLinejoin="round" pathLength={100}
+          className="acls-cs-path" style={cs(state.rbb, 0.55)} />
+        <path d={S1_LBB} fill={c(state.lbb)} opacity={0.45} />
+        <path d={S1_LBB} fill="none" stroke={c(state.lbb)} strokeWidth="4"
+          strokeLinecap="round" strokeLinejoin="round" pathLength={100}
+          className="acls-cs-path" style={cs(state.lbb, 0.55)} />
         {state.lbb === 'blocked' && (
-          <text x="166" y="165" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="150" y="195" fontSize="22" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-
-        {/* ═══════════════════════════════════════════════════
-            SPECIAL RHYTHM MARKERS
-        ═══════════════════════════════════════════════════ */}
-
-        {/* WPW — accessory pathway arc bypassing AV node */}
-        {rhythmKey === 'wpw' && (
-          <path d="M 202 76 Q 248 112 224 150" fill="none" stroke="#FF9500"
-            strokeWidth="2" strokeDasharray="5 3" opacity="0.85" />
+        {state.rbb === 'blocked' && (
+          <text x="95" y="232" fontSize="22" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
-
-        {/* AF — chaotic multi-focal atrial ectopics */}
+        {/* Labels */}
+        <text x="563" y="305" textAnchor="middle" fontSize="14" fill="var(--label-primary)"  fontWeight="700">SA</text>
+        <text x="390" y="373" textAnchor="start"  fontSize="14" fill="var(--label-primary)"  fontWeight="700">AV</text>
+        <text x="110" y="178" textAnchor="start"  fontSize="12" fill="var(--label-tertiary)" fontWeight="600">His</text>
+        <text x="155" y="190" textAnchor="start"  fontSize="12" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
+        <text x="45"  y="226" textAnchor="start"  fontSize="12" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
+        {/* WPW accessory pathway */}
+        {rhythmKey === 'wpw' && (
+          <path d="M530,322 Q460,355 365,382" fill="none" stroke="#FF9500"
+            strokeWidth="3" strokeDasharray="8 4" opacity={0.85} />
+        )}
+        {/* AF — chaotic atrial ectopics */}
         {rhythmKey === 'af' && (<>
-          <circle cx="44"  cy="84"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82" />
-          <circle cx="70"  cy="115" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
-            style={{ animationDelay: '0.28s' }} />
-          <circle cx="216" cy="76"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82"
-            style={{ animationDelay: '0.55s' }} />
-          <circle cx="244" cy="102" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
-            style={{ animationDelay: '0.84s' }} />
-          <circle cx="148" cy="92"  r="3" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.62"
-            style={{ animationDelay: '1.12s' }} />
+          <circle cx="515" cy="310" r="7" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.85} />
+          <circle cx="548" cy="338" r="6" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.78} style={{ animationDelay: '0.30s' }} />
+          <circle cx="520" cy="360" r="6" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.82} style={{ animationDelay: '0.58s' }} />
+          <circle cx="490" cy="328" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.72} style={{ animationDelay: '0.84s' }} />
+          <circle cx="502" cy="358" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.65} style={{ animationDelay: '1.08s' }} />
         </>)}
-
-        {/* VF / TdP — chaotic multi-focal ventricular */}
+        {/* VF/TdP — chaotic ventricular */}
         {(rhythmKey === 'vf' || rhythmKey === 'torsades') && (
-          ([[70,165],[96,192],[68,222],[195,162],[218,188],[190,218],[148,182],[128,212],[168,238]] as [number,number][]).map(([cx,cy], i) => (
-            <circle key={i} cx={cx} cy={cy} r="3.5" fill={CD_COLORS.blocked}
-              className="acls-conduction-ectopic" opacity="0.45"
-              style={{ animationDelay: `${i * 0.17}s` }} />
+          ([[130,320],[162,362],[98,402],[188,332],[138,422],[78,358],[198,388],[122,462],[163,497],[88,448]] as [number,number][]).map(([cx,cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="5" fill={CD_COLORS.blocked}
+              className="acls-conduction-ectopic" opacity={0.45}
+              style={{ animationDelay: `${i * 0.14}s` }} />
           ))
         )}
-
         {/* Generic ectopic focus */}
-        {state.ectopicPos && rhythmKey !== 'af' && (<>
-          <circle cx={ex} cy={ey} r="9" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.88" />
-          {state.ectopicLabel && (
-            <text x={ex} y={ey + 17} textAnchor="middle" fontSize="6.5"
-              fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
-          )}
-        </>)}
-
+        {state.ectopicPos && rhythmKey !== 'af' && (() => {
+          const ectopicCoords: Record<string, [number, number]> = {
+            ra: [515, 325], la: [285, 305], rv: [100, 420], lv: [168, 395],
+          };
+          const [ex, ey] = ectopicCoords[state.ectopicPos ?? ''] ?? [0, 0];
+          return (<>
+            <circle cx={ex} cy={ey} r="12" fill={CD_COLORS.ectopic}
+              className="acls-conduction-ectopic" opacity={0.88} />
+            {state.ectopicLabel && (
+              <text x={ex} y={ey + 22} textAnchor="middle" fontSize="13"
+                fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
+            )}
+          </>);
+        })()}
       </svg>
-
-      {/* ── Mini ECG strip with synchronized scan cursor ── */}
+      {/* Mini ECG strip with scan cursor */}
       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8,
         marginTop: 6, background: 'var(--bg-secondary)', height: 50 }}>
         <RhythmStrip kind={rhythmKey} width={500} height={50} grid={false} />
         <div className="acls-ecg-cursor" style={{ animationDuration: '1.2s' }} />
       </div>
-
       {state.caption && (
         <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 6, textAlign: 'center', lineHeight: 1.4 }}>
           {state.caption}
