@@ -12,6 +12,7 @@ import {
   ACLS_FLOW_OPIOID, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_PREGNANCY,
   ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
+import { HS_TS_REFERENCES } from '../../data/tools';
 
 /* ============================================================
    Sidebar
@@ -1086,6 +1087,18 @@ export function DesktopHsTs({ onPick }: { onPick?: (type: string, id: string) =>
             </div>
           </div>
         ))}
+      </div>
+      <div style={{ marginTop: 28, paddingTop: 14, borderTop: '0.5px solid var(--separator)' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8, letterSpacing: '0.06em' }}>REFERENSI</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {HS_TS_REFERENCES.map((r, i) => (
+            <div key={i} style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', lineHeight: 1.55, paddingLeft: 10, borderLeft: '2px solid var(--fill-secondary)' }}>
+              {r.url
+                ? <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>{r.text}</a>
+                : r.text}
+            </div>
+          ))}
+        </div>
       </div>
       </div>
     </div>

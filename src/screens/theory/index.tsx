@@ -300,6 +300,19 @@ function CardiacCycleTab() {
           </div>
         ))}
       </div>
+      {/* References */}
+      <div style={{ marginTop: 24, paddingTop: 14, borderTop: '0.5px solid var(--separator)' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8, letterSpacing: '0.06em' }}>REFERENSI</div>
+        {[
+          { text: 'Guyton AC, Hall JE. Textbook of Medical Physiology. 14th ed. Philadelphia: Elsevier; 2021. Chapters 9–10.' },
+          { text: 'Katz AM. Physiology of the Heart. 5th ed. Philadelphia: Lippincott Williams & Wilkins; 2010.' },
+          { text: 'Wiggers CJ. Pressure Pulses in the Cardiovascular System. London: Longmans, Green; 1928.' },
+        ].map((r, i) => (
+          <div key={i} style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', lineHeight: 1.55, paddingLeft: 10, borderLeft: '2px solid var(--fill-secondary)', marginBottom: 4 }}>
+            {r.text}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -402,6 +415,21 @@ function ActionPotentialTab() {
           </div>
         ))}
       </div>
+      {/* References */}
+      <div style={{ marginTop: 24, paddingTop: 14, borderTop: '0.5px solid var(--separator)' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8, letterSpacing: '0.06em' }}>REFERENSI</div>
+        {[
+          { text: 'Bers DM. Cardiac excitation–contraction coupling. Nature. 2002;415:198–205.', url: 'https://doi.org/10.1038/415198a' },
+          { text: 'Grant AO. Cardiac ion channels. Circ Arrhythm Electrophysiol. 2009;2(2):185–194.', url: 'https://doi.org/10.1161/CIRCEP.108.789081' },
+          { text: 'Katz AM. Physiology of the Heart. 5th ed. Philadelphia: Lippincott Williams & Wilkins; 2010. Chapter 14.' },
+        ].map((r, i) => (
+          <div key={i} style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', lineHeight: 1.55, paddingLeft: 10, borderLeft: '2px solid var(--fill-secondary)', marginBottom: 4 }}>
+            {r.url
+              ? <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>{r.text}</a>
+              : r.text}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -487,6 +515,19 @@ function HemodynamicsTab() {
             </div>
           ))}
         </div>
+      </div>
+      {/* References */}
+      <div style={{ marginTop: 24, paddingTop: 14, borderTop: '0.5px solid var(--separator)' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8, letterSpacing: '0.06em' }}>REFERENSI</div>
+        {[
+          { text: 'Starling EH. The Linacre Lecture on the Law of the Heart. London: Longmans, Green; 1918.' },
+          { text: 'Katz AM. Physiology of the Heart. 5th ed. Philadelphia: Lippincott Williams & Wilkins; 2010. Chapter 12.' },
+          { text: 'Braunwald E, et al. Heart Disease: A Textbook of Cardiovascular Medicine. 11th ed. Philadelphia: Elsevier; 2018.' },
+        ].map((r, i) => (
+          <div key={i} style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', lineHeight: 1.55, paddingLeft: 10, borderLeft: '2px solid var(--fill-secondary)', marginBottom: 4 }}>
+            {r.text}
+          </div>
+        ))}
       </div>
     </div>
   );
