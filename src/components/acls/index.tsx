@@ -613,12 +613,11 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
   return (
     <div className="acls-bottomnav">
       {[
-        { key: "home",   label: "Beranda",   icon: Icons.house,       iconFill: Icons.houseFill },
-        { key: "algo",   label: "Algoritma", icon: Icons.algo,        iconFill: Icons.algoFill },
-        { key: null,     label: "",          icon: null },
-        { key: "drugs",  label: "Obat",      icon: Icons.pill,        iconFill: Icons.pillFill },
-        { key: "theory", label: "Teori",     icon: Icons.activity,    iconFill: Icons.activityFill },
-        { key: "more",   label: "Lainnya",   icon: Icons.grid,        iconFill: Icons.gridFill },
+        { key: "home",  label: "Beranda",   icon: Icons.house,    iconFill: Icons.houseFill },
+        { key: "algo",  label: "Algoritma", icon: Icons.algo,     iconFill: Icons.algoFill },
+        { key: null,    label: "",          icon: null },
+        { key: "drugs", label: "Obat",      icon: Icons.pill,     iconFill: Icons.pillFill },
+        { key: "more",  label: "Lainnya",   icon: Icons.grid,     iconFill: Icons.gridFill },
       ].map((t, i) => {
         if (!t.icon) return <div key={i} />;
         if (t.key === "more") {

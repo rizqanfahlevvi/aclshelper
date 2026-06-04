@@ -728,13 +728,14 @@ export default function App() {
                     overflow: 'hidden',
                     padding: 10,
                     display: 'grid',
-                    gridTemplateColumns: '1fr 1fr 1fr',
+                    gridTemplateColumns: '1fr 1fr',
                     gap: 6,
                   }}>
                     {([
-                      { key: 'tools', label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)' },
-                      { key: 'hsts',  label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'   },
-                      { key: 'calc',  label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'       },
+                      { key: 'tools',  label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)' },
+                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'   },
+                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'       },
+                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'rgba(52,199,89,0.14)',     color: 'var(--success)'},
                     ] as const).map(({ key, label, IconC, bg, color }) => (
                       <button key={key}
                         onClick={() => {
@@ -761,25 +762,20 @@ export default function App() {
             )}
             <div className="acls-mobile-bottomnav">
               <BottomNav
-                active={tab === 'home' && topFrame.screen === 'theory' ? 'theory' : tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso'] as string[]).includes(topFrame.screen))}
+                active={tab}
+                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','theory'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);
-                  if (k === 'theory') {
-                    window.history.pushState(null, '', '#/theory');
-                    setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'theory' }] }));
-                    setTab('home');
-                  } else if (k === 'home') {
+                  if (k === 'home') {
                     window.history.replaceState(null, '', '#/');
                     setStack(s => ({ ...s, home: [{ screen: 'home' }] }));
-                    setTab('home');
                   } else {
                     const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs' };
                     const path = pathMap[k] || '/';
                     window.history.pushState(null, '', '#' + path);
-                    setTab(k as Tab);
                   }
+                  setTab(k as Tab);
                 }}
                 onMore={() => { setFabOpen(false); setMoreSheetOpen(o => !o); }}
                 fabShape="circle"

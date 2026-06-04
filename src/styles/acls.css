@@ -304,7 +304,7 @@ body {
 .acls-bottomnav {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr 80px 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 80px 1fr 1fr;
   align-items: center;
   height: calc(90px + max(0px, env(safe-area-inset-bottom) - 22px));
   padding: 0 8px max(22px, env(safe-area-inset-bottom));
