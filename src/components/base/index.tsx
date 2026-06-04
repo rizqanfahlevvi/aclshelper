@@ -42,6 +42,7 @@ export const Icons: Record<string, (props: IconProps) => React.ReactElement> = {
   clipboard:    ({size, stroke}) => <Icon size={size} stroke={stroke}><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M9 12h6M9 16h6"/></Icon>,
   book:         ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></Icon>,
   activity:     ({size, stroke}) => <Icon size={size} stroke={stroke} d="M3 12h3l2-5 4 10 2-5h7"/>,
+  activityFill: ({size}) => <svg width={size||24} height={size||24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="3,12 6,12 8,7 12,17 14,12 21,12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   lungs:        ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M12 4v8M9 6h6"/><path d="M6 9c-1.5 0-3 1-3 4v4a4 4 0 0 0 7 3l1-3V9c0-1-1-2-2-2S6 8 6 9zM18 9c1.5 0 3 1 3 4v4a4 4 0 0 1-7 3l-1-3V9c0-1 1-2 2-2s3 1 3 2z"/></Icon>,
   syringe:      ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M18 2l4 4M16 4l4 4M13 7l4 4-9 9-4-4z"/><path d="M5 13L2 16l6 6 3-3"/></Icon>,
   arrowDown:    ({size, stroke}) => <Icon size={size} stroke={stroke}><path d="M12 5v14M5 12l7 7 7-7"/></Icon>,

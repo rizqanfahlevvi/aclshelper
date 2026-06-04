@@ -761,20 +761,25 @@ export default function App() {
             )}
             <div className="acls-mobile-bottomnav">
               <BottomNav
-                active={tab}
+                active={tab === 'home' && topFrame.screen === 'theory' ? 'theory' : tab}
                 moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);
-                  if (k === 'home') {
+                  if (k === 'theory') {
+                    window.history.pushState(null, '', '#/theory');
+                    setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'theory' }] }));
+                    setTab('home');
+                  } else if (k === 'home') {
                     window.history.replaceState(null, '', '#/');
                     setStack(s => ({ ...s, home: [{ screen: 'home' }] }));
+                    setTab('home');
                   } else {
                     const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs' };
                     const path = pathMap[k] || '/';
                     window.history.pushState(null, '', '#' + path);
+                    setTab(k as Tab);
                   }
-                  setTab(k as Tab);
                 }}
                 onMore={() => { setFabOpen(false); setMoreSheetOpen(o => !o); }}
                 fabShape="circle"
