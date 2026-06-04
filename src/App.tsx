@@ -20,6 +20,7 @@ import {
 } from './screens/desktop';
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen } from './screens/tools';
+import { TheoryScreen, DesktopTheory } from './screens/theory';
 
 function useBreakpoint() {
   const get = () => {
@@ -65,6 +66,7 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'pals')     return '/pals';
   if (screen === 'vaso')     return '/vaso';
   if (screen === 'rosc')     return '/rosc';
+  if (screen === 'theory')   return '/theory';
   return '/';
 }
 
@@ -77,10 +79,11 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
     case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
     case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id          };
-    case 'pals':  return { tab: 'algo',  frame: { screen: 'pals' },                                        deskScreen: 'algo',      deskId: 'pals'      };
-    case 'vaso':  return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
-    case 'rosc':  return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
-    default:      return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
+    case 'pals':   return { tab: 'algo',  frame: { screen: 'pals' },                                        deskScreen: 'algo',      deskId: 'pals'      };
+    case 'vaso':   return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
+    case 'rosc':   return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
+    case 'theory': return { tab: 'home',  frame: { screen: 'theory' },                                      deskScreen: 'theory',    deskId: null        };
+    default:       return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
 
@@ -323,12 +326,13 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
 const ACCENT = { color: '#30B0C7', dark: '#40C8E0' };
 
 const MOBILE_MENU = [
-  { key: 'home',  label: 'Beranda',     desc: 'Ikhtisar & akses cepat', icon: Icons.house },
-  { key: 'algo',  label: 'Algoritma',   desc: '14 protokol ACLS',       icon: Icons.algo },
-  { key: 'drugs', label: 'Obat',        desc: '25 obat emergensi',      icon: Icons.pill },
-  { key: 'tools', label: 'Pustaka EKG', desc: '16 ritme kardiologi',    icon: Icons.ekg },
-  { key: 'hsts',  label: 'Hs & Ts',     desc: '10 penyebab reversibel', icon: Icons.clipboard },
-  { key: 'calc',  label: 'Kalkulator',  desc: '13 kalkulator klinis', icon: Icons.calculator },
+  { key: 'home',   label: 'Beranda',     desc: 'Ikhtisar & akses cepat',       icon: Icons.house },
+  { key: 'algo',   label: 'Algoritma',   desc: '14 protokol ACLS',             icon: Icons.algo },
+  { key: 'drugs',  label: 'Obat',        desc: '25 obat emergensi',            icon: Icons.pill },
+  { key: 'tools',  label: 'Pustaka EKG', desc: '16 ritme kardiologi',          icon: Icons.ekg },
+  { key: 'theory', label: 'Teori',       desc: 'Sistem konduksi jantung',      icon: Icons.activity },
+  { key: 'hsts',   label: 'Hs & Ts',     desc: '10 penyebab reversibel',       icon: Icons.clipboard },
+  { key: 'calc',   label: 'Kalkulator',  desc: '13 kalkulator klinis',         icon: Icons.calculator },
 ];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
@@ -538,6 +542,10 @@ export default function App() {
       window.history.pushState(null, '', '#/calc');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calcList' }] }));
+    } else if (key === 'theory') {
+      window.history.pushState(null, '', '#/theory');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'theory' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
@@ -617,6 +625,7 @@ export default function App() {
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
       if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
+      if (f.screen === 'theory') return <TheoryScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -645,8 +654,9 @@ export default function App() {
     if (v.screen === 'algo')  return <DesktopAlgorithm id={v.id} onPick={desktopPick}/>;
     if (v.screen === 'drugs') return <DesktopDrugs initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
-    if (v.screen === 'hsts')  return <DesktopHsTs onPick={desktopPick}/>;
-    if (v.screen === 'calc')  return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
+    if (v.screen === 'hsts')   return <DesktopHsTs onPick={desktopPick}/>;
+    if (v.screen === 'calc')   return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
+    if (v.screen === 'theory') return <DesktopTheory/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
