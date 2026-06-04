@@ -6,6 +6,7 @@ import {
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
 } from '../../components/base';
 import { RhythmStrip, FlowStep, FlowConnector, BottomSheet, EkgImage } from '../../components/acls';
+import { EkgConductionPanel } from '../theory';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_QUICK_ACTIONS, ACLS_FLOW_ARREST, ACLS_FLOW_BRADY,
@@ -988,7 +989,11 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
         <EkgImage rhythm={r} style={{ minHeight: 80 }} />
       </div>
 
-
+      {/* [2b] Conduction Diagram */}
+      <div style={{ padding: "0 16px 12px" }}>
+        <SectionHeader>Sistem Konduksi</SectionHeader>
+        <EkgConductionPanel rhythmKey={r.key} />
+      </div>
 
       {/* [3] Definisi */}
       {r.definition ? (
