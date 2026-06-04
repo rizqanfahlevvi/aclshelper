@@ -3,6 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import {
   PALS_DRUGS, PALS_ALGORITHMS, VASOPRESSORS, ROSC_CHECKLIST,
+  PALS_REFERENCES, VASOPRESSOR_REFERENCES, ROSC_REFERENCES,
 } from '../../data/tools';
 import type { PalsDrug, Vasopressor } from '../../data/tools';
 
@@ -58,6 +59,23 @@ function TabBar({ tabs, active, onChange }: { tabs: string[]; active: string; on
           {t}
         </button>
       ))}
+    </div>
+  );
+}
+
+function RefList({ refs }: { refs: Array<{ text: string; url?: string }> }) {
+  return (
+    <div style={{ marginTop: 20, paddingTop: 14, borderTop: '0.5px solid var(--separator)' }}>
+      <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8, letterSpacing: '0.06em' }}>REFERENSI</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {refs.map((r, i) => (
+          <div key={i} style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', lineHeight: 1.55, paddingLeft: 10, borderLeft: '2px solid var(--fill-secondary)' }}>
+            {r.url
+              ? <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>{r.text}</a>
+              : r.text}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -182,6 +200,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             ))}
           </div>
         )}
+        <RefList refs={PALS_REFERENCES}/>
       </div>
     </div>
   );
@@ -327,6 +346,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                 </div>
               </div>
             ))}
+            <RefList refs={VASOPRESSOR_REFERENCES}/>
           </div>
         ) : (
           <VasoCalcPanel vasoPressors={VASOPRESSORS}/>
@@ -479,6 +499,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             background: 'var(--fill-quaternary)', color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500 }}>
           Reset semua
         </button>
+        <RefList refs={ROSC_REFERENCES}/>
       </div>
     </div>
   );

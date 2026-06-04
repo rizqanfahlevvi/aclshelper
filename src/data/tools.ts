@@ -582,3 +582,34 @@ export const PALS_ALGORITHMS: PalsAlgo[] = [
     ],
   },
 ];
+
+/* ============================================================
+   Reference arrays — used by tools/theory screens
+   ============================================================ */
+export const PALS_REFERENCES: Array<{ text: string; url?: string }> = [
+  { text: 'Topjian AA, et al. Part 4: Pediatric Basic and Advanced Life Support: 2020 American Heart Association Guidelines for CPR and ECC. Circulation. 2020;142(16_suppl_2):S469–S523.', url: 'https://doi.org/10.1161/CIR.0000000000000901' },
+  { text: 'Kudenchuk PJ, et al. Amiodarone for Resuscitation after Out-of-Hospital Cardiac Arrest due to Ventricular Fibrillation (ALIVE trial). N Engl J Med. 2002;346:884–890.', url: 'https://doi.org/10.1056/NEJMoa013029' },
+  { text: 'Weiss SL, et al. Surviving Sepsis Campaign International Guidelines for Septic Shock and Organ Dysfunction in Children. Pediatr Crit Care Med. 2020;21(2):e52–e106.', url: 'https://doi.org/10.1097/PCC.0000000000002198' },
+];
+
+export const VASOPRESSOR_REFERENCES: Array<{ text: string; url?: string }> = [
+  { text: 'Evans L, et al. Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2021. Crit Care Med. 2021;49(11):e1063–e1143.', url: 'https://doi.org/10.1097/CCM.0000000000005337' },
+  { text: 'De Backer D, et al. Comparison of Dopamine and Norepinephrine in the Treatment of Shock. N Engl J Med. 2010;362:779–789.', url: 'https://doi.org/10.1056/NEJMoa0907895' },
+  { text: 'Russell JA, et al. Vasopressin versus Norepinephrine Infusion in Patients with Septic Shock (VASST Trial). N Engl J Med. 2008;358:877–887.', url: 'https://doi.org/10.1056/NEJMoa067373' },
+  { text: 'van Diepen S, et al. Contemporary Management of Cardiogenic Shock: A Scientific Statement from the AHA. Circulation. 2017;136:e232–e268.', url: 'https://doi.org/10.1161/CIR.0000000000000525' },
+];
+
+export const ROSC_REFERENCES: Array<{ text: string; url?: string }> = [
+  { text: 'Panchal AR, et al. Part 3: Adult Basic and Advanced Life Support — 2020 AHA Guidelines for CPR and ECC. Circulation. 2020;142(16_suppl_2):S366–S468.', url: 'https://doi.org/10.1161/CIR.0000000000000916' },
+  { text: 'Nolan JP, et al. ERC and ESICM Guidelines 2021: Post-resuscitation care. Resuscitation. 2021;161:220–269.', url: 'https://doi.org/10.1016/j.resuscitation.2021.02.012' },
+  { text: 'Nielsen N, et al. Targeted Temperature Management at 33°C versus 36°C after Cardiac Arrest (TTM Trial). N Engl J Med. 2013;369:2197–2206.', url: 'https://doi.org/10.1056/NEJMoa1310519' },
+  { text: 'Dankiewicz J, et al. Hypothermia versus Normothermia after Out-of-Hospital Cardiac Arrest (TTM2 Trial). N Engl J Med. 2021;384:2373–2383.', url: 'https://doi.org/10.1056/NEJMoa2100591' },
+  { text: 'Ibanez B, et al. 2017 ESC Guidelines for the management of STEMI. Eur Heart J. 2018;39:119–177.', url: 'https://doi.org/10.1093/eurheartj/ehx393' },
+];
+
+export const HS_TS_REFERENCES: Array<{ text: string; url?: string }> = [
+  { text: 'Panchal AR, et al. Part 3: Adult Basic and Advanced Life Support — 2020 AHA Guidelines for CPR and ECC. Circulation. 2020;142(16_suppl_2):S366–S468.', url: 'https://doi.org/10.1161/CIR.0000000000000916' },
+  { text: 'PERKI. Panduan Resusitasi Jantung Paru: Bantuan Hidup Jantung Lanjutan. Edisi 2021. Perhimpunan Dokter Spesialis Kardiovaskular Indonesia.' },
+  { text: 'Konstantinides SV, et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. Eur Heart J. 2020;41(4):543–603.', url: 'https://doi.org/10.1093/eurheartj/ehz405' },
+  { text: 'Lavonas EJ, et al. Part 10: Special Circumstances of Resuscitation — 2015 AHA Guidelines Update for CPR and ECC. Circulation. 2015;132(18 suppl 2):S501–S518.', url: 'https://doi.org/10.1161/CIR.0000000000000264' },
+];
