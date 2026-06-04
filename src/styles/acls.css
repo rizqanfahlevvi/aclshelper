@@ -512,6 +512,22 @@ body {
   animation: acls-node-ring 1.2s ease-out 0.33s infinite;
 }
 
+/* Conduction diagram — ectopic site pulse */
+@keyframes acls-ectopic-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.92; }
+  50%       { transform: scale(1.7); opacity: 0.45; }
+}
+[style*="acls-ectopic-pulse"] {
+  transform-box: fill-box; transform-origin: center;
+}
+
+/* Conduction diagram — SA ring (overrides .acls-sa-ring for inline style usage) */
+@keyframes acls-sa-ring {
+  0%         { transform: scale(1);   opacity: 0.6; }
+  60%        { transform: scale(2.2); opacity: 0;   }
+  61%, 100%  { transform: scale(1);   opacity: 0;   }
+}
+
 /* ECG scan cursor */
 @keyframes acls-ecg-scan {
   from { left: 0; }

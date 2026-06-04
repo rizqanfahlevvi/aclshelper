@@ -16,12 +16,13 @@ import {
    Sidebar
    ============================================================ */
 const SIDEBAR_NAV = [
-  { key: "dashboard", label: "Beranda",     desc: "Ikhtisar & akses cepat",  icon: Icons.house },
-  { key: "algo",      label: "Algoritma",   desc: "14 protokol ACLS",        icon: Icons.algo },
-  { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",       icon: Icons.pill },
-  { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",     icon: Icons.ekg },
-  { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",  icon: Icons.clipboard },
-  { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor", icon: Icons.calculator },
+  { key: "dashboard", label: "Beranda",     desc: "Ikhtisar & akses cepat",       icon: Icons.house },
+  { key: "algo",      label: "Algoritma",   desc: "14 protokol ACLS",             icon: Icons.algo },
+  { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",            icon: Icons.pill },
+  { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",          icon: Icons.ekg },
+  { key: "theory",    label: "Teori",       desc: "Sistem konduksi jantung",      icon: Icons.activity },
+  { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",       icon: Icons.clipboard },
+  { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor",  icon: Icons.calculator },
 ];
 const SIDEBAR_QUICK = [
   { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
