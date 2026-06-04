@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
-import { RhythmStrip, EkgImage, ConductionDiagram } from '../../components/acls';
+import { RhythmStrip, EkgImage } from '../../components/acls';
+import { EkgConductionPanel } from '../theory';
 import { PalsScreen, RoscScreen } from '../tools';
 import type { Algorithm, Drug, Rhythm } from '../../types';
 import { useFavorites } from '../../utils/favorites';
@@ -899,7 +900,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
         <EkgImage rhythm={r} style={{ marginTop: 16, marginBottom: 12, minHeight: 100 }} />
 
         <div style={{ marginBottom: 20 }}>
-          <ConductionDiagram rhythmKey={r.key} />
+          <EkgConductionPanel rhythmKey={r.key} />
         </div>
 
         {(r.definition || r.features) && (
