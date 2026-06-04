@@ -310,12 +310,28 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
   const cs = (s: NodeState, delay: number): React.CSSProperties =>
     on(s) ? { animationDelay: `${delay}s` } : { display: 'none' };
 
-  // Anatomical heart silhouette (300 × 280 viewBox)
-  const HEART = 'M 148 268 C 66 252 24 210 24 162 C 24 110 46 60 84 52 C 100 46 118 42 134 50 C 140 54 145 62 146 72 C 148 62 156 50 172 44 C 192 36 222 44 244 68 C 266 98 274 142 274 174 C 274 224 242 266 148 268 Z';
+  // Anatomical 4-chamber heart (300 × 340 viewBox), based on reference anatomy
+  // RA=left, LA=right, RV=lower-left, LV=lower-right (anterior view convention)
+  const HEART = [
+    'M 132 328',                              // apex
+    'C 65 308 28 268 26 226',                 // RV left wall going up
+    'C 24 198 28 180 36 168',                 // transition to AV groove left
+    'C 46 160 58 155 72 152',                 // RA lower border / AV groove
+    'C 60 145 46 130 40 108',                 // RA left wall
+    'C 36 88 40 60 52 42',                    // RA upper left
+    'C 66 26 90 20 114 22',                   // RA top
+    'C 130 24 142 32 148 40',                 // interatrial notch
+    'C 155 32 172 22 194 20',                 // LA upper
+    'C 218 20 246 34 260 60',                 // LA right upper
+    'C 272 84 274 116 270 145',               // LA right wall
+    'C 266 162 258 174 248 182',              // AV groove right
+    'C 252 220 252 272 228 310',              // LV right wall
+    'C 202 328 168 335 132 328 Z',            // bottom to apex
+  ].join(' ');
 
-  // Ectopic positions in 300×280 viewBox
+  // Ectopic positions in 300×340 viewBox
   const ectopicCoords: Record<string, [number, number]> = {
-    ra: [58, 105], la: [232, 95], rv: [68, 210], lv: [222, 205],
+    ra: [55, 118], la: [222, 95], rv: [60, 250], lv: [224, 250],
   };
   const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
 
@@ -325,8 +341,8 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
         SISTEM KONDUKSI JANTUNG
       </div>
 
-      {/* ── Anatomical heart diagram (300 × 280) ── */}
-      <svg viewBox="0 0 300 280" width="100%" style={{ display: 'block', overflow: 'visible' }}>
+      {/* ── Anatomical 4-chamber heart diagram (300 × 340) ── */}
+      <svg viewBox="0 0 300 340" width="100%" style={{ display: 'block', overflow: 'visible' }}>
         <defs>
           <clipPath id={clipId}>
             <path d={HEART} />
@@ -334,221 +350,198 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
         </defs>
 
         {/* === Chamber fills via clipPath === */}
-        <rect x="0"   y="0"   width="148" height="148" fill={c(state.raPath)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="148" y="0"   width="152" height="148" fill={c(state.laPath)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="0"   y="148" width="148" height="132" fill={c(state.rvFill)} opacity="0.13" clipPath={`url(#${clipId})`} />
-        <rect x="148" y="148" width="152" height="132" fill={c(state.lvFill)} opacity="0.13" clipPath={`url(#${clipId})`} />
+        <rect x="0"   y="0"   width="145" height="170" fill={c(state.raPath)} opacity="0.12" clipPath={`url(#${clipId})`} />
+        <rect x="145" y="0"   width="155" height="170" fill={c(state.laPath)} opacity="0.12" clipPath={`url(#${clipId})`} />
+        <rect x="0"   y="170" width="145" height="170" fill={c(state.rvFill)} opacity="0.12" clipPath={`url(#${clipId})`} />
+        <rect x="145" y="170" width="155" height="170" fill={c(state.lvFill)} opacity="0.12" clipPath={`url(#${clipId})`} />
 
         {/* === Heart silhouette === */}
-        <path d={HEART} fill="none" stroke="var(--separator-opaque)" strokeWidth="1.8" />
+        <path d={HEART} fill="none" stroke="var(--label-quaternary)" strokeWidth="2" />
 
         {/* AV groove */}
-        <path d="M 28 148 Q 148 138 272 148" fill="none" stroke="var(--separator-opaque)"
-          strokeWidth="0.9" strokeDasharray="4 2" opacity="0.6" />
+        <path d="M 36 168 Q 140 178 248 182" fill="none" stroke="var(--separator-opaque)"
+          strokeWidth="0.9" strokeDasharray="4 2" opacity="0.55" />
 
-        {/* Interatrial septum */}
-        <line x1="148" y1="62" x2="148" y2="148"
-          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
+        {/* IAS (interatrial septum) */}
+        <path d="M 148 40 C 146 80 138 122 130 150" fill="none"
+          stroke="var(--separator-opaque)" strokeWidth="0.9" strokeDasharray="3 2" opacity="0.5" />
 
-        {/* Interventricular septum */}
-        <line x1="148" y1="148" x2="148" y2="268"
-          stroke="var(--separator-opaque)" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.5" />
+        {/* IVS (interventricular septum) */}
+        <path d="M 132 198 C 133 245 134 288 132 328" fill="none"
+          stroke="var(--separator-opaque)" strokeWidth="0.9" strokeDasharray="3 2" opacity="0.5" />
 
         {/* === Chamber labels === */}
-        <text x="46"  y="112" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RA</text>
-        <text x="232" y="90"  textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LA</text>
-        <text x="52"  y="205" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RV</text>
-        <text x="240" y="178" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LV</text>
+        <text x="50"  y="118" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RA</text>
+        <text x="224" y="98"  textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LA</text>
+        <text x="52"  y="232" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RV</text>
+        <text x="228" y="232" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LV</text>
 
         {/* === BACKGROUND STATIC PATHWAYS === */}
 
-        {/* Bachmann's bundle: SA → LA across atrial roof */}
-        <path d="M 92 66 C 122 46 172 44 202 58"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
+        {/* Internodal — single dashed loop through RA (SA → AV, like reference) */}
+        <path d="M 50 80 C 44 55 70 32 102 30 C 130 28 150 48 152 74 C 153 96 150 122 146 140 C 143 148 136 154 128 152"
+          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round"
+          strokeDasharray="5 3" opacity="0.25" />
 
-        {/* Internodal tract 1 – Anterior (crista terminalis arc) */}
-        <path d="M 94 68 C 124 48 144 62 142 96 C 142 112 138 121 128 125"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* Internodal tract 2 – Middle (direct) */}
-        <path d="M 92 76 C 108 88 124 104 124 122"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* Internodal tract 3 – Posterior (lower arc) */}
-        <path d="M 88 80 C 78 100 88 118 120 128"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.2" />
+        {/* Bachmann's bundle: SA across atrial roof → LA */}
+        <path d="M 50 74 C 80 48 140 38 186 40"
+          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
 
         {/* Bundle of His */}
-        <path d="M 128 132 C 136 146 142 158 148 170"
-          fill="none" stroke={c(state.his)} strokeWidth="2.6" strokeLinecap="round" opacity="0.22" />
+        <path d="M 128 154 C 130 170 132 184 132 198"
+          fill="none" stroke={c(state.his)} strokeWidth="3.5" strokeLinecap="round" opacity="0.22" />
 
-        {/* RBB – down left side of IVS into RV */}
-        <path d="M 148 170 C 136 186 116 210 100 234 C 90 250 84 260 82 268"
-          fill="none" stroke={c(state.rbb)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
+        {/* RBB — down IVS left side into RV */}
+        <path d="M 132 198 C 120 216 102 234 86 254 C 75 266 62 278 56 298"
+          fill="none" stroke={c(state.rbb)} strokeWidth="2.8" strokeLinecap="round" opacity="0.2" />
 
-        {/* LBB trunk */}
-        <path d="M 148 170 C 162 182 180 198 186 216"
-          fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round" opacity="0.2" />
+        {/* LBB trunk — down IVS right into LV */}
+        <path d="M 132 198 C 144 216 162 234 178 252 C 192 266 208 280 218 298"
+          fill="none" stroke={c(state.lbb)} strokeWidth="2.8" strokeLinecap="round" opacity="0.2" />
 
-        {/* LBB branch A – lateral wall */}
-        <path d="M 186 216 C 204 206 232 200 252 212"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB branch B – apical */}
-        <path d="M 186 216 C 180 234 173 252 169 268"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB branch C – posterior wall */}
-        <path d="M 186 216 C 204 226 228 240 244 256"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.6" strokeLinecap="round" opacity="0.18" />
+        {/* LBB branch A — lateral wall */}
+        <path d="M 218 298 C 230 288 244 284 256 286"
+          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
+        {/* LBB branch B — apical */}
+        <path d="M 218 298 C 214 310 212 320 210 330"
+          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
+        {/* LBB branch C — posterior */}
+        <path d="M 218 298 C 234 306 248 310 260 318"
+          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
 
         {/* LBB sub-branches from A */}
-        <path d="M 252 212 C 260 204 265 196 264 190"
+        <path d="M 256 286 C 262 278 266 272 265 266"
           fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 252 212 C 258 220 263 228 262 236"
+        <path d="M 256 286 C 260 293 262 300 260 308"
           fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
         {/* LBB sub-branches from C */}
-        <path d="M 244 256 C 252 250 257 242 258 236"
+        <path d="M 260 318 C 264 312 265 306 264 300"
           fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 244 256 C 250 264 254 270 254 274"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
-        {/* LBB terminal from B */}
-        <path d="M 169 268 C 172 274 174 278 175 280"
+        <path d="M 260 318 C 262 324 262 330 260 336"
           fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
 
-        {/* RV Purkinje from RBB terminal */}
-        <path d="M 82 268 C 67 260 52 256 44 260"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.4" strokeLinecap="round" opacity="0.18" />
-        <path d="M 82 268 C 76 276 72 280 68 280"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.4" strokeLinecap="round" opacity="0.18" />
+        {/* RBB terminal branches (Purkinje RV) */}
+        <path d="M 56 298 C 43 290 30 288 24 294"
+          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+        <path d="M 56 298 C 50 309 46 320 44 328"
+          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
+        <path d="M 56 298 C 66 306 76 312 82 318"
+          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.15" />
 
-        {/* Papillary muscles (subtle ellipses) */}
-        <ellipse cx="76"  cy="218" rx="9" ry="5" fill="var(--separator-opaque)" opacity="0.16" />
-        <ellipse cx="212" cy="212" rx="9" ry="5" fill="var(--separator-opaque)" opacity="0.16" />
-        <ellipse cx="244" cy="226" rx="7" ry="4" fill="var(--separator-opaque)" opacity="0.13" />
+        {/* Papillary muscles */}
+        <ellipse cx="74"  cy="220" rx="10" ry="5" fill="var(--separator-opaque)" opacity="0.18" />
+        <ellipse cx="215" cy="215" rx="10" ry="5" fill="var(--separator-opaque)" opacity="0.18" />
 
         {/* ═══════════════════════════════════════════════════
             ANIMATED OVERLAY — impulse propagation
         ═══════════════════════════════════════════════════ */}
 
-        {/* SA node ripple ring */}
+        {/* SA node ripple */}
         {state.sa === 'active' && (
-          <ellipse cx="88" cy="74" rx="22" ry="13" fill="none" stroke={c('active')} strokeWidth="2"
+          <circle cx="50" cy="80" r="9" fill="none" stroke={c('active')} strokeWidth="2.2"
             className="acls-sa-ring" />
         )}
 
-        {/* Bachmann's bundle animated */}
-        <path d="M 92 66 C 122 46 172 44 202 58"
+        {/* Internodal loop animated */}
+        <path d="M 50 80 C 44 55 70 32 102 30 C 130 28 150 48 152 74 C 153 96 150 122 146 140 C 143 148 136 154 128 152"
           fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0)} />
 
-        {/* Internodal tract 1 – Anterior animated */}
-        <path d="M 94 68 C 124 48 144 62 142 96 C 142 112 138 121 128 125"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.02)} />
+        {/* Bachmann's bundle animated */}
+        <path d="M 50 74 C 80 48 140 38 186 40"
+          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.03)} />
 
-        {/* Internodal tract 2 – Middle animated */}
-        <path d="M 92 76 C 108 88 124 104 124 122"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.04)} />
-
-        {/* Internodal tract 3 – Posterior animated */}
-        <path d="M 88 80 C 78 100 88 118 120 128"
-          fill="none" stroke={c(state.raPath)} strokeWidth="2.4" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.06)} />
-
-        {/* AV node ripple ring */}
+        {/* AV node ripple */}
         {state.av === 'active' && (
-          <ellipse cx="124" cy="128" rx="22" ry="13" fill="none" stroke={c('active')} strokeWidth="2"
+          <circle cx="128" cy="152" r="9" fill="none" stroke={c('active')} strokeWidth="2.2"
             className="acls-av-ring" />
         )}
 
         {/* Bundle of His animated */}
-        <path d="M 128 132 C 136 146 142 158 148 170"
-          fill="none" stroke={c(state.his)} strokeWidth="3" strokeLinecap="round"
+        <path d="M 128 154 C 130 170 132 184 132 198"
+          fill="none" stroke={c(state.his)} strokeWidth="4" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.his, 0.33)} />
 
         {/* RBB animated */}
-        <path d="M 148 170 C 136 186 116 210 100 234 C 90 250 84 260 82 268"
-          fill="none" stroke={c(state.rbb)} strokeWidth="2.4" strokeLinecap="round"
+        <path d="M 132 198 C 120 216 102 234 86 254 C 75 266 62 278 56 298"
+          fill="none" stroke={c(state.rbb)} strokeWidth="3" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.rbb, 0.40)} />
 
         {/* LBB trunk animated */}
-        <path d="M 148 170 C 162 182 180 198 186 216"
-          fill="none" stroke={c(state.lbb)} strokeWidth="2.4" strokeLinecap="round"
+        <path d="M 132 198 C 144 216 162 234 178 252 C 192 266 208 280 218 298"
+          fill="none" stroke={c(state.lbb)} strokeWidth="3" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.40)} />
 
         {/* LBB major branches animated */}
         {on(state.lbb) && (<>
-          <path d="M 186 216 C 204 206 232 200 252 212"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
+          <path d="M 218 298 C 230 288 244 284 256 286"
+            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.49s' }} />
-          <path d="M 186 216 C 180 234 173 252 169 268"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
+          <path d="M 218 298 C 214 310 212 320 210 330"
+            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.50s' }} />
-          <path d="M 186 216 C 204 226 228 240 244 256"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2" strokeLinecap="round"
+          <path d="M 218 298 C 234 306 248 310 260 318"
+            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.51s' }} />
         </>)}
 
         {/* Purkinje RV animated */}
         {on(state.rvFill) && (<>
-          <path d="M 82 268 C 67 260 52 256 44 260"
+          <path d="M 56 298 C 43 290 30 288 24 294"
             fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
-          <path d="M 82 268 C 76 276 72 280 68 280"
+          <path d="M 56 298 C 50 309 46 320 44 328"
             fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
+          <path d="M 56 298 C 66 306 76 312 82 318"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="1.6" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
         </>)}
 
-        {/* Purkinje LV sub-branches animated */}
+        {/* Purkinje LV animated */}
         {on(state.lvFill) && (<>
-          <path d="M 252 212 C 260 204 265 196 264 190"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
+          <path d="M 256 286 C 262 278 266 272 265 266"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
-          <path d="M 252 212 C 258 220 263 228 262 236"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
+          <path d="M 256 286 C 260 293 262 300 260 308"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
-          <path d="M 244 256 C 252 250 257 242 258 236"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
+          <path d="M 260 318 C 264 312 265 306 264 300"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
-          <path d="M 244 256 C 250 264 254 270 254 274"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
+          <path d="M 260 318 C 262 324 262 330 260 336"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
             pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.61s' }} />
-          <path d="M 169 268 C 172 274 174 278 175 280"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
         </>)}
 
         {/* ═══════════════════════════════════════════════════
-            NODE OVALS — SA and AV (anatomical)
+            NODE CIRCLES — SA and AV (small, anatomically precise)
         ═══════════════════════════════════════════════════ */}
 
-        {/* SA node — upper RA (near SVC junction) */}
-        <ellipse cx="88" cy="74" rx="22" ry="13" fill={c(state.sa)} opacity="0.9" />
-        <text x="88" y="78" textAnchor="middle" fontSize="7.5" fill="white" fontWeight="700">SA</text>
+        {/* SA node — small circle, upper RA near SVC */}
+        <circle cx="50" cy="80" r="8" fill={c(state.sa)} opacity="0.92" />
+        <text x="50" y="68" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)" fontWeight="700">SA</text>
 
-        {/* AV node — Koch's triangle */}
-        <ellipse cx="124" cy="128" rx="22" ry="13" fill={c(state.av)} opacity="0.9" />
-        <text x="124" y="132" textAnchor="middle" fontSize="7.5" fill="white" fontWeight="700">AV</text>
+        {/* AV node — small circle, Koch's triangle */}
+        <circle cx="128" cy="152" r="8" fill={c(state.av)} opacity="0.92" />
+        <text x="128" y="166" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)" fontWeight="700">AV</text>
         {state.av === 'blocked' && (
-          <text x="152" y="122" fontSize="17" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="156" y="146" fontSize="18" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
 
         {/* RBB label */}
-        <text x="108" y="224" textAnchor="middle" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
+        <text x="76" y="246" textAnchor="middle" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
         {state.rbb === 'blocked' && (
-          <text x="130" y="194" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="108" y="218" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
 
         {/* LBB label */}
-        <text x="174" y="180" textAnchor="start" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
+        <text x="167" y="246" textAnchor="start" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
         {state.lbb === 'blocked' && (
-          <text x="166" y="165" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="157" y="218" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
 
@@ -556,28 +549,28 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
             SPECIAL RHYTHM MARKERS
         ═══════════════════════════════════════════════════ */}
 
-        {/* WPW — accessory pathway arc bypassing AV node */}
+        {/* WPW — accessory pathway arc bypassing AV */}
         {rhythmKey === 'wpw' && (
-          <path d="M 202 76 Q 248 112 224 150" fill="none" stroke="#FF9500"
+          <path d="M 210 82 Q 256 112 240 152" fill="none" stroke="#FF9500"
             strokeWidth="2" strokeDasharray="5 3" opacity="0.85" />
         )}
 
-        {/* AF — chaotic multi-focal atrial ectopics */}
+        {/* AF — chaotic multifocal atrial ectopics */}
         {rhythmKey === 'af' && (<>
-          <circle cx="44"  cy="84"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82" />
-          <circle cx="70"  cy="115" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
+          <circle cx="36"  cy="88"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82" />
+          <circle cx="60"  cy="122" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
             style={{ animationDelay: '0.28s' }} />
-          <circle cx="216" cy="76"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82"
+          <circle cx="213" cy="78"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82"
             style={{ animationDelay: '0.55s' }} />
-          <circle cx="244" cy="102" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
+          <circle cx="242" cy="104" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
             style={{ animationDelay: '0.84s' }} />
-          <circle cx="148" cy="92"  r="3" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.62"
+          <circle cx="144" cy="90"  r="3" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.62"
             style={{ animationDelay: '1.12s' }} />
         </>)}
 
-        {/* VF / TdP — chaotic multi-focal ventricular */}
+        {/* VF / TdP — chaotic ventricular */}
         {(rhythmKey === 'vf' || rhythmKey === 'torsades') && (
-          ([[70,165],[96,192],[68,222],[195,162],[218,188],[190,218],[148,182],[128,212],[168,238]] as [number,number][]).map(([cx,cy], i) => (
+          ([[64,195],[90,215],[60,240],[194,195],[218,218],[190,240],[132,212],[114,238],[164,250]] as [number,number][]).map(([cx,cy], i) => (
             <circle key={i} cx={cx} cy={cy} r="3.5" fill={CD_COLORS.blocked}
               className="acls-conduction-ectopic" opacity="0.45"
               style={{ animationDelay: `${i * 0.17}s` }} />
