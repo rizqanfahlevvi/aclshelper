@@ -304,36 +304,21 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
   const state = CONDUCTION_MAP[rhythmKey];
   if (!state) return null;
   const c = (s: NodeState) => CD_COLORS[s];
-  const clipId = `cd-${rhythmKey}`;
 
   const on = (s: NodeState) => s === 'active' || s === 'ectopic';
   const cs = (s: NodeState, delay: number): React.CSSProperties =>
     on(s) ? { animationDelay: `${delay}s` } : { display: 'none' };
 
-  // Anatomical 4-chamber heart (300 × 340 viewBox), based on reference anatomy
-  // RA=left, LA=right, RV=lower-left, LV=lower-right (anterior view convention)
-  const HEART = [
-    'M 132 328',                              // apex
-    'C 65 308 28 268 26 226',                 // RV left wall going up
-    'C 24 198 28 180 36 168',                 // transition to AV groove left
-    'C 46 160 58 155 72 152',                 // RA lower border / AV groove
-    'C 60 145 46 130 40 108',                 // RA left wall
-    'C 36 88 40 60 52 42',                    // RA upper left
-    'C 66 26 90 20 114 22',                   // RA top
-    'C 130 24 142 32 148 40',                 // interatrial notch
-    'C 155 32 172 22 194 20',                 // LA upper
-    'C 218 20 246 34 260 60',                 // LA right upper
-    'C 272 84 274 116 270 145',               // LA right wall
-    'C 266 162 258 174 248 182',              // AV groove right
-    'C 252 220 252 272 228 310',              // LV right wall
-    'C 202 328 168 335 132 328 Z',            // bottom to apex
-  ].join(' ');
-
-  // Ectopic positions in 300×340 viewBox
-  const ectopicCoords: Record<string, [number, number]> = {
-    ra: [55, 118], la: [222, 95], rv: [60, 250], lv: [224, 250],
-  };
-  const [ex, ey] = state.ectopicPos ? ectopicCoords[state.ectopicPos] : [0, 0];
+  // SVG2 "Electrical conduction system of the heart" (Wikipedia)
+  // Group transform: translate(124.58977,-184.54849)
+  // Content bounds (transformed): x=160-895, y=62-672
+  // Key coords (transformed space, used for overlay animation paths):
+  //   SA node center: (215, 128)
+  //   Internodal end / AV junction: (393, 220)
+  //   AV node: (416, 225)
+  //   His bifurcation: (445, 335)
+  //   LBB endpoint: (617, 342)  RBB endpoint: (599, 381)
+  //   Purkinje area: y=520-672
 
   return (
     <div style={{ background: 'var(--bg-tertiary)', borderRadius: 14, padding: '12px 14px 8px', boxShadow: 'var(--shadow-1)' }}>
@@ -341,251 +326,170 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
         SISTEM KONDUKSI JANTUNG
       </div>
 
-      {/* ── Anatomical 4-chamber heart diagram (300 × 340) ── */}
-      <svg viewBox="0 0 300 340" width="100%" style={{ display: 'block', overflow: 'visible' }}>
-        <defs>
-          <clipPath id={clipId}>
-            <path d={HEART} />
-          </clipPath>
-        </defs>
+      {/* SVG — viewBox crops the 940×780 SVG2 canvas to just the content area */}
+      <svg viewBox="140 55 760 630" width="100%" style={{ display: 'block', overflow: 'visible' }}>
 
-        {/* === Chamber fills via clipPath === */}
-        <rect x="0"   y="0"   width="145" height="170" fill={c(state.raPath)} opacity="0.12" clipPath={`url(#${clipId})`} />
-        <rect x="145" y="0"   width="155" height="170" fill={c(state.laPath)} opacity="0.12" clipPath={`url(#${clipId})`} />
-        <rect x="0"   y="170" width="145" height="170" fill={c(state.rvFill)} opacity="0.12" clipPath={`url(#${clipId})`} />
-        <rect x="145" y="170" width="155" height="170" fill={c(state.lvFill)} opacity="0.12" clipPath={`url(#${clipId})`} />
+        {/* ── Static background: exact SVG2 paths (group transform applied) ── */}
+        <g transform="translate(124.58977,-184.54849)">
+          {/* Full conduction schematic shape — dim background */}
+          <path
+            d="M 256.18852,512.12165 C 256.18852,512.12165 305.45805,470.574 308.64555,435.8715 C 311.3118,406.8015 307.20555,389.93775 314.2893,393.14025 C 317.50305,394.59525 326.3193,420.504 337.9668,435.069 C 349.6218,449.63025 481.21305,572.29275 530.0493,643.69275 C 538.60305,656.20275 593.4018,724.79401 561.5268,762.29401 C 554.87055,770.12776 549.45555,779.72026 534.3393,782.91901 C 519.22305,786.11776 493.5543,782.12401 449.9568,776.64151 C 416.18055,772.39276 393.65055,764.01526 369.3768,763.04776 C 345.1068,762.06526 341.2293,762.07276 325.6893,753.34276 C 310.1568,744.59776 289.77555,735.86776 274.2393,732.94651 C 258.70305,730.03651 243.9768,720.08401 239.12055,716.19526 C 234.2643,712.32151 227.63805,711.58651 227.63805,711.58651 C 227.63805,711.58651 254.8218,730.03651 267.4443,734.89276 C 280.06305,739.74901 303.3618,746.54026 310.1568,750.42151 C 316.95555,754.31026 323.7468,758.19151 323.7468,758.19151 C 323.7468,758.19151 271.1943,751.88401 284.9193,755.27776 C 287.8818,756.00901 322.7793,766.92151 333.45555,765.94651 C 344.13555,764.98276 364.5243,767.89651 375.2043,770.80276 C 385.8843,773.72776 399.47055,773.72776 410.15805,777.60901 C 420.83055,781.49026 440.2518,782.45776 440.2518,782.45776 C 440.2518,782.45776 398.4993,799.94026 374.2293,799.94026 C 374.2293,799.94026 416.94555,797.02276 443.1618,786.34651 C 443.1618,786.34651 451.8993,783.42901 461.6043,785.36401 C 471.3168,787.31401 476.2143,787.60651 479.9643,790.41901 C 479.9643,790.41901 472.64055,801.26401 471.5268,803.54401 C 469.5393,807.61276 466.06305,813.32776 463.7343,815.78026 C 451.5393,828.64276 445.1193,840.94276 445.1193,840.94276 C 445.1193,840.94276 440.5893,846.66901 463.0893,825.10651 C 475.34805,813.35776 481.8393,800.73151 481.8393,800.73151 C 481.8393,800.73151 486.46305,812.33401 488.4018,829.79401 C 490.3443,847.27651 492.3093,851.20276 492.3093,851.20276 C 492.3093,851.20276 494.0268,834.98776 494.0268,826.98151 C 494.0268,816.66901 486.2943,799.04776 493.0893,793.23151 C 493.0893,793.23151 504.88305,816.03901 516.5268,834.48151 C 528.1818,852.93151 530.26305,850.17526 530.26305,850.17526 C 530.26305,850.17526 524.1243,842.37526 521.2143,830.73151 C 519.35805,823.30651 505.4793,802.74151 504.3393,794.16901 C 503.6868,789.27901 512.82555,795.25276 516.5268,792.29401 C 522.77805,787.29526 522.25305,807.68776 546.5268,823.23151 C 570.79305,838.75651 571.58055,838.19026 576.4293,844.02151 C 576.4293,844.02151 562.56555,827.11276 549.9468,815.46526 C 542.29305,808.40026 532.16805,800.40526 533.4018,795.10651 C 534.20055,791.66776 544.2918,791.22526 548.4018,787.60651 C 571.8393,766.98151 603.71427,736.98151 556.21305,666.04275 C 556.21305,666.04275 564.14055,667.299 569.9643,676.044 C 575.79555,684.7665 609.10677,716.08276 615.90177,723.85651 C 622.70052,731.61901 642.76677,760.47151 637.91802,780.87151 C 633.06177,801.25276 608.78427,816.78151 605.87427,835.22401 C 602.96802,853.67401 602.96802,856.59526 602.96802,856.59526 C 602.96802,856.59526 610.47552,822.96526 631.83927,803.54401 C 653.19177,784.12651 641.79927,744.94651 641.79927,744.94651 C 641.79927,744.94651 656.36052,773.10901 656.36052,791.54401 C 656.36052,809.99026 647.76927,821.71276 639.03177,830.45776 C 630.29427,839.19151 625.18302,855.75526 625.18302,855.75526 C 625.18302,855.75526 629.48802,841.25776 649.87302,828.65401 C 649.87302,828.65401 651.40302,841.02526 655.29177,844.91401 C 659.17302,848.80276 647.38677,836.99401 657.09927,816.60901 C 666.80052,796.22776 667.04052,772.12651 653.44677,753.68401 C 653.44677,753.68401 658.30302,759.50776 689.36427,760.47151 C 720.43302,761.45401 711.60177,760.20901 725.75052,762.41026 C 725.75052,762.41026 755.31177,762.02026 700.05177,756.59776 C 644.78052,751.17901 632.08302,721.64026 625.29177,714.84901 C 618.50427,708.054 548.2743,636.02025 533.71305,618.54525 C 519.1443,601.06275 439.10805,513.219 418.71555,496.044 C 394.3068,475.479 352.15305,426.14025 349.23555,417.4065 C 346.31805,408.66525 367.76805,418.8465 386.2143,437.29275 C 404.66055,455.74275 473.19555,517.0665 497.46555,551.04525 C 521.73555,585.02775 592.9143,662.0415 616.21302,678.54525 C 639.51177,695.05275 705.87177,711.94276 733.05177,726.50401 C 760.23177,741.05776 739.96302,724.79401 739.96302,724.79401 C 739.96302,724.79401 730.14552,718.73776 696.16302,706.119 C 696.16302,706.119 719.45802,702.23025 734.02677,690.579 C 748.58052,678.9315 755.18802,688.88025 766.83927,679.16775 C 766.83927,679.16775 753.44427,681.849 739.85052,682.81275 C 739.85052,682.81275 748.58052,668.24025 764.12427,662.424 C 764.12427,662.424 742.75677,673.1115 732.08802,682.81275 C 732.08802,682.81275 703.92552,703.19775 687.42177,700.284 C 670.92177,697.374 642.76677,677.9565 642.76677,677.9565 C 642.76677,677.9565 661.20927,669.2265 671.88927,666.30525 C 682.56552,663.3915 734.02677,669.2265 755.38302,645.924 C 755.38302,645.924 728.19552,662.424 689.36427,657.56775 C 689.36427,657.56775 693.26052,645.924 711.70302,638.15775 C 730.13802,630.38025 763.15677,607.089 769.94427,586.70025 C 769.94427,586.70025 740.81802,631.37025 699.07677,638.15775 C 699.07677,638.15775 703.92552,617.7765 712.67052,610.96275 C 721.40052,604.17525 768.01302,558.55275 769.94427,552.7215 C 769.94427,552.7215 720.43302,601.26525 709.75302,606.114 C 699.07677,610.96275 714.60927,574.07025 714.60927,574.07025 C 714.60927,574.07025 742.76427,536.214 747.61302,524.574 C 752.46927,512.91525 755.38302,508.0665 755.38302,508.0665 C 755.38302,508.0665 721.40052,559.52025 715.57677,564.37275 C 715.57677,564.37275 716.54427,530.39025 720.43302,515.829 C 724.31427,501.27525 744.70677,469.224 744.70677,469.224 L 750.53052,445.93275 C 750.53052,445.93275 732.08802,487.6815 720.43302,503.21025 C 720.43302,503.21025 716.89677,445.79025 710.04927,406.87275 C 710.04927,406.87275 722.76927,360.98775 713.96427,340.824 C 713.96427,340.824 721.02552,369.59775 705.39552,402.309 C 705.39552,402.309 685.76052,374.57775 683.16177,360.47775 C 680.55552,346.38525 682.09302,316.28026 682.09302,316.28026 L 678.14802,350.709 C 678.14802,350.709 661.78677,341.35275 660.75552,331.85026 C 659.73927,322.34776 651.13677,292.04026 651.13677,292.04026 L 638.04177,272.52901 C 638.04177,272.52901 653.34552,297.85276 654.22302,323.63401 C 654.22302,323.63401 645.63927,324.94276 636.60177,311.83651 C 627.56802,298.73026 602.49177,278.42401 602.49177,278.42401 C 602.49177,278.42401 631.71927,314.35276 636.99552,320.12776 C 642.27552,325.89901 651.24927,332.87776 655.27677,336.20776 C 659.29677,339.54151 672.40677,359.06025 677.71302,367.91025 C 683.02302,376.7565 699.11427,405.5115 701.49177,411.25275 C 703.73427,416.664 706.77552,431.83275 708.71427,445.419 C 710.66427,459.01275 715.57677,480.879 712.67052,504.18525 C 712.67052,504.18525 708.78927,566.31525 707.81427,569.2215 C 707.81427,569.2215 701.22177,607.014 694.59552,625.31025 C 691.67052,633.384 679.48302,651.1365 660.44802,658.55775 C 660.44802,658.55775 634.39677,671.1315 629.00427,670.239 C 623.61552,669.339 577.0968,620.44275 562.4643,602.29275 C 538.31805,572.334 453.24555,471.834 405.4593,431.454 C 377.8443,408.11775 380.39055,402.59025 326.3043,359.87775 C 326.3043,359.87775 289.4718,339.69151 282.2868,385.51275 C 275.09805,431.33025 277.6818,426.89025 267.57555,427.98525 L 267.9093,430.794 C 267.9093,430.794 272.03805,431.1915 275.2368,429.92775 C 275.2368,429.92775 268.0309,446.10934 256.34215,445.21684 L 255.61969,450.47809 C 255.61969,450.47809 265.34805,449.20275 268.7493,448.329 C 268.7493,448.329 263.12021,456.7355 256.83521,457.628 L 256.08901,461.32673 C 256.08901,461.32673 263.45805,460.089 267.3393,456.2115 C 267.3393,456.2115 259.7321,469.05682 247.8521,470.36557 L 248.54356,476.95427 C 248.54356,476.95427 273.8643,473.0865 277.4643,451.9815 C 282.1293,424.62525 288.0543,429.744 289.4718,430.434 C 300.6093,435.8715 284.28469,471.93173 253.00594,506.49923 L 256.18852,512.12165 z M 151.84003,516.09501 C 230.64253,536.75751 253.15753,506.22501 253.15753,506.22501 L 256.41628,511.84626 C 256.41628,511.84626 231.07378,543.97626 148.78003,524.56626 C 66.490014,505.15626 49.517514,395.99751 55.187514,367.16376 C 60.092514,342.25251 81.752514,284.58127 128.33503,276.94627 C 174.92128,269.30752 208.46878,295.07377 226.23253,327.71752 C 226.23253,327.71752 250.24378,362.01126 251.35378,408.29751 C 251.35378,408.29751 254.45583,428.78594 267.38958,427.80719 L 268.49858,430.8922 C 268.49858,430.8922 249.81253,433.86876 248.04628,423.73626 C 248.04628,423.73626 243.07378,442.27626 256.21003,445.12626 L 255.68128,450.70626 C 255.68128,450.70626 248.95378,450.44001 244.00378,439.89876 C 244.00378,439.89876 242.95429,457.50618 256.56679,457.60743 L 256.17322,461.29866 C 256.17322,461.29866 236.00503,463.86501 240.69628,435.12501 C 245.56378,405.32376 230.57503,354.85251 215.71378,337.77127 C 201.69253,321.65377 176.62378,281.48377 131.80003,288.48502 C 131.80003,288.48502 99.883766,308.67502 93.760014,336.47002 C 87.047514,366.95001 108.76002,394.13001 137.04628,431.60001 C 165.33253,469.07751 212.98378,475.66251 247.81003,470.33751 L 248.57503,477.20751 C 248.57503,477.20751 179.91253,499.30626 131.42128,437.22501 C 131.42128,437.22501 78.767514,382.46001 84.925014,338.23627 C 84.925014,338.23627 84.842514,322.38127 76.401264,335.80252 C 67.967514,349.22751 45.737514,389.37876 84.493764,463.59126 C 84.493764,463.59126 93.002514,482.49876 117.73377,501.73626 C 117.73377,501.73626 135.71878,511.86876 151.84003,516.09501 z M 109.55031,246.90445 C 109.55031,246.90445 109.98906,261.92695 104.24781,269.43445 C 98.506556,276.94195 85.295302,290.5582 85.295302,290.5582 L 91.880302,288.8707 C 91.880302,288.8707 106.90281,274.29445 108.22656,268.99195 C 109.55031,263.6932 111.75906,253.09195 109.55031,246.90445 M 109.55031,246.90445 C 109.55031,246.90445 109.98906,261.92695 104.24781,269.43445 C 98.506556,276.94195 85.295302,290.5582 85.295302,290.5582 L 91.880302,288.8707 C 91.880302,288.8707 106.90281,274.29445 108.22656,268.99195 C 109.55031,263.6932 111.75906,253.09195 109.55031,246.90445 z M 79.070302,259.71445 C 79.070302,259.71445 78.627802,294.1732 80.394052,299.4757 L 76.419052,301.68445 C 76.419052,301.68445 74.210302,274.7332 79.070302,259.71445 M 79.070302,259.71445 C 79.070302,259.71445 78.627802,294.1732 80.394052,299.4757 L 76.419052,301.68445 C 76.419052,301.68445 74.210302,274.7332 79.070302,259.71445 z M 74.652802,306.9832 C 74.652802,306.9832 52.122802,311.8432 44.172802,321.55945 C 36.219052,331.27945 36.219052,332.60695 36.219052,332.60695 C 36.219052,332.60695 42.402802,325.5382 49.471552,320.6782 C 56.540302,315.8182 72.444052,312.2857 72.444052,312.2857 L 74.652802,306.9832 M 74.652802,306.9832 C 74.652802,306.9832 52.122802,311.8432 44.172802,321.55945 C 36.219052,331.27945 36.219052,332.60695 36.219052,332.60695 C 36.219052,332.60695 42.402802,325.5382 49.471552,320.6782 C 56.540302,315.8182 72.444052,312.2857 72.444052,312.2857 L 74.652802,306.9832 z M 64.932802,324.6532 C 64.932802,324.6532 56.097802,331.72195 53.007802,336.13945 C 49.914052,340.55694 37.104052,360.87819 37.104052,360.87819 C 37.104052,360.87819 51.237802,339.22945 57.867802,333.9307 C 64.494052,328.6282 67.141552,327.30445 67.141552,327.30445 L 64.932802,324.6532 M 64.932802,324.6532 C 64.932802,324.6532 56.097802,331.72195 53.007802,336.13945 C 49.914052,340.55694 37.104052,360.87819 37.104052,360.87819 C 37.104052,360.87819 51.237802,339.22945 57.867802,333.9307 C 64.494052,328.6282 67.141552,327.30445 67.141552,327.30445 L 64.932802,324.6532 z M 98.416556,332.76445 C 98.416556,332.76445 97.917806,345.75819 103.41531,352.25694 C 108.91656,358.75569 122.91156,359.25444 122.91156,359.25444 C 122.91156,359.25444 107.41656,354.25944 104.91531,348.75819 C 102.41781,343.26069 102.41781,332.26195 102.41781,332.26195 L 98.416556,332.76445 M 98.416556,332.76445 C 98.416556,332.76445 97.917806,345.75819 103.41531,352.25694 C 108.91656,358.75569 122.91156,359.25444 122.91156,359.25444 C 122.91156,359.25444 107.41656,354.25944 104.91531,348.75819 C 102.41781,343.26069 102.41781,332.26195 102.41781,332.26195 L 98.416556,332.76445 z M 109.91406,321.26695 C 109.91406,321.26695 119.41281,329.76445 129.90907,330.2632 C 140.40532,330.7657 146.90407,326.76445 146.90407,326.76445 C 146.90407,326.76445 135.90907,331.26445 127.91032,327.2632 C 119.91156,323.2657 114.91281,318.26695 114.91281,318.26695 L 109.91406,321.26695 M 109.91406,321.26695 C 109.91406,321.26695 119.41281,329.76445 129.90907,330.2632 C 140.40532,330.7657 146.90407,326.76445 146.90407,326.76445 C 146.90407,326.76445 135.90907,331.26445 127.91032,327.2632 C 119.91156,323.2657 114.91281,318.26695 114.91281,318.26695 L 109.91406,321.26695 z M 111.91656,282.77695 C 111.91656,282.77695 122.40906,266.28445 138.90532,264.78445 C 138.90532,264.78445 120.41406,262.2832 108.41781,281.77945 L 111.91656,282.77695 M 111.91656,282.77695 C 111.91656,282.77695 122.40906,266.28445 138.90532,264.78445 C 138.90532,264.78445 120.41406,262.2832 108.41781,281.77945 L 111.91656,282.77695 z M 118.35906,282.07945 C 118.35906,282.07945 128.95657,285.89695 120.90531,311.32945 C 112.85031,336.76195 75.121552,353.29569 64.947802,346.93569 C 54.774052,340.57944 56.892802,313.02445 85.295302,290.5582 C 104.38656,275.4532 116.84406,281.09695 118.35906,282.07945 M 118.35906,282.07945 C 118.35906,282.07945 128.95657,285.89695 120.90531,311.32945 C 112.85031,336.76195 75.121552,353.29569 64.947802,346.93569 C 54.774052,340.57944 56.892802,313.02445 85.295302,290.5582 C 104.38656,275.4532 116.84406,281.09695 118.35906,282.07945 z M 121.42281,279.22195 C 121.42281,279.22195 112.61406,282.21445 111.07281,283.1557 C 109.53531,284.09695 121.93281,295.30195 121.93281,295.30195 C 121.93281,295.30195 113.03128,297.7815 122.35378,292.13775 L 114.0992,281.49479 M 112.59156,277.5757 C 112.59156,277.5757 110.30406,280.33195 108.60531,282.85195 L 111.41781,282.9682 C 111.41781,282.9682 112.37898,286.71806 114.43023,284.66681 L 112.59156,277.5757 M 98.937806,280.2157 C 98.937806,280.2157 96.830302,282.14695 94.719052,287.41945 L 82.124692,293.13351 C 82.124692,293.13351 91.906552,284.8432 94.426552,282.2632 L 98.937806,280.2157 M 78.594052,293.6257 C 78.594052,293.6257 79.149052,297.81445 80.071552,299.9707 L 77.607802,302.98945 C 77.607802,302.98945 76.932802,295.53445 76.992802,294.36445 L 78.594052,293.6257 M 61.554052,311.9707 C 61.554052,311.9707 70.060569,306.38028 75.745569,305.61903 L 72.982048,316.4837 C 72.982048,316.4837 66.417802,312.55945 59.975302,314.7832 L 61.554052,311.9707 M 58.100302,331.89445 C 58.100302,331.89445 65.109624,320.18312 66.455874,319.24562 L 66.768412,331.47468 C 66.768412,331.47468 58.977802,331.7182 57.455302,333.0082 L 57.847764,333.66222 M 61.381552,349.06194 C 61.381552,349.06194 63.549052,342.73194 64.017802,342.09069 C 64.486552,341.44569 69.991552,345.72069 69.991552,345.72069 C 69.991552,345.72069 67.824052,350.99694 67.355302,352.16694 C 66.886552,353.34069 61.381552,349.06194 61.381552,349.06194 M 85.872802,349.93944 L 85.227802,340.09569 L 92.375302,337.2832 C 92.375302,337.2832 91.850302,346.89444 91.906552,348.82569 L 85.872802,349.93944 M 100.16781,342.14694 C 100.16781,342.14694 92.760641,332.00532 92.760641,330.01407 L 103.86694,330.2993 C 103.86694,330.2993 101.69406,338.80945 102.04281,341.32569 L 100.16781,342.14694 M 117.33531,325.27195 C 117.33531,325.27195 109.89356,323.35699 107.48981,321.89074 L 115.2005,315.46278 C 115.2005,315.46278 117.68781,322.2832 119.62281,323.3407 L 117.33531,325.27195"
+            fill="#b8860b"
+            fillOpacity={0.15}
+            stroke="var(--label-quaternary)"
+            strokeWidth={0.5}
+            strokeOpacity={0.35}
+          />
+          {/* SA node circles */}
+          <path
+            d="M 123.19326,292.66503 C 123.19326,299.61432 117.87326,305.25432 111.31826,305.25432 C 104.76326,305.25432 99.443258,299.61432 99.443258,292.66503 C 99.443258,285.71574 104.76326,280.07574 111.31826,280.07574 C 117.87326,280.07574 123.19326,285.71574 123.19326,292.66503 z M 111.31826,295.07574 C 111.31826,302.02503 105.99826,307.66503 99.443259,307.66503 C 92.888259,307.66503 87.568259,302.02503 87.568259,295.07574 C 87.568259,288.12645 92.888259,282.48645 99.443259,282.48645 C 105.99826,282.48645 111.31826,288.12645 111.31826,295.07574 z M 82.925402,335.25431 C 82.925402,342.2036 77.605402,347.8436 71.050402,347.8436 C 64.495402,347.8436 59.175402,342.2036 59.175402,335.25431 C 59.175402,328.30502 64.495402,322.66502 71.050402,322.66502 C 77.605402,322.66502 82.925402,328.30502 82.925402,335.25431 z"
+            fill={c(state.sa)}
+            fillOpacity={0.88}
+          />
+        </g>
 
-        {/* === Heart silhouette === */}
-        <path d={HEART} fill="none" stroke="var(--label-quaternary)" strokeWidth="2" />
-
-        {/* AV groove */}
-        <path d="M 36 168 Q 140 178 248 182" fill="none" stroke="var(--separator-opaque)"
-          strokeWidth="0.9" strokeDasharray="4 2" opacity="0.55" />
-
-        {/* IAS (interatrial septum) */}
-        <path d="M 148 40 C 146 80 138 122 130 150" fill="none"
-          stroke="var(--separator-opaque)" strokeWidth="0.9" strokeDasharray="3 2" opacity="0.5" />
-
-        {/* IVS (interventricular septum) */}
-        <path d="M 132 198 C 133 245 134 288 132 328" fill="none"
-          stroke="var(--separator-opaque)" strokeWidth="0.9" strokeDasharray="3 2" opacity="0.5" />
-
-        {/* === Chamber labels === */}
-        <text x="50"  y="118" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RA</text>
-        <text x="224" y="98"  textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LA</text>
-        <text x="52"  y="232" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">RV</text>
-        <text x="228" y="232" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)" fontWeight="600">LV</text>
-
-        {/* === BACKGROUND STATIC PATHWAYS === */}
-
-        {/* Internodal — single dashed loop through RA (SA → AV, like reference) */}
-        <path d="M 50 80 C 44 55 70 32 102 30 C 130 28 150 48 152 74 C 153 96 150 122 146 140 C 143 148 136 154 128 152"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round"
-          strokeDasharray="5 3" opacity="0.25" />
-
-        {/* Bachmann's bundle: SA across atrial roof → LA */}
-        <path d="M 50 74 C 80 48 140 38 186 40"
-          fill="none" stroke={c(state.raPath)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
-
-        {/* Bundle of His */}
-        <path d="M 128 154 C 130 170 132 184 132 198"
-          fill="none" stroke={c(state.his)} strokeWidth="3.5" strokeLinecap="round" opacity="0.22" />
-
-        {/* RBB — down IVS left side into RV */}
-        <path d="M 132 198 C 120 216 102 234 86 254 C 75 266 62 278 56 298"
-          fill="none" stroke={c(state.rbb)} strokeWidth="2.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* LBB trunk — down IVS right into LV */}
-        <path d="M 132 198 C 144 216 162 234 178 252 C 192 266 208 280 218 298"
-          fill="none" stroke={c(state.lbb)} strokeWidth="2.8" strokeLinecap="round" opacity="0.2" />
-
-        {/* LBB branch A — lateral wall */}
-        <path d="M 218 298 C 230 288 244 284 256 286"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
-        {/* LBB branch B — apical */}
-        <path d="M 218 298 C 214 310 212 320 210 330"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
-        {/* LBB branch C — posterior */}
-        <path d="M 218 298 C 234 306 248 310 260 318"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.8" strokeLinecap="round" opacity="0.18" />
-
-        {/* LBB sub-branches from A */}
-        <path d="M 256 286 C 262 278 266 272 265 266"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 256 286 C 260 293 262 300 260 308"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        {/* LBB sub-branches from C */}
-        <path d="M 260 318 C 264 312 265 306 264 300"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-        <path d="M 260 318 C 262 324 262 330 260 336"
-          fill="none" stroke={c(state.lbb)} strokeWidth="1.2" strokeLinecap="round" opacity="0.14" />
-
-        {/* RBB terminal branches (Purkinje RV) */}
-        <path d="M 56 298 C 43 290 30 288 24 294"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
-        <path d="M 56 298 C 50 309 46 320 44 328"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.18" />
-        <path d="M 56 298 C 66 306 76 312 82 318"
-          fill="none" stroke={c(state.rvFill)} strokeWidth="1.5" strokeLinecap="round" opacity="0.15" />
-
-        {/* Papillary muscles */}
-        <ellipse cx="74"  cy="220" rx="10" ry="5" fill="var(--separator-opaque)" opacity="0.18" />
-        <ellipse cx="215" cy="215" rx="10" ry="5" fill="var(--separator-opaque)" opacity="0.18" />
-
-        {/* ═══════════════════════════════════════════════════
-            ANIMATED OVERLAY — impulse propagation
-        ═══════════════════════════════════════════════════ */}
+        {/* ═══════════════════════════════════════════════
+            ANIMATED IMPULSE OVERLAY PATHS
+            (in transformed coordinate space — no extra transform needed)
+        ═══════════════════════════════════════════════ */}
 
         {/* SA node ripple */}
         {state.sa === 'active' && (
-          <circle cx="50" cy="80" r="9" fill="none" stroke={c('active')} strokeWidth="2.2"
+          <circle cx="215" cy="128" r="13" fill="none" stroke={c('active')} strokeWidth="2.2"
             className="acls-sa-ring" />
         )}
 
-        {/* Internodal loop animated */}
-        <path d="M 50 80 C 44 55 70 32 102 30 C 130 28 150 48 152 74 C 153 96 150 122 146 140 C 143 148 136 154 128 152"
-          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
+        {/* Internodal: SA → AV node */}
+        <path
+          d="M 215,128 C 230,160 290,185 340,205 C 370,217 393,220 416,225"
+          fill="none" stroke={c(state.raPath)} strokeWidth="5" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0)} />
 
-        {/* Bachmann's bundle animated */}
-        <path d="M 50 74 C 80 48 140 38 186 40"
-          fill="none" stroke={c(state.raPath)} strokeWidth="3" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.raPath, 0.03)} />
-
-        {/* AV node ripple */}
+        {/* AV node marker */}
+        <circle cx="416" cy="225" r="9" fill={c(state.av)} opacity={0.92} />
         {state.av === 'active' && (
-          <circle cx="128" cy="152" r="9" fill="none" stroke={c('active')} strokeWidth="2.2"
+          <circle cx="416" cy="225" r="11" fill="none" stroke={c('active')} strokeWidth="2.2"
             className="acls-av-ring" />
         )}
+        {state.av === 'blocked' && (
+          <text x="416" y="217" fontSize="18" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
+        )}
 
-        {/* Bundle of His animated */}
-        <path d="M 128 154 C 130 170 132 184 132 198"
-          fill="none" stroke={c(state.his)} strokeWidth="4" strokeLinecap="round"
+        {/* Bundle of His: AV → bifurcation */}
+        <path
+          d="M 416,225 C 425,265 435,300 445,335"
+          fill="none" stroke={c(state.his)} strokeWidth="6" strokeLinecap="round"
           pathLength={100} className="acls-cs-path" style={cs(state.his, 0.33)} />
 
-        {/* RBB animated */}
-        <path d="M 132 198 C 120 216 102 234 86 254 C 75 266 62 278 56 298"
-          fill="none" stroke={c(state.rbb)} strokeWidth="3" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.rbb, 0.40)} />
-
-        {/* LBB trunk animated */}
-        <path d="M 132 198 C 144 216 162 234 178 252 C 192 266 208 280 218 298"
-          fill="none" stroke={c(state.lbb)} strokeWidth="3" strokeLinecap="round"
-          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.40)} />
-
-        {/* LBB major branches animated */}
-        {on(state.lbb) && (<>
-          <path d="M 218 298 C 230 288 244 284 256 286"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.49s' }} />
-          <path d="M 218 298 C 214 310 212 320 210 330"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.50s' }} />
-          <path d="M 218 298 C 234 306 248 310 260 318"
-            fill="none" stroke={c(state.lbb)} strokeWidth="2.2" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.51s' }} />
-        </>)}
-
-        {/* Purkinje RV animated */}
-        {on(state.rvFill) && (<>
-          <path d="M 56 298 C 43 290 30 288 24 294"
-            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
-          <path d="M 56 298 C 50 309 46 320 44 328"
-            fill="none" stroke={c(state.rvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
-          <path d="M 56 298 C 66 306 76 312 82 318"
-            fill="none" stroke={c(state.rvFill)} strokeWidth="1.6" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
-        </>)}
-
-        {/* Purkinje LV animated */}
-        {on(state.lvFill) && (<>
-          <path d="M 256 286 C 262 278 266 272 265 266"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
-          <path d="M 256 286 C 260 293 262 300 260 308"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.59s' }} />
-          <path d="M 260 318 C 264 312 265 306 264 300"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
-          <path d="M 260 318 C 262 324 262 330 260 336"
-            fill="none" stroke={c(state.lvFill)} strokeWidth="1.8" strokeLinecap="round"
-            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.61s' }} />
-        </>)}
-
-        {/* ═══════════════════════════════════════════════════
-            NODE CIRCLES — SA and AV (small, anatomically precise)
-        ═══════════════════════════════════════════════════ */}
-
-        {/* SA node — small circle, upper RA near SVC */}
-        <circle cx="50" cy="80" r="8" fill={c(state.sa)} opacity="0.92" />
-        <text x="50" y="68" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)" fontWeight="700">SA</text>
-
-        {/* AV node — small circle, Koch's triangle */}
-        <circle cx="128" cy="152" r="8" fill={c(state.av)} opacity="0.92" />
-        <text x="128" y="166" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)" fontWeight="700">AV</text>
-        {state.av === 'blocked' && (
-          <text x="156" y="146" fontSize="18" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
-        )}
-
-        {/* RBB label */}
-        <text x="76" y="246" textAnchor="middle" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
-        {state.rbb === 'blocked' && (
-          <text x="108" y="218" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
-            textAnchor="middle" dominantBaseline="middle">✕</text>
-        )}
-
-        {/* LBB label */}
-        <text x="167" y="246" textAnchor="start" fontSize="6.5" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
+        {/* LBB trunk: bifurcation → right */}
+        <path
+          d="M 445,335 C 490,310 545,295 617,285"
+          fill="none" stroke={c(state.lbb)} strokeWidth="4.5" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.lbb, 0.44)} />
         {state.lbb === 'blocked' && (
-          <text x="157" y="218" fontSize="13" fill={CD_COLORS.blocked} fontWeight="800"
+          <text x="530" y="296" fontSize="15" fill={CD_COLORS.blocked} fontWeight="800"
             textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
 
-        {/* ═══════════════════════════════════════════════════
-            SPECIAL RHYTHM MARKERS
-        ═══════════════════════════════════════════════════ */}
-
-        {/* WPW — accessory pathway arc bypassing AV */}
-        {rhythmKey === 'wpw' && (
-          <path d="M 210 82 Q 256 112 240 152" fill="none" stroke="#FF9500"
-            strokeWidth="2" strokeDasharray="5 3" opacity="0.85" />
+        {/* RBB trunk: bifurcation → lower right then curves */}
+        <path
+          d="M 445,335 C 470,360 520,375 599,381"
+          fill="none" stroke={c(state.rbb)} strokeWidth="4.5" strokeLinecap="round"
+          pathLength={100} className="acls-cs-path" style={cs(state.rbb, 0.44)} />
+        {state.rbb === 'blocked' && (
+          <text x="520" y="368" fontSize="15" fill={CD_COLORS.blocked} fontWeight="800"
+            textAnchor="middle" dominantBaseline="middle">✕</text>
         )}
 
-        {/* AF — chaotic multifocal atrial ectopics */}
+        {/* LBB Purkinje branches */}
+        {on(state.lvFill) && (<>
+          <path d="M 617,285 C 660,290 710,310 760,350"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="3" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
+          <path d="M 617,285 C 650,330 680,390 710,460"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="3" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
+          <path d="M 617,285 C 640,380 650,470 630,560"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="2.5" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
+          <path d="M 760,350 C 800,410 820,470 810,540"
+            fill="none" stroke={c(state.lvFill)} strokeWidth="2" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.62s' }} />
+        </>)}
+
+        {/* RBB Purkinje branches */}
+        {on(state.rvFill) && (<>
+          <path d="M 599,381 C 600,430 590,490 560,550"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="3" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.56s' }} />
+          <path d="M 599,381 C 550,420 500,460 450,520"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="3" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.58s' }} />
+          <path d="M 450,520 C 400,555 360,580 310,600"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="2.5" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.60s' }} />
+          <path d="M 560,550 C 540,590 510,620 490,650"
+            fill="none" stroke={c(state.rvFill)} strokeWidth="2" strokeLinecap="round"
+            pathLength={100} className="acls-cs-path" style={{ animationDelay: '0.62s' }} />
+        </>)}
+
+        {/* ══════════════════════════════════
+            LABELS
+        ══════════════════════════════════ */}
+        <text x="215" y="106" textAnchor="middle" fontSize="13" fill="var(--label-secondary)" fontWeight="700">SA</text>
+        <text x="416" y="248" textAnchor="middle" fontSize="13" fill="var(--label-secondary)" fontWeight="700">AV</text>
+        <text x="450" y="320" textAnchor="middle" fontSize="11" fill="var(--label-tertiary)" fontWeight="600">His</text>
+        <text x="575" y="272" textAnchor="start"  fontSize="11" fill="var(--label-tertiary)" fontWeight="600">LBB</text>
+        <text x="600" y="402" textAnchor="start"  fontSize="11" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
+
+        {/* ══════════════════════════════════
+            SPECIAL RHYTHM MARKERS
+        ══════════════════════════════════ */}
+
+        {/* WPW — accessory pathway arc */}
+        {rhythmKey === 'wpw' && (
+          <path d="M 380,195 Q 480,205 490,280" fill="none" stroke="#FF9500"
+            strokeWidth="2.5" strokeDasharray="6 3" opacity={0.85} />
+        )}
+
+        {/* AF — multifocal atrial ectopic foci */}
         {rhythmKey === 'af' && (<>
-          <circle cx="36"  cy="88"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82" />
-          <circle cx="60"  cy="122" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
-            style={{ animationDelay: '0.28s' }} />
-          <circle cx="213" cy="78"  r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.82"
-            style={{ animationDelay: '0.55s' }} />
-          <circle cx="242" cy="104" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.75"
+          <circle cx="200" cy="128" r="6" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.85} />
+          <circle cx="225" cy="150" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.78}
+            style={{ animationDelay: '0.30s' }} />
+          <circle cx="250" cy="120" r="5" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.82}
+            style={{ animationDelay: '0.58s' }} />
+          <circle cx="270" cy="160" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.72}
             style={{ animationDelay: '0.84s' }} />
-          <circle cx="144" cy="90"  r="3" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity="0.62"
-            style={{ animationDelay: '1.12s' }} />
+          <circle cx="310" cy="195" r="4" fill={CD_COLORS.ectopic} className="acls-conduction-ectopic" opacity={0.65}
+            style={{ animationDelay: '1.08s' }} />
         </>)}
 
         {/* VF / TdP — chaotic ventricular */}
         {(rhythmKey === 'vf' || rhythmKey === 'torsades') && (
-          ([[64,195],[90,215],[60,240],[194,195],[218,218],[190,240],[132,212],[114,238],[164,250]] as [number,number][]).map(([cx,cy], i) => (
-            <circle key={i} cx={cx} cy={cy} r="3.5" fill={CD_COLORS.blocked}
-              className="acls-conduction-ectopic" opacity="0.45"
-              style={{ animationDelay: `${i * 0.17}s` }} />
+          ([[470,350],[530,380],[590,420],[650,460],[710,490],[440,430],[490,480],[540,530],[600,560],[660,590]] as [number,number][]).map(([cx,cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="4" fill={CD_COLORS.blocked}
+              className="acls-conduction-ectopic" opacity={0.45}
+              style={{ animationDelay: `${i * 0.14}s` }} />
           ))
         )}
 
         {/* Generic ectopic focus */}
-        {state.ectopicPos && rhythmKey !== 'af' && (<>
-          <circle cx={ex} cy={ey} r="9" fill={CD_COLORS.ectopic}
-            className="acls-conduction-ectopic" opacity="0.88" />
-          {state.ectopicLabel && (
-            <text x={ex} y={ey + 17} textAnchor="middle" fontSize="6.5"
-              fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
-          )}
-        </>)}
+        {state.ectopicPos && rhythmKey !== 'af' && (() => {
+          const ectopicCoords: Record<string, [number, number]> = {
+            ra: [215, 128], la: [350, 160], rv: [480, 500], lv: [680, 450],
+          };
+          const [ex, ey] = ectopicCoords[state.ectopicPos] ?? [0, 0];
+          return (<>
+            <circle cx={ex} cy={ey} r="10" fill={CD_COLORS.ectopic}
+              className="acls-conduction-ectopic" opacity={0.88} />
+            {state.ectopicLabel && (
+              <text x={ex} y={ey + 18} textAnchor="middle" fontSize="10"
+                fill={CD_COLORS.ectopic} fontWeight="700">{state.ectopicLabel}</text>
+            )}
+          </>);
+        })()}
 
       </svg>
 
