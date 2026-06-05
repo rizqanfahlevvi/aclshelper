@@ -4,6 +4,31 @@ import { NavBar, Icons } from '../../components/base';
 import type { Nav } from '../../types';
 
 /* ============================================================
+   TheoryImage — slot gambar yang bisa diganti pengguna.
+   Coba urutan ekstensi; jika semua gagal → tampil SVG fallback.
+   Letakkan gambar di: public/theory/<name>.<ext>
+   ============================================================ */
+function TheoryImage({ name, alt, fallback }: {
+  name: string; alt: string; fallback: React.ReactNode;
+}) {
+  const EXTS = ['.png', '.svg', '.jpg', '.webp'] as const;
+  const [idx, setIdx] = useState(0);
+  // Reset saat slot berbeda dibuka
+  useEffect(() => { setIdx(0); }, [name]);
+  if (idx >= EXTS.length) return <>{fallback}</>;
+  return (
+    <img
+      key={name + EXTS[idx]}
+      src={`/theory/${name}${EXTS[idx]}`}
+      alt={alt}
+      onError={() => setIdx(i => i + 1)}
+      style={{ width: '100%', height: 'auto', display: 'block',
+        borderRadius: 10, maxHeight: 200, objectFit: 'contain' }}
+    />
+  );
+}
+
+/* ============================================================
    Types & Colors — Conduction System
    ============================================================ */
 type NodeState = 'active' | 'blocked' | 'ectopic' | 'inactive' | 'dim';
@@ -588,11 +613,11 @@ function ActionPotentialTab() {
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
         <div style={{ background:'var(--bg-primary)', borderRadius:16, padding:'14px 12px',
           boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
-          <VentricularAP/>
+          <TheoryImage name="ap-ventricular" alt="Aksi Potensial Kardiomiosit Ventrikel" fallback={<VentricularAP/>}/>
         </div>
         <div style={{ background:'var(--bg-primary)', borderRadius:16, padding:'14px 12px',
           boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
-          <SANodeAP/>
+          <TheoryImage name="ap-sa-node" alt="Aksi Potensial SA Node" fallback={<SANodeAP/>}/>
         </div>
       </div>
       <div style={{ background:'var(--bg-primary)', borderRadius:16, overflow:'hidden',
@@ -687,22 +712,18 @@ function HemodynamicsTab() {
       <div style={{ background:'var(--bg-primary)', borderRadius:16, padding:'16px',
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         <div className="t-footnote" style={{ fontWeight:700, color:'var(--label-secondary)', marginBottom:10 }}>HUKUM FRANK-STARLING</div>
-        <svg viewBox="0 0 280 100" width="100%" style={{ display:'block', marginBottom:10 }}>
-          {/* Axes */}
-          <line x1="30" y1="10" x2="30" y2="85" stroke="var(--label-tertiary)" strokeWidth="1"/>
-          <line x1="30" y1="85" x2="270" y2="85" stroke="var(--label-tertiary)" strokeWidth="1"/>
-          <text x="28" y="50" textAnchor="end" fontSize="8" fill="var(--label-tertiary)" transform="rotate(-90,28,50)">Stroke Volume</text>
-          <text x="150" y="96" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)">EDV / Preload</text>
-          {/* Normal curve */}
-          <path d="M30,82 C60,75 90,55 120,35 C145,20 175,16 240,15"
-            fill="none" stroke="#34C759" strokeWidth="2" strokeLinecap="round"/>
-          {/* Heart failure curve (lower) */}
-          <path d="M30,82 C60,78 90,70 120,58 C145,50 175,46 240,44"
-            fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 3"/>
-          {/* Labels */}
-          <text x="195" y="12" fontSize="8" fill="#34C759" fontWeight="600">Normal</text>
-          <text x="195" y="42" fontSize="8" fill="#FF3B30" fontWeight="600">Gagal Jantung</text>
-        </svg>
+        <TheoryImage name="frank-starling" alt="Kurva Frank-Starling" fallback={
+          <svg viewBox="0 0 280 100" width="100%" style={{ display:'block', marginBottom:10 }}>
+            <line x1="30" y1="10" x2="30" y2="85" stroke="var(--label-tertiary)" strokeWidth="1"/>
+            <line x1="30" y1="85" x2="270" y2="85" stroke="var(--label-tertiary)" strokeWidth="1"/>
+            <text x="28" y="50" textAnchor="end" fontSize="8" fill="var(--label-tertiary)" transform="rotate(-90,28,50)">Stroke Volume</text>
+            <text x="150" y="96" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)">EDV / Preload</text>
+            <path d="M30,82 C60,75 90,55 120,35 C145,20 175,16 240,15" fill="none" stroke="#34C759" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M30,82 C60,78 90,70 120,58 C145,50 175,46 240,44" fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 3"/>
+            <text x="195" y="12" fontSize="8" fill="#34C759" fontWeight="600">Normal</text>
+            <text x="195" y="42" fontSize="8" fill="#FF3B30" fontWeight="600">Gagal Jantung</text>
+          </svg>
+        }/>
         <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
           Jantung memompa semua darah yang masuk (tanpa akumulasi vena).
           EDV↑ → sarkomer lebih panjang → tumpang tindih aktin-miosin lebih baik → kontraksi lebih kuat.
@@ -862,7 +883,7 @@ function ArrhythmiaMechanismTab() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 12px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
-          <ReentrySVG/>
+          <TheoryImage name="arrhythmia-reentry" alt="Sirkuit Reentry AVNRT" fallback={<ReentrySVG/>}/>
         </div>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 16px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
@@ -903,7 +924,7 @@ function ArrhythmiaMechanismTab() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 12px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
-          <AutomaticitySVG/>
+          <TheoryImage name="arrhythmia-automaticity" alt="Automatisitas Abnormal" fallback={<AutomaticitySVG/>}/>
         </div>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 16px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
@@ -945,7 +966,7 @@ function ArrhythmiaMechanismTab() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 12px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
-          <TriggeredSVG/>
+          <TheoryImage name="arrhythmia-triggered" alt="Triggered Activity EAD dan DAD" fallback={<TriggeredSVG/>}/>
         </div>
         <div style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '14px 16px',
           boxShadow: '0 0 0 0.5px var(--separator-opaque)' }}>
@@ -1143,7 +1164,7 @@ function ACSPathophysTab() {
     {
       title: '1. Disfungsi Endotel',
       color: '#FF9500',
-      svgContent: (
+      svgContent: <TheoryImage name="acs-1-endotel" alt="Disfungsi Endotel" fallback={
         <svg viewBox="0 0 200 80" width="100%" style={{ display: 'block' }}>
           <rect x="10" y="30" width="180" height="28" rx="14" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
           <rect x="10" y="30" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
@@ -1151,7 +1172,7 @@ function ACSPathophysTab() {
           <text x="100" y="25" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FF9500">Endotel Normal → Disfungsi</text>
           <text x="100" y="70" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">LDL oksidasi, hipertensi, merokok, DM → endotel rusak</text>
         </svg>
-      ),
+      }/>,
       desc: (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.65 }}>
           Aterosklerosis dimulai dari disfungsi endotel akibat faktor risiko (hipertensi, LDL-C tinggi, merokok, DM).<Cite n={1} href="https://doi.org/10.1161/CIRCULATIONAHA.122.049915"/> LDL teroksidasi masuk ke subendotel → memicu respons inflamasi. Monosit berdiferensiasi menjadi makrofag → menelan LDL teroksidasi → <em>foam cells</em>.
@@ -1161,17 +1182,16 @@ function ACSPathophysTab() {
     {
       title: '2. Pembentukan Plak',
       color: '#FF9500',
-      svgContent: (
+      svgContent: <TheoryImage name="acs-2-plak" alt="Pembentukan Plak Aterosklerosis" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
           <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
           <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
-          {/* Plaque */}
           <ellipse cx="100" cy="39" rx="38" ry="12" fill="#FF9500" opacity={0.75}/>
           <text x="100" y="43" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#fff">Plak (lipid core)</text>
           <text x="100" y="54" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Lumen menyempit</text>
           <text x="100" y="75" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FF9500">Fibrous cap ← Stabilitas plak!</text>
         </svg>
-      ),
+      }/>,
       desc: (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.65 }}>
           Akumulasi lipid, sel busa, dan sel T membentuk <em>lipid-rich necrotic core</em>.<Cite n={3} href="https://doi.org/10.1056/NEJMra1216063"/> <em>Fibrous cap</em> (jaringan ikat + sel otot polos) menutup core ini. <strong>Plak rentan</strong> (<em>vulnerable plaque</em>) memiliki fibrous cap tipis dan core lipid besar. Stenosis &gt;50% baru menimbulkan gejala angina stabil.
@@ -1181,18 +1201,17 @@ function ACSPathophysTab() {
     {
       title: '3. Ruptur Plak',
       color: '#FF6B35',
-      svgContent: (
+      svgContent: <TheoryImage name="acs-3-ruptur" alt="Ruptur Plak" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
           <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
           <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
           <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FF9500" opacity={0.65}/>
-          {/* Rupture */}
           <path d="M80,32 L88,26 L96,33" fill="none" stroke="#FF3B30" strokeWidth="2.5"/>
           <text x="70" y="20" fontSize="8" fill="#FF3B30" fontWeight="700">Ruptur!</text>
           <text x="100" y="54" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Lipid core terekspos</text>
           <text x="100" y="75" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Trigger: shear stress, spasme, inflamasi</text>
         </svg>
-      ),
+      }/>,
       desc: (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.65 }}>
           Fibrous cap yang tipis dapat ruptur karena shear stress atau spasme.<Cite n={4} href="https://doi.org/10.1136/hrt.50.2.127"/> Ruptur mengekspos <em>tissue factor</em> dan kolagen subendotel ke aliran darah. ~70% MI terjadi pada stenosis &lt;50% sebelum ruptur — yaitu plak <em>non-flow limiting</em> yang rentan.<Cite n={1} href="https://doi.org/10.1161/CIRCULATIONAHA.122.049915"/>
@@ -1202,18 +1221,17 @@ function ACSPathophysTab() {
     {
       title: '4. Trombosis Akut',
       color: '#FF3B30',
-      svgContent: (
+      svgContent: <TheoryImage name="acs-4-trombus" alt="Trombosis Koroner Akut" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
           <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
           <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
           <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FF9500" opacity={0.5}/>
-          {/* Thrombus */}
           <ellipse cx="95" cy="37" rx="22" ry="10" fill="#FF3B30" opacity={0.8}/>
           <text x="95" y="41" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#fff">Trombus</text>
           <text x="100" y="58" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Oklusi koroner akut</text>
           <text x="100" y="75" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Platelet + fibrin → trombus merah</text>
         </svg>
-      ),
+      }/>,
       desc: (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.65 }}>
           Ekposur kolagen → aktivasi platelet (adhesi, agregasi) → aktivasi kaskade koagulasi → trombus.<Cite n={3} href="https://doi.org/10.1056/NEJMra1216063"/> <strong>STEMI</strong>: oklusi total (<em>red thrombus</em> dominan fibrin). <strong>NSTEMI/UA</strong>: oklusi parsial atau embolisasi distal (<em>white thrombus</em> dominan platelet). Inilah basis perbedaan strategi antiplatelet dan antikoagulan.
@@ -1223,12 +1241,10 @@ function ACSPathophysTab() {
     {
       title: '5. Iskemia & Infark',
       color: '#FF3B30',
-      svgContent: (
+      svgContent: <TheoryImage name="acs-5-iskemia" alt="Zona Iskemia Infark" fallback={
         <svg viewBox="0 0 200 95" width="100%" style={{ display: 'block' }}>
-          {/* Heart outline */}
           <path d="M100,80 C70,60 30,40 30,20 C30,8 42,5 52,10 C62,15 72,25 100,50 C128,25 138,15 148,10 C158,5 170,8 170,20 C170,40 130,60 100,80Z"
             fill="none" stroke="var(--separator-opaque)" strokeWidth="1.5"/>
-          {/* Zones */}
           <circle cx="80" cy="38" r="12" fill="#FF3B30" opacity={0.9}/>
           <circle cx="80" cy="38" r="18" fill="none" stroke="#FF9500" strokeWidth="2" opacity={0.7}/>
           <circle cx="80" cy="38" r="24" fill="none" stroke="#FFCC00" strokeWidth="1.5" opacity={0.5}/>
@@ -1237,7 +1253,7 @@ function ACSPathophysTab() {
           <text x="115" y="18" fontSize="7" fill="#FFCC00" fontWeight="600">Iskemia</text>
           <text x="100" y="88" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Nekrosis → Injury → Iskemia (EKG)</text>
         </svg>
-      ),
+      }/>,
       desc: (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.65 }}>
           Iskemia &gt;20 menit → infark transmural.<Cite n={2} href="https://doi.org/10.1093/eurheartj/ehy462"/> EKG mencerminkan zona: <strong>Nekrosis</strong> (QS wave), <strong>Injury</strong> (ST elevasi), <strong>Iskemia</strong> (inversi gelombang T). Biomarker: troponin I/T naik dalam 1–3 jam, puncak 18–24 jam. <em>Door-to-balloon &lt;90 menit</em> target reperfusi STEMI.<Cite n={5} href="https://doi.org/10.1093/eurheartj/ehy394"/>
