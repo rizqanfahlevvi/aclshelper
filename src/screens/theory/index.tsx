@@ -199,27 +199,48 @@ export function EkgConductionPanel({ rhythmKey }: { rhythmKey: string }) {
    ============================================================ */
 
 /* ---- 1. Siklus Jantung ----------------------------------- */
-function CardiacCycleSVG() {
+function WiggersDiagramAnimated() {
   // viewBox 0 0 360 155
-  // Phases: Atrial kick (0-30), IC (30-58), Ejection (58-175), IR (175-205), Rapid fill (205-275), Diastasis (275-360)
+  // Phase x-fractions: Kick 0–0.083 | IC 0.083–0.161 | Ejection 0.161–0.486
+  //                    IR 0.486–0.569 | Rapid Fill 0.569–0.764 | Diastasis 0.764–1.0
+  const DUR = "1.3s";
+  const LV_PATH = "M0,87 C8,87 22,83 30,79 C40,72 52,45 58,36 C72,18 112,8 140,9 C160,10 168,25 175,36 C182,47 196,82 205,87 L360,87";
+  const ECG_PATH = "M0,140 L22,140 C24,140 26,133 28,130 C30,127 31,143 33,140 L35,140 L37,122 L40,150 L42,140 L58,140 L175,140 L178,140 C183,140 188,132 195,128 C200,125 205,143 210,140 L240,140 C248,140 254,128 260,125 C266,122 268,138 272,140 L360,140";
   return (
     <svg viewBox="0 0 360 155" width="100%" style={{ display:'block' }}>
-      {/* Phase background bands */}
-      <rect x="0"   y="12" width="30"  height="80" fill="#FF9500" opacity={0.18} rx="0"/>
-      <rect x="30"  y="12" width="28"  height="80" fill="#FF6B6B" opacity={0.22} rx="0"/>
-      <rect x="58"  y="12" width="117" height="80" fill="#FF3B30" opacity={0.15} rx="0"/>
-      <rect x="175" y="12" width="30"  height="80" fill="#FF6B6B" opacity={0.22} rx="0"/>
-      <rect x="205" y="12" width="70"  height="80" fill="#30B0C7" opacity={0.18} rx="0"/>
-      <rect x="275" y="12" width="85"  height="80" fill="#30B0C7" opacity={0.10} rx="0"/>
+      {/* Phase backgrounds — discrete highlight follows cursor */}
+      <rect x="0" y="12" width="30" height="80" fill="#FF9500">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.28;0.10;0.10" keyTimes="0;0.083;1"/>
+      </rect>
+      <rect x="30" y="12" width="28" height="80" fill="#FF6B6B">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.10;0.28;0.10;0.10" keyTimes="0;0.083;0.161;1"/>
+      </rect>
+      <rect x="58" y="12" width="117" height="80" fill="#FF3B30">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.10;0.28;0.10;0.10" keyTimes="0;0.161;0.486;1"/>
+      </rect>
+      <rect x="175" y="12" width="30" height="80" fill="#FF6B6B">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.10;0.28;0.10;0.10" keyTimes="0;0.486;0.569;1"/>
+      </rect>
+      <rect x="205" y="12" width="70" height="80" fill="#30B0C7">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.10;0.28;0.10;0.10" keyTimes="0;0.569;0.764;1"/>
+      </rect>
+      <rect x="275" y="12" width="85" height="80" fill="#30B0C7">
+        <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
+          values="0.10;0.28;0.28" keyTimes="0;0.764;1"/>
+      </rect>
       {/* Baseline */}
       <line x1="0" y1="92" x2="360" y2="92" stroke="var(--separator)" strokeWidth="0.5"/>
       {/* LV Pressure curve */}
-      <path d="M0,87 C8,87 22,83 30,79 C40,72 52,45 58,36 C72,18 112,8 140,9 C160,10 168,25 175,36 C182,47 196,82 205,87 L360,87"
-        fill="none" stroke="#FF3B30" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={LV_PATH} fill="none" stroke="#FF3B30" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
       {/* Aortic pressure (dashed) */}
       <path d="M58,48 C72,18 112,8 140,9 C160,10 168,25 175,36 C177,40 178,37 180,38 C188,44 215,50 360,50"
         fill="none" stroke="#30B0C7" strokeWidth="1.5" strokeDasharray="5 3" strokeLinecap="round" strokeOpacity={0.7}/>
-      {/* Valve events — dashed vertical lines */}
+      {/* Valve events — dashed verticals */}
       <line x1="30"  y1="12" x2="30"  y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       <line x1="58"  y1="12" x2="58"  y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       <line x1="175" y1="12" x2="175" y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
@@ -231,12 +252,11 @@ function CardiacCycleSVG() {
       <text x="190" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF3B30">IR</text>
       <text x="240" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#30B0C7">Pengisian Cepat</text>
       <text x="317" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#30B0C7">Diastasis</text>
-      {/* SISTOLE / DIASTOLE bracket labels */}
+      {/* SISTOLE / DIASTOLE */}
       <text x="116" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FF3B30" opacity={0.8}>— SISTOLE —</text>
       <text x="282" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#30B0C7" opacity={0.8}>— DIASTOLE —</text>
       {/* ECG trace */}
-      <path d="M0,140 L22,140 C24,140 26,133 28,130 C30,127 31,143 33,140 L35,140 L37,122 L40,150 L42,140 L58,140 L175,140 L178,140 C183,140 188,132 195,128 C200,125 205,143 210,140 L240,140 C248,140 254,128 260,125 C266,122 268,138 272,140 L360,140"
-        fill="none" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={ECG_PATH} fill="none" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       {/* ECG labels */}
       <text x="26"  y="118" textAnchor="middle" fontSize="7" fill="#34C759" opacity={0.8}>P</text>
       <text x="40"  y="118" textAnchor="middle" fontSize="7" fill="#34C759" opacity={0.8}>QRS</text>
@@ -248,6 +268,21 @@ function CardiacCycleSVG() {
       <text x="53" y="153" fontSize="7" fill="var(--label-secondary)">Ao</text>
       <circle cx="72" cy="150" r="3" fill="#34C759" opacity={0.7}/>
       <text x="78" y="153" fontSize="7" fill="var(--label-secondary)">ECG</text>
+      {/* ── ANIMATED CURSOR ── sweeps left→right synced with phase highlights */}
+      <line x1="0" y1="10" x2="0" y2="110" stroke="var(--label-secondary)" strokeWidth="1.2" opacity="0.4">
+        <animate attributeName="x1" from="0" to="360" dur={DUR} repeatCount="indefinite" calcMode="linear"/>
+        <animate attributeName="x2" from="0" to="360" dur={DUR} repeatCount="indefinite" calcMode="linear"/>
+      </line>
+      {/* ── ANIMATED DOT — LV Pressure curve ── */}
+      <circle r="4.5" fill="#FF3B30" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5"
+        style={{ filter:'drop-shadow(0 0 5px rgba(255,59,48,0.85))' }}>
+        <animateMotion path={LV_PATH} dur={DUR} repeatCount="indefinite"/>
+      </circle>
+      {/* ── ANIMATED DOT — ECG trace ── */}
+      <circle r="3.5" fill="#34C759" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2"
+        style={{ filter:'drop-shadow(0 0 4px rgba(52,199,89,0.85))' }}>
+        <animateMotion path={ECG_PATH} dur={DUR} repeatCount="indefinite"/>
+      </circle>
     </svg>
   );
 }
@@ -409,7 +444,7 @@ function CardiacCycleTab() {
       <div style={{ background:'var(--bg-primary)', borderRadius:16, padding:'16px',
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         <div className="t-footnote" style={{ fontWeight:700, color:'var(--label-secondary)', marginBottom:12 }}>TEKANAN LV vs WAKTU · 1 SIKLUS JANTUNG</div>
-        <CardiacCycleSVG/>
+        <WiggersDiagramAnimated/>
       </div>
       <div style={{ background:'var(--bg-primary)', borderRadius:16, overflow:'hidden',
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
