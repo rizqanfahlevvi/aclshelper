@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ACLS_RHYTHMS } from '../../data';
-import { NavBar } from '../../components/base';
+import { NavBar, Icons } from '../../components/base';
 import type { Nav } from '../../types';
 
 /* ============================================================
@@ -261,9 +261,151 @@ const CYCLE_PHASES = [
   { name:'Diastasis', abbr:'Diastasis', color:'#5AC8FA', mmhg:'~3 mmHg', desc:'Pengisian lambat. Aliran minimum. Frekuensi tinggi memperpendek fase ini.' },
 ];
 
+/* ---- Simulation Modal ------------------------------------ */
+const SIM_TABS = [
+  { key:'wiggers',  label:'Wiggers Diagram',  url:'https://humanbiomedia.org/simulations/circulatory-system/cardiac-cycle/interactive-display.html' },
+  { key:'phase',    label:'Analisis Fase',    url:'https://humanbiomedia.org/simulations/circulatory-system/cardiac-cycle/phase-analysis.html' },
+  { key:'heart',    label:'Struktur Jantung', url:'https://humanbiomedia.org/simulations/circulatory-system/cardiac-cycle/heart-structures.html' },
+  { key:'sequence', label:'Urutan Fase',      url:'https://humanbiomedia.org/simulations/circulatory-system/cardiac-cycle/phase-sequence.html' },
+];
+
+function SimulationModal({ onClose }: { onClose: () => void }) {
+  const [simTab, setSimTab] = useState('wiggers');
+  const [blocked, setBlocked] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const current = SIM_TABS.find(t => t.key === simTab)!;
+
+  const checkBlocked = () => {
+    try {
+      // If cross-origin blocked, contentDocument is null or throws
+      const doc = iframeRef.current?.contentDocument;
+      if (!doc || doc.body?.innerHTML === '') setBlocked(true);
+    } catch {
+      setBlocked(true);
+    }
+  };
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:400, display:'flex', flexDirection:'column',
+      background:'var(--bg-secondary)', animation:'acls-overlay-in 250ms var(--ease-out) both' }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 16px', flexShrink:0,
+        background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator-opaque)',
+        boxShadow:'0 1px 8px rgba(0,0,0,0.06)' }}>
+        <button onClick={onClose}
+          style={{ width:32, height:32, borderRadius:10, border:0, cursor:'pointer', flexShrink:0,
+            background:'var(--fill-secondary)', color:'var(--label-primary)',
+            display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icons.chevL size={18} stroke={2.5}/>
+        </button>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div className="t-callout" style={{ fontWeight:700 }}>Simulasi Siklus Jantung</div>
+          <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>Human Bio Media</div>
+        </div>
+        <a href="https://www.humanbiomedia.org/cardiac-cycle-simulation/" target="_blank" rel="noopener noreferrer"
+          style={{ padding:'6px 12px', borderRadius:8, background:'var(--fill-quaternary)',
+            color:'var(--accent)', fontSize:'0.8125rem', fontWeight:600, textDecoration:'none',
+            display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
+          Buka ↗
+        </a>
+      </div>
+
+      {/* Sim tab bar */}
+      <div style={{ display:'flex', background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator-opaque)',
+        overflowX:'auto', flexShrink:0, WebkitOverflowScrolling:'touch' } as React.CSSProperties}>
+        {SIM_TABS.map(t => (
+          <button key={t.key} onClick={() => { setSimTab(t.key); setBlocked(false); }}
+            style={{ padding:'10px 14px', border:0, cursor:'pointer', background:'transparent', whiteSpace:'nowrap',
+              borderBottom: simTab===t.key ? '2px solid var(--accent)' : '2px solid transparent',
+              color: simTab===t.key ? 'var(--accent)' : 'var(--label-secondary)',
+              fontWeight: simTab===t.key ? 700 : 400, fontSize:'0.8125rem' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Iframe area */}
+      <div style={{ flex:1, overflow:'hidden', position:'relative', background:'#fff' }}>
+        {blocked ? (
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+            height:'100%', gap:14, padding:24, textAlign:'center' }}>
+            <div style={{ width:56, height:56, borderRadius:16, background:'var(--fill-quaternary)',
+              display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Icons.activity size={28} stroke={1.5} style={{ color:'var(--label-tertiary)' }}/>
+            </div>
+            <div>
+              <div className="t-callout" style={{ fontWeight:700, marginBottom:6 }}>Simulasi tidak dapat dimuat</div>
+              <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.6, maxWidth:280 }}>
+                Server memblokir embedding dari aplikasi ini. Buka langsung di browser untuk pengalaman penuh.
+              </div>
+            </div>
+            <a href="https://www.humanbiomedia.org/cardiac-cycle-simulation/" target="_blank" rel="noopener noreferrer"
+              style={{ padding:'12px 24px', borderRadius:12, background:'var(--accent)', color:'#fff',
+                fontWeight:700, textDecoration:'none', fontSize:'0.9375rem' }}>
+              Buka di Browser ↗
+            </a>
+          </div>
+        ) : (
+          <>
+            <iframe
+              key={simTab}
+              ref={iframeRef}
+              src={current.url}
+              width="100%" height="100%"
+              style={{ border:'none', display:'block' }}
+              onLoad={checkBlocked}
+              title={current.label}
+              allow="scripts"
+            />
+            <div style={{ position:'absolute', bottom:12, right:12 }}>
+              <a href={current.url} target="_blank" rel="noopener noreferrer"
+                style={{ padding:'5px 10px', borderRadius:8, background:'rgba(0,0,0,0.55)',
+                  color:'#fff', fontSize:'0.6875rem', fontWeight:600, textDecoration:'none',
+                  backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)' } as React.CSSProperties}>
+                Tidak muat? Buka ↗
+              </a>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CardiacCycleTab() {
+  const [showSim, setShowSim] = useState(false);
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* Simulation launch button */}
+      <button onClick={() => setShowSim(true)} style={{
+        display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderRadius:16, border:'none',
+        cursor:'pointer', textAlign:'left', width:'100%',
+        background:'linear-gradient(135deg, rgba(0,122,255,0.08), rgba(48,176,199,0.10))',
+        boxShadow:'0 0 0 1px rgba(0,122,255,0.3), 0 4px 16px rgba(0,122,255,0.12)',
+      }}>
+        <div style={{ width:44, height:44, borderRadius:12, background:'var(--accent)',
+          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+          boxShadow:'0 4px 12px rgba(0,122,255,0.3)' }}>
+          <Icons.activity size={22} stroke={2} style={{ color:'#fff' }}/>
+        </div>
+        <div style={{ flex:1 }}>
+          <div className="t-callout" style={{ fontWeight:700, color:'var(--accent)', marginBottom:3 }}>
+            Lihat Simulasi Interaktif
+          </div>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)' }}>
+            Wiggers Diagram · Analisis Fase · Struktur Jantung · Urutan Fase
+          </div>
+        </div>
+        <Icons.chevR size={18} stroke={2} style={{ color:'var(--accent)', flexShrink:0 }}/>
+      </button>
+      {showSim && <SimulationModal onClose={() => setShowSim(false)}/>}
       <div style={{ background:'var(--bg-primary)', borderRadius:16, padding:'16px',
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         <div className="t-footnote" style={{ fontWeight:700, color:'var(--label-secondary)', marginBottom:12 }}>TEKANAN LV vs WAKTU · 1 SIKLUS JANTUNG</div>
