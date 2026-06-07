@@ -140,37 +140,31 @@ function CalcFieldInput({ field, value, onChange }: {
 function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>; tint: string }) {
   return (
     <div style={{
-      borderRadius: 17, marginBottom: 16,
-      background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
-      padding: '1.5px',
+      borderRadius: 16, marginBottom: 16,
+      background: result.color,
+      overflow: 'hidden',
     }}>
-    <div style={{
-      padding: '19px 19px', borderRadius: 16,
-      background: 'var(--bg-primary)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
-        <div style={{
-          fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-          color: 'var(--label-primary)', lineHeight: 1, flexShrink: 0,
-        }}>{result.score}</div>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
-            <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--label-primary)' }}>{result.label}</div>
+      <div style={{ padding: '20px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
+          <div style={{
+            fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+            color: '#fff', lineHeight: 1, flexShrink: 0,
+          }}>{result.score}</div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: '#fff' }}>{result.label}</div>
+            {result.risk && (
+              <div className="t-footnote" style={{ color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{result.risk}</div>
+            )}
           </div>
-          {result.risk && (
-            <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
-          )}
         </div>
+        {result.detail && (
+          <div className="t-caption-1" style={{
+            color: 'rgba(255,255,255,0.8)',
+            borderTop: '0.5px solid rgba(255,255,255,0.3)',
+            paddingTop: 8, marginTop: 4,
+          }}>{result.detail}</div>
+        )}
       </div>
-      {result.detail && (
-        <div className="t-caption-1" style={{
-          color: 'var(--label-secondary)',
-          borderTop: `0.5px solid ${result.color}44`,
-          paddingTop: 8, marginTop: 4,
-        }}>{result.detail}</div>
-      )}
-    </div>
     </div>
   );
 }
@@ -264,28 +258,23 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        borderRadius: 17, marginBottom: 8,
-        background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
-        padding: '1.5px',
+        borderRadius: 16, marginBottom: 8,
+        background: result.color, overflow: 'hidden',
       }}>
       <div style={{
-        padding: '15px 17px', borderRadius: 16,
-        background: 'var(--bg-primary)',
+        padding: '15px 17px',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
-          padding: '8px 14px', borderRadius: 10, background: result.color + '22' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--label-primary)', lineHeight: 1 }}>
+          padding: '8px 14px', borderRadius: 10, background: 'rgba(0,0,0,0.12)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>
             {ph.toFixed(2)}
           </div>
-          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: result.color, letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
-            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--label-primary)' }}>{phLabel}</div>
-          </div>
-          <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', marginBottom: 3 }}>{phLabel}</div>
+          <div className="t-caption-1" style={{ color: 'rgba(255,255,255,0.75)' }}>
             PaCO₂ {pco2} mmHg · HCO₃⁻ {hco3} mEq/L
           </div>
         </div>
@@ -364,21 +353,19 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        borderRadius: 15, marginBottom: 12,
-        background: 'linear-gradient(135deg, #FF6B35cc, #FF6B3544)',
-        padding: '1.5px',
+        borderRadius: 14, marginBottom: 12,
+        background: '#FF6B35', overflow: 'hidden',
       }}>
       <div style={{
-        padding: '13px 15px', borderRadius: 14,
-        background: 'var(--bg-primary)',
+        padding: '13px 15px',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
-          padding: '8px 12px', borderRadius: 10, background: '#FF6B3522' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--label-primary)', lineHeight: 1 }}>{wt}</div>
-          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: '#FF6B35', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
+          padding: '8px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.12)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>{wt}</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
         </div>
-        <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
+        <div className="t-footnote" style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
           Semua dosis dihitung otomatis berdasarkan berat badan. Sesuaikan dengan kondisi klinis.
         </div>
       </div>
@@ -433,26 +420,21 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        borderRadius: 17, marginBottom: 8,
-        background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
-        padding: '1.5px',
+        borderRadius: 14, marginBottom: 8,
+        background: result.color, overflow: 'hidden',
       }}>
       <div style={{
-        padding: '15px 17px', borderRadius: 16,
-        background: 'var(--bg-primary)',
+        padding: '14px 16px',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{
           fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-          color: 'var(--label-primary)', lineHeight: 1, flexShrink: 0,
+          color: '#fff', lineHeight: 1, flexShrink: 0,
         }}>{result.score}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
-            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--label-primary)' }}>{result.label}</div>
-          </div>
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>{result.label}</div>
           {result.risk && (
-            <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
+            <div className="t-caption-1" style={{ color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{result.risk}</div>
           )}
         </div>
       </div>
