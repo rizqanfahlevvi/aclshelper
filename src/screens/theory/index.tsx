@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ACLS_RHYTHMS } from '../../data';
 import { NavBar, Icons } from '../../components/base';
+import { haptic } from '../../utils/haptic';
 import type { Nav } from '../../types';
 
 /* ============================================================
@@ -13,18 +14,23 @@ function TheoryImage({ name, alt, fallback }: {
 }) {
   const EXTS = ['.png', '.svg', '.jpg', '.webp'] as const;
   const [idx, setIdx] = useState(0);
-  // Reset saat slot berbeda dibuka
-  useEffect(() => { setIdx(0); }, [name]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setIdx(0); setLoaded(false); }, [name]);
   if (idx >= EXTS.length) return <>{fallback}</>;
   return (
-    <img
-      key={name + EXTS[idx]}
-      src={`/theory/${name}${EXTS[idx]}`}
-      alt={alt}
-      onError={() => setIdx(i => i + 1)}
-      style={{ width: '100%', height: 'auto', display: 'block',
-        borderRadius: 10, maxHeight: 200, objectFit: 'contain' }}
-    />
+    <div style={{ position: 'relative', width: '100%', borderRadius: 10, overflow: 'hidden',
+      minHeight: loaded ? 0 : 120 }}>
+      {!loaded && <div className="theory-img-skeleton"/>}
+      <img
+        key={name + EXTS[idx]}
+        src={`/theory/${name}${EXTS[idx]}`}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => { setLoaded(false); setIdx(i => i + 1); }}
+        style={{ width: '100%', height: 'auto', display: loaded ? 'block' : 'none',
+          borderRadius: 10, maxHeight: 200, objectFit: 'contain' }}
+      />
+    </div>
   );
 }
 
@@ -2739,7 +2745,7 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
         {/* Tab selector */}
         <div className="theory-tab-strip">
           {THEORY_TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} style={{
+            <button key={t.key} onClick={() => { haptic.monitorOn(); setTab(t.key); }} style={{
               padding:'0 16px', borderRadius:20, border:'none', cursor:'pointer',
               background: tab===t.key ? 'var(--accent)' : 'var(--fill-quaternary)',
               color: tab===t.key ? '#fff' : 'var(--label-secondary)',
@@ -2788,7 +2794,7 @@ export function DesktopTheory() {
           Fisiologi kardiovaskular
         </div>
         {THEORY_TABS.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+          <button key={t.key} onClick={() => { haptic.monitorOn(); setTab(t.key); }}
             style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 10px',
               borderRadius:10, border:'none', cursor:'pointer', textAlign:'left', marginBottom:2,
               background: tab===t.key ? 'var(--accent-tint)' : 'transparent',

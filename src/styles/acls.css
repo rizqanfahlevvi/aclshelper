@@ -618,6 +618,26 @@ body {
 }
 
 /* ============================================================
+   SKELETON SHIMMER — TheoryImage loading state
+   ============================================================ */
+@keyframes acls-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.theory-img-skeleton {
+  height: 120px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--fill-tertiary) 25%,
+    var(--fill-secondary) 50%,
+    var(--fill-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: acls-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
    ACCESSIBILITY — prefers-reduced-motion
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -628,6 +648,7 @@ body {
   .acls-sa-ring, .acls-av-ring           { animation: none !important; }
   .acls-ecg-cursor                        { animation: none !important; }
   .cpr-action.epi-ready                   { animation: none !important; }
+  .theory-img-skeleton                    { animation: none !important; }
   /* Stop enter animations */
   .acls-mobile-content                    { animation: none !important; }
   /* Collapse transitions to near-zero (keeps state changes functional) */

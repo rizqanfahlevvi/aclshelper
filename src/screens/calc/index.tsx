@@ -140,10 +140,13 @@ function CalcFieldInput({ field, value, onChange }: {
 function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>; tint: string }) {
   return (
     <div style={{
-      padding: '20px 20px', borderRadius: 16,
+      borderRadius: 17, marginBottom: 16,
+      background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
+      padding: '1.5px',
+    }}>
+    <div style={{
+      padding: '19px 19px', borderRadius: 16,
       background: result.color + '14',
-      boxShadow: `inset 0 0 0 1px ${result.color}44`,
-      marginBottom: 16,
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8 }}>
         <div style={{
@@ -164,6 +167,7 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
           paddingTop: 8, marginTop: 4,
         }}>{result.detail}</div>
       )}
+    </div>
     </div>
   );
 }
@@ -257,8 +261,13 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        padding: '16px 18px', borderRadius: 16, marginBottom: 8,
-        background: result.color + '14', boxShadow: `inset 0 0 0 1px ${result.color}44`,
+        borderRadius: 17, marginBottom: 8,
+        background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
+        padding: '1.5px',
+      }}>
+      <div style={{
+        padding: '15px 17px', borderRadius: 16,
+        background: result.color + '14',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -273,6 +282,7 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
             PaCO₂ {pco2} mmHg · HCO₃⁻ {hco3} mEq/L
           </div>
         </div>
+      </div>
       </div>
       {sections.map((s, i) => (
         <div key={i} style={{
@@ -347,8 +357,13 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        padding: '14px 16px', borderRadius: 14, marginBottom: 12,
-        background: '#FF6B3514', boxShadow: 'inset 0 0 0 1px #FF6B3544',
+        borderRadius: 15, marginBottom: 12,
+        background: 'linear-gradient(135deg, #FF6B35cc, #FF6B3544)',
+        padding: '1.5px',
+      }}>
+      <div style={{
+        padding: '13px 15px', borderRadius: 14,
+        background: '#FF6B3514',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -358,6 +373,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
           Semua dosis dihitung otomatis berdasarkan berat badan. Sesuaikan dengan kondisi klinis.
         </div>
+      </div>
       </div>
 
       {section('1. PREOXYGENASI', '#34C759', (
@@ -409,8 +425,13 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{
-        padding: '16px 18px', borderRadius: 16, marginBottom: 8,
-        background: result.color + '14', boxShadow: `inset 0 0 0 1px ${result.color}44`,
+        borderRadius: 17, marginBottom: 8,
+        background: `linear-gradient(135deg, ${result.color}cc, ${result.color}44)`,
+        padding: '1.5px',
+      }}>
+      <div style={{
+        padding: '15px 17px', borderRadius: 16,
+        background: result.color + '14',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{
@@ -423,6 +444,7 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
           )}
         </div>
+      </div>
       </div>
       {lines.map((line, i) => (
         <div key={i} style={{
