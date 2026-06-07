@@ -59,6 +59,33 @@ Jika file tidak ada, diagram SVG bawaan tetap tampil sebagai fallback.
 | `cerebral-autoregulation.*`  | Kurva autoregulasi serebral (CBF vs MAP)             |
 | `ttm-mechanism.*`            | Mekanisme neuroproteksi TTM (32–36°C)                |
 
+### Tab: Elektrolit & EKG
+| Nama file            | Diagram                                       |
+|----------------------|-----------------------------------------------|
+| `elec-hyperk.*`      | EKG hiperkalemia (T peaked → QRS lebar)       |
+| `elec-hypok.*`       | EKG hipokalemia (T datar + gelombang U)       |
+| `elec-hyperca.*`     | EKG hiperkalsemia (QT memendek)               |
+| `elec-hypoca.*`      | EKG hipokalsemia (QT memanjang)               |
+| `elec-hypomg.*`      | EKG hipomagnesemia (QT panjang / TdP)         |
+
+### Tab: EKG 12-Sadapan
+| Nama file            | Diagram                                       |
+|----------------------|-----------------------------------------------|
+| `ekg12-septal.*`     | Teritori septal (V1–V2, LAD septal)           |
+| `ekg12-anterior.*`   | Teritori anterior (V3–V4, LAD)                |
+| `ekg12-lateral.*`    | Teritori lateral (I, aVL, V5–V6)              |
+| `ekg12-inferior.*`   | Teritori inferior (II, III, aVF, RCA)         |
+| `ekg12-posterior.*`  | Teritori posterior (V7–V9)                    |
+| `ekg12-rv.*`         | Teritori ventrikel kanan (V4R)                |
+
+### Tab: POCUS
+| Nama file            | Diagram                                       |
+|----------------------|-----------------------------------------------|
+| `pocus-pump.*`       | Jendela jantung (subxiphoid / PSL / A4C)      |
+| `pocus-tank.*`       | IVC / FAST / B-lines                          |
+| `pocus-pipes.*`      | Aorta / vena (AAA, DVT)                        |
+| `pocus-arrest.*`     | Protokol FEEL / SHoC pada henti jantung       |
+
 ## Cara Mengganti Diagram
 
 1. Simpan gambar dengan nama sesuai tabel di atas ke folder `public/theory/`

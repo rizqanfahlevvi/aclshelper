@@ -2262,6 +2262,446 @@ function PostArrestTab() {
 }
 
 /* ============================================================
+   Electrolyte & EKG Tab
+   ============================================================ */
+const ELEC_REFS = [
+  { n:1, text:'Mattu A, Brady WJ, Robinson DA. Electrocardiographic manifestations of hyperkalemia. Am J Emerg Med. 2000;18(6):721–729.', url:'https://doi.org/10.1053/ajem.2000.7344' },
+  { n:2, text:'Slovis C, Jenkins R. ABC of clinical electrocardiography: Conditions not primarily affecting the heart. BMJ. 2002;324:1320–1323.', url:'https://doi.org/10.1136/bmj.324.7349.1320' },
+  { n:3, text:'Panchal AR, et al. Part 3: Adult Basic and Advanced Life Support. AHA Guidelines. Circulation. 2020;142(16 suppl 2).', url:'https://doi.org/10.1161/CIR.0000000000000916' },
+  { n:4, text:'El-Sherif N, Turitto G. Electrolyte disorders and arrhythmogenesis. Cardiol J. 2011;18(3):233–245.' },
+];
+
+type ElecKey = 'hyperk' | 'hypok' | 'hyperca' | 'hypoca' | 'hypomg';
+
+interface ElecDisorder {
+  name: string; range: string; color: string;
+  ekg: string[]; mechanism: string; management: string[]; pearl: string;
+}
+
+const ELEC_MAP: Record<ElecKey, ElecDisorder> = {
+  hyperk: { name:'Hiperkalemia', range:'K⁺ >5.5 mEq/L', color:'#FF3B30',
+    ekg:['T tinggi & runcing (peaked, K⁺ 5.5–6.5)','PR memanjang, P mendatar/hilang (6.5–7.5)','QRS melebar (>7.5)','Pola sine-wave → VF/asistol (terminal)'],
+    mechanism:'K⁺ ekstraseluler↑ → potensial membran istirahat kurang negatif → inaktivasi kanal Na⁺ → konduksi melambat & eksitabilitas menurun progresif. Repolarisasi lebih cepat → T peaked.',
+    management:['Kalsium glukonat 10% 10–30 mL IV (stabilisasi membran — bekerja <3 mnt)','Insulin 10 U + D40% 25 g IV (shift intraseluler)','Salbutamol nebul 10–20 mg (shift)','Natrium bikarbonat (jika asidosis)','Eliminasi: furosemid, resin (patiromer), dialisis'],
+    pearl:'Kalsium TIDAK menurunkan K⁺ — hanya menstabilkan membran. Tetap perlu terapi shift + eliminasi. Pada henti jantung curiga hiperkalemia: CaCl₂ + bikarbonat empiris.' },
+  hypok:  { name:'Hipokalemia', range:'K⁺ <3.5 mEq/L', color:'#FF9500',
+    ekg:['T mendatar / inversi','Gelombang U menonjol (setelah T)','ST depresi','QT (sebenarnya QU) memanjang → risiko TdP'],
+    mechanism:'K⁺ ekstraseluler↓ → hiperpolarisasi & repolarisasi memanjang → afterdepolarization → aritmia. Memperberat toksisitas digoksin.',
+    management:['KCl IV 10–20 mEq/jam via vena sentral (perifer maks 10 mEq/jam)','Koreksi Mg²⁺ bersamaan (hipoMg menghambat koreksi K⁺)','Target K⁺ ≥4.0 pada pasien jantung','Monitoring EKG kontinyu saat koreksi cepat'],
+    pearl:'Hipokalemia refrakter sering disebabkan hipomagnesemia — selalu koreksi Mg²⁺ bersamaan.' },
+  hyperca: { name:'Hiperkalsemia', range:'Ca²⁺ >10.5 mg/dL', color:'#5856D6',
+    ekg:['QT memendek (ST segment pendek/hilang)','Gelombang Osborn (J wave) pada kasus berat','Bradikardia, AV block (berat)'],
+    mechanism:'Ca²⁺↑ → fase 2 (plateau) lebih cepat → repolarisasi lebih cepat → QT pendek. Penyebab: hiperparatiroid, keganasan.',
+    management:['Hidrasi NaCl 0.9% agresif (200–300 mL/jam)','Kalsitonin 4 U/kg (cepat tapi tachyphylaxis)','Bifosfonat (asam zoledronat) — onset 2–4 hari','Dialisis jika berat/gagal ginjal'],
+    pearl:'QT pendek dengan ST segment yang nyaris hilang adalah petunjuk klasik hiperkalsemia.' },
+  hypoca:  { name:'Hipokalsemia', range:'Ca²⁺ <8.5 mg/dL', color:'#30B0C7',
+    ekg:['QT memanjang (ST segment memanjang)','T relatif normal (beda dari hipoK)','Risiko TdP'],
+    mechanism:'Ca²⁺↓ → fase 2 plateau memanjang → repolarisasi lambat → QT panjang. Penyebab: hipoparatiroid, transfusi masif (sitrat), pankreatitis.',
+    management:['Kalsium glukonat 10% 10–20 mL IV lambat (simptomatik)','Kalsium klorida bila akses sentral','Koreksi Mg²⁺ jika rendah','Cari penyebab (PTH, vitamin D)'],
+    pearl:'Transfusi masif → sitrat mengikat Ca²⁺ → hipokalsemia + koagulopati. Pertimbangkan kalsium empiris.' },
+  hypomg:  { name:'Hipomagnesemia', range:'Mg²⁺ <1.5 mg/dL', color:'#34C759',
+    ekg:['QT memanjang','Pelebaran QRS & PR (berat)','Predisposisi TdP & aritmia atrial/ventrikel'],
+    mechanism:'Mg²⁺ adalah kofaktor Na⁺/K⁺-ATPase. Defisit → hipokalemia & hipokalsemia refrakter → instabilitas listrik & TdP.',
+    management:['MgSO₄ 1–2 g IV selama 15 mnt (TdP / aritmia)','MgSO₄ 2 g IV bolus pada TdP (lini pertama, walau Mg normal)','Koreksi K⁺ dan Ca²⁺ bersamaan','Infus lambat jika asimptomatik'],
+    pearl:'Magnesium sulfat adalah terapi lini pertama Torsades de Pointes — diberikan bahkan saat kadar Mg normal.' },
+};
+
+function ElectrolyteTab() {
+  const [el, setEl] = useState<ElecKey>('hyperk');
+  const d = ELEC_MAP[el];
+  const TYPES: Array<{ key: ElecKey; label: string; color: string }> = [
+    { key:'hyperk',  label:'Hiper-K⁺',  color:'#FF3B30' },
+    { key:'hypok',   label:'Hipo-K⁺',   color:'#FF9500' },
+    { key:'hyperca', label:'Hiper-Ca²⁺', color:'#5856D6' },
+    { key:'hypoca',  label:'Hipo-Ca²⁺',  color:'#30B0C7' },
+    { key:'hypomg',  label:'Hipo-Mg²⁺',  color:'#34C759' },
+  ];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Gangguan elektrolit mengubah potensial membran dan repolarisasi miosit → manifestasi EKG khas dan risiko aritmia.<Cite n={2} href="https://doi.org/10.1136/bmj.324.7349.1320"/> Pengenalan pola EKG memungkinkan terapi empiris sebelum hasil lab tersedia — penting pada henti jantung (Hs & Ts).<Cite n={3} href="https://doi.org/10.1161/CIR.0000000000000916"/>
+      </div>
+      {/* Selector */}
+      <div style={{ display:'flex', overflowX:'auto', gap:6, paddingBottom:4 }}>
+        {TYPES.map(t => (
+          <button key={t.key} onClick={() => setEl(t.key)} style={{
+            padding:'8px 13px', borderRadius:20, border:'none', cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
+            background: el===t.key ? t.color : 'var(--fill-quaternary)',
+            color: el===t.key ? '#fff' : 'var(--label-secondary)',
+            fontWeight: el===t.key ? 700 : 400, fontSize:'0.8125rem', transition:'all 150ms ease',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      {/* Header + range */}
+      <div style={{ background:d.color+'10', borderRadius:14, padding:'12px 16px', boxShadow:`0 0 0 1px ${d.color}40` }}>
+        <div className="t-callout" style={{ fontWeight:700, color:d.color }}>{d.name}</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', fontFamily:'monospace', marginTop:2 }}>{d.range}</div>
+      </div>
+      {/* EKG diagram */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PERUBAHAN EKG</div>
+        <TheoryImage name={`elec-${el}`} alt={`EKG ${d.name}`}
+          fallback={
+            <svg viewBox="0 0 280 90" style={{ width:'100%', maxHeight:90 }}>
+              <line x1="0" y1="60" x2="280" y2="60" stroke="var(--separator-opaque)" strokeWidth="0.5"/>
+              {el==='hyperk' && (
+                <path d="M0,60 L30,60 L36,52 L40,60 L70,60 L82,18 L94,60 L110,60 L116,52 L120,60 L150,60 L162,18 L174,60 L280,60"
+                  stroke={d.color} strokeWidth="2" fill="none" strokeLinejoin="round"/>
+              )}
+              {el==='hypok' && (
+                <path d="M0,60 L24,60 L30,40 L40,55 L46,60 L58,57 L70,60 L120,60 L126,40 L136,55 L142,60 L154,57 L166,60 L280,60"
+                  stroke={d.color} strokeWidth="2" fill="none" strokeLinejoin="round"/>
+              )}
+              {el==='hyperca' && (
+                <path d="M0,60 L40,60 L46,30 L52,60 L56,48 L66,60 L120,60 L126,30 L132,60 L136,48 L146,60 L280,60"
+                  stroke={d.color} strokeWidth="2" fill="none" strokeLinejoin="round"/>
+              )}
+              {(el==='hypoca'||el==='hypomg') && (
+                <path d="M0,60 L36,60 L42,28 L48,60 L92,60 L100,46 L112,60 L160,60 L166,28 L172,60 L216,60 L224,46 L236,60 L280,60"
+                  stroke={d.color} strokeWidth="2" fill="none" strokeLinejoin="round"/>
+              )}
+              <text x="140" y="84" textAnchor="middle" fontSize="9" fill="var(--label-tertiary)">
+                {el==='hyperk' ? 'T peaked / QRS lebar' : el==='hypok' ? 'T datar + gelombang U' : el==='hyperca' ? 'QT memendek' : 'QT memanjang'}
+              </text>
+            </svg>
+          }
+        />
+        {d.ekg.map((e, i) => (
+          <div key={i} style={{ display:'flex', gap:7, marginTop:6 }}>
+            <div style={{ width:5, height:5, borderRadius:2.5, background:d.color, flexShrink:0, marginTop:4 }}/>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45 }}>{e}</div>
+          </div>
+        ))}
+      </div>
+      {/* Mechanism */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>MEKANISME</div>
+        <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.65 }}>{d.mechanism}<Cite n={4}/></div>
+      </div>
+      {/* Management */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>TATA LAKSANA</div>
+        {d.management.map((m, i) => (
+          <div key={i} style={{ display:'flex', gap:7, marginBottom:5 }}>
+            <div style={{ width:18, height:18, borderRadius:'50%', background:'#34C75915', border:'1px solid #34C75940',
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:'0.6rem', fontWeight:700, color:'#34C759' }}>{i+1}</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45, paddingTop:1 }}>{m}</div>
+          </div>
+        ))}
+      </div>
+      {/* Pearl */}
+      <div style={{ background:d.color+'10', borderRadius:14, padding:'12px 16px', boxShadow:`0 0 0 1px ${d.color}30` }}>
+        <div className="t-caption-2" style={{ color:d.color, fontWeight:700, marginBottom:4 }}>💡 MUTIARA KLINIS</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.pearl}</div>
+      </div>
+      {el==='hyperk' && (
+        <div style={{ background:'rgba(255,59,48,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6 }}>
+            Hiperkalemia adalah salah satu dari <span style={{ fontWeight:700, color:'#FF3B30' }}>Hs &amp; Ts</span> (penyebab reversibel henti jantung). Pertimbangkan pada gagal ginjal, asidosis, rabdomiolisis, atau EKG dengan QRS lebar progresif.<Cite n={1} href="https://doi.org/10.1053/ajem.2000.7344"/>
+          </div>
+        </div>
+      )}
+      <RefBlock items={ELEC_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   12-Lead EKG Tab
+   ============================================================ */
+const EKG12_REFS = [
+  { n:1, text:'Wagner GS, et al. AHA/ACCF/HRS Recommendations for the Standardization and Interpretation of the ECG: Part VI. Circulation. 2009;119:e235–e240.', url:'https://doi.org/10.1161/CIRCULATIONAHA.108.191095' },
+  { n:2, text:'Thygesen K, et al. Fourth Universal Definition of Myocardial Infarction (2018). Circulation. 2018;138:e618–e651.', url:'https://doi.org/10.1161/CIR.0000000000000617' },
+  { n:3, text:'Surawicz B, Knilans T. Chou\'s Electrocardiography in Clinical Practice. 6th ed. 2008.' },
+];
+
+type TerrKey = 'anterior' | 'septal' | 'lateral' | 'inferior' | 'posterior' | 'rv';
+
+interface Territory {
+  name: string; color: string; leads: string; artery: string;
+  reciprocal: string; notes: string;
+}
+
+const TERR_MAP: Record<TerrKey, Territory> = {
+  septal:   { name:'Septal', color:'#FF9500', leads:'V1–V2', artery:'LAD (cabang septal)',
+    reciprocal:'—', notes:'Sering bergabung dengan anterior (antero-septal). Q di V1–V2.' },
+  anterior: { name:'Anterior', color:'#FF3B30', leads:'V3–V4', artery:'LAD (left anterior descending)',
+    reciprocal:'Inferior (II, III, aVF)', notes:'STEMI anterior luas (V1–V6) → oklusi LAD proksimal, prognosis buruk, risiko syok kardiogenik.' },
+  lateral:  { name:'Lateral', color:'#34C759', leads:'I, aVL, V5–V6', artery:'LCx atau diagonal LAD',
+    reciprocal:'Inferior (II, III, aVF)', notes:'High lateral (I, aVL) → diagonal/LCx. Resiprokal inferior membantu konfirmasi.' },
+  inferior: { name:'Inferior', color:'#007AFF', leads:'II, III, aVF', artery:'RCA (80%) atau LCx (20%)',
+    reciprocal:'I, aVL', notes:'STEMI inferior → selalu cek lead kanan (V4R) untuk infark RV. Hati-hati nitrat & bradikardia.' },
+  posterior:{ name:'Posterior', color:'#5856D6', leads:'V7–V9 (ST elevasi)', artery:'LCx atau RCA',
+    reciprocal:'V1–V3 (ST depresi + R tinggi)', notes:'Tampak sebagai ST depresi V1–V3 dengan R dominan — "STEMI ekuivalen". Rekam V7–V9.' },
+  rv:       { name:'Ventrikel Kanan', color:'#30B0C7', leads:'V4R (ST elevasi)', artery:'RCA proksimal',
+    reciprocal:'—', notes:'Menyertai 30–50% STEMI inferior. Hipotensi sensitif terhadap preload — hindari nitrat, beri cairan.' },
+};
+
+function Ekg12LeadTab() {
+  const [terr, setTerr] = useState<TerrKey>('anterior');
+  const d = TERR_MAP[terr];
+  const TYPES: Array<{ key: TerrKey; label: string }> = [
+    { key:'septal',    label:'Septal' },
+    { key:'anterior',  label:'Anterior' },
+    { key:'lateral',   label:'Lateral' },
+    { key:'inferior',  label:'Inferior' },
+    { key:'posterior', label:'Posterior' },
+    { key:'rv',        label:'RV' },
+  ];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        EKG 12 sadapan memetakan aktivitas listrik jantung dari 12 sudut pandang. Pengelompokan sadapan berdasarkan teritori koroner memungkinkan lokalisasi iskemia/infark dan identifikasi arteri penyebab.<Cite n={1} href="https://doi.org/10.1161/CIRCULATIONAHA.108.191095"/>
+      </div>
+      {/* Lead group reference */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>12 SADAPAN</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <div>
+            <div className="t-caption-2" style={{ fontWeight:700, marginBottom:3, color:'var(--label-primary)' }}>Ekstremitas (frontal)</div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>I, II, III (bipolar)<br/>aVR, aVL, aVF (augmented)</div>
+          </div>
+          <div>
+            <div className="t-caption-2" style={{ fontWeight:700, marginBottom:3, color:'var(--label-primary)' }}>Prekordial (horizontal)</div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>V1–V2: septal<br/>V3–V4: anterior<br/>V5–V6: lateral</div>
+          </div>
+        </div>
+      </div>
+      {/* Territory selector */}
+      <div style={{ display:'flex', overflowX:'auto', gap:6, paddingBottom:4 }}>
+        {TYPES.map(t => (
+          <button key={t.key} onClick={() => setTerr(t.key)} style={{
+            padding:'8px 13px', borderRadius:20, border:'none', cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
+            background: terr===t.key ? TERR_MAP[t.key].color : 'var(--fill-quaternary)',
+            color: terr===t.key ? '#fff' : 'var(--label-secondary)',
+            fontWeight: terr===t.key ? 700 : 400, fontSize:'0.8125rem', transition:'all 150ms ease',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      {/* Territory diagram */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px', boxShadow:`0 0 0 1.5px ${d.color}40` }}>
+        <TheoryImage name={`ekg12-${terr}`} alt={`Teritori ${d.name}`}
+          fallback={
+            <svg viewBox="0 0 280 120" style={{ width:'100%', maxHeight:120 }}>
+              {/* Heart outline */}
+              <path d="M140,30 C120,10 80,15 80,55 C80,90 140,110 140,110 C140,110 200,90 200,55 C200,15 160,10 140,30 Z"
+                fill="var(--fill-quaternary)" stroke="var(--separator-opaque)" strokeWidth="1"/>
+              {/* Highlighted region */}
+              {terr==='septal' && <ellipse cx="140" cy="60" rx="14" ry="35" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5"/>}
+              {terr==='anterior' && <ellipse cx="120" cy="50" rx="26" ry="28" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5"/>}
+              {terr==='lateral' && <ellipse cx="90" cy="60" rx="18" ry="30" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5"/>}
+              {terr==='inferior' && <ellipse cx="140" cy="95" rx="40" ry="14" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5"/>}
+              {terr==='posterior' && <ellipse cx="165" cy="65" rx="22" ry="30" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5" strokeDasharray="3,2"/>}
+              {terr==='rv' && <ellipse cx="180" cy="55" rx="18" ry="28" fill={d.color+'40'} stroke={d.color} strokeWidth="1.5"/>}
+              <text x="140" y="118" textAnchor="middle" fontSize="9" fill={d.color} fontWeight="700">Teritori {d.name}</text>
+            </svg>
+          }
+        />
+      </div>
+      {/* Detail */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        {([['Sadapan terlibat', d.leads], ['Arteri penyebab', d.artery], ['Resiprokal', d.reciprocal]] as const).map(([k, v]) => (
+          <div key={k} style={{ display:'flex', justifyContent:'space-between', gap:10, padding:'7px 0',
+            borderBottom:'0.5px solid var(--separator-opaque)' }}>
+            <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}>{k}</span>
+            <span className="t-caption-1" style={{ fontWeight:700, color:'var(--label-primary)', textAlign:'right' }}>{v}</span>
+          </div>
+        ))}
+        <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.6, marginTop:10 }}>{d.notes}</div>
+      </div>
+      {/* STEMI criteria */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>KRITERIA ST-ELEVASI (Universal Definition of MI 2018)</div>
+        {[
+          'Elevasi ST baru pada J point ≥2 sadapan kontigu',
+          '≥1 mm di semua sadapan kecuali V2–V3',
+          'V2–V3: ≥2 mm (pria ≥40 th), ≥2.5 mm (pria <40 th), ≥1.5 mm (wanita)',
+          'LBBB baru / Sgarbossa positif = STEMI ekuivalen',
+        ].map((c, i) => (
+          <div key={i} style={{ display:'flex', gap:7, marginBottom:5 }}>
+            <div style={{ width:5, height:5, borderRadius:2.5, background:'#FF3B30', flexShrink:0, marginTop:4 }}/>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45 }}>{c}</div>
+          </div>
+        ))}
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', lineHeight:1.5, marginTop:6 }}>
+          Sumber: Fourth Universal Definition of MI.<Cite n={2} href="https://doi.org/10.1161/CIR.0000000000000617"/>
+        </div>
+      </div>
+      {/* Systematic approach */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PENDEKATAN SISTEMATIS</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.7 }}>
+          <strong>1. Laju</strong> (300/jumlah kotak besar) · <strong>2. Irama</strong> (reguler? P sebelum tiap QRS?) · <strong>3. Aksis</strong> (I & aVF) · <strong>4. Interval</strong> (PR 120–200ms, QRS &lt;120ms, QTc) · <strong>5. Morfologi</strong> (P, QRS, ST-T per teritori).<Cite n={3}/>
+        </div>
+      </div>
+      <RefBlock items={EKG12_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   POCUS Tab
+   ============================================================ */
+const POCUS_REFS = [
+  { n:1, text:'Perera P, et al. The RUSH exam: Rapid Ultrasound in SHock in the evaluation of the critically ill. Emerg Med Clin North Am. 2010;28(1):29–56.', url:'https://doi.org/10.1016/j.emc.2009.09.010' },
+  { n:2, text:'Atkinson P, et al. International Federation for Emergency Medicine Consensus Statement: Sonography in hypotension and cardiac arrest (SHoC). CJEM. 2017;19(6):459–470.', url:'https://doi.org/10.1017/cem.2016.394' },
+  { n:3, text:'Breitkreutz R, et al. Focused echocardiographic evaluation in life support and peri-resuscitation (FEEL). Resuscitation. 2010;81(11):1527–1533.', url:'https://doi.org/10.1016/j.resuscitation.2010.06.012' },
+];
+
+type PocusKey = 'pump' | 'tank' | 'pipes' | 'arrest';
+
+interface PocusSection {
+  name: string; color: string; subtitle: string;
+  views: Array<{ view: string; finding: string }>;
+  pearl: string;
+}
+
+const POCUS_MAP: Record<PocusKey, PocusSection> = {
+  pump: { name:'Pump (Jantung)', color:'#FF3B30', subtitle:'Evaluasi fungsi & cairan perikardial',
+    views:[
+      { view:'Subxiphoid 4-chamber', finding:'Efusi perikardial / tamponade (kolaps RA/RV diastolik)' },
+      { view:'Parasternal long-axis', finding:'Kontraktilitas LV (global), efusi, ukuran ruang' },
+      { view:'Apical 4-chamber', finding:'Rasio RV:LV (>1 → strain RV / PE), fungsi global' },
+    ],
+    pearl:'Pada henti jantung: cardiac standstill (tidak ada gerakan dinding) berkorelasi dengan prognosis sangat buruk. Tamponade → perikardiosentesis segera.' },
+  tank: { name:'Tank (Volume)', color:'#007AFF', subtitle:'Status volume & kebocoran',
+    views:[
+      { view:'IVC (subxiphoid)', finding:'Diameter & kolapsibilitas → status preload/volume responsiveness' },
+      { view:'FAST (Morrison, splenorenal, pelvis)', finding:'Cairan bebas intraabdomen (perdarahan)' },
+      { view:'Toraks (B-lines)', finding:'Edema paru / kongesti (≥3 B-line per lapang)' },
+      { view:'Pleura', finding:'Efusi pleura, pneumotoraks (hilangnya lung sliding)' },
+    ],
+    pearl:'IVC kecil & kolaps total → hipovolemia / volume responsive. IVC plethoric (besar, tidak kolaps) → tamponade, PE, atau gagal jantung kanan.' },
+  pipes: { name:'Pipes (Pembuluh)', color:'#34C759', subtitle:'Arteri & vena',
+    views:[
+      { view:'Aorta (suprasternal–bifurkasio)', finding:'Aneurisma aorta abdominal (AAA >3 cm), diseksi' },
+      { view:'Vena femoralis/poplitea', finding:'DVT (vena tidak kompresibel) → sumber PE' },
+    ],
+    pearl:'AAA yang ruptur dapat menyebabkan syok hipovolemik. DVT + RV strain mendukung diagnosis PE pada syok obstruktif.' },
+  arrest: { name:'Henti Jantung', color:'#5856D6', subtitle:'Protokol FEEL / SHoC — sebab reversibel',
+    views:[
+      { view:'Cardiac standstill', finding:'Tidak ada aktivitas → prognosis buruk; bantu keputusan terminasi' },
+      { view:'Tamponade', finding:'Efusi besar + kolaps ruang → perikardiosentesis' },
+      { view:'RV dilatasi (D-sign)', finding:'PE masif → pertimbangkan trombolisis' },
+      { view:'LV hiperdinamik + IVC kolaps', finding:'Hipovolemia → resusitasi cairan/darah' },
+    ],
+    pearl:'Lakukan hanya selama jeda pulse-check (≤10 detik) agar tidak mengganggu kompresi. FEEL terintegrasi dalam algoritma ALS untuk mengidentifikasi 4H/4T yang dapat ditangani.' },
+};
+
+function PocusTab() {
+  const [sec, setSec] = useState<PocusKey>('pump');
+  const d = POCUS_MAP[sec];
+  const TYPES: Array<{ key: PocusKey; label: string }> = [
+    { key:'pump',   label:'Pump' },
+    { key:'tank',   label:'Tank' },
+    { key:'pipes',  label:'Pipes' },
+    { key:'arrest', label:'Henti Jantung' },
+  ];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Point-of-Care Ultrasound (POCUS) mempercepat diagnosis syok dan henti jantung di samping tempat tidur. Protokol RUSH (Rapid Ultrasound in SHock) menggunakan kerangka <em>Pump–Tank–Pipes</em> untuk evaluasi sistematis.<Cite n={1} href="https://doi.org/10.1016/j.emc.2009.09.010"/>
+      </div>
+      {/* RUSH framework note */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>KERANGKA RUSH</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+          {[
+            { n:'Pump', d:'Jantung', c:'#FF3B30' },
+            { n:'Tank', d:'Volume', c:'#007AFF' },
+            { n:'Pipes', d:'Pembuluh', c:'#34C759' },
+          ].map(r => (
+            <div key={r.n} style={{ textAlign:'center', background:r.c+'12', borderRadius:10, padding:'10px 6px', boxShadow:`0 0 0 1px ${r.c}30` }}>
+              <div className="t-caption-1" style={{ fontWeight:700, color:r.c }}>{r.n}</div>
+              <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>{r.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Section selector */}
+      <div style={{ display:'flex', overflowX:'auto', gap:6, paddingBottom:4 }}>
+        {TYPES.map(t => (
+          <button key={t.key} onClick={() => setSec(t.key)} style={{
+            padding:'8px 13px', borderRadius:20, border:'none', cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
+            background: sec===t.key ? POCUS_MAP[t.key].color : 'var(--fill-quaternary)',
+            color: sec===t.key ? '#fff' : 'var(--label-secondary)',
+            fontWeight: sec===t.key ? 700 : 400, fontSize:'0.8125rem', transition:'all 150ms ease',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      {/* Header */}
+      <div style={{ background:d.color+'10', borderRadius:14, padding:'12px 16px', boxShadow:`0 0 0 1px ${d.color}40` }}>
+        <div className="t-callout" style={{ fontWeight:700, color:d.color }}>{d.name}</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:2 }}>{d.subtitle}</div>
+      </div>
+      {/* Diagram */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <TheoryImage name={`pocus-${sec}`} alt={`POCUS ${d.name}`}
+          fallback={
+            <svg viewBox="0 0 200 110" style={{ width:'100%', maxHeight:110 }}>
+              {/* Ultrasound probe sector */}
+              <path d="M100,8 L40,100 L160,100 Z" fill="#0a0a0a" stroke={d.color} strokeWidth="1.5"/>
+              <circle cx="100" cy="8" r="4" fill={d.color}/>
+              {sec==='pump' && (
+                <>
+                  <ellipse cx="100" cy="65" rx="26" ry="20" fill="none" stroke={d.color} strokeWidth="2"/>
+                  <line x1="100" y1="48" x2="100" y2="82" stroke={d.color} strokeWidth="1.5"/>
+                  <text x="100" y="100" textAnchor="middle" fontSize="8" fill={d.color}>4-chamber</text>
+                </>
+              )}
+              {sec==='tank' && (
+                <>
+                  <rect x="92" y="40" width="16" height="50" rx="6" fill="none" stroke={d.color} strokeWidth="2"/>
+                  <text x="100" y="100" textAnchor="middle" fontSize="8" fill={d.color}>IVC</text>
+                </>
+              )}
+              {sec==='pipes' && (
+                <>
+                  <circle cx="100" cy="60" r="14" fill="none" stroke={d.color} strokeWidth="2"/>
+                  <circle cx="100" cy="60" r="6" fill={d.color+'40'}/>
+                  <text x="100" y="100" textAnchor="middle" fontSize="8" fill={d.color}>Aorta</text>
+                </>
+              )}
+              {sec==='arrest' && (
+                <>
+                  <ellipse cx="100" cy="62" rx="30" ry="22" fill="none" stroke={d.color} strokeWidth="2"/>
+                  <ellipse cx="100" cy="62" rx="30" ry="22" fill="none" stroke={d.color} strokeWidth="6" opacity="0.2"/>
+                  <text x="100" y="100" textAnchor="middle" fontSize="8" fill={d.color}>FEEL / SHoC</text>
+                </>
+              )}
+            </svg>
+          }
+        />
+      </div>
+      {/* Views */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>JENDELA & TEMUAN</div>
+        {d.views.map((v, i) => (
+          <div key={i} style={{ marginBottom:10, paddingBottom:10,
+            borderBottom: i < d.views.length-1 ? '0.5px solid var(--separator-opaque)' : 'none' }}>
+            <div className="t-caption-1" style={{ fontWeight:700, color:d.color, marginBottom:2 }}>{v.view}</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45 }}>{v.finding}</div>
+          </div>
+        ))}
+      </div>
+      {/* Pearl */}
+      <div style={{ background:d.color+'10', borderRadius:14, padding:'12px 16px', boxShadow:`0 0 0 1px ${d.color}30` }}>
+        <div className="t-caption-2" style={{ color:d.color, fontWeight:700, marginBottom:4 }}>💡 MUTIARA KLINIS</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.pearl}</div>
+      </div>
+      {sec==='arrest' && (
+        <div style={{ background:'rgba(88,86,214,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(88,86,214,0.2)' }}>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6 }}>
+            Protokol <span style={{ fontWeight:700, color:'#5856D6' }}>FEEL</span> mengintegrasikan ekokardiografi terfokus ke dalam ALS untuk mendeteksi penyebab reversibel (tamponade, PE, hipovolemia) tanpa mengganggu kompresi dada.<Cite n={3} href="https://doi.org/10.1016/j.resuscitation.2010.06.012"/> Konsensus SHoC merekomendasikan pencitraan jantung, paru, dan IVC selama resusitasi.<Cite n={2} href="https://doi.org/10.1017/cem.2016.394"/>
+          </div>
+        </div>
+      )}
+      <RefBlock items={POCUS_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
    Theory Screen — shared mobile + desktop layout
    ============================================================ */
 const THEORY_TABS = [
@@ -2275,6 +2715,9 @@ const THEORY_TABS = [
   { key:'pharm',      label:'Farmakologi' },
   { key:'acs',        label:'Patofisiologi ACS' },
   { key:'shock',      label:'Jenis Syok' },
+  { key:'electrolyte',label:'Elektrolit & EKG' },
+  { key:'ekg12',      label:'EKG 12-Sadapan' },
+  { key:'pocus',      label:'POCUS' },
   { key:'postarrest', label:'Post-Arrest' },
 ];
 
@@ -2320,6 +2763,9 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
         {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
         {tab==='acs'        && <ACSPathophysTab/>}
         {tab==='shock'      && <ShockTypesTab/>}
+        {tab==='electrolyte'&& <ElectrolyteTab/>}
+        {tab==='ekg12'      && <Ekg12LeadTab/>}
+        {tab==='pocus'      && <PocusTab/>}
         {tab==='postarrest' && <PostArrestTab/>}
       </div>
     </div>
@@ -2368,6 +2814,9 @@ export function DesktopTheory() {
           {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
           {tab==='acs'        && <ACSPathophysTab/>}
           {tab==='shock'      && <ShockTypesTab/>}
+          {tab==='electrolyte'&& <ElectrolyteTab/>}
+          {tab==='ekg12'      && <Ekg12LeadTab/>}
+          {tab==='pocus'      && <PocusTab/>}
           {tab==='postarrest' && <PostArrestTab/>}
         </div>
       </div>
