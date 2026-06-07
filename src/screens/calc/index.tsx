@@ -401,6 +401,42 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
 }
 
 /* ============================================================
+   StructuredResultCard — header badge + detail lines as sections
+   (dipakai untuk kalkulator dengan output multi-baris: vent, heparin)
+   ============================================================ */
+function StructuredResultCard({ result }: { result: ReturnType<Calculator['compute']> }) {
+  const lines = (result.detail || '').split('\n').filter(Boolean);
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{
+        padding: '16px 18px', borderRadius: 16, marginBottom: 8,
+        background: result.color + '14', boxShadow: `inset 0 0 0 1px ${result.color}44`,
+        display: 'flex', alignItems: 'center', gap: 14,
+      }}>
+        <div style={{
+          fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+          color: result.color, lineHeight: 1, flexShrink: 0,
+        }}>{result.score}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: result.color }}>{result.label}</div>
+          {result.risk && (
+            <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
+          )}
+        </div>
+      </div>
+      {lines.map((line, i) => (
+        <div key={i} style={{
+          padding: '12px 14px', borderRadius: 12, marginBottom: 6,
+          background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
+        }}>
+          <div className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{line}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ============================================================
    MobileCalcList
    ============================================================ */
 export function MobileCalcList({ nav }: { nav: Nav }) {
@@ -515,6 +551,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
   const isFibrinolytic = calc.key === 'fibrinolytic';
   const isAbg = calc.key === 'abg';
   const isRsi = calc.key === 'rsi';
+  const isStructured = calc.key === 'vent' || calc.key === 'heparin';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -552,6 +589,8 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           <AbgResultCard result={result} values={values}/>
         ) : isRsi ? (
           <RsiResultCard values={values}/>
+        ) : isStructured && result ? (
+          <StructuredResultCard result={result}/>
         ) : (
           result && <CalcResultBadge result={result} tint={calc.tint}/>
         )}
@@ -645,6 +684,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
   const isFibrinolytic = calc.key === 'fibrinolytic';
   const isAbg = calc.key === 'abg';
   const isRsi = calc.key === 'rsi';
+  const isStructured = calc.key === 'vent' || calc.key === 'heparin';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -745,6 +785,8 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             <AbgResultCard result={result} values={values}/>
           ) : isRsi ? (
             <RsiResultCard values={values}/>
+          ) : isStructured ? (
+            <StructuredResultCard result={result}/>
           ) : (
             <CalcResultBadge result={result} tint={calc.tint}/>
           )}

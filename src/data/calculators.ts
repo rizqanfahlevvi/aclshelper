@@ -786,4 +786,117 @@ export const CALCULATORS: Calculator[] = [
       'Pertimbangkan antikoagulasi empiris pada skor tinggi atau kondisi pasien tidak stabil',
     ],
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 14. Ventilasi Mekanik — ARDSnet Tidal Volume & P/F                  */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'vent',
+    name: 'Ventilasi Mekanik (ARDSnet)',
+    short: 'Ventilator',
+    category: 'Kritis',
+    tint: '#0A84FF',
+    description: 'Volume tidal berbasis PBW & rasio P/F (Berlin)',
+    source: 'ARDSNet NEJM 2000; Berlin Definition JAMA 2012',
+    fields: [
+      { key: 'sex',    label: 'Jenis Kelamin', type: 'select', defaultValue: 'male',
+        options: [{ label: 'Laki-laki', value: 'male' }, { label: 'Perempuan', value: 'female' }] },
+      { key: 'height', label: 'Tinggi Badan', type: 'number', min: 120, max: 220, step: 1, defaultValue: 170, unit: 'cm' },
+      { key: 'pao2',   label: 'PaO₂ (opsional)', type: 'number', min: 20, max: 600, step: 1, defaultValue: 90, unit: 'mmHg' },
+      { key: 'fio2',   label: 'FiO₂ (opsional)', type: 'number', min: 21, max: 100, step: 1, defaultValue: 50, unit: '%' },
+    ],
+    compute: (v) => {
+      const sex = String(v.sex || 'male');
+      const height = Math.max(120, Math.min(220, Number(v.height) || 170));
+      const pao2 = Number(v.pao2) || 0;
+      const fio2 = Number(v.fio2) || 0;
+
+      // Predicted Body Weight (Devine / ARDSnet)
+      const pbw = (sex === 'female' ? 45.5 : 50) + 0.91 * (height - 152.4);
+      const pbwR = Math.round(pbw * 10) / 10;
+      const vt6 = Math.round(6 * pbw);
+      const vt4 = Math.round(4 * pbw);
+      const vt8 = Math.round(8 * pbw);
+
+      // P/F ratio & Berlin severity
+      let pfLine = '';
+      let severity = '';
+      let color = '#0A84FF';
+      if (pao2 > 0 && fio2 >= 21) {
+        const pf = Math.round(pao2 / (fio2 / 100));
+        if (pf >= 300)      { severity = 'Normal / non-ARDS'; color = '#34C759'; }
+        else if (pf >= 200) { severity = 'ARDS Ringan (200–300)'; color = '#FFCC00'; }
+        else if (pf >= 100) { severity = 'ARDS Sedang (100–200)'; color = '#FF9500'; }
+        else                { severity = 'ARDS Berat (<100)'; color = '#FF3B30'; }
+        pfLine = `P/F = ${pao2} / ${(fio2 / 100).toFixed(2)} = ${pf} mmHg → ${severity}`;
+      }
+
+      const detail = [
+        `PBW = ${pbwR} kg (${sex === 'female' ? 'P' : 'L'}, ${height} cm)`,
+        `Vt target 6 mL/kg = ${vt6} mL (rentang ${vt4}–${vt8} mL)`,
+        `Target plateau pressure < 30 cmH₂O`,
+        pfLine,
+      ].filter(Boolean).join('\n');
+
+      return { score: `${vt6} mL`, label: severity || `Vt 6 mL/kg PBW`, color, detail };
+    },
+    notes: [
+      'PBW (Predicted Body Weight) dihitung dari tinggi badan & jenis kelamin — bukan berat aktual',
+      'Strategi lung-protective ARDSnet: Vt 6 mL/kg PBW, plateau pressure ≤30 cmH₂O',
+      'Turunkan Vt hingga 4 mL/kg jika plateau >30 cmH₂O; target pH ≥7.30 (permissive hypercapnia)',
+      'Rasio P/F memerlukan PEEP ≥5 cmH₂O untuk klasifikasi ARDS Berlin',
+      'Pertimbangkan posisi prone bila P/F <150 dan ventilasi proteksi optimal',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 15. Heparin Drip — Weight-Based (Raschke Nomogram)                  */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'heparin',
+    name: 'Heparin Drip (Berbasis BB)',
+    short: 'Heparin',
+    category: 'Tromboembolisme',
+    tint: '#BF5AF2',
+    description: 'Bolus & infus heparin tak terfraksi (UFH) per protokol',
+    source: 'Raschke et al. Ann Intern Med 1993; CHEST/AHA Guidelines',
+    fields: [
+      { key: 'weight',     label: 'Berat Badan', type: 'number', min: 30, max: 200, step: 1, defaultValue: 70, unit: 'kg' },
+      { key: 'indication', label: 'Indikasi', type: 'select', defaultValue: 'vte',
+        options: [
+          { label: 'VTE (DVT / PE)', value: 'vte' },
+          { label: 'ACS / Sindrom Koroner Akut', value: 'acs' },
+        ] },
+    ],
+    compute: (v) => {
+      const wt = Math.max(30, Math.min(200, Number(v.weight) || 70));
+      const ind = String(v.indication || 'vte');
+
+      let bolusPerKg: number, bolusCap: number, ratePerKg: number, rateCap: number;
+      if (ind === 'acs') {
+        bolusPerKg = 60; bolusCap = 4000; ratePerKg = 12; rateCap = 1000;
+      } else {
+        bolusPerKg = 80; bolusCap = 10000; ratePerKg = 18; rateCap = Infinity;
+      }
+      const bolus = Math.min(Math.round(bolusPerKg * wt), bolusCap);
+      const rate  = Math.min(Math.round(ratePerKg * wt), rateCap);
+
+      const indLabel = ind === 'acs' ? 'ACS' : 'VTE';
+      const detail = [
+        `Bolus awal: ${bolus} unit IV (${bolusPerKg} U/kg${bolus === bolusCap ? `, maks ${bolusCap}` : ''})`,
+        `Infus awal: ${rate} unit/jam (${ratePerKg} U/kg/jam${rate === rateCap && rateCap !== Infinity ? `, maks ${rateCap}` : ''})`,
+        `Cek aPTT awal dalam 6 jam, lalu titrasi per nomogram`,
+        `Target aPTT 1.5–2.5× kontrol (atau anti-Xa 0.3–0.7 IU/mL)`,
+      ].join('\n');
+
+      return { score: `${bolus} U`, label: `Bolus + ${rate} U/jam (${indLabel})`, color: '#BF5AF2', detail };
+    },
+    notes: [
+      'Protokol VTE (Raschke): bolus 80 U/kg, infus 18 U/kg/jam',
+      'Protokol ACS: bolus 60 U/kg (maks 4000 U), infus 12 U/kg/jam (maks 1000 U/jam)',
+      'Titrasi berbasis aPTT setiap 6 jam hingga 2 nilai terapeutik berturut, lalu setiap 24 jam',
+      'Pantau trombosit (risiko HIT) pada hari ke-4 hingga ke-14',
+      'Protokol institusi dapat berbeda — selalu verifikasi dengan nomogram lokal',
+    ],
+  },
 ];
