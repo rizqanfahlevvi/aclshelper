@@ -273,8 +273,17 @@ a { color: var(--accent); text-decoration: none; }
   border-radius: var(--r-card);
   padding: 16px;
   box-shadow: var(--shadow-1);
+  transition: transform var(--dur-fast);
 }
+.ios-card:active { transform: scale(0.98); }
 .ios-card.flat { box-shadow: 0 0 0 0.5px var(--separator); }
+
+/* Responsive auto-fit grid */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--sp-3, 8px);
+}
 
 /* Tinted icon tile (squircle) */
 .ios-glyph {

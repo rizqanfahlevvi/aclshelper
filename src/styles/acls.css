@@ -31,7 +31,12 @@ body {
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: var(--bg-secondary);
+  background:
+    radial-gradient(circle at 82% 8%,  rgba(0,122,255,0.08)  0%, transparent 52%),
+    radial-gradient(circle at 14% 86%, rgba(52,199,89,0.06)  0%, transparent 46%),
+    radial-gradient(circle at 8%  18%, rgba(255,59,48,0.05)  0%, transparent 42%),
+    radial-gradient(circle at 88% 72%, rgba(175,82,222,0.05) 0%, transparent 46%),
+    var(--bg-secondary);
 }
 
 .acls-mobile-statusbar {
@@ -65,7 +70,34 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--bg-secondary);
+  background:
+    radial-gradient(circle at 82% 8%,  rgba(0,122,255,0.08)  0%, transparent 52%),
+    radial-gradient(circle at 14% 86%, rgba(52,199,89,0.06)  0%, transparent 46%),
+    radial-gradient(circle at 8%  18%, rgba(255,59,48,0.05)  0%, transparent 42%),
+    radial-gradient(circle at 88% 72%, rgba(175,82,222,0.05) 0%, transparent 46%),
+    var(--bg-secondary);
+}
+
+/* Dark mode ambient mesh — more visible against pure black */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .acls-app-mobile,
+  :root:not([data-theme="light"]) .acls-app-desktop {
+    background:
+      radial-gradient(circle at 82% 8%,  rgba(10,132,255,0.14) 0%, transparent 52%),
+      radial-gradient(circle at 14% 86%, rgba(48,209,88,0.10)  0%, transparent 46%),
+      radial-gradient(circle at 8%  18%, rgba(255,69,58,0.08)  0%, transparent 42%),
+      radial-gradient(circle at 88% 72%, rgba(191,90,242,0.09) 0%, transparent 46%),
+      var(--bg-secondary);
+  }
+}
+[data-theme="dark"] .acls-app-mobile,
+[data-theme="dark"] .acls-app-desktop {
+  background:
+    radial-gradient(circle at 82% 8%,  rgba(10,132,255,0.14) 0%, transparent 52%),
+    radial-gradient(circle at 14% 86%, rgba(48,209,88,0.10)  0%, transparent 46%),
+    radial-gradient(circle at 8%  18%, rgba(255,69,58,0.08)  0%, transparent 42%),
+    radial-gradient(circle at 88% 72%, rgba(191,90,242,0.09) 0%, transparent 46%),
+    var(--bg-secondary);
 }
 .acls-desktop-body {
   flex: 1;
@@ -189,9 +221,46 @@ body {
   height: 44px;
   padding: 0 24px;
   border-bottom: 0.5px solid var(--separator-opaque);
-  background: var(--bg-tertiary);
+  background: var(--material-chrome);
+  backdrop-filter: var(--blur-base);
+  -webkit-backdrop-filter: var(--blur-base);
   display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
+}
+
+/* ---------- Glass utility ----------------------------------- */
+.glass-card {
+  background: var(--material-regular);
+  backdrop-filter: var(--blur-base);
+  -webkit-backdrop-filter: var(--blur-base);
+  border: 0.5px solid var(--separator);
+  box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.22), var(--shadow-2);
+  border-radius: var(--r-card);
+}
+.glass-card:active { transform: scale(0.98); }
+
+/* Tab strip with scroll-snap and edge fade */
+.theory-tab-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+}
+.theory-tab-strip::-webkit-scrollbar { display: none; }
+.theory-tab-strip button {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  min-height: 44px;
+  touch-action: manipulation;
+  white-space: nowrap;
 }
 
 /* ---------- Card large -------------------------------------- */
@@ -200,7 +269,9 @@ body {
   border-radius: 14px;
   background: var(--bg-tertiary);
   box-shadow: var(--shadow-1), 0 0 0 0.5px var(--separator);
+  transition: transform var(--dur-fast);
 }
+.acls-card-lg:active { transform: scale(0.98); }
 
 /* ---------- Desktop quick-access tile ---------------------- */
 .acls-desk-quick {
@@ -369,8 +440,12 @@ body {
 .acls-sheet-root.open .acls-sheet-backdrop { opacity: 1; }
 .acls-sheet {
   position: absolute; left: 0; right: 0; bottom: 0;
-  background: var(--bg-elevated);
+  background: var(--material-thick);
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
   border-radius: 18px 18px 0 0;
+  border: 0.5px solid var(--separator);
+  border-bottom: none;
   padding-top: 6px;
   transform: translateY(100%);
   transition: transform var(--dur-base) var(--ease-out);
@@ -540,4 +615,23 @@ body {
   border-radius: 1px;
   pointer-events: none;
   animation: acls-ecg-scan 1.2s linear 0s infinite;
+}
+
+/* ============================================================
+   ACCESSIBILITY — prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* Stop pulsing / looping animations */
+  .acls-bottomnav .acls-fab               { animation: none !important; }
+  .acls-conduction-ectopic                { animation: none !important; }
+  .acls-cs-path                           { animation: none !important; stroke-dashoffset: 0; }
+  .acls-sa-ring, .acls-av-ring           { animation: none !important; }
+  .acls-ecg-cursor                        { animation: none !important; }
+  .cpr-action.epi-ready                   { animation: none !important; }
+  /* Stop enter animations */
+  .acls-mobile-content                    { animation: none !important; }
+  /* Collapse transitions to near-zero (keeps state changes functional) */
+  .acls-sidebar                           { transition-duration: 0.01ms !important; }
+  .acls-sheet                             { transition-duration: 0.01ms !important; }
+  .ios-btn, .cpr-action, .acls-desk-quick { transition-duration: 0.01ms !important; }
 }

@@ -2737,14 +2737,14 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
           Fisiologi kardiovaskular esensial untuk ACLS
         </div>
         {/* Tab selector */}
-        <div style={{ display:'flex', gap:6, overflowX:'auto', flexShrink:0, paddingBottom:4, WebkitOverflowScrolling:'touch' } as React.CSSProperties}>
+        <div className="theory-tab-strip">
           {THEORY_TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)} style={{
-              padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer',
+              padding:'0 16px', borderRadius:20, border:'none', cursor:'pointer',
               background: tab===t.key ? 'var(--accent)' : 'var(--fill-quaternary)',
               color: tab===t.key ? '#fff' : 'var(--label-secondary)',
               fontSize:'0.8125rem', fontWeight: tab===t.key ? 600 : 400,
-              transition:'all 150ms ease',
+              transition:'background 150ms ease, color 150ms ease',
             }}>
               {t.label}
             </button>
