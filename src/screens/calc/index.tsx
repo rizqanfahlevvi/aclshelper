@@ -146,7 +146,7 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
     }}>
     <div style={{
       padding: '19px 19px', borderRadius: 16,
-      background: result.color + '14',
+      background: 'var(--bg-primary)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
         <div style={{
@@ -270,7 +270,7 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
       }}>
       <div style={{
         padding: '15px 17px', borderRadius: 16,
-        background: result.color + '14',
+        background: 'var(--bg-primary)',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
@@ -370,7 +370,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
       }}>
       <div style={{
         padding: '13px 15px', borderRadius: 14,
-        background: '#FF6B3514',
+        background: 'var(--bg-primary)',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
@@ -439,7 +439,7 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
       }}>
       <div style={{
         padding: '15px 17px', borderRadius: 16,
-        background: result.color + '14',
+        background: 'var(--bg-primary)',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{
