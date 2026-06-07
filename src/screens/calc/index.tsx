@@ -148,13 +148,16 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
       padding: '19px 19px', borderRadius: 16,
       background: result.color + '14',
     }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
         <div style={{
           fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-          color: result.color, lineHeight: 1,
+          color: 'var(--label-primary)', lineHeight: 1, flexShrink: 0,
         }}>{result.score}</div>
         <div>
-          <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: result.color }}>{result.label}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
+            <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--label-primary)' }}>{result.label}</div>
+          </div>
           {result.risk && (
             <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
           )}
@@ -163,7 +166,7 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
       {result.detail && (
         <div className="t-caption-1" style={{
           color: 'var(--label-secondary)',
-          borderTop: `0.5px solid ${result.color}30`,
+          borderTop: `0.5px solid ${result.color}44`,
           paddingTop: 8, marginTop: 4,
         }}>{result.detail}</div>
       )}
@@ -270,15 +273,19 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
         background: result.color + '14',
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
-        <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: result.color, lineHeight: 1 }}>
+        <div style={{ textAlign: 'center', flexShrink: 0,
+          padding: '8px 14px', borderRadius: 10, background: result.color + '22' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--label-primary)', lineHeight: 1 }}>
             {ph.toFixed(2)}
           </div>
           <div style={{ fontSize: '0.625rem', fontWeight: 700, color: result.color, letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: '1rem', color: result.color }}>{phLabel}</div>
-          <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--label-primary)' }}>{phLabel}</div>
+          </div>
+          <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
             PaCO₂ {pco2} mmHg · HCO₃⁻ {hco3} mEq/L
           </div>
         </div>
@@ -366,8 +373,9 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
         background: '#FF6B3514',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#FF6B35', lineHeight: 1 }}>{wt}</div>
+        <div style={{ textAlign: 'center', flexShrink: 0,
+          padding: '8px 12px', borderRadius: 10, background: '#FF6B3522' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--label-primary)', lineHeight: 1 }}>{wt}</div>
           <div style={{ fontSize: '0.625rem', fontWeight: 700, color: '#FF6B35', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
         </div>
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5 }}>
@@ -436,10 +444,13 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
       }}>
         <div style={{
           fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-          color: result.color, lineHeight: 1, flexShrink: 0,
+          color: 'var(--label-primary)', lineHeight: 1, flexShrink: 0,
         }}>{result.score}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: '1rem', color: result.color }}>{result.label}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: result.color, display: 'inline-block', flexShrink: 0 }}/>
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--label-primary)' }}>{result.label}</div>
+          </div>
           {result.risk && (
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{result.risk}</div>
           )}
