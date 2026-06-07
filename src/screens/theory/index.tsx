@@ -1463,16 +1463,819 @@ function ShockTypesTab() {
 }
 
 /* ============================================================
+   EC Coupling Tab
+   ============================================================ */
+const EC_REFS = [
+  { n:1, text:'Bers DM. Cardiac excitation-contraction coupling. Nature. 2002;415:198–205.', url:'https://doi.org/10.1038/415198a' },
+  { n:2, text:'Katz AM. Physiology of the Heart. 5th ed. 2010. Ch. 7–8.' },
+  { n:3, text:'Bhatt DL, et al. Braunwald\'s Heart Disease. 12th ed. 2022. Ch. 19.' },
+];
+
+const EC_STEPS = [
+  {
+    title: 'Depolarisasi & Masuknya Ca²⁺',
+    color: '#007AFF',
+    content: 'Aksi potensial menyebar dari sel ke sel via gap junction. Depolarisasi membran aktivasi kanal L-type Ca²⁺ (DHPR) di membran T-tubulus. Masuknya sejumlah kecil Ca²⁺ ekstraseluler (trigger Ca²⁺) — cukup untuk mengaktifkan mekanisme amplifikasi.',
+    clinical: 'Verapamil/diltiazem memblok L-type Ca²⁺ → kronotropik negatif, inotropik negatif.',
+    svgContent: (
+      <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
+        <rect x="0" y="0" width="260" height="120" fill="none"/>
+        {/* T-tubule */}
+        <rect x="110" y="10" width="16" height="80" rx="4" fill="#007AFF22" stroke="#007AFF" strokeWidth="1.5"/>
+        <text x="118" y="7" textAnchor="middle" fontSize="9" fill="#007AFF" fontWeight="700">T-tubulus</text>
+        {/* DHPR channel */}
+        <rect x="113" y="30" width="10" height="20" rx="3" fill="#007AFF" opacity="0.9"/>
+        <text x="118" y="24" textAnchor="middle" fontSize="8" fill="#007AFF">DHPR</text>
+        {/* Ca arrow in */}
+        <path d="M60,42 L110,42" stroke="#FF9500" strokeWidth="2" markerEnd="url(#arr)" fill="none"/>
+        <text x="82" y="38" textAnchor="middle" fontSize="9" fill="#FF9500">Ca²⁺ in</text>
+        <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FF9500"/></marker></defs>
+        {/* SR */}
+        <ellipse cx="180" cy="55" rx="55" ry="35" fill="#34C75918" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="180" y="50" textAnchor="middle" fontSize="9" fill="#34C759" fontWeight="700">SR</text>
+        <text x="180" y="63" textAnchor="middle" fontSize="8" fill="#34C759">Ca²⁺ store</text>
+        {/* Trigger arrow to RyR */}
+        <path d="M125,45 L148,50" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2" fill="none"/>
+        <text x="136" y="43" textAnchor="middle" fontSize="8" fill="#FF9500">trigger</text>
+      </svg>
+    ),
+  },
+  {
+    title: 'CICR — Ca²⁺-Induced Ca²⁺ Release',
+    color: '#FF9500',
+    content: 'Trigger Ca²⁺ mengaktifkan reseptor ryanodine (RyR2) di membran SR. RyR2 terbuka → Ca²⁺ di dalam SR terlepas dalam jumlah besar (CICR = Ca²⁺-Induced Ca²⁺ Release). Konsentrasi Ca²⁺ sitosolik naik dari ~100 nM → ~1 µM (10× lipat) dalam milidetik.',
+    clinical: 'Digoksin: inhibisi Na⁺/K⁺-ATPase → Na⁺ intraseluler↑ → NCX terbalik → Ca²⁺ intraseluler↑ → inotropik positif. Overdosis: Ca²⁺ overload → aritmia (DAD → VT).',
+    svgContent: (
+      <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
+        <ellipse cx="140" cy="55" rx="70" ry="38" fill="#FF950015" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="140" y="35" textAnchor="middle" fontSize="9" fill="#FF9500" fontWeight="700">SR</text>
+        {/* RyR channel */}
+        <rect x="108" y="64" width="12" height="14" rx="3" fill="#FF9500" opacity="0.85"/>
+        <text x="114" y="61" textAnchor="middle" fontSize="8" fill="#FF9500">RyR2</text>
+        {/* Ca sparks out */}
+        {[0,1,2,3,4].map(i => (
+          <circle key={i} cx={95 + i*18} cy={92 + (i%2)*10} r="4" fill="#FF9500" opacity="0.6 "/>
+        ))}
+        <text x="140" y="118" textAnchor="middle" fontSize="9" fill="#FF9500">Ca²⁺ sparks → cytosol↑</text>
+        {/* Troponin */}
+        <rect x="192" y="44" width="52" height="24" rx="8" fill="#34C75918" stroke="#34C759" strokeWidth="1"/>
+        <text x="218" y="54" textAnchor="middle" fontSize="8" fill="#34C759" fontWeight="700">Troponin C</text>
+        <text x="218" y="64" textAnchor="middle" fontSize="7" fill="#34C759">↑ Ca²⁺ binding</text>
+        <path d="M163,80 L192,56" stroke="#FF9500" strokeWidth="1.5" fill="none" markerEnd="url(#arr2)"/>
+        <defs><marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FF9500"/></marker></defs>
+      </svg>
+    ),
+  },
+  {
+    title: 'Kontraksi — Aktomiosin Cross-Bridge',
+    color: '#FF3B30',
+    content: 'Ca²⁺ berikatan dengan troponin C → perubahan konformasi troponin I → tropomiosin bergeser → situs aktif aktin terbuka. Kepala miosin berikatan dengan aktin → power stroke (menggunakan ATP) → sarkomer memendek. Siklus cross-bridge berulang selama Ca²⁺ tersedia.',
+    clinical: 'Dobutamin (β1): ↑ cAMP → PKA aktivasi → fosforilasi kanal Ca²⁺ & troponin I → kontraksi lebih kuat dan relaksasi lebih cepat (lusitropi positif).',
+    svgContent: (
+      <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
+        {/* Actin filaments */}
+        <line x1="20" y1="40" x2="240" y2="40" stroke="#007AFF" strokeWidth="5" strokeLinecap="round"/>
+        <line x1="20" y1="80" x2="240" y2="80" stroke="#007AFF" strokeWidth="5" strokeLinecap="round"/>
+        <text x="14" y="38" textAnchor="end" fontSize="9" fill="#007AFF">Aktin</text>
+        {/* Myosin */}
+        <line x1="40" y1="55" x2="220" y2="55" stroke="#FF3B30" strokeWidth="4" strokeLinecap="round"/>
+        <line x1="40" y1="65" x2="220" y2="65" stroke="#FF3B30" strokeWidth="4" strokeLinecap="round"/>
+        <text x="246" y="63" textAnchor="start" fontSize="9" fill="#FF3B30">Miosin</text>
+        {/* Cross bridges */}
+        {[70,110,150,190].map(x => (
+          <g key={x}>
+            <line x1={x} y1="55" x2={x-10} y2="43" stroke="#FF3B30" strokeWidth="2"/>
+            <circle cx={x-10} cy="43" r="4" fill="#FF3B30"/>
+            <line x1={x} y1="65" x2={x+10} y2="78" stroke="#FF3B30" strokeWidth="2"/>
+            <circle cx={x+10} cy="78" r="4" fill="#FF3B30"/>
+          </g>
+        ))}
+        {/* Arrows showing shortening */}
+        <path d="M30,100 L80,100" stroke="#FF3B30" strokeWidth="2" markerEnd="url(#arrR)"/>
+        <path d="M230,100 L180,100" stroke="#FF3B30" strokeWidth="2" markerEnd="url(#arrL)"/>
+        <text x="130" y="113" textAnchor="middle" fontSize="9" fill="#FF3B30">Sarkomer memendek</text>
+        <defs>
+          <marker id="arrR" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#FF3B30"/></marker>
+          <marker id="arrL" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M5,0 L0,2.5 L5,5 Z" fill="#FF3B30"/></marker>
+        </defs>
+      </svg>
+    ),
+  },
+  {
+    title: 'Relaksasi — SERCA & NCX',
+    color: '#34C759',
+    content: 'Repolarisasi → Ca²⁺ tidak lagi masuk. SERCA2a (SR Ca²⁺-ATPase) memompa Ca²⁺ kembali ke SR — dikontrol oleh phospholamban (PLB). NCX (Na⁺/Ca²⁺ exchanger) mengekstrusi Ca²⁺ ke ekstraseluler. Ca²⁺ sitosolik turun → troponin C melepas Ca²⁺ → kontraksi berhenti → relaksasi aktif (lusitropi).',
+    clinical: 'Phospholamban yang terfosforilasi (via PKA → β1 stimulasi) → SERCA2a lebih aktif → relaksasi lebih cepat → pengisian diastolik lebih baik. Disfungsi SERCA2a berkontribusi pada gagal jantung.',
+    svgContent: (
+      <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
+        {/* SR */}
+        <ellipse cx="80" cy="55" rx="60" ry="38" fill="#34C75912" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="80" y="52" textAnchor="middle" fontSize="9" fill="#34C759" fontWeight="700">SR</text>
+        {/* SERCA pump */}
+        <rect x="48" y="82" width="12" height="16" rx="3" fill="#34C759"/>
+        <text x="54" y="78" textAnchor="middle" fontSize="7.5" fill="#34C759" fontWeight="700">SERCA2a</text>
+        {/* PLB */}
+        <rect x="65" y="84" width="28" height="12" rx="4" fill="#34C75930" stroke="#34C759" strokeWidth="0.8"/>
+        <text x="79" y="92" textAnchor="middle" fontSize="7" fill="#34C759">PLB (−inh)</text>
+        {/* Ca arrow into SR */}
+        <path d="M54,82 L62,64" stroke="#34C759" strokeWidth="1.5" fill="none" markerEnd="url(#arrG)"/>
+        <text x="48" y="73" textAnchor="middle" fontSize="8" fill="#34C759">Ca²⁺↑</text>
+        {/* NCX */}
+        <rect x="170" y="38" width="14" height="32" rx="4" fill="#007AFF" opacity="0.8"/>
+        <text x="177" y="35" textAnchor="middle" fontSize="8" fill="#007AFF" fontWeight="700">NCX</text>
+        <path d="M163,60 L170,55" stroke="#007AFF" strokeWidth="1.5" fill="none"/>
+        <path d="M184,55 L220,55" stroke="#007AFF" strokeWidth="1.5" fill="none" markerEnd="url(#arrB)"/>
+        <text x="220" y="50" textAnchor="start" fontSize="8" fill="#007AFF">Ca²⁺ out</text>
+        {/* cytosol Ca drops */}
+        <text x="130" y="100" textAnchor="middle" fontSize="9" fill="var(--label-secondary)">[Ca²⁺]i ↓ → relaksasi</text>
+        <defs>
+          <marker id="arrG" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#34C759"/></marker>
+          <marker id="arrB" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#007AFF"/></marker>
+        </defs>
+      </svg>
+    ),
+  },
+];
+
+function ECCouplingTab() {
+  const [step, setStep] = useState(0);
+  const s = EC_STEPS[step];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Eksitasi-kontraksi (E-C) coupling adalah proses yang mengubah sinyal listrik (aksi potensial) menjadi kontraksi mekanik miosit jantung melalui kalsium sebagai messenger kedua.<Cite n={1} href="https://doi.org/10.1038/415198a"/>
+      </div>
+      {/* Step selector */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6 }}>
+        {EC_STEPS.map((st, i) => (
+          <button key={i} onClick={() => setStep(i)} style={{
+            padding:'8px 4px', borderRadius:12, border:'none', cursor:'pointer', textAlign:'center',
+            background: step===i ? st.color+'18' : 'var(--bg-primary)',
+            boxShadow: step===i ? `0 0 0 1.5px ${st.color}` : '0 0 0 0.5px var(--separator-opaque)',
+            transition:'all 150ms ease',
+          }}>
+            <div style={{ width:22, height:22, borderRadius:'50%', background: step===i ? st.color : 'var(--fill-tertiary)',
+              color:'#fff', fontSize:'0.7rem', fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center',
+              margin:'0 auto 4px' }}>{i+1}</div>
+            <div className="t-caption-2" style={{ fontWeight: step===i ? 700 : 400, color: step===i ? st.color : 'var(--label-secondary)', lineHeight:1.3 }}>
+              {st.title.split('—')[0].trim().split(' ').slice(0,2).join(' ')}
+            </div>
+          </button>
+        ))}
+      </div>
+      {/* Step detail */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'16px',
+        boxShadow:`0 0 0 1.5px ${s.color}40` }}>
+        <div className="t-callout" style={{ fontWeight:700, color:s.color, marginBottom:8 }}>
+          Langkah {step+1}: {s.title}
+        </div>
+        <div style={{ marginBottom:12, borderRadius:10, overflow:'hidden', background:'var(--fill-quaternary)', padding:'8px' }}>
+          <TheoryImage name={step < 2 ? 'ec-coupling' : 'ec-relaxation'}
+            alt={s.title}
+            fallback={s.svgContent}/>
+        </div>
+        <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.65, marginBottom:10 }}>
+          {s.content}
+        </div>
+        <div style={{ background:s.color+'12', borderRadius:10, padding:'10px 12px',
+          boxShadow:`0 0 0 1px ${s.color}30` }}>
+          <div className="t-caption-2" style={{ color:s.color, fontWeight:700, marginBottom:3 }}>KLINIS</div>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{s.clinical}</div>
+        </div>
+      </div>
+      {/* Navigation */}
+      <div style={{ display:'flex', gap:10 }}>
+        <button disabled={step===0} onClick={() => setStep(s => s-1)} style={{
+          flex:1, padding:'11px', borderRadius:12, border:'none', cursor:step===0?'default':'pointer',
+          background: step===0 ? 'var(--fill-quaternary)' : 'var(--fill-tertiary)',
+          color: step===0 ? 'var(--label-quaternary)' : 'var(--label-primary)',
+          fontWeight:600, fontSize:'0.875rem',
+        }}>← Sebelumnya</button>
+        <button disabled={step===EC_STEPS.length-1} onClick={() => setStep(s => s+1)} style={{
+          flex:1, padding:'11px', borderRadius:12, border:'none', cursor:step===EC_STEPS.length-1?'default':'pointer',
+          background: step===EC_STEPS.length-1 ? 'var(--fill-quaternary)' : s.color,
+          color: step===EC_STEPS.length-1 ? 'var(--label-quaternary)' : '#fff',
+          fontWeight:600, fontSize:'0.875rem',
+        }}>Selanjutnya →</button>
+      </div>
+      {/* Frank-Starling link note */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px 14px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>FRANK-STARLING & E-C COUPLING</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6 }}>
+          Peregangan sarkomer (EDV↑) meningkatkan sensitivitas troponin C terhadap Ca²⁺ dan jumlah cross-bridge yang terbentuk — inilah dasar molekuler hukum Frank-Starling.<Cite n={2}/> Pada gagal jantung, disfungsi SERCA2a menyebabkan Ca²⁺ overload SR dan kontraksi melemah.<Cite n={3}/>
+        </div>
+      </div>
+      <RefBlock items={EC_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   ANS Tab
+   ============================================================ */
+const ANS_REFS = [
+  { n:1, text:'Dampney RA. Functional organization of central pathways regulating the cardiovascular system. Physiol Rev. 1994;74(2):323–364.', url:'https://doi.org/10.1152/physrev.1994.74.2.323' },
+  { n:2, text:'Karemaker JM. An introduction into autonomic nervous function. Physiol Meas. 2017;38:R89–R118.', url:'https://doi.org/10.1088/1361-6579/aa6782' },
+  { n:3, text:'Goldberger AL, et al. Clinical Electrocardiography. 9th ed. 2017.' },
+];
+
+type ANSMode = 'sns' | 'pns';
+
+const ANS_EFFECTS: Record<string, { sns: string; snsColor: string; pns: string; pnsColor: string; label: string }> = {
+  hr:        { label:'Laju Jantung (HR)',      sns:'↑ (takikardia)',        snsColor:'#FF3B30', pns:'↓ (bradikardia)',       pnsColor:'#34C759' },
+  av:        { label:'Konduksi AV',            sns:'↑ dromotropy',          snsColor:'#FF3B30', pns:'↓ (AV delay↑)',         pnsColor:'#34C759' },
+  inotropy:  { label:'Kontraktilitas',         sns:'↑ (inotropi +)',        snsColor:'#FF3B30', pns:'↓ (atrium saja)',       pnsColor:'#007AFF' },
+  lusitropy: { label:'Relaksasi Diastolik',    sns:'↑ (lusitropi +)',       snsColor:'#FF3B30', pns:'Minimal efek',          pnsColor:'var(--label-tertiary)' },
+  vessels:   { label:'Pembuluh Darah',         sns:'Vasokonstriksi (α1)',   snsColor:'#FF9500', pns:'Vasodilatasi (lokal)',  pnsColor:'#34C759' },
+  nt:        { label:'Neurotransmiter',        sns:'Norepinefrin (NE)',      snsColor:'#FF3B30', pns:'Asetilkolin (ACh)',     pnsColor:'#34C759' },
+};
+
+function ANSTab() {
+  const [mode, setMode] = useState<ANSMode>('sns');
+  const isSns = mode === 'sns';
+  const color = isSns ? '#FF3B30' : '#34C759';
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Sistem saraf otonom (ANS) memodulasi fungsi kardiovaskular melalui dua divisi antagonis: simpatis (SNS) dan parasimpatis (PNS/vagal). Keseimbangan keduanya menentukan laju jantung, konduksi AV, kontraktilitas, dan tonus vaskular.<Cite n={2} href="https://doi.org/10.1088/1361-6579/aa6782"/>
+      </div>
+      {/* Toggle SNS / PNS */}
+      <div style={{ display:'flex', background:'var(--fill-tertiary)', borderRadius:14, padding:4, gap:4 }}>
+        {(['sns','pns'] as ANSMode[]).map(m => (
+          <button key={m} onClick={() => setMode(m)} style={{
+            flex:1, padding:'10px', borderRadius:11, border:'none', cursor:'pointer',
+            background: mode===m ? (m==='sns' ? '#FF3B30' : '#34C759') : 'transparent',
+            color: mode===m ? '#fff' : 'var(--label-secondary)',
+            fontWeight: mode===m ? 700 : 400, fontSize:'0.9rem', transition:'all 150ms ease',
+          }}>
+            {m==='sns' ? '⚡ Simpatis (SNS)' : '🧘 Parasimpatis (PNS)'}
+          </button>
+        ))}
+      </div>
+      {/* Diagram */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'12px', boxShadow:`0 0 0 1.5px ${color}40` }}>
+        <TheoryImage name={isSns ? 'ans-overview' : 'ans-baroreceptor'}
+          alt={isSns ? 'SNS cardiac innervation' : 'Baroreceptor reflex arc'}
+          fallback={
+            <svg viewBox="0 0 280 130" style={{ width:'100%', maxHeight:130 }}>
+              {/* Brain/medulla */}
+              <ellipse cx="140" cy="22" rx="40" ry="18" fill={color+'18'} stroke={color} strokeWidth="1.5"/>
+              <text x="140" y="19" textAnchor="middle" fontSize="9" fill={color} fontWeight="700">{isSns ? 'Medulla / RVLM' : 'NTS / DMN'}</text>
+              <text x="140" y="30" textAnchor="middle" fontSize="8" fill={color}>{isSns ? '(rostral VLM)' : '(dorsal vagal nucleus)'}</text>
+              {/* Nerve down to heart */}
+              <line x1="140" y1="40" x2="140" y2="65" stroke={color} strokeWidth="2" strokeDasharray="4,3"/>
+              {/* Ganglion */}
+              <circle cx="140" cy="70" r="10" fill={color+'30'} stroke={color} strokeWidth="1.5"/>
+              <text x="140" y="74" textAnchor="middle" fontSize="8" fill={color}>{isSns ? 'Gang.' : 'n.X'}</text>
+              {/* Heart */}
+              <path d="M100,100 C95,88 80,83 80,95 C80,108 100,118 140,130 C180,118 200,108 200,95 C200,83 185,88 180,100 C172,88 158,83 140,90 C122,83 108,88 100,100 Z"
+                fill={color+'20'} stroke={color} strokeWidth="1.5"/>
+              <text x="140" y="112" textAnchor="middle" fontSize="8" fill={color} fontWeight="700">Jantung</text>
+              {/* Arrows */}
+              <path d="M140,80 L140,88" stroke={color} strokeWidth="1.5" fill="none" markerEnd="url(#arrANS)"/>
+              <defs><marker id="arrANS" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill={color}/></marker></defs>
+              {/* Labels */}
+              {isSns ? (
+                <>
+                  <text x="30" y="80" textAnchor="middle" fontSize="8" fill="#FF9500">α1: vasokonstriksi</text>
+                  <text x="30" y="91" textAnchor="middle" fontSize="8" fill="#FF3B30">β1: HR↑ / inotropy↑</text>
+                </>
+              ) : (
+                <>
+                  <text x="242" y="80" textAnchor="middle" fontSize="8" fill="#34C759">M2: HR↓</text>
+                  <text x="242" y="91" textAnchor="middle" fontSize="8" fill="#34C759">AV delay↑</text>
+                </>
+              )}
+            </svg>
+          }
+        />
+      </div>
+      {/* Effects table */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, overflow:'hidden',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div style={{ padding:'10px 14px', background:color+'12', borderBottom:`1px solid ${color}30` }}>
+          <div className="t-caption-2" style={{ color, fontWeight:700 }}>
+            {isSns ? 'EFEK SIMPATIS (SNS) — Norepinefrin/Epinefrin' : 'EFEK PARASIMPATIS (PNS) — Asetilkolin'}
+          </div>
+        </div>
+        {Object.values(ANS_EFFECTS).map((row, i) => (
+          <div key={i} style={{ display:'flex', padding:'9px 14px', alignItems:'center',
+            borderBottom: i < Object.keys(ANS_EFFECTS).length-1 ? '0.5px solid var(--separator-opaque)' : 'none',
+            background: i%2===0 ? 'transparent' : 'var(--fill-quaternary)' }}>
+            <div className="t-caption-1" style={{ flex:1, fontWeight:600, color:'var(--label-primary)' }}>{row.label}</div>
+            <div className="t-caption-1" style={{ fontWeight:700,
+              color: isSns ? row.snsColor : row.pnsColor }}>
+              {isSns ? row.sns : row.pns}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Vagal maneuver explanation */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>MANUVER VAGAL & AVNRT</div>
+        <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.65 }}>
+          Valsalva (mengejan), pijat karotis, dan cold water immersion meningkatkan tonus vagal (PNS) secara akut.<Cite n={3}/> Efek: konduksi AV node melambat → memutus sirkuit reentry di AVNRT. Inilah mengapa manuver vagal dapat menghentikan SVT tanpa obat.
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginTop:10 }}>
+          {[
+            { name:'Valsalva', detail:'Tekanan intrathoraks↑ → baroreceptor stretch → vagal↑' },
+            { name:'Pijat Karotis', detail:'Karotid sinus stretch → NTS → vagal↑ → AV node blok' },
+            { name:'Adenosin', detail:'A1 receptor AV node → hiperpolarisasi → konduksi blok sementara' },
+          ].map(m => (
+            <div key={m.name} style={{ background:'var(--fill-quaternary)', borderRadius:10, padding:'10px 10px' }}>
+              <div className="t-caption-2" style={{ fontWeight:700, color:'#34C759', marginBottom:4 }}>{m.name}</div>
+              <div className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.4 }}>{m.detail}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Baroreflex arc */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>BARORECEPTOR REFLEX</div>
+        <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+          {[
+            { step:'①', text:'Tekanan darah naik → dinding aorta/arteri karotis meregang', color:'#007AFF' },
+            { step:'②', text:'Baroreseptor (n.IX & n.X) → sinyal ke NTS di medulla oblongata', color:'#007AFF' },
+            { step:'③', text:'NTS → aktivasi nukleus vagal → PNS↑, inhibisi RVLM → SNS↓', color:'#34C759' },
+            { step:'④', text:'Hasil: HR↓, AV konduksi↓, vasodilatasi → TD turun kembali', color:'#34C759' },
+          ].map(r => (
+            <div key={r.step} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+              <div style={{ width:22, height:22, borderRadius:'50%', background:r.color+'20', border:`1.5px solid ${r.color}`,
+                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:'0.8rem', fontWeight:700, color:r.color }}>
+                {r.step}
+              </div>
+              <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5, paddingTop:2 }}>{r.text}</div>
+            </div>
+          ))}
+        </div>
+        <div className="t-caption-1" style={{ color:'var(--label-tertiary)', marginTop:10, lineHeight:1.5 }}>
+          Atropin memblok reseptor M2 muskarinik → menghilangkan tonus vagal → HR↑. Mekanisme ini digunakan pada bradikardia simptomatik.<Cite n={1} href="https://doi.org/10.1152/physrev.1994.74.2.323"/>
+        </div>
+      </div>
+      <RefBlock items={ANS_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Vasopressor Pharmacology Tab
+   ============================================================ */
+const VASO_REFS = [
+  { n:1, text:'Hollenberg SM. Vasoactive drugs in circulatory shock. Am J Respir Crit Care Med. 2011;183(7):847–855.', url:'https://doi.org/10.1164/rccm.201006-0972CI' },
+  { n:2, text:'De Backer D, et al. Dopamine versus norepinephrine in septic shock. NEJM. 2010;362:779–789.', url:'https://doi.org/10.1056/NEJMoa0907118' },
+  { n:3, text:'AHA ACLS Guidelines 2020. Circulation. 2020;142(16 suppl 2).', url:'https://doi.org/10.1161/CIR.0000000000000916' },
+];
+
+type VasoKey = 'epi' | 'ne' | 'dopa' | 'dobu' | 'vaso' | 'phe';
+
+interface VasoDrug {
+  name: string; fullName: string; color: string;
+  alpha1: number; beta1: number; beta2: number; da: number; v1: number;
+  indication: string; dose: string; notes: string[];
+  warning?: string;
+}
+
+const VASO_MAP: Record<VasoKey, VasoDrug> = {
+  epi:  { name:'Epinefrin', fullName:'Epinephrine', color:'#FF3B30',
+    alpha1:3, beta1:3, beta2:2, da:0, v1:0,
+    indication:'Henti jantung (VF/pVT/PEA/Asistol), anafilaksis berat, syok refrakter',
+    dose:'Henti jantung: 1 mg IV tiap 3–5 mnt\nAnafilaksis: 0.3–0.5 mg IM\nSyok: 0.01–0.5 mcg/kg/mnt infus',
+    notes:['Dosis rendah: β dominan (HR↑, vasodilasi)',
+           'Dosis tinggi: α dominan (vasokonstriksi kuat)',
+           'Lini pertama anafilaksis (IM, paha lateral)'],
+    warning:'Dapat menyebabkan aritmia ventrikel dan iskemia miokard pada dosis tinggi' },
+  ne:   { name:'Norepinefrin', fullName:'Norepinephrine', color:'#FF6B35',
+    alpha1:3, beta1:2, beta2:0, da:0, v1:0,
+    indication:'Syok septik dan distributif lainnya (vasopresor lini pertama)',
+    dose:'0.01–3 mcg/kg/mnt infus IV (titrasi ke MAP ≥65 mmHg)',
+    notes:['Vasokonstriksi kuat (α1) + inotropi ringan (β1)',
+           'Tidak ada efek β2 → tidak menyebabkan vasodilatasi perifer',
+           'Lini pertama syok septik (kelas I, SSC 2021)'],
+    warning:'Hindari sebagai vasopresor tunggal pada syok kardiogenik dengan CO sangat rendah' },
+  dopa: { name:'Dopamin', fullName:'Dopamine', color:'#FF9500',
+    alpha1:2, beta1:3, beta2:1, da:3, v1:0,
+    indication:'Syok kardiogenik dengan bradikardia; backup vasopresor jika NE tidak tersedia',
+    dose:'Low (renal): 1–5 mcg/kg/mnt\nCardiac: 5–10 mcg/kg/mnt\nVasopressor: >10 mcg/kg/mnt',
+    notes:['DA1 dosis rendah: vasodilatasi renal/splanknik (manfaat klinis tidak terbukti)',
+           'β1 dosis menengah: CO↑',
+           'α1 dosis tinggi: vasokonstriksi'],
+    warning:'Lebih banyak aritmia vs norepinefrin (De Backer NEJM 2010) — bukan lini pertama sepsis' },
+  dobu: { name:'Dobutamin', fullName:'Dobutamine', color:'#34C759',
+    alpha1:1, beta1:3, beta2:2, da:0, v1:0,
+    indication:'Syok kardiogenik dengan CO rendah; dekompensasi HF akut',
+    dose:'2.5–20 mcg/kg/mnt infus IV (titrasi ke CO/SvO₂)',
+    notes:['Inotropik positif murni (β1+++)',
+           'Vasodilatasi perifer ringan (β2) → afterload↓',
+           'Tidak meningkatkan MAP secara langsung — kombinasi dengan NE jika hipotensi'],
+    warning:'Dapat menyebabkan takikardia dan aritmia; hindari pada kardiomiopati obstruktif' },
+  vaso: { name:'Vasopressin', fullName:'Vasopressin (ADH)', color:'#5856D6',
+    alpha1:0, beta1:0, beta2:0, da:0, v1:3,
+    indication:'Syok septik refrakter sebagai tambahan NE; syok kardiogenik refrakter',
+    dose:'0.03–0.04 unit/mnt infus IV (fixed dose — tidak dititrasi)',
+    notes:['Non-adrenergik — bekerja melalui reseptor V1 VSMC',
+           'Vasokonstriksi kuat tanpa efek jantung langsung',
+           'Efektif pada vasodilatory shock refrakter terhadap katekolamin'],
+    warning:'Dapat menyebabkan iskemia splanknik, digital, dan koroner pada dosis tinggi' },
+  phe:  { name:'Fenilefrin', fullName:'Phenylephrine', color:'#007AFF',
+    alpha1:3, beta1:0, beta2:0, da:0, v1:0,
+    indication:'Syok vasodilatasi tanpa disfungsi jantung; hipotensi ringan perioperatif',
+    dose:'50–200 mcg bolus IV atau 0.5–6 mcg/kg/mnt infus',
+    notes:['Pure α1 agonist — vasokonstriksi tanpa efek jantung langsung',
+           'Dapat meningkatkan afterload LV → hindari pada CO rendah',
+           'Berguna jika takikardia merupakan masalah (tidak menyebabkan HR↑)'],
+    warning:'Refleks bradikardia mungkin terjadi (baroreceptor merespons peningkatan TD)' },
+};
+
+function ReceptorBar({ label, value, color }: { label:string; value:number; color:string }) {
+  return (
+    <div style={{ marginBottom:6 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:2 }}>
+        <span className="t-caption-2" style={{ fontWeight:700 }}>{label}</span>
+        <span className="t-caption-2" style={{ color:'var(--label-tertiary)' }}>{'●'.repeat(value)}{'○'.repeat(3-value)}</span>
+      </div>
+      <div style={{ height:6, borderRadius:3, background:'var(--fill-tertiary)', overflow:'hidden' }}>
+        <div style={{ height:'100%', width:`${(value/3)*100}%`, background:color, borderRadius:3, transition:'width 300ms ease' }}/>
+      </div>
+    </div>
+  );
+}
+
+function VasopressorPharmTab() {
+  const [drug, setDrug] = useState<VasoKey>('epi');
+  const d = VASO_MAP[drug];
+  const DRUGS: Array<{ key:VasoKey; name:string; color:string }> = [
+    { key:'epi',  name:'Epinefrin',    color:'#FF3B30' },
+    { key:'ne',   name:'Norepinefrin', color:'#FF6B35' },
+    { key:'dopa', name:'Dopamin',      color:'#FF9500' },
+    { key:'dobu', name:'Dobutamin',    color:'#34C759' },
+    { key:'vaso', name:'Vasopressin',  color:'#5856D6' },
+    { key:'phe',  name:'Fenilefrin',   color:'#007AFF' },
+  ];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Vasopresor dan inotropik bekerja pada reseptor adrenergik (α1, β1, β2), dopaminergik (DA1), dan vasopressin (V1). Pemahaman profil reseptor tiap obat memandu pemilihan yang tepat berdasarkan jenis syok.<Cite n={1} href="https://doi.org/10.1164/rccm.201006-0972CI"/>
+      </div>
+      {/* Receptor subtype legend */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:12, padding:'10px 14px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>SUBTIPE RESEPTOR</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
+          {[
+            { r:'α1', loc:'Arteriol → vasokonstriksi', c:'#FF3B30' },
+            { r:'β1', loc:'Jantung → HR↑, inotropy↑', c:'#FF9500' },
+            { r:'β2', loc:'Bronkus/arteriol → bronkodilasi/vasodilatasi', c:'#34C759' },
+            { r:'DA1', loc:'Renal/splanknik → vasodilatasi', c:'#007AFF' },
+            { r:'V1', loc:'VSMC → vasokonstriksi (non-adrenergik)', c:'#5856D6' },
+          ].map(r => (
+            <div key={r.r} style={{ display:'flex', gap:6, alignItems:'center' }}>
+              <div style={{ width:26, height:18, borderRadius:5, background:r.c+'20', border:`1px solid ${r.c}`,
+                display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <span style={{ fontSize:'0.65rem', fontWeight:800, color:r.c }}>{r.r}</span>
+              </div>
+              <span className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.3 }}>{r.loc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Drug grid */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:7 }}>
+        {DRUGS.map(dr => (
+          <button key={dr.key} onClick={() => setDrug(dr.key)} style={{
+            padding:'10px 6px', borderRadius:12, border:'none', cursor:'pointer', textAlign:'center',
+            background: drug===dr.key ? dr.color+'18' : 'var(--bg-primary)',
+            boxShadow: drug===dr.key ? `0 0 0 1.5px ${dr.color}` : '0 0 0 0.5px var(--separator-opaque)',
+            transition:'all 150ms ease',
+          }}>
+            <div className="t-caption-1" style={{ fontWeight:700, color: drug===dr.key ? dr.color : 'var(--label-primary)' }}>
+              {dr.name}
+            </div>
+          </button>
+        ))}
+      </div>
+      {/* Diagram */}
+      <TheoryImage name="vasopressor-receptors" alt="Receptor subtype diagram"
+        fallback={
+          <div style={{ background:'var(--bg-primary)', borderRadius:12, padding:'10px',
+            boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+            <TheoryImage name="vasopressor-profiles" alt="Drug comparison" fallback={<></>}/>
+          </div>
+        }
+      />
+      {/* Drug detail card */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:`0 0 0 1.5px ${d.color}40` }}>
+        <div className="t-callout" style={{ fontWeight:700, color:d.color, marginBottom:10 }}>
+          {d.name} <span style={{ fontSize:'0.8rem', fontWeight:400, color:'var(--label-secondary)' }}>({d.fullName})</span>
+        </div>
+        {/* Receptor bars */}
+        <div style={{ marginBottom:12 }}>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PROFIL RESEPTOR</div>
+          <ReceptorBar label="α1" value={d.alpha1} color="#FF3B30"/>
+          <ReceptorBar label="β1" value={d.beta1} color="#FF9500"/>
+          <ReceptorBar label="β2" value={d.beta2} color="#34C759"/>
+          <ReceptorBar label="DA1" value={d.da} color="#007AFF"/>
+          <ReceptorBar label="V1" value={d.v1} color="#5856D6"/>
+        </div>
+        {/* Indication */}
+        <div style={{ marginBottom:10 }}>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:4 }}>INDIKASI</div>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.indication}</div>
+        </div>
+        {/* Dose */}
+        <div style={{ background:'var(--fill-quaternary)', borderRadius:10, padding:'10px 12px', marginBottom:10 }}>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:4 }}>DOSIS</div>
+          <div className="t-caption-1" style={{ color:'var(--label-primary)', fontFamily:'monospace', lineHeight:1.7, whiteSpace:'pre-line' }}>{d.dose}</div>
+        </div>
+        {/* Notes */}
+        <div style={{ marginBottom: d.warning ? 10 : 0 }}>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>CATATAN KLINIS</div>
+          {d.notes.map((n, i) => (
+            <div key={i} style={{ display:'flex', gap:7, marginBottom:4 }}>
+              <div style={{ width:5, height:5, borderRadius:2.5, background:d.color, flexShrink:0, marginTop:4 }}/>
+              <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45 }}>{n}</div>
+            </div>
+          ))}
+        </div>
+        {d.warning && (
+          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'10px 12px',
+            boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
+            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700, marginBottom:3 }}>⚠ PERHATIAN</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{d.warning}</div>
+          </div>
+        )}
+      </div>
+      {/* Shock matching */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PILIHAN VASOPRESOR PER JENIS SYOK</div>
+        {[
+          { shock:'Septik / Distributif', first:'Norepinefrin', second:'+ Vasopressin 0.03 U/mnt jika refrakter', color:'#FF9500' },
+          { shock:'Kardiogenik (CO rendah)', first:'Dobutamin ± NE (jika hipotensi)', second:'Epinefrin dosis rendah sebagai alternatif', color:'#FF3B30' },
+          { shock:'Henti Jantung', first:'Epinefrin 1 mg tiap 3–5 mnt', second:'Vasopressin 40 U (alternatif dosis 1/2)', color:'#FF3B30' },
+          { shock:'Anafilaksis', first:'Epinefrin 0.5 mg IM (paha lateral)', second:'Infus Epinefrin jika refrakter', color:'#FF6B35' },
+        ].map(r => (
+          <div key={r.shock} style={{ marginBottom:10 }}>
+            <div className="t-caption-2" style={{ fontWeight:700, color:r.color, marginBottom:3 }}>{r.shock}</div>
+            <div className="t-caption-2" style={{ color:'var(--label-primary)', marginBottom:1 }}>Lini 1: {r.first}</div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>Lini 2: {r.second}</div>
+          </div>
+        ))}
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', lineHeight:1.5 }}>
+          Norepinefrin terbukti lebih aman vs dopamin pada syok septik (aritmia lebih sedikit, mortalitas tidak lebih buruk).<Cite n={2} href="https://doi.org/10.1056/NEJMoa0907118"/> Panduan AHA ACLS 2020 merekomendasikan epinefrin lini pertama henti jantung tanpa memandang irama.<Cite n={3} href="https://doi.org/10.1161/CIR.0000000000000916"/>
+        </div>
+      </div>
+      <RefBlock items={VASO_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Post-Arrest Tab
+   ============================================================ */
+const PA_REFS = [
+  { n:1, text:'Neumar RW, et al. Post-Cardiac Arrest Syndrome. Circulation. 2008;118(23):2452–2483.', url:'https://doi.org/10.1161/CIRCULATIONAHA.108.190652' },
+  { n:2, text:'Callaway CW, et al. Part 8: Post-Cardiac Arrest Care. Circulation. 2015;132:S465–S482.', url:'https://doi.org/10.1161/CIR.0000000000000262' },
+  { n:3, text:'Donnino MW, et al. Temperature Management After Cardiac Arrest. Circulation. 2015;132(25):2448–2456.', url:'https://doi.org/10.1161/CIR.0000000000000313' },
+  { n:4, text:'Geocadin RG, et al. Standards for Studies of Neurological Prognostication in Comatose Survivors of Cardiac Arrest. Resuscitation. 2014;85(3):e11–e15.' },
+];
+
+const PA_TIMELINE = [
+  {
+    time: '0–20 mnt',
+    title: 'ROSC & Stabilisasi Awal',
+    color: '#FF3B30',
+    tasks: [
+      'Konfirmasi ROSC: SpO₂, ETCO₂, tekanan darah (arterial line)',
+      'Airway: ETT placement — cegah hyperventilasi (ETCO₂ 35–45 mmHg)',
+      'Oksigen: SpO₂ 94–98% — hindari hyperoxia (ROS↑)',
+      'EKG 12 lead: identifikasi STEMI → cath lab segera',
+      'Target MAP ≥65–70 mmHg: vasopresor/inotropik sesuai etiologi',
+      'Glukosa: cek GDS → target 140–180 mg/dL',
+    ],
+  },
+  {
+    time: '20–60 mnt',
+    title: 'Evaluasi Etiologi & TTM Initiation',
+    color: '#FF9500',
+    tasks: [
+      'Angiografi koroner: STEMI → segera; non-STEMI tanpa STEMI → stratifikasi',
+      'CT kepala: singkirkan perdarahan intrakranial sebagai penyebab arrest',
+      'Echo: fungsi ventrikel, tamponade, efusi, wall motion abnormality',
+      'Lab: troponin, ABG, laktat, elektrolit, koagulasi, CBC',
+      'TTM: mulai pendinginan ke target 32–36°C jika koma pasca-ROSC',
+      'Sedasi + analgesia: fentanyl + propofol/midazolam selama pendinginan',
+    ],
+  },
+  {
+    time: '1–6 jam',
+    title: 'TTM & Monitoring ICU',
+    color: '#5856D6',
+    tasks: [
+      'Pertahankan suhu target (32–36°C) selama 24 jam — hindari demam',
+      'Monitoring hemodinamik: arterial line + CVP + ScvO₂ atau PAC/echo serial',
+      'Ventilasi protektif: VT 6 mL/kgBBI, PEEP 5–8, FiO₂ untuk SpO₂ 94–98%',
+      'Antikonvulsan profilaksis tidak direkomendasikan rutin — pantau EEG jika ada indikasi',
+      'Hindari hipoglikemia (target GDS 140–180 mg/dL, cek tiap 1–2 jam)',
+      'Koreksi elektrolit: K⁺ 4–4.5 mEq/L, Mg²⁺ ≥1 mEq/L',
+    ],
+  },
+  {
+    time: '6–24 jam',
+    title: 'Rewarming & Kontrol Demam',
+    color: '#34C759',
+    tasks: [
+      'Rewarming bertahap: 0.25°C/jam hingga normotermia (36–37°C)',
+      'Hindari rebound hipertermia — demam pasca-TTM memperburuk outcome neurologis',
+      'Pertahankan normotermia (≤37.5°C) hingga 72 jam post-ROSC',
+      'Pantau tanda post-cardiac arrest myocardial dysfunction (PAMD)',
+      'Pertimbangkan EEG kontinyu pada koma — deteksi status epileptikus non-konvulsif',
+    ],
+  },
+  {
+    time: '24–72 jam',
+    title: 'Neuroprognostikasi',
+    color: '#007AFF',
+    tasks: [
+      'Waktu minimal neuroprognostikasi: ≥72 jam post-ROSC (atau ≥72 jam post-TTM)',
+      'Pemeriksaan neurologis: pupil, corneal reflex, motor response (GCS-M)',
+      'EEG: burst-suppression, status epileptikus, atau reaktivitas EEG',
+      'SSEP (Somatosensory Evoked Potentials): N20 bilateral absent = prognosis sangat buruk',
+      'CT/MRI kepala: edema serebri difus (ratio gray-white matter)',
+      'Biomarker: NSE >60 µg/L (48–72 jam) berkorelasi dengan outcome buruk',
+    ],
+  },
+];
+
+function PostArrestTab() {
+  const [step, setStep] = useState(0);
+  const s = PA_TIMELINE[step];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+        Post-Cardiac Arrest Syndrome (PCAS) mencakup 4 domain: cedera otak pasca-arrest, disfungsi miokard, respons iskemia-reperfusi sistemik, dan penyebab primer arrest. Tatalaksana terstruktur dalam 72 jam pertama menentukan outcome neurologis jangka panjang.<Cite n={1} href="https://doi.org/10.1161/CIRCULATIONAHA.108.190652"/>
+      </div>
+      {/* PCAS 4 domains */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>4 DOMAIN PCAS</div>
+        <TheoryImage name="pcas-overview" alt="PCAS 4 domain diagram"
+          fallback={
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              {[
+                { d:'Cedera Otak', c:'#FF3B30', txt:'Anoxia, excitotoxicity, edema, apoptosis — paling menentukan outcome' },
+                { d:'Disfungsi Miokard', c:'#FF9500', txt:'Stunning pasca-arrest — reversibel dalam 48–72 jam dengan dukungan inotropik' },
+                { d:'Respons I/R Sistemik', c:'#5856D6', txt:'ROS burst, Ca²⁺ overload, inflamasi, koagulopati — mirip sepsis' },
+                { d:'Penyebab Primer', c:'#007AFF', txt:'ACS, PE, hipoksia, elektrolit — koreksi penyebab memperbaiki outcome' },
+              ].map(r => (
+                <div key={r.d} style={{ background:r.c+'10', borderRadius:10, padding:'10px 10px',
+                  boxShadow:`0 0 0 1px ${r.c}30` }}>
+                  <div className="t-caption-2" style={{ fontWeight:700, color:r.c, marginBottom:4 }}>{r.d}</div>
+                  <div className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.4 }}>{r.txt}</div>
+                </div>
+              ))}
+            </div>
+          }
+        />
+      </div>
+      {/* TTM mechanism */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>MEKANISME TTM (32–36°C)</div>
+        <TheoryImage name="ttm-mechanism" alt="TTM neuroprotection mechanism"
+          fallback={
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {[
+                { mech:'Metabolisme serebri↓', detail:'Setiap 1°C ↓ → CMR O₂ ↓ ~6–7% → kebutuhan oksigen berkurang', c:'#5856D6' },
+                { mech:'Excitotoxicity↓', detail:'Glutamat release↓, NMDA activation↓ → Ca²⁺ influx minimal', c:'#007AFF' },
+                { mech:'ROS burst↓', detail:'Reactive oxygen species produksi↓ → kerusakan membran sel berkurang', c:'#34C759' },
+                { mech:'Apoptosis↓', detail:'Caspase activation↓ → sel yang terancam dapat bertahan', c:'#FF9500' },
+              ].map(r => (
+                <div key={r.mech} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                  <div style={{ width:8, height:8, borderRadius:2, background:r.c, flexShrink:0, marginTop:3 }}/>
+                  <div>
+                    <span className="t-caption-1" style={{ fontWeight:700, color:r.c }}>{r.mech}: </span>
+                    <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}>{r.detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          }
+        />
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginTop:8, lineHeight:1.5 }}>
+          Target suhu 32–36°C selama 24 jam (TTM trial 2013, HYPERION 2019).<Cite n={3} href="https://doi.org/10.1161/CIR.0000000000000313"/> Elemen paling penting: hindari demam (&gt;37.7°C) dalam 72 jam post-ROSC.
+        </div>
+      </div>
+      {/* Timeline stepper */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:10 }}>TIMELINE TATA LAKSANA POST-ROSC</div>
+        {/* Time selector */}
+        <div style={{ display:'flex', overflowX:'auto', gap:6, marginBottom:12, paddingBottom:4 }}>
+          {PA_TIMELINE.map((t, i) => (
+            <button key={i} onClick={() => setStep(i)} style={{
+              padding:'7px 11px', borderRadius:20, border:'none', cursor:'pointer', whiteSpace:'nowrap',
+              background: step===i ? t.color : 'var(--fill-quaternary)',
+              color: step===i ? '#fff' : 'var(--label-secondary)',
+              fontWeight: step===i ? 700 : 400, fontSize:'0.775rem', transition:'all 150ms ease',
+              flexShrink:0,
+            }}>
+              {t.time}
+            </button>
+          ))}
+        </div>
+        {/* Step detail */}
+        <div style={{ borderLeft:`3px solid ${s.color}`, paddingLeft:12 }}>
+          <div className="t-callout" style={{ fontWeight:700, color:s.color, marginBottom:8 }}>{s.title}</div>
+          {s.tasks.map((task, i) => (
+            <div key={i} style={{ display:'flex', gap:8, marginBottom:6 }}>
+              <div style={{ width:20, height:20, borderRadius:'50%', background:s.color+'15',
+                border:`1px solid ${s.color}40`, display:'flex', alignItems:'center', justifyContent:'center',
+                flexShrink:0, fontSize:'0.65rem', fontWeight:700, color:s.color }}>{i+1}</div>
+              <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5, paddingTop:2 }}>{task}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Cerebral autoregulation */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>AUTOREGULASI SEREBRAL PASCA-ROSC</div>
+        <TheoryImage name="cerebral-autoregulation" alt="Cerebral autoregulation curve"
+          fallback={
+            <svg viewBox="0 0 280 130" style={{ width:'100%', maxHeight:130 }}>
+              {/* Axes */}
+              <line x1="30" y1="110" x2="260" y2="110" stroke="var(--label-tertiary)" strokeWidth="1.5"/>
+              <line x1="30" y1="10" x2="30" y2="110" stroke="var(--label-tertiary)" strokeWidth="1.5"/>
+              <text x="145" y="125" textAnchor="middle" fontSize="9" fill="var(--label-secondary)">MAP (mmHg)</text>
+              <text x="12" y="65" textAnchor="middle" fontSize="9" fill="var(--label-secondary)" transform="rotate(-90,12,65)">CBF</text>
+              {/* Autoregulation curve */}
+              <path d="M30,100 L70,100 Q85,100 90,60 L160,60 Q165,60 170,100 L260,100"
+                stroke="#007AFF" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              {/* Plateau zone */}
+              <rect x="90" y="55" width="70" height="10" fill="#34C75930" rx="3"/>
+              <text x="125" y="48" textAnchor="middle" fontSize="8" fill="#34C759" fontWeight="700">Plateau (autoregulasi)</text>
+              {/* MAP target line */}
+              <line x1="110" y1="10" x2="110" y2="110" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,3"/>
+              <text x="112" y="20" textAnchor="start" fontSize="8" fill="#FF9500">MAP 65–70</text>
+              {/* Labels */}
+              <text x="70" y="108" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">50</text>
+              <text x="125" y="108" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">100</text>
+              <text x="170" y="108" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">150</text>
+            </svg>
+          }
+        />
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6, marginTop:8 }}>
+          Pasca-ROSC, autoregulasi serebral sering terganggu — CBF (cerebral blood flow) menjadi pressure-passive. Target MAP ≥65–70 mmHg kritis untuk mencegah secondary brain injury.<Cite n={2} href="https://doi.org/10.1161/CIR.0000000000000262"/> Beberapa studi mengevaluasi MAP target lebih tinggi (80–100 mmHg) pada pasien tertentu.
+        </div>
+      </div>
+      {/* Neuroprognostication checklist */}
+      <div style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 16px',
+        boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>NEUROPROGNOSTIKASI — MODALITAS (≥72 JAM)</div>
+        {[
+          { mod:'Pemeriksaan Neurologis', detail:'GCS-M ≤2 bilateral (tidak ada gerakan bertujuan), pupil fixed', bad:'Bilateral absent pupillary reflex', c:'#FF3B30' },
+          { mod:'EEG', detail:'Burst-suppression, status epileptikus, reaktivitas EEG (ada/tidak ada)', bad:'Non-reaktif, burst-suppression persisten', c:'#FF9500' },
+          { mod:'SSEP', detail:'N20 bilateral — diukur setelah ≥24 jam', bad:'N20 bilateral absent = prognosis sangat buruk (spesifisitas >99%)', c:'#5856D6' },
+          { mod:'CT / MRI Kepala', detail:'Rasio gray-white matter (GWR) pada CT; DWI ADC pada MRI', bad:'GWR <1.2 atau difus ADC rendah', c:'#007AFF' },
+          { mod:'Biomarker NSE', detail:'Neuron-specific enolase (NSE) pada 48–72 jam', bad:'NSE >60 µg/L berkorelasi dengan outcome buruk', c:'#34C759' },
+        ].map(r => (
+          <div key={r.mod} style={{ marginBottom:10, padding:'10px 12px', background:'var(--fill-quaternary)', borderRadius:10 }}>
+            <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:4 }}>
+              <div style={{ width:8, height:8, borderRadius:2, background:r.c, flexShrink:0 }}/>
+              <div className="t-caption-1" style={{ fontWeight:700, color:'var(--label-primary)' }}>{r.mod}</div>
+            </div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginBottom:3 }}>{r.detail}</div>
+            <div className="t-caption-2" style={{ color:r.c, fontWeight:600 }}>⚠ Buruk: {r.bad}</div>
+          </div>
+        ))}
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', lineHeight:1.5 }}>
+          Tidak ada satu modalitas yang cukup — kombinasi ≥2 modalitas diperlukan.<Cite n={4}/> Jangan prognostikasi sebelum efek sedasi/TTM benar-benar habis.
+        </div>
+      </div>
+      <RefBlock items={PA_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
    Theory Screen — shared mobile + desktop layout
    ============================================================ */
 const THEORY_TABS = [
   { key:'cycle',      label:'Siklus Jantung' },
   { key:'ap',         label:'Aksi Potensial' },
+  { key:'ec',         label:'E-C Coupling' },
   { key:'hemo',       label:'Hemodinamik' },
+  { key:'ans',        label:'Otonom' },
+  { key:'vasopress',  label:'Vasopressor' },
   { key:'arrhythmia', label:'Mekanisme Aritmia' },
   { key:'pharm',      label:'Farmakologi' },
   { key:'acs',        label:'Patofisiologi ACS' },
   { key:'shock',      label:'Jenis Syok' },
+  { key:'postarrest', label:'Post-Arrest' },
 ];
 
 interface TheoryScreenProps { nav?: Nav; isMobile?: boolean; }
@@ -1509,11 +2312,15 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
       <div style={{ flex:1, overflowY:'auto', padding:'14px 20px 40px' }}>
         {tab==='cycle'      && <CardiacCycleTab/>}
         {tab==='ap'         && <ActionPotentialTab/>}
+        {tab==='ec'         && <ECCouplingTab/>}
         {tab==='hemo'       && <HemodynamicsTab/>}
+        {tab==='ans'        && <ANSTab/>}
+        {tab==='vasopress'  && <VasopressorPharmTab/>}
         {tab==='arrhythmia' && <ArrhythmiaMechanismTab/>}
         {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
         {tab==='acs'        && <ACSPathophysTab/>}
         {tab==='shock'      && <ShockTypesTab/>}
+        {tab==='postarrest' && <PostArrestTab/>}
       </div>
     </div>
   );
@@ -1553,11 +2360,15 @@ export function DesktopTheory() {
         <div style={{ maxWidth:820 }}>
           {tab==='cycle'      && <CardiacCycleTab/>}
           {tab==='ap'         && <ActionPotentialTab/>}
+          {tab==='ec'         && <ECCouplingTab/>}
           {tab==='hemo'       && <HemodynamicsTab/>}
+          {tab==='ans'        && <ANSTab/>}
+          {tab==='vasopress'  && <VasopressorPharmTab/>}
           {tab==='arrhythmia' && <ArrhythmiaMechanismTab/>}
           {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
           {tab==='acs'        && <ACSPathophysTab/>}
           {tab==='shock'      && <ShockTypesTab/>}
+          {tab==='postarrest' && <PostArrestTab/>}
         </div>
       </div>
     </div>

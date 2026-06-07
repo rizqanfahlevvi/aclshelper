@@ -13,10 +13,28 @@ Jika file tidak ada, diagram SVG bawaan tetap tampil sebagai fallback.
 | `ap-ventricular.*`     | Aksi potensial kardiomiosit ventrikel     |
 | `ap-sa-node.*`         | Aksi potensial SA node (pacu jantung)     |
 
+### Tab: E-C Coupling
+| Nama file          | Diagram                                         |
+|--------------------|-------------------------------------------------|
+| `ec-coupling.*`    | Overview CICR: DHPR → RyR2 → Ca²⁺ spark        |
+| `ec-relaxation.*`  | Relaksasi: SERCA2a reuptake + NCX ekstrusi      |
+
 ### Tab: Hemodinamik
 | Nama file              | Diagram                                   |
 |------------------------|-------------------------------------------|
 | `frank-starling.*`     | Kurva Frank-Starling (SV vs EDV)          |
+
+### Tab: Sistem Saraf Otonom
+| Nama file              | Diagram                                         |
+|------------------------|-------------------------------------------------|
+| `ans-overview.*`       | SNS vs PNS cardiac innervation                  |
+| `ans-baroreceptor.*`   | Baroreceptor reflex arc (NTS → vagal output)    |
+
+### Tab: Farmakologi Vasopressor
+| Nama file                  | Diagram                                     |
+|----------------------------|---------------------------------------------|
+| `vasopressor-receptors.*`  | Receptor subtype location diagram (α1/β1…)  |
+| `vasopressor-profiles.*`   | Drug comparison chart (6 drug profiles)     |
 
 ### Tab: Mekanisme Aritmia
 | Nama file                  | Diagram                               |
@@ -33,6 +51,13 @@ Jika file tidak ada, diagram SVG bawaan tetap tampil sebagai fallback.
 | `acs-3-ruptur.*`   | Ruptur plak                           |
 | `acs-4-trombus.*`  | Trombosis koroner akut                |
 | `acs-5-iskemia.*`  | Zona nekrosis / injury / iskemia      |
+
+### Tab: Post-Arrest
+| Nama file                    | Diagram                                              |
+|------------------------------|------------------------------------------------------|
+| `pcas-overview.*`            | 4-domain PCAS diagram                                |
+| `cerebral-autoregulation.*`  | Kurva autoregulasi serebral (CBF vs MAP)             |
+| `ttm-mechanism.*`            | Mekanisme neuroproteksi TTM (32–36°C)                |
 
 ## Cara Mengganti Diagram
 
