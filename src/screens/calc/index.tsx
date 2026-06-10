@@ -452,85 +452,132 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
 }
 
 /* ============================================================
+   CalcListItem — shared row component
+   ============================================================ */
+function CalcListItem({ name, description, tint, onClick }: {
+  name: string; description: string; tint: string; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px',
+        background: 'var(--bg-primary)', border: 'none', cursor: 'pointer',
+        textAlign: 'left', width: '100%',
+      }}
+    >
+      <div style={{
+        width: 40, height: 40, borderRadius: 11, background: tint,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        boxShadow: `0 4px 12px ${tint}44`,
+      }}>
+        <Icons.calculator size={20} stroke={1.8} style={{ color: '#fff' }}/>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="t-callout" style={{ fontWeight: 600 }}>{name}</div>
+        <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{description}</div>
+      </div>
+      <Icons.chevR size={16} stroke={2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
+    </button>
+  );
+}
+
+/* ============================================================
    MobileCalcList
    ============================================================ */
 export function MobileCalcList({ nav }: { nav: Nav }) {
-  const categories = useMemo(() => {
-    const cats: Record<string, typeof CALCULATORS> = {};
+  const [activeTab, setActiveTab] = useState<'scoring' | 'calculator'>('scoring');
+
+  const grouped = useMemo(() => {
+    const g: Record<'scoring' | 'calculator', Record<string, typeof CALCULATORS>> = {
+      scoring: {}, calculator: {},
+    };
     for (const c of CALCULATORS) {
-      if (!cats[c.category]) cats[c.category] = [];
-      cats[c.category].push(c);
+      const kind = c.kind;
+      if (!g[kind][c.category]) g[kind][c.category] = [];
+      g[kind][c.category].push(c);
     }
-    return cats;
+    return g;
   }, []);
 
+  const categories = grouped[activeTab];
+
   return (
-    <div style={{ overflowY: 'auto', padding: '12px 0 40px' }}>
-      <div style={{ padding: '0 16px 16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
         <div className="t-title-2" style={{ fontWeight: 700, marginBottom: 4 }}>Kalkulator</div>
-        <div className="t-footnote" style={{ color: 'var(--label-secondary)' }}>Skoring klinis & kalkulator kardiovaskular</div>
       </div>
-      {Object.entries(categories).map(([cat, calcs]) => (
-        <div key={cat} style={{ marginBottom: 24 }}>
-          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
-            {cat.toUpperCase()}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {calcs.map(c => (
-              <button
-                key={c.key}
-                onClick={() => nav.push({ screen: 'calc', id: c.key })}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px',
-                  background: 'var(--bg-primary)', border: 'none', cursor: 'pointer',
-                  textAlign: 'left', width: '100%',
-                }}
-              >
-                <div style={{
-                  width: 40, height: 40, borderRadius: 11, background: c.tint,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  boxShadow: `0 4px 12px ${c.tint}44`,
-                }}>
-                  <Icons.calculator size={20} stroke={1.8} style={{ color: '#fff' }}/>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
-                  <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{c.description}</div>
-                </div>
-                <Icons.chevR size={16} stroke={2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
-              </button>
-            ))}
-          </div>
+
+      {/* Segmented Control */}
+      <div style={{ padding: '10px 16px 0', flexShrink: 0 }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3,
+        }}>
+          {([
+            { key: 'scoring',    label: 'Skoring',    count: CALCULATORS.filter(c => c.kind === 'scoring').length },
+            { key: 'calculator', label: 'Kalkulator', count: CALCULATORS.filter(c => c.kind === 'calculator').length },
+          ] as const).map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                height: 34, borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit',
+                fontSize: '0.875rem', fontWeight: 600, transition: 'all 150ms',
+                background: activeTab === tab.key ? 'var(--bg-primary)' : 'transparent',
+                color: activeTab === tab.key ? 'var(--label-primary)' : 'var(--label-secondary)',
+                boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none',
+              }}
+            >
+              {tab.label}
+              <span style={{
+                marginLeft: 5, fontSize: '0.6875rem', fontWeight: 600, verticalAlign: 'middle',
+                color: activeTab === tab.key ? 'var(--accent)' : 'var(--label-tertiary)',
+              }}>{tab.count}</span>
+            </button>
+          ))}
         </div>
-      ))}
-      {/* Panduan Klinis */}
-      <div style={{ marginBottom: 24 }}>
-        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
-          PANDUAN KLINIS
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <button
-            onClick={() => nav.push({ screen: 'vaso' })}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px',
-              background: 'var(--bg-primary)', border: 'none', cursor: 'pointer',
-              textAlign: 'left', width: '100%',
-            }}
-          >
-            <div style={{
-              width: 40, height: 40, borderRadius: 11, background: '#34C759',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(52,199,89,0.35)',
-            }}>
-              <Icons.calculator size={20} stroke={1.8} style={{ color: '#fff' }}/>
+      </div>
+
+      {/* List */}
+      <div style={{ overflowY: 'auto', flex: 1, paddingBottom: 40 }}>
+        <div style={{ height: 8 }}/>
+        {Object.entries(categories).map(([cat, calcs]) => (
+          <div key={cat} style={{ marginBottom: 20 }}>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
+              {cat.toUpperCase()}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="t-callout" style={{ fontWeight: 600 }}>Vasopressor</div>
-              <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>Panduan & kalkulator vasopressor</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {calcs.map(c => (
+                <CalcListItem
+                  key={c.key}
+                  name={c.name}
+                  description={c.description}
+                  tint={c.tint}
+                  onClick={() => nav.push({ screen: 'calc', id: c.key })}
+                />
+              ))}
             </div>
-            <Icons.chevR size={16} stroke={2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
-          </button>
-        </div>
+          </div>
+        ))}
+
+        {/* Panduan Klinis — only shown on Kalkulator tab */}
+        {activeTab === 'calculator' && (
+          <div style={{ marginBottom: 20 }}>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
+              PANDUAN KLINIS
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <CalcListItem
+                name="Vasopressor"
+                description="Panduan & kalkulator vasopressor"
+                tint="#34C759"
+                onClick={() => nav.push({ screen: 'vaso' })}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -739,28 +786,60 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             </div>
           </div>
           <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px 16px' }}>
-            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 6px 8px' }}>
-              KALKULATOR · {filtered.length}
-            </div>
             {filtered.length === 0 && !filteredVaso
               ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
-              : filtered.map(c => (
-                <button
-                  key={c.key}
-                  onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                  className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
-                >
-                  <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
-                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
-                    <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
-                  </div>
-                </button>
-              ))
+              : (() => {
+                  const scoring = filtered.filter(c => c.kind === 'scoring');
+                  const calculator = filtered.filter(c => c.kind === 'calculator');
+                  return (
+                    <>
+                      {scoring.length > 0 && (
+                        <>
+                          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '8px 6px 6px' }}>
+                            SKORING · {scoring.length}
+                          </div>
+                          {scoring.map(c => (
+                            <button
+                              key={c.key}
+                              onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
+                              className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
+                            >
+                              <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
+                              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                                <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
+                                <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </>
+                      )}
+                      {calculator.length > 0 && (
+                        <>
+                          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: scoring.length > 0 ? '12px 6px 6px' : '8px 6px 6px' }}>
+                            KALKULATOR · {calculator.length}
+                          </div>
+                          {calculator.map(c => (
+                            <button
+                              key={c.key}
+                              onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
+                              className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
+                            >
+                              <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
+                              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                                <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
+                                <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  );
+                })()
             }
             {filteredVaso && (
               <>
-                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '10px 6px 8px' }}>
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '12px 6px 6px' }}>
                   PANDUAN KLINIS
                 </div>
                 <button

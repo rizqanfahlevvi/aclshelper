@@ -30,6 +30,7 @@ export interface Calculator {
   key: string;
   name: string;
   short: string;
+  kind: 'scoring' | 'calculator';
   category: string;
   tint: string;
   description: string;
@@ -45,6 +46,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'chads2vasc',
+    kind: 'scoring',
     name: 'CHA₂DS₂-VASc',
     short: 'CHA₂DS₂-VASc',
     category: 'Fibrilasi Atrium',
@@ -87,6 +89,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'hasbled',
+    kind: 'scoring',
     name: 'HAS-BLED',
     short: 'HAS-BLED',
     category: 'Fibrilasi Atrium',
@@ -126,6 +129,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'heart',
+    kind: 'scoring',
     name: 'HEART Score',
     short: 'HEART',
     category: 'ACS / Koroner',
@@ -202,6 +206,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'grace',
+    kind: 'scoring',
     name: 'GRACE Score',
     short: 'GRACE',
     category: 'ACS / Koroner',
@@ -293,6 +298,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'map',
+    kind: 'calculator',
     name: 'Mean Arterial Pressure',
     short: 'MAP',
     category: 'Hemodinamik',
@@ -320,6 +326,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'si',
+    kind: 'calculator',
     name: 'Shock Index',
     short: 'SI',
     category: 'Hemodinamik',
@@ -347,6 +354,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'crcl',
+    kind: 'calculator',
     name: 'CrCl Cockcroft-Gault',
     short: 'CrCl',
     category: 'Fungsi Ginjal',
@@ -379,6 +387,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'fibrinolytic',
+    kind: 'calculator',
     name: 'Fibrinolisis STEMI',
     short: 'Fibrinolisis',
     category: 'ACS / Koroner',
@@ -435,6 +444,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'abg',
+    kind: 'calculator',
     name: 'ABG / Asidosis-Alkalosis',
     short: 'ABG',
     category: 'Kritis',
@@ -555,6 +565,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'rsi',
+    kind: 'calculator',
     name: 'RSI — Intubasi Cepat',
     short: 'RSI',
     category: 'Prosedur',
@@ -792,6 +803,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'vent',
+    kind: 'calculator',
     name: 'Ventilasi Mekanik (ARDSnet)',
     short: 'Ventilator',
     category: 'Kritis',
@@ -854,6 +866,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'heparin',
+    kind: 'calculator',
     name: 'Heparin Drip (Berbasis BB)',
     short: 'Heparin',
     category: 'Tromboembolisme',
