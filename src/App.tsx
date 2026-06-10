@@ -1184,7 +1184,7 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale} onFeedback={() => setFeedbackOpen(true)}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
@@ -1219,6 +1219,14 @@ export default function App() {
           </div>
         </main>
       </div>
+
+      {feedbackOpen && (
+        <FeedbackModal
+          onClose={() => setFeedbackOpen(false)}
+          currentPage={getCurrentPageLabel()}
+          currentUrl={window.location.href}
+        />
+      )}
     </div>
   );
 }
