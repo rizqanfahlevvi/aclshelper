@@ -40,7 +40,7 @@ const SIDEBAR_QUICK = [
   { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
 ];
 
-export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onOpenCpr: () => void; collapsed?: boolean }) {
+export function DesktopSidebar({ active, onChange, onFeedback, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onFeedback: () => void; collapsed?: boolean }) {
   const [query, setQuery] = React.useState('');
   const q = query.trim().toLowerCase();
   const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
@@ -119,20 +119,19 @@ export function DesktopSidebar({ active, onChange, onOpenCpr, collapsed = false 
 
       <div style={{ padding: collapsed ? '10px 8px 20px' : '10px 14px 16px', marginTop: 'auto' }}>
         {collapsed ? (
-          <button onClick={onOpenCpr}
-            style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--danger)',
-              color: '#fff', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 6px 16px rgba(255,59,48,0.35)' }}>
-            <Icons.heartFill size={20}/>
+          <button onClick={onFeedback}
+            style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--fill-tertiary)',
+              color: 'var(--label-secondary)', border: 0, cursor: 'pointer', margin: '0 auto', display: 'flex',
+              alignItems: 'center', justifyContent: 'center' }}>
+            <Icons.chat size={18} stroke={2}/>
           </button>
         ) : (
-          <button onClick={onOpenCpr} className="ios-btn block"
-            style={{ background: "var(--danger)", color: "#fff", height: 46,
-              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 700, display: "flex", gap: 8,
-              boxShadow: "0 8px 20px rgba(255,59,48,0.25)",
+          <button onClick={onFeedback}
+            style={{ background: 'var(--fill-quaternary)', color: 'var(--label-primary)', height: 46,
+              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 600, display: 'flex', gap: 8,
+              boxShadow: 'inset 0 0 0 0.5px var(--separator)', border: 0, cursor: 'pointer',
               justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-            <Icons.heartFill size={18}/> Code Blue
+            <Icons.chat size={17} stroke={2}/> Kirim Feedback
           </button>
         )}
       </div>

@@ -492,9 +492,8 @@ interface AppTopBarProps {
   onGoHome?: () => void;
   fontScale: number;
   onFontScaleChange: (v: number) => void;
-  onFeedback: () => void;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onFeedback }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange }: AppTopBarProps) {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
@@ -651,19 +650,6 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
           )}
         </div>
         <button
-          onClick={onFeedback}
-          title="Kirim feedback"
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 32, height: 32, borderRadius: 8,
-            background: 'var(--fill-tertiary)',
-            border: 0, cursor: 'pointer',
-            color: 'var(--label-secondary)',
-          }}
-          aria-label="Kirim feedback">
-          <Icons.chat size={16} stroke={2}/>
-        </button>
-        <button
           onClick={onToggleTheme}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -710,9 +696,9 @@ interface MobileSidebarProps {
   onClose: () => void;
   activeTab: string;
   onNavigate: (key: string, id?: string) => void;
-  onOpenCpr: () => void;
+  onFeedback: () => void;
 }
-function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: MobileSidebarProps) {
+function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: MobileSidebarProps) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
   const menuFiltered = q ? MOBILE_MENU.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : MOBILE_MENU;
@@ -787,12 +773,12 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onOpenCpr }: Mobi
           )}
         </nav>
         <div style={{ padding: '10px 14px 16px' }}>
-          <button onClick={() => { onOpenCpr(); onClose(); }}
-            style={{ background: 'var(--danger)', color: '#fff', height: 46, width: '100%',
-              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 700, display: 'flex', gap: 8,
-              boxShadow: '0 8px 20px rgba(255,59,48,0.25)', border: 0, cursor: 'pointer',
+          <button onClick={() => { onFeedback(); onClose(); }}
+            style={{ background: 'var(--fill-quaternary)', color: 'var(--label-primary)', height: 46, width: '100%',
+              borderRadius: 12, fontSize: '0.9375rem', fontWeight: 600, display: 'flex', gap: 8,
+              boxShadow: 'inset 0 0 0 0.5px var(--separator)', border: 0, cursor: 'pointer',
               justifyContent: 'center', alignItems: 'center' }}>
-            <Icons.heartFill size={18}/> Code Blue
+            <Icons.chat size={17} stroke={2}/> Kirim Feedback
           </button>
         </div>
       </div>
@@ -1048,7 +1034,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} onFeedback={() => setFeedbackOpen(true)}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
         </div>
 
         <MobileSidebar
@@ -1056,7 +1042,7 @@ export default function App() {
           onClose={() => setMobileSidebarOpen(false)}
           activeTab={tab}
           onNavigate={mobileNavFromSidebar}
-          onOpenCpr={() => { openCPR(); setMobileSidebarOpen(false); }}/>
+          onFeedback={() => { setFeedbackOpen(true); setMobileSidebarOpen(false); }}/>
 
         <div className="acls-mobile-content" key={screenKey}>
           {renderMobile()}
@@ -1184,14 +1170,14 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale} onFeedback={() => setFeedbackOpen(true)}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
           collapsed={sidebarCollapsed}
           active={deskView.screen}
           onChange={(screen, id) => desktopPick(screen, id)}
-          onOpenCpr={() => openCPR()}/>
+          onFeedback={() => setFeedbackOpen(true)}/>
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
