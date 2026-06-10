@@ -503,14 +503,15 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
   const categories = grouped[activeTab];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {/* Header */}
-      <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
-        <div className="t-title-2" style={{ fontWeight: 700, marginBottom: 4 }}>Kalkulator</div>
-      </div>
-
-      {/* Segmented Control */}
-      <div style={{ padding: '10px 16px 0', flexShrink: 0 }}>
+    <div style={{ paddingBottom: 40 }}>
+      {/* Sticky header — title + segmented control */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 10,
+        background: 'var(--bg-primary)',
+        borderBottom: '0.5px solid var(--separator)',
+        padding: '12px 16px 10px',
+      }}>
+        <div className="t-title-2" style={{ fontWeight: 700, marginBottom: 8 }}>Kalkulator</div>
         <div style={{
           display: 'grid', gridTemplateColumns: '1fr 1fr',
           background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3,
@@ -541,8 +542,7 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
       </div>
 
       {/* List */}
-      <div style={{ overflowY: 'auto', flex: 1, paddingBottom: 40 }}>
-        <div style={{ height: 8 }}/>
+      <div style={{ paddingTop: 8 }}>
         {Object.entries(categories).map(([cat, calcs]) => (
           <div key={cat} style={{ marginBottom: 20 }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
