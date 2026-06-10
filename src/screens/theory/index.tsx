@@ -1362,7 +1362,7 @@ const SHOCK_MAP: Record<ShockType, ShockData> = {
     management:['Hentikan perdarahan (source control)','Resusitasi kristaloid vs produk darah (PRBCs, FFP, platelets)','Damage control resuscitation: 1:1:1 ratio','Hindari vasopressor sebelum volume adekuat','Asam traneksamat <3 jam (perdarahan trauma)'],
     vasopressor:'Norepinefrin jika hipotensi refrakter post-resusitasi' },
   obstruct: { label:'Obstruktif', color:'#AF52DE',
-    co:'↓', svr:'↑', pcwp:'↑ atau ↓',
+    co:'↓', svr:'↑', pcwp:'↔',
     mechanism:'Obstruksi mekanik pada aliran darah: PE masif → RV afterload↑ → RV failure → LV underfilling → CO↓. Tamponade: tekanan perikardial↑ → kompresi semua ruang → CO↓. Tension PTX: tekanan intrathoraks↑ → kink vena cava → preload↓.',
     examples:['PE masif (RV strain, syok)','Tamponade jantung (Beck triad: hipotensi, JVD, suara jantung menjauh)','Tension pneumotoraks','Sindrom kompartemen abdominal'],
     management:['PE masif: trombolisis sistemik (alteplase 100 mg) atau embolektomi','Tamponade: perikardiosentesis segera','Tension PTX: dekompresi jarum sela 2 ICS MCL → chest tube','Target: hilangkan obstruksi sesegera mungkin'],
