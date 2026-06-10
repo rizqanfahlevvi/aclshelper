@@ -803,6 +803,10 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
   const [stepIdx, setStepIdx] = useState(0);
   const [everShockable, setEverShockable] = useState(() => initialRhythm === 'shockable');
   const [stopAlsOpen, setStopAlsOpen] = useState(false);
+  // ALS Termination of Resuscitation (AHA 2025) — 2 kriteria yang butuh input tim;
+  // 2 kriteria lain (No ROSC, No shock) diturunkan otomatis dari state resusitasi.
+  const [torNotWitnessed, setTorNotWitnessed] = useState(false);
+  const [torNoBystander, setTorNoBystander] = useState(false);
   const [pulseCheckOpen, setPulseCheckOpen] = useState(false);
   const [logModalOpen, setLogModalOpen] = useState(false);
   const [shockCharging, setShockCharging] = useState(false);
@@ -1423,7 +1427,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <div style={{ padding: "4px 20px 20px", overflowY: "auto", maxHeight: "80vh" }}>
                 <div className="t-title-2" style={{ marginBottom: 4 }}>Pertimbangkan Menghentikan ALS</div>
                 <div className="t-footnote" style={{ color: "var(--label-secondary)", marginBottom: 16, lineHeight: 1.5 }}>
-                  Keputusan tim — dokumentasikan waktu dan alasan penghentian.
+                  Berdasarkan aturan <strong>ALS Termination of Resuscitation</strong> (AHA 2025). Keputusan tetap milik tim.
                 </div>
 
                 {/* Ringkasan */}
@@ -1442,42 +1446,82 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                   ))}
                 </div>
 
-                {/* Warning jika pernah VF/pVT */}
-                {everShockable && (
-                  <div style={{ padding: "10px 12px", borderRadius: 10, background: "rgba(255,196,0,0.12)", boxShadow: "inset 0 0 0 0.5px rgba(255,196,0,0.45)", marginBottom: 14, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>⚠️</span>
-                    <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
-                      <strong>VF/pVT pernah terdeteksi</strong> selama resusitasi. Pada irama shockable, pertimbangkan upaya lebih lanjut sebelum menghentikan ALS.
-                    </span>
-                  </div>
-                )}
+                {/* Kriteria ALS TOR (AHA 2025) — checklist interaktif */}
+                {(() => {
+                  const torCriteria = [
+                    { key: 'witnessed', label: 'Henti jantung tidak disaksikan', sub: 'Tidak ada yang menyaksikan saat pasien kolaps', met: torNotWitnessed, toggle: () => setTorNotWitnessed(v => !v), auto: false },
+                    { key: 'bystander', label: 'Tidak ada CPR oleh penolong awam', sub: 'Tidak ada bystander CPR sebelum tim tiba', met: torNoBystander, toggle: () => setTorNoBystander(v => !v), auto: false },
+                    { key: 'rosc',      label: 'Tidak ada ROSC', sub: 'Belum pernah kembali sirkulasi spontan', met: true, auto: true, autoText: 'Otomatis · resusitasi masih berlangsung' },
+                    { key: 'shock',     label: 'Tidak ada syok yang diberikan', sub: 'Belum pernah defibrilasi sepanjang resusitasi', met: shocks === 0, auto: true, autoText: shocks === 0 ? `Otomatis · ${shocks} syok` : `Tidak terpenuhi · sudah ${shocks} syok` },
+                  ];
+                  const allMet = torCriteria.every(c => c.met);
 
-                {/* Kriteria AHA */}
-                <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)", marginBottom: 20 }}>
-                  <div className="t-caption-2" style={{ color: "var(--info)", fontWeight: 700, marginBottom: 8 }}>KRITERIA TERMINASI AHA 2025</div>
-                  {[
-                    "CPR berkualitas tinggi telah dilakukan sepanjang resusitasi",
-                    "Semua penyebab reversibel (Hs & Ts) telah dievaluasi dan dikoreksi",
-                    "Tidak ada respons terhadap intervensi ALS yang adekuat",
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: 8, marginTop: i > 0 ? 7 : 0, alignItems: "flex-start" }}>
-                      <span style={{ color: "var(--info)", fontWeight: 700, flexShrink: 0, fontSize: '0.8125rem' }}>✓</span>
-                      <span className="t-footnote" style={{ color: "var(--label-secondary)", lineHeight: 1.45 }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
+                  return (
+                    <>
+                      <div style={{ padding: "12px 14px", borderRadius: 12, background: "var(--fill-quaternary)", boxShadow: "inset 0 0 0 0.5px var(--separator)", marginBottom: 14 }}>
+                        <div className="t-caption-2" style={{ color: "var(--label-secondary)", fontWeight: 700, marginBottom: 4 }}>KRITERIA ALS TERMINATION OF RESUSCITATION</div>
+                        <div className="t-caption-1" style={{ color: "var(--label-tertiary)", lineHeight: 1.5, marginBottom: 10 }}>
+                          Ketuk untuk menandai kriteria yang terpenuhi. Pertimbangkan terminasi hanya bila <strong>semua</strong> kriteria terpenuhi (AHA 2025).
+                        </div>
+                        {torCriteria.map((c, i) => (
+                          <button key={c.key} onClick={c.auto ? undefined : c.toggle} disabled={c.auto}
+                            style={{ width: "100%", display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left",
+                              padding: "9px 10px", marginTop: i > 0 ? 6 : 0, borderRadius: 10, border: 0,
+                              cursor: c.auto ? "default" : "pointer",
+                              background: c.met ? "rgba(52,199,89,0.10)" : "var(--bg-tertiary)",
+                              boxShadow: c.met ? "inset 0 0 0 0.5px rgba(52,199,89,0.4)" : "inset 0 0 0 0.5px var(--separator)" }}>
+                            <span style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
+                              background: c.met ? "var(--success)" : "var(--fill-tertiary)",
+                              display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                              {c.met
+                                ? <Icons.check size={13} stroke={3} style={{ color: "#fff" }}/>
+                                : <Icons.cross size={12} stroke={2.6} style={{ color: "var(--label-tertiary)" }}/>}
+                            </span>
+                            <span style={{ flex: 1, minWidth: 0 }}>
+                              <span className="t-footnote" style={{ display: "block", fontWeight: 600, color: "var(--label-primary)", lineHeight: 1.35 }}>{c.label}</span>
+                              <span className="t-caption-2" style={{ display: "block", color: c.auto ? (c.met ? "var(--success)" : "var(--danger)") : "var(--label-secondary)", marginTop: 1, lineHeight: 1.35 }}>
+                                {c.auto ? c.autoText : c.sub}
+                              </span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
 
-                {/* Actions */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <button onClick={handleStopALS}
-                    style={{ width: "100%", height: 50, borderRadius: 14, background: "var(--label-primary)", color: "var(--bg-primary)", border: 0, cursor: "pointer", fontSize: '1rem', fontWeight: 700 }}>
-                    Akhiri Resusitasi
-                  </button>
-                  <button onClick={() => setStopAlsOpen(false)}
-                    style={{ width: "100%", height: 44, borderRadius: 14, background: "var(--fill-tertiary)", color: "var(--label-primary)", border: 0, cursor: "pointer", fontSize: '0.9375rem', fontWeight: 600 }}>
-                    Lanjutkan ALS
-                  </button>
-                </div>
+                      {/* Verdict per alur ALS TOR */}
+                      {allMet ? (
+                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(255,149,0,0.10)", boxShadow: "inset 0 0 0 0.5px rgba(255,149,0,0.4)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                          <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>⚠️</span>
+                          <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
+                            <strong>Semua kriteria terpenuhi.</strong> Pertimbangkan terminasi resusitasi. Keputusan tetap milik tim — dokumentasikan waktu dan alasan.
+                          </span>
+                        </div>
+                      ) : (
+                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                          <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>ℹ️</span>
+                          <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
+                            <strong>Ada kriteria belum terpenuhi.</strong> Lanjutkan resusitasi dan pertimbangkan transport ke fasilitas yang sesuai.
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Actions — emphasis mengikuti verdict */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <button onClick={handleStopALS}
+                          style={{ width: "100%", height: 50, borderRadius: 14,
+                            background: allMet ? "var(--danger)" : "var(--fill-tertiary)",
+                            color: allMet ? "#fff" : "var(--label-secondary)", border: 0, cursor: "pointer", fontSize: '1rem', fontWeight: 700 }}>
+                          Akhiri Resusitasi
+                        </button>
+                        <button onClick={() => setStopAlsOpen(false)}
+                          style={{ width: "100%", height: 50, borderRadius: 14,
+                            background: allMet ? "var(--fill-tertiary)" : "var(--success)",
+                            color: allMet ? "var(--label-primary)" : "#fff", border: 0, cursor: "pointer", fontSize: '0.9375rem', fontWeight: 700 }}>
+                          Lanjutkan Resusitasi
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
