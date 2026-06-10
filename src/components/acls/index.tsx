@@ -1383,18 +1383,16 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               </div>
             </button>
 
-            {elapsed >= 600 && (
-              <button onClick={() => setStopAlsOpen(true)}
-                style={{ padding: "16px 18px", borderRadius: 14, background: "rgba(142,142,147,0.10)", boxShadow: "0 0 0 1px rgba(142,142,147,0.3)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--label-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icons.cross size={20} stroke={2.4} style={{ color: "#fff" }}/>
-                </div>
-                <div>
-                  <div className="t-headline" style={{ color: "var(--label-primary)" }}>Pertimbangkan Menghentikan ALS</div>
-                  <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>Evaluasi kriteria terminasi · durasi {fmt(elapsed)}</div>
-                </div>
-              </button>
-            )}
+            <button onClick={() => setStopAlsOpen(true)}
+              style={{ padding: "16px 18px", borderRadius: 14, background: "rgba(142,142,147,0.10)", boxShadow: "0 0 0 1px rgba(142,142,147,0.3)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--label-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icons.cross size={20} stroke={2.4} style={{ color: "#fff" }}/>
+              </div>
+              <div>
+                <div className="t-headline" style={{ color: "var(--label-primary)" }}>Pertimbangkan Menghentikan ALS</div>
+                <div className="t-caption-1" style={{ color: "var(--label-secondary)", marginTop: 2 }}>Evaluasi kriteria terminasi · durasi {fmt(elapsed)}</div>
+              </div>
+            </button>
           </div>
 
           <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)" }}>
@@ -1711,6 +1709,14 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                     <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
                   </button>
                 </div>
+
+                {/* Terminasi — akses langsung tanpa menunggu rhythm check */}
+                <button onClick={() => setStopAlsOpen(true)}
+                  style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'rgba(142,142,147,0.08)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.25)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Icons.cross size={14} stroke={2.2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
+                  <span className="t-caption-1" style={{ color: 'var(--label-secondary)', fontWeight: 600, flex: 1, textAlign: 'left' }}>Pertimbangkan Menghentikan ALS</span>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)' }}>▸</span>
+                </button>
               </div>
             </div>
 
@@ -2011,6 +2017,14 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <span className="t-caption-1" style={{ fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>ROSC</span>
           </button>
         </div>
+
+        {/* Terminasi — akses langsung tanpa menunggu rhythm check */}
+        <button onClick={() => setStopAlsOpen(true)}
+          style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'rgba(142,142,147,0.08)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.25)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Icons.cross size={14} stroke={2.2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
+          <span className="t-caption-1" style={{ color: 'var(--label-secondary)', fontWeight: 600, flex: 1, textAlign: 'left' }}>Pertimbangkan Menghentikan ALS</span>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)' }}>▸</span>
+        </button>
 
       </div>
 
