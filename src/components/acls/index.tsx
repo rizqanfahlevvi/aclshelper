@@ -943,6 +943,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     addLog(`Durasi total: ${fmt(elapsed)} · Epi: ${epiDoses} dosis · Shock: ${shocks}x`, 'info');
     setRunning(false);
     setStopAlsOpen(false);
+    setPhase('terminated');
   };
 
   // Pulse check countdown — ticks tiap detik, pause timer CPR selama check
@@ -1331,6 +1332,71 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
         </div>
       )}
       </>
+    );
+  }
+
+  /* === TERMINATED PHASE — resusitasi selesai === */
+  if (phase === 'terminated') {
+    return (
+      <div className="cpr-workspace" style={{ justifyContent: 'flex-start' }}>
+        <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '0.5px solid var(--separator)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 4, background: 'var(--label-quaternary)' }}/>
+            <span className="t-caption-2" style={{ color: 'var(--label-secondary)', letterSpacing: 0.5 }}>RESUSITASI SELESAI</span>
+          </div>
+          <button onClick={onClose} className="ios-btn plain" style={{ height: 28, padding: '0 8px', fontSize: '0.875rem', color: 'var(--label-secondary)' }}>
+            Tutup
+          </button>
+        </div>
+
+        <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Status banner */}
+          <div style={{ padding: '18px 20px', borderRadius: 16, background: 'rgba(142,142,147,0.10)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.3)', display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--label-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icons.cross size={22} stroke={2.4} style={{ color: '#fff' }}/>
+            </div>
+            <div>
+              <div className="t-title-3" style={{ color: 'var(--label-primary)' }}>Resusitasi Dihentikan</div>
+              <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Keputusan tim · ALS TOR Rule (AHA 2025)</div>
+            </div>
+          </div>
+
+          {/* Ringkasan numerik */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+            {[
+              { label: 'Durasi', value: fmt(elapsed) },
+              { label: 'Epinefrin', value: `${epiDoses}×` },
+              { label: 'Defibrilasi', value: `${shocks}×` },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ padding: '12px 10px', borderRadius: 12, background: 'var(--fill-tertiary)', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.375rem', fontWeight: 700, color: 'var(--label-primary)', lineHeight: 1 }}>{value}</div>
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 4 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Log ringkasan — 3 entri terakhir */}
+          <div>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8, paddingLeft: 2 }}>LOG TERAKHIR</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {[...log].slice(-4).reverse().map((e, i) => {
+                const tc = ({ info: 'var(--label-primary)', warn: 'var(--warning)', danger: 'var(--danger)', success: 'var(--success)' } as Record<string, string>)[e.tone];
+                return (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '8px 12px', borderRadius: 10, background: 'var(--fill-quaternary)' }}>
+                    <span className="t-footnote" style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
+                    <span className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>{e.wall}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <button onClick={onClose}
+            style={{ width: '100%', height: 50, borderRadius: 14, background: 'var(--fill-secondary)', boxShadow: '0 0 0 0.5px var(--separator)', border: 0, cursor: 'pointer', fontSize: '1rem', fontWeight: 600, color: 'var(--label-primary)', marginTop: 4 }}>
+            Selesai
+          </button>
+        </div>
+      </div>
     );
   }
 
