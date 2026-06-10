@@ -22,7 +22,7 @@ import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 
-const FEEDBACK_GAS_URL = 'PASTE_YOUR_GAS_URL_HERE';
+const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
 
 function useBreakpoint() {
   const get = () => {
