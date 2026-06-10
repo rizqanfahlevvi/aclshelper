@@ -231,17 +231,16 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
       {/* Modal card */}
       <div style={{
         position: 'fixed', zIndex: 401,
-        bottom: 0, left: 0, right: 0,
-        maxHeight: '92dvh',
+        bottom: 'calc(10px + env(safe-area-inset-bottom))',
+        left: 10, right: 10,
+        maxHeight: 'calc(90dvh - env(safe-area-inset-bottom))',
         display: 'flex', flexDirection: 'column',
         background: 'var(--bg-primary)',
-        borderRadius: '20px 20px 0 0',
-        boxShadow: '0 -4px 40px rgba(0,0,0,0.22)',
+        borderRadius: 22,
+        boxShadow: '0 8px 48px rgba(0,0,0,0.28), 0 0 0 0.5px var(--separator)',
         animation: 'acls-fadeslide 260ms var(--ease-out) both',
       }}>
-        {/* Drag handle */}
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)',
-          margin: '10px auto 0', flexShrink: 0 }}/>
+
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
