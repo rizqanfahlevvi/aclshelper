@@ -626,6 +626,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'timi-ua',
+    kind: 'scoring',
     name: 'TIMI UA/NSTEMI',
     short: 'TIMI UA',
     category: 'ACS / Koroner',
@@ -681,6 +682,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'timi-stemi',
+    kind: 'scoring',
     name: 'TIMI STEMI',
     short: 'TIMI STEMI',
     category: 'ACS / Koroner',
@@ -749,6 +751,7 @@ export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   {
     key: 'wells-pe',
+    kind: 'scoring',
     name: 'Wells Score PE',
     short: 'Wells PE',
     category: 'Tromboembolisme',
