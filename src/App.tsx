@@ -231,9 +231,9 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
       {/* Modal card */}
       <div style={{
         position: 'fixed', zIndex: 401,
-        bottom: 'calc(10px + env(safe-area-inset-bottom))',
-        left: 10, right: 10,
-        maxHeight: 'calc(90dvh - env(safe-area-inset-bottom))',
+        bottom: 'calc(20px + env(safe-area-inset-bottom))',
+        left: 16, right: 16,
+        maxHeight: 'calc(88dvh - env(safe-area-inset-bottom))',
         display: 'flex', flexDirection: 'column',
         background: 'var(--bg-primary)',
         borderRadius: 22,
