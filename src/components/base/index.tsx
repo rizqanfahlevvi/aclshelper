@@ -169,6 +169,10 @@ export const Icons: Record<string, (props: IconProps) => React.ReactElement> = {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 6l12 12M18 6 6 18" />
     </svg>,
+  chat: ({ size = 24, stroke = 1.75 }) =>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>,
 };
 
 /* ------------------------------------------------------------

@@ -22,6 +22,8 @@ import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 
+const FEEDBACK_GAS_URL = 'PASTE_YOUR_GAS_URL_HERE';
+
 function useBreakpoint() {
   const get = () => {
     const w = window.innerWidth;
@@ -141,6 +143,347 @@ function MoonIcon() {
   );
 }
 
+/* ============================================================
+   FEEDBACK MODAL
+   ============================================================ */
+interface FeedbackModalProps {
+  onClose: () => void;
+  currentPage: string;
+  currentUrl: string;
+}
+
+const PRODUK_OPTIONS = [
+  'ACLS Helper',
+  'ICU Helper',
+  'ResNeo Helper',
+  'PICNIC Helper',
+  'MD Kit (Keseluruhan)',
+];
+
+const SUMBER_OPTIONS = [
+  'Media Sosial (IG/WA/dll)',
+  'Rekan / Kolega',
+  'Google / Internet',
+  'Institusi / RS',
+  'Lainnya',
+];
+
+const KONTAK_OPTIONS = ['WhatsApp', 'Instagram', 'Email', 'LinkedIn'];
+
+type FeedbackType = 'bug' | 'fitur' | 'komentar' | '';
+
+function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps) {
+  const [produk, setProduk] = useState('ACLS Helper');
+  const [nama, setNama] = useState('');
+  const [kontakType, setKontakType] = useState('WhatsApp');
+  const [kontakVal, setKontakVal] = useState('');
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [jenis, setJenis] = useState<FeedbackType>('');
+  const [sumber, setSumber] = useState('');
+  const [pesan, setPesan] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  const canSubmit = nama.trim().length > 0 && pesan.trim().length > 0 && status === 'idle';
+
+  const submit = async () => {
+    if (!canSubmit) return;
+    setStatus('sending');
+    try {
+      const params = new URLSearchParams({
+        timestamp: new Date().toISOString(),
+        produk,
+        type: jenis || '-',
+        rating: rating > 0 ? String(rating) : '-',
+        nama: nama.trim(),
+        kontak: kontakVal.trim() ? `${kontakType}: ${kontakVal.trim()}` : '-',
+        sumber: sumber || '-',
+        message: pesan.trim(),
+        page: currentPage,
+        url: currentUrl,
+      });
+      const url = FEEDBACK_GAS_URL + '?' + params.toString();
+      const res = await fetch(url, { method: 'GET', mode: 'no-cors' });
+      // no-cors always resolves — treat as success
+      void res;
+      setStatus('success');
+    } catch (_) {
+      setStatus('error');
+    }
+  };
+
+  const jenisOptions: Array<{ key: FeedbackType; label: string; icon: string }> = [
+    { key: 'bug',      label: 'Bug / Error Konten', icon: '⊘' },
+    { key: 'fitur',    label: 'Saran Fitur Baru',   icon: '✦' },
+    { key: 'komentar', label: 'Komentar Bebas',      icon: '◻' },
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 400,
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }} onClick={onClose}/>
+
+      {/* Modal card */}
+      <div style={{
+        position: 'fixed', zIndex: 401,
+        bottom: 0, left: 0, right: 0,
+        maxHeight: '92dvh',
+        display: 'flex', flexDirection: 'column',
+        background: 'var(--bg-primary)',
+        borderRadius: '20px 20px 0 0',
+        boxShadow: '0 -4px 40px rgba(0,0,0,0.22)',
+        animation: 'acls-fadeslide 260ms var(--ease-out) both',
+      }}>
+        {/* Drag handle */}
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--fill-secondary)',
+          margin: '10px auto 0', flexShrink: 0 }}/>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 18px 10px', flexShrink: 0,
+          borderBottom: '0.5px solid var(--separator)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)',
+              display: 'inline-block', flexShrink: 0 }}/>
+            <span style={{ fontWeight: 700, fontSize: '0.8125rem', letterSpacing: '0.04em',
+              color: 'var(--label-primary)' }}>FEEDBACK ACLS HELPER</span>
+          </div>
+          <button onClick={onClose} style={{ background: 'var(--fill-quaternary)', border: 0,
+            borderRadius: 8, padding: '4px 10px', cursor: 'pointer',
+            color: 'var(--label-secondary)', fontSize: '0.75rem', fontWeight: 600 }}>
+            ✕ Tutup
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: '16px 18px 32px',
+          WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'] }}>
+
+          {status === 'success' ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <div style={{ fontSize: '3rem', marginBottom: 16 }}>🎉</div>
+              <div className="t-title-3" style={{ fontWeight: 700, marginBottom: 8 }}>Terima kasih!</div>
+              <div className="t-body" style={{ color: 'var(--label-secondary)', marginBottom: 24 }}>
+                Feedback kamu sudah kami terima dan akan sangat membantu pengembangan ACLS Helper.
+              </div>
+              <button onClick={onClose} style={{
+                padding: '12px 28px', borderRadius: 12, border: 0, cursor: 'pointer',
+                background: 'var(--accent)', color: '#fff', fontWeight: 600, fontSize: '0.9375rem',
+              }}>Tutup</button>
+            </div>
+          ) : (
+            <>
+              {/* Quote */}
+              <div style={{ background: 'var(--fill-quaternary)', borderRadius: 12, padding: '14px 16px',
+                marginBottom: 16, borderLeft: '3px solid var(--accent)' }}>
+                <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.6, fontStyle: 'italic' }}>
+                  ACLS Helper dibuat berdasarkan pengalaman dan bantuan dari AI, namun dalam penyempurnaannya,
+                  saya sangat memerlukan bantuan rekan-rekan sejawat terutama dalam hal pengembangan.
+                  Berikan kritik, saran, dan ide fitur untuk ACLS Helper maupun MD Kit secara keseluruhan 🙂
+                </div>
+                <div className="t-caption-1" style={{ color: 'var(--accent)', fontWeight: 600, marginTop: 8 }}>— Rizqan</div>
+              </div>
+
+              {/* Current page chip */}
+              {currentPage && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
+                  background: 'var(--accent-tint)', borderRadius: 20, padding: '4px 12px' }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)',
+                    display: 'inline-block', flexShrink: 0 }}/>
+                  <span className="t-caption-2" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+                    ACLS Helper — {currentPage}
+                  </span>
+                </div>
+              )}
+
+              {/* Produk */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>
+                  FEEDBACK UNTUK <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
+                <select value={produk} onChange={e => setProduk(e.target.value)} style={{
+                  width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid var(--separator)',
+                  background: 'var(--fill-quaternary)', color: 'var(--label-primary)',
+                  fontSize: '0.9375rem', appearance: 'none',
+                }}>
+                  {PRODUK_OPTIONS.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+
+              {/* Nama */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>
+                  NAMA <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
+                <input
+                  value={nama} onChange={e => setNama(e.target.value)}
+                  placeholder="Nama kamu..."
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 10,
+                    border: '1px solid var(--separator)', background: 'var(--fill-quaternary)',
+                    color: 'var(--label-primary)', fontSize: '0.9375rem', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              {/* Kontak */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>
+                  KONTAK <span style={{ color: 'var(--label-quaternary)' }}>(OPSIONAL)</span>
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <select value={kontakType} onChange={e => setKontakType(e.target.value)} style={{
+                    padding: '11px 12px', borderRadius: 10, border: '1px solid var(--separator)',
+                    background: 'var(--fill-quaternary)', color: 'var(--label-primary)',
+                    fontSize: '0.9375rem', flexShrink: 0, appearance: 'none',
+                  }}>
+                    {KONTAK_OPTIONS.map(k => <option key={k} value={k}>{k}</option>)}
+                  </select>
+                  <input
+                    value={kontakVal} onChange={e => setKontakVal(e.target.value)}
+                    placeholder="No. WA / username IG / Email"
+                    style={{ flex: 1, padding: '11px 14px', borderRadius: 10,
+                      border: '1px solid var(--separator)', background: 'var(--fill-quaternary)',
+                      color: 'var(--label-primary)', fontSize: '0.9375rem', minWidth: 0 }}
+                  />
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 8 }}>
+                  BERI RATING <span style={{ color: 'var(--label-quaternary)' }}>(OPSIONAL)</span>
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {[1,2,3,4,5].map(n => (
+                    <button key={n}
+                      onClick={() => setRating(r => r === n ? 0 : n)}
+                      onMouseEnter={() => setHoverRating(n)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      style={{ background: 'none', border: 0, cursor: 'pointer', padding: 2,
+                        fontSize: '1.5rem', lineHeight: 1,
+                        filter: n <= (hoverRating || rating) ? 'none' : 'grayscale(1) opacity(0.35)',
+                        transform: n <= (hoverRating || rating) ? 'scale(1.1)' : 'scale(1)',
+                        transition: 'filter 120ms, transform 120ms' }}>
+                      ★
+                    </button>
+                  ))}
+                  {rating > 0 && (
+                    <span className="t-caption-1" style={{ color: 'var(--label-secondary)', marginLeft: 4 }}>
+                      {rating} / 5
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Jenis Feedback */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 8 }}>
+                  JENIS FEEDBACK
+                </label>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {jenisOptions.map(o => (
+                    <button key={o.key}
+                      onClick={() => setJenis(j => j === o.key ? '' : o.key)}
+                      style={{
+                        padding: '8px 14px', borderRadius: 10, border: 0, cursor: 'pointer',
+                        background: jenis === o.key ? 'var(--accent)' : 'var(--fill-quaternary)',
+                        color: jenis === o.key ? '#fff' : 'var(--label-primary)',
+                        fontSize: '0.8125rem', fontWeight: jenis === o.key ? 600 : 400,
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        transition: 'background 150ms, color 150ms',
+                        boxShadow: jenis === o.key ? 'none' : 'inset 0 0 0 0.5px var(--separator)',
+                      }}>
+                      <span style={{ fontSize: '0.9rem', opacity: 0.75 }}>{o.icon}</span>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sumber */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>
+                  DARI MANA ANDA MENEMUKAN ACLS HELPER? <span style={{ color: 'var(--label-quaternary)' }}>(OPSIONAL)</span>
+                </label>
+                <select value={sumber} onChange={e => setSumber(e.target.value)} style={{
+                  width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid var(--separator)',
+                  background: 'var(--fill-quaternary)', color: sumber ? 'var(--label-primary)' : 'var(--label-tertiary)',
+                  fontSize: '0.9375rem', appearance: 'none',
+                }}>
+                  <option value="">Pilih salah satu...</option>
+                  {SUMBER_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {/* Pesan */}
+              <div style={{ marginBottom: 20 }}>
+                <label className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 700,
+                  letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>
+                  PESAN <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
+                <textarea
+                  value={pesan} onChange={e => setPesan(e.target.value.slice(0, 1000))}
+                  placeholder="Deskripsikan feedback kamu..."
+                  rows={4}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 10,
+                    border: `1px solid ${pesan.length > 0 ? 'var(--accent)' : 'var(--separator)'}`,
+                    background: 'var(--fill-quaternary)', color: 'var(--label-primary)',
+                    fontSize: '0.9375rem', resize: 'vertical', boxSizing: 'border-box',
+                    fontFamily: 'var(--font-sans)', lineHeight: 1.5,
+                    outline: 'none', transition: 'border-color 150ms' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                  <span/>
+                  <span className="t-caption-2" style={{ color: 'var(--label-quaternary)' }}>
+                    {pesan.length} / 1000
+                  </span>
+                </div>
+              </div>
+
+              {status === 'error' && (
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)',
+                  marginBottom: 14, color: 'var(--danger)', fontSize: '0.875rem' }}>
+                  Gagal mengirim. Periksa koneksi internet dan coba lagi.
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                onClick={submit}
+                disabled={!canSubmit}
+                style={{
+                  width: '100%', padding: '14px', borderRadius: 12, border: 0,
+                  background: canSubmit ? 'var(--accent)' : 'var(--fill-secondary)',
+                  color: canSubmit ? '#fff' : 'var(--label-quaternary)',
+                  fontSize: '1rem', fontWeight: 700, cursor: canSubmit ? 'pointer' : 'not-allowed',
+                  transition: 'background 200ms, color 200ms',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}>
+                {status === 'sending' ? (
+                  <>
+                    <Icons.reset size={16} stroke={2} style={{ animation: 'acls-spin 0.8s linear infinite' }}/>
+                    Mengirim...
+                  </>
+                ) : 'Kirim →'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 interface AppTopBarProps {
   theme: string;
   onToggleTheme: () => void;
@@ -149,8 +492,9 @@ interface AppTopBarProps {
   onGoHome?: () => void;
   fontScale: number;
   onFontScaleChange: (v: number) => void;
+  onFeedback: () => void;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onFeedback }: AppTopBarProps) {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
@@ -306,6 +650,19 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
             </>
           )}
         </div>
+        <button
+          onClick={onFeedback}
+          title="Kirim feedback"
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--fill-tertiary)',
+            border: 0, cursor: 'pointer',
+            color: 'var(--label-secondary)',
+          }}
+          aria-label="Kirim feedback">
+          <Icons.chat size={16} stroke={2}/>
+        </button>
         <button
           onClick={onToggleTheme}
           style={{
@@ -609,6 +966,30 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+
+  const getCurrentPageLabel = (): string => {
+    if (bp === 'mobile' || bp === 'tablet') {
+      const f = topFrame;
+      if (f.screen === 'algo' && 'id' in f) return `Algoritma — ${f.id}`;
+      if (f.screen === 'drug' && 'id' in f) return `Obat — ${f.id}`;
+      if (f.screen === 'ekg' && 'id' in f) return `EKG — ${f.id}`;
+      if (f.screen === 'calc' && 'id' in f) return `Kalkulator — ${f.id}`;
+      if (f.screen === 'theory') return 'Teori';
+      if (f.screen === 'hsts') return 'Hs & Ts';
+      return 'Beranda';
+    } else {
+      const v = deskView;
+      if (v.screen === 'algo') return v.id ? `Algoritma — ${v.id}` : 'Algoritma';
+      if (v.screen === 'drugs') return v.id ? `Obat — ${v.id}` : 'Obat';
+      if (v.screen === 'ekg') return v.id ? `EKG — ${v.id}` : 'EKG';
+      if (v.screen === 'calc') return v.id ? `Kalkulator — ${v.id}` : 'Kalkulator';
+      if (v.screen === 'theory') return 'Teori';
+      if (v.screen === 'hsts') return 'Hs & Ts';
+      return 'Dashboard';
+    }
+  };
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   useEffect(() => { setSidebarCollapsed(bp !== 'desktop'); }, [bp]);
   useEffect(() => { navRef.current = { tab, stack, cprOpen, bp, deskView }; });
@@ -667,7 +1048,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} onFeedback={() => setFeedbackOpen(true)}/>
         </div>
 
         <MobileSidebar
@@ -701,6 +1082,14 @@ export default function App() {
 
         {fabOpen && !cprOpen && (
           <SpeedDial onClose={() => setFabOpen(false)} onPick={onSpeedDialPick}/>
+        )}
+
+        {feedbackOpen && (
+          <FeedbackModal
+            onClose={() => setFeedbackOpen(false)}
+            currentPage={getCurrentPageLabel()}
+            currentUrl={window.location.href}
+          />
         )}
 
         {!cprOpen && (
