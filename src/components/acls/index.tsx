@@ -1359,6 +1359,12 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 <div style={{ fontFamily:"var(--font-mono)", fontSize:18, fontWeight:600, fontFeatureSettings:'"tnum"', marginTop:1, color:"var(--warning)" }}>Cek irama</div>
               </div>
             </div>
+            {running && (
+              <div style={{ marginTop:10 }}>
+                <CprAnimator intubated={intubated} cprCount={cprCount} cprVenting={cprVenting}
+                  pushKey30={pushKey30} pushKeyAsync={pushKeyAsync} ventKey={ventKey}/>
+              </div>
+            )}
           </div>
 
           <div style={{ padding:"0 20px 12px", display:"flex", gap:10 }}>
