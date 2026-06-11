@@ -15,6 +15,7 @@ import {
   ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
 import { HS_TS_REFERENCES } from '../../data/tools';
+import { CALCULATORS } from '../../data/calculators';
 
 declare global {
   interface Window { MSStream?: unknown; }
@@ -218,8 +219,15 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
       const d = ACLS_DRUGS.find(x => x.key === f.key);
       return d ? { ...f, label: d.name, sub: d.category || d.class, tint: d.tint } : null;
     }
-    const r = ACLS_RHYTHMS.find(x => x.key === f.key);
-    return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+    if (f.type === 'ekg') {
+      const r = ACLS_RHYTHMS.find(x => x.key === f.key);
+      return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+    }
+    if (f.type === 'calc') {
+      const c = CALCULATORS.find(x => x.key === f.key);
+      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint } : null;
+    }
+    return null;
   }).filter(Boolean), [favs]);
 
   const switchTo = (idx: number, direction = 'right') => {
@@ -415,6 +423,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                     glyph={
                       f.type === 'algo' ? <Icons.algo size={16} stroke={2.4}/> :
                       f.type === 'drug' ? <Icons.pill size={16} stroke={2.4}/> :
+                      f.type === 'calc' ? <Icons.calculator size={16} stroke={2.4}/> :
                       <Icons.ekg size={16} stroke={2.4}/>
                     }
                     tint={f.tint}
@@ -424,7 +433,8 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                     onClick={() => {
                       if (f.type === 'algo') nav.push({ screen: 'algo', id: f.key });
                       else if (f.type === 'drug') nav.push({ screen: 'drug', id: f.key });
-                      else nav.push({ screen: 'ekg', id: f.key });
+                      else if (f.type === 'ekg') nav.push({ screen: 'ekg', id: f.key });
+                      else if (f.type === 'calc') nav.push({ screen: 'calc', id: f.key });
                     }}
                   />
                 ))}
