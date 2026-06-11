@@ -1160,7 +1160,7 @@ export default function App() {
       if (f.screen === 'defib') return <DefibScreen nav={nav} isMobile/>;
       if (f.screen === 'peds') return <PedsScreen nav={nav} isMobile/>;
       if (f.screen === 'theory') return <TheoryScreen nav={nav} isMobile/>;
-      if (f.screen === 'about') return <AboutScreen nav={nav} isMobile/>;
+      if (f.screen === 'about') return <AboutScreen nav={nav} isMobile onFeedback={() => { nav.pop(); setTimeout(() => setFeedbackOpen(true), 200); }}/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -1194,7 +1194,7 @@ export default function App() {
     if (v.screen === 'theory') return <DesktopTheory/>;
     if (v.screen === 'defib')  return <DesktopDefib/>;
     if (v.screen === 'peds')   return <DesktopPeds/>;
-    if (v.screen === 'about')  return <AboutScreen isMobile={false}/>;
+    if (v.screen === 'about')  return <AboutScreen isMobile={false} onFeedback={() => setFeedbackOpen(true)}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 

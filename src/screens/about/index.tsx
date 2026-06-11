@@ -40,9 +40,9 @@ const CHANGELOG: { version: string; label: string; date: string; current: boolea
   },
 ];
 
-interface AboutProps { isMobile?: boolean; nav?: Nav; }
+interface AboutProps { isMobile?: boolean; nav?: Nav; onFeedback?: () => void; }
 
-export function AboutScreen({ isMobile = true, nav }: AboutProps) {
+export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
   const [openVer, setOpenVer] = useState('2.0');
   const [photoErr, setPhotoErr] = useState(false);
 
@@ -155,6 +155,37 @@ export function AboutScreen({ isMobile = true, nav }: AboutProps) {
             </React.Fragment>
           ))}
         </div>
+      </div>
+
+      {/* Feedback & Support */}
+      <div style={{ padding: '0 16px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <button onClick={onFeedback}
+          style={{ padding: '14px 12px', borderRadius: 14, background: 'var(--accent-tint)',
+            border: '0.5px solid rgba(48,176,199,0.25)', cursor: 'pointer',
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, textAlign: 'left' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10,
+            background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icons.chat size={18} stroke={2} style={{ color: '#fff' }}/>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--label-primary)' }}>Feedback</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.4 }}>Bug, saran, atau komentar</div>
+          </div>
+        </button>
+        <a href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
+          style={{ textDecoration: 'none', padding: '14px 12px', borderRadius: 14,
+            background: 'rgba(255,149,0,0.10)', border: '0.5px solid rgba(255,149,0,0.25)',
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10,
+            background: 'linear-gradient(135deg,#FF9500,#E67300)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icons.coffee size={18} stroke={2} style={{ color: '#fff' }}/>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--label-primary)' }}>Dukung</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.4 }}>Saweria — traktir kopi ☕</div>
+          </div>
+        </a>
       </div>
 
       {/* Changelog */}
