@@ -13,6 +13,7 @@ import {
   ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA,
 } from '../../data';
 import { HS_TS_REFERENCES } from '../../data/tools';
+import { CALCULATORS } from '../../data/calculators';
 
 /* ============================================================
    Sidebar
@@ -26,26 +27,37 @@ const SIDEBAR_NAV = [
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",       icon: Icons.clipboard },
   { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor",  icon: Icons.calculator },
 ];
-const SIDEBAR_QUICK = [
-  { key: "bhjd",        label: "BHJD Dewasa",     tint: "var(--accent)" },
-  { key: "vfvt",        label: "VF / pVT",         tint: "var(--danger)" },
-  { key: "pea",         label: "PEA / Asistol",    tint: "var(--info)" },
-  { key: "brady",       label: "Bradikardi",       tint: "var(--warning)" },
-  { key: "tachy",       label: "Takikardi",        tint: "var(--tint-neuro)" },
-  { key: "ska",         label: "SKA / STEMI",      tint: "var(--tint-vital)" },
-  { key: "opioid",      label: "Overdosis Opioid", tint: "var(--tint-neuro)" },
-  { key: "anaphylaxis", label: "Anafilaksis",      tint: "var(--danger)" },
-  { key: "pregnancy",   label: "Henti Kehamilan",  tint: "var(--tint-vital)" },
-  { key: "drowning",    label: "Tenggelam",        tint: "var(--info)" },
-  { key: "hypothermia", label: "Hipotermia Berat", tint: "var(--accent)" },
-];
+function resolveFav(f: { type: string; key: string }) {
+  if (f.type === 'algo') {
+    const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
+    return a ? { label: a.label, tint: a.tint, screen: 'algo' } : null;
+  }
+  if (f.type === 'drug') {
+    const d = ACLS_DRUGS.find(x => x.key === f.key);
+    return d ? { label: d.name, tint: d.tint, screen: 'drugs' } : null;
+  }
+  if (f.type === 'ekg') {
+    const r = ACLS_RHYTHMS.find(x => x.key === f.key);
+    return r ? { label: r.name, tint: r.tint, screen: 'ekg' } : null;
+  }
+  if (f.type === 'calc') {
+    const c = CALCULATORS.find(x => x.key === f.key);
+    return c ? { label: c.name, tint: c.tint, screen: 'calc' } : null;
+  }
+  return null;
+}
 
 export function DesktopSidebar({ active, onChange, onFeedback, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onFeedback: () => void; collapsed?: boolean }) {
   const [query, setQuery] = React.useState('');
+  const { favs } = useFavorites();
   const q = query.trim().toLowerCase();
   const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
-  const quickItems = q ? SIDEBAR_QUICK.filter(it => it.label.toLowerCase().includes(q)) : SIDEBAR_QUICK;
-  const noResults = q && navItems.length === 0 && quickItems.length === 0;
+  const favResolved = useMemo(() =>
+    favs.map(f => { const info = resolveFav(f); return info ? { ...f, ...info } : null; }).filter((x): x is { type: string; key: string; label: string; tint: string; screen: string } => x !== null),
+    [favs]
+  );
+  const favFiltered = q ? favResolved.filter(f => f.label.toLowerCase().includes(q)) : favResolved;
+  const noResults = q && navItems.length === 0 && favFiltered.length === 0;
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
       {collapsed ? (
@@ -102,15 +114,21 @@ export function DesktopSidebar({ active, onChange, onFeedback, collapsed = false
             {noResults && (
               <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
             )}
-            {quickItems.length > 0 && (
+            {!noResults && (
               <>
-                <div className="t-caption-2" style={{ color: "var(--label-secondary)", padding: "14px 18px 4px" }}>AKSES CEPAT</div>
-                {quickItems.map(it => (
-                  <button key={it.key} onClick={() => onChange("algo", it.key)} className="acls-sidebar-item">
-                    <span style={{ width: 8, height: 8, borderRadius: 4, background: it.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
-                    <span>{it.label}</span>
-                  </button>
-                ))}
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>FAVORIT</div>
+                {favFiltered.length === 0 ? (
+                  <div style={{ padding: '6px 18px 10px', color: 'var(--label-quaternary)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                    Ketuk ikon 🔖 di algoritma, obat, EKG, atau kalkulator untuk menyimpan
+                  </div>
+                ) : (
+                  favFiltered.map(f => (
+                    <button key={f.type + f.key} onClick={() => onChange(f.screen, f.key)} className="acls-sidebar-item">
+                      <span style={{ width: 8, height: 8, borderRadius: 4, background: f.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.label}</span>
+                    </button>
+                  ))
+                )}
               </>
             )}
           </>
@@ -411,14 +429,21 @@ function DesktopFavSection({ onPick }: { onPick: (type: string, id?: string) => 
       const d = ACLS_DRUGS.find(x => x.key === f.key);
       return d ? { ...f, label: d.name, sub: d.class, tint: d.tint } : null;
     }
-    const r = ACLS_RHYTHMS.find(x => x.key === f.key);
-    return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+    if (f.type === 'ekg') {
+      const r = ACLS_RHYTHMS.find(x => x.key === f.key);
+      return r ? { ...f, label: r.name, sub: r.short || r.severity, tint: r.tint } : null;
+    }
+    if (f.type === 'calc') {
+      const c = CALCULATORS.find(x => x.key === f.key);
+      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint } : null;
+    }
+    return null;
   }).filter(Boolean), [favs]);
 
   const typeLabel = (type: string) =>
-    type === 'algo' ? 'Algoritma' : type === 'drug' ? 'Obat' : 'EKG';
+    type === 'algo' ? 'Algoritma' : type === 'drug' ? 'Obat' : type === 'ekg' ? 'EKG' : 'Kalkulator';
   const typeTarget = (type: string) =>
-    type === 'algo' ? 'algo' : type === 'drug' ? 'drugs' : 'ekg';
+    type === 'algo' ? 'algo' : type === 'drug' ? 'drugs' : type === 'ekg' ? 'ekg' : 'calc';
 
   return (
     <div style={{ marginTop: 20 }} className="acls-card-lg">
@@ -433,7 +458,7 @@ function DesktopFavSection({ onPick }: { onPick: (type: string, id?: string) => 
         <div style={{ padding: "16px 0", textAlign: "center" }}>
           <div className="t-callout" style={{ color: "var(--label-tertiary)", marginBottom: 4 }}>Belum ada favorit</div>
           <div className="t-caption-1" style={{ color: "var(--label-quaternary)" }}>
-            Ketuk ikon 🔖 di algoritma, obat, atau ritme EKG untuk menyimpan
+            Ketuk ikon 🔖 di algoritma, obat, EKG, atau kalkulator untuk menyimpan
           </div>
         </div>
       ) : (

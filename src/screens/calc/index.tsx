@@ -3,6 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
+import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
 /* ============================================================
@@ -613,6 +614,7 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
    ============================================================ */
 export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
   const calc = CALCULATORS.find(c => c.key === id);
+  const { isFav: mIsFav, toggle: mToggle } = useFavorites();
 
   const initValues = useMemo(() => {
     if (!calc) return {};
@@ -662,10 +664,18 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           }}>
             <Icons.calculator size={24} stroke={1.8} style={{ color: '#fff' }}/>
           </div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <h2 className="t-title-2" style={{ margin: 0, fontWeight: 700 }}>{calc.name}</h2>
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
           </div>
+          <button onClick={() => mToggle('calc', calc.key)} style={{
+            width: 36, height: 36, borderRadius: 10, border: 0, cursor: 'pointer', flexShrink: 0,
+            background: mIsFav('calc', calc.key) ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+            color: mIsFav('calc', calc.key) ? 'var(--accent)' : 'var(--label-secondary)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 180ms',
+          }}>
+            <Icons.bookmark size={17} stroke={2}/>
+          </button>
         </div>
       </div>
 
@@ -785,6 +795,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
   const isAbg = calc.key === 'abg';
   const isRsi = calc.key === 'rsi';
   const isStructured = calc.key === 'vent' || calc.key === 'heparin';
+  const { isFav: dIsFav, toggle: dToggle } = useFavorites();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -911,11 +922,19 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             }}>
               <Icons.calculator size={26} stroke={1.8} style={{ color: '#fff' }}/>
             </div>
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KALKULATOR KLINIS</div>
               <h2 className="t-title-1" style={{ margin: '2px 0 2px' }}>{calc.name}</h2>
               <div className="t-callout" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
             </div>
+            <button onClick={() => dToggle('calc', calc.key)} style={{
+              width: 36, height: 36, borderRadius: 10, border: 0, cursor: 'pointer', flexShrink: 0,
+              background: dIsFav('calc', calc.key) ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+              color: dIsFav('calc', calc.key) ? 'var(--accent)' : 'var(--label-secondary)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 180ms',
+            }}>
+              <Icons.bookmark size={17} stroke={2}/>
+            </button>
           </div>
 
           {isAbg ? (
