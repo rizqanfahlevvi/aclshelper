@@ -915,4 +915,113 @@ export const CALCULATORS: Calculator[] = [
       'Protokol institusi dapat berbeda — selalu verifikasi dengan nomogram lokal',
     ],
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 16. Fluid Resuscitation                                              */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'fluid',
+    kind: 'calculator',
+    name: 'Resusitasi Cairan',
+    short: 'Cairan',
+    category: 'Kritis',
+    tint: '#30B0C7',
+    description: 'Parkland formula, sepsis bolus, dan maintenance pediatrik',
+    source: 'AHA/ATLS/ILCOR Guidelines',
+    fields: [
+      {
+        key: 'mode',
+        label: 'Mode Kalkulasi',
+        type: 'select',
+        defaultValue: 'parkland',
+        options: [
+          { label: 'Luka Bakar — Parkland', value: 'parkland' },
+          { label: 'Sepsis — Bolus 30 mL/kg', value: 'sepsis' },
+          { label: 'Maintenance Pediatrik — Holliday-Segar', value: 'maintenance' },
+        ],
+      },
+      { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 1, max: 200, step: 1, defaultValue: 70 },
+      { key: 'tbsa', label: 'Luas Permukaan Bakar (%) — khusus Parkland', type: 'number', unit: '%', min: 1, max: 99, step: 1, defaultValue: 20 },
+    ],
+    compute: (vals) => {
+      const mode = String(vals.mode || 'parkland');
+      const weight = Number(vals.weight) || 70;
+      const tbsa = Number(vals.tbsa) || 20;
+
+      if (mode === 'parkland') {
+        const total24h = 4 * weight * tbsa;
+        const first8h = total24h / 2;
+        const next16h = total24h / 2;
+        const rate8h = Math.round(first8h / 8);
+        const rate16h = Math.round(next16h / 16);
+        return {
+          score: `${total24h} mL / 24 jam`,
+          label: 'Ringer Laktat',
+          color: '#30B0C7',
+          detail: `8 jam pertama: ${first8h} mL (${rate8h} mL/jam)\n16 jam berikutnya: ${next16h} mL (${rate16h} mL/jam)\nCatatan: Hitung dari waktu cedera, bukan waktu masuk`,
+        };
+      }
+
+      if (mode === 'sepsis') {
+        const bolus = 30 * weight;
+        return {
+          score: `${bolus} mL bolus`,
+          label: 'NaCl 0.9% / RL',
+          color: '#30B0C7',
+          detail: `Berikan dalam 30 menit\nNilai ulang setelah bolus (tanda perfusi, urin output)\nUlangi jika masih ada tanda hipoperfusi`,
+        };
+      }
+
+      // maintenance — Holliday-Segar 4-2-1 rule
+      let hourly: number;
+      if (weight <= 10) {
+        hourly = 4 * weight;
+      } else if (weight <= 20) {
+        hourly = 40 + 2 * (weight - 10);
+      } else {
+        hourly = 60 + 1 * (weight - 20);
+      }
+      const daily = hourly * 24;
+      return {
+        score: `${hourly} mL/jam`,
+        label: 'Cairan Maintenance',
+        color: '#30B0C7',
+        detail: `Per 24 jam: ${daily} mL\nFormula: 4 mL/kg untuk 10 kg pertama + 2 mL/kg untuk 10 kg berikutnya + 1 mL/kg untuk sisanya\nKoreksi berdasarkan kondisi klinis`,
+      };
+    },
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 17. CPP — Cerebral Perfusion Pressure                               */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'cpp',
+    kind: 'calculator',
+    name: 'CPP — Tekanan Perfusi Serebral',
+    short: 'CPP',
+    category: 'Neuro',
+    tint: '#AF52DE',
+    description: 'Cerebral Perfusion Pressure = MAP − ICP',
+    source: 'Neurocritical Care Guidelines',
+    fields: [
+      { key: 'sbp', label: 'Tekanan Sistolik', type: 'number', unit: 'mmHg', min: 40, max: 300, step: 1, defaultValue: 120 },
+      { key: 'dbp', label: 'Tekanan Diastolik', type: 'number', unit: 'mmHg', min: 0, max: 200, step: 1, defaultValue: 80 },
+      { key: 'icp', label: 'ICP (Tekanan Intrakranial)', type: 'number', unit: 'mmHg', min: 0, max: 80, step: 1, defaultValue: 10 },
+    ],
+    compute: (vals) => {
+      const sbp = Number(vals.sbp) || 120;
+      const dbp = Number(vals.dbp) || 80;
+      const icp = Number(vals.icp) || 10;
+      const map = (sbp + 2 * dbp) / 3;
+      const cpp = map - icp;
+      const colorHex = cpp >= 60 ? '#34C759' : cpp >= 50 ? '#FF9500' : '#FF3B30';
+      const label = cpp >= 60 ? 'CPP Adekuat' : cpp >= 50 ? 'CPP Batas' : 'CPP Kritis — Risiko Iskemia Serebral';
+      return {
+        score: `${Math.round(cpp)} mmHg`,
+        label,
+        color: colorHex,
+        detail: `MAP: ${Math.round(map)} mmHg\nICP: ${icp} mmHg\nCPP = MAP − ICP = ${Math.round(map)} − ${icp} = ${Math.round(cpp)} mmHg\n\nTarget CPP: 60–70 mmHg (TBI), >50 mmHg (minimum)\nJika CPP rendah: ↑ MAP (vasopresor) atau ↓ ICP (head elevation, osmotherapy, drainage)`,
+      };
+    },
+  },
 ];

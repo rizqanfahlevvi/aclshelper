@@ -25,6 +25,7 @@ import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 import { AboutScreen } from './screens/about';
+import { SearchModal } from './screens/search';
 
 const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
 
@@ -503,8 +504,9 @@ interface AppTopBarProps {
   onGoHome?: () => void;
   fontScale: number;
   onFontScaleChange: (v: number) => void;
+  onSearch?: () => void;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onSearch }: AppTopBarProps) {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
@@ -582,6 +584,21 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
         }}>
           {time}
         </span>
+        {onSearch && (
+          <button onClick={onSearch} title="Pencarian global (Ctrl+K)"
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32, borderRadius: 8,
+              background: 'var(--fill-tertiary)',
+              border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+            }}
+            aria-label="Pencarian global">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        )}
         <button
           onClick={checkUpdate}
           title={updateState === 'checking' ? 'Memeriksa pembaruan...' : 'Cek pembaruan'}
@@ -1105,8 +1122,44 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
+  const [searchOpen, setSearchOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [sessionPopupOpen, setSessionPopupOpen] = useState(false);
+
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, []);
+
+  const handleSearchNavigate = (type: string, id: string) => {
+    setSearchOpen(false);
+    if (bp === 'desktop') {
+      if (type === 'algo')  desktopPick('algo', id);
+      if (type === 'drug')  desktopPick('drugs', id);
+      if (type === 'ekg')   desktopPick('ekg', id);
+      if (type === 'calc')  desktopPick('calc', id);
+    } else {
+      if (type === 'algo') {
+        setTab('algo');
+        setStack(s => ({ ...s, algo: [{ screen: 'algoList' }, { screen: 'algo', id }] }));
+      } else if (type === 'drug') {
+        setTab('drugs');
+        setStack(s => ({ ...s, drugs: [{ screen: 'drugList' }, { screen: 'drug', id }] }));
+      } else if (type === 'ekg') {
+        setTab('tools');
+        setStack(s => ({ ...s, tools: [{ screen: 'ekgList' }, { screen: 'ekg', id }] }));
+      } else if (type === 'calc') {
+        setTab('home');
+        setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calc', id }] }));
+      }
+    }
+  };
   useEffect(() => {
     if (sessionStorage.getItem('acls_session_popup_shown')) return;
     const t = setTimeout(() => setSessionPopupOpen(true), 4000);
@@ -1205,7 +1258,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} onSearch={() => setSearchOpen(true)}/>
         </div>
 
         <MobileSidebar
@@ -1248,6 +1301,8 @@ export default function App() {
             currentUrl={window.location.href}
           />
         )}
+
+        <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onNavigate={handleSearchNavigate}/>
 
         {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
 
@@ -1345,7 +1400,7 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale} onSearch={() => setSearchOpen(true)}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
@@ -1388,6 +1443,7 @@ export default function App() {
           currentUrl={window.location.href}
         />
       )}
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onNavigate={handleSearchNavigate}/>
       {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
     </div>
   );
