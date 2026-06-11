@@ -785,6 +785,106 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: Mob
   );
 }
 
+/* ============================================================
+   SESSION FEEDBACK POPUP
+   ============================================================ */
+function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean) => void }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 500,
+      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      padding: '0 0 calc(env(safe-area-inset-bottom) + 16px)',
+      background: 'rgba(0,0,0,0.32)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      animation: 'acls-fadein 220ms ease both',
+    }}>
+      <div style={{
+        width: '100%', maxWidth: 480,
+        background: 'var(--material-thick)',
+        backdropFilter: 'var(--blur-strong)',
+        WebkitBackdropFilter: 'var(--blur-strong)',
+        borderRadius: '22px 22px 18px 18px',
+        border: '0.5px solid var(--separator)',
+        boxShadow: 'var(--shadow-modal)',
+        overflow: 'hidden',
+        animation: 'acls-sheet-up 300ms var(--ease-out) both',
+      }}>
+        {/* Handle */}
+        <div style={{ width: 36, height: 5, borderRadius: 3, background: 'var(--label-quaternary)', margin: '12px auto 0' }}/>
+
+        {/* Body */}
+        <div style={{ padding: '16px 20px 8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 13, flexShrink: 0,
+              background: 'linear-gradient(135deg, var(--accent), #5856D6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(0,122,255,0.35)',
+            }}>
+              <Icons.heartFill size={22} style={{ color: '#fff' }}/>
+            </div>
+            <div>
+              <div className="t-title-3" style={{ fontWeight: 700 }}>Hei, sebentar! 👋</div>
+              <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>
+                Bantu ACLS Helper jadi lebih baik
+              </div>
+            </div>
+          </div>
+          <div className="t-callout" style={{ color: 'var(--label-secondary)', lineHeight: 1.55, marginBottom: 16 }}>
+            Apakah ada masukan, bug, atau fitur yang ingin kamu usulkan? Atau kamu bisa mendukung pengembangan aplikasi ini — gratis untuk semua tenaga kesehatan 🙏
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+            <button
+              onClick={() => onClose(true)}
+              style={{
+                width: '100%', padding: '13px 16px', borderRadius: 14, border: 'none',
+                background: 'var(--accent)', color: '#fff', cursor: 'pointer',
+                fontSize: '0.9375rem', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: '0 4px 14px rgba(0,122,255,0.30)',
+              }}
+            >
+              <Icons.chat size={17} stroke={2} style={{ color: '#fff' }}/>
+              Beri Feedback
+            </button>
+            <a
+              href="https://saweria.co/rizqanfahlevvi"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onClose()}
+              style={{
+                width: '100%', padding: '13px 16px', borderRadius: 14, border: 'none',
+                background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff', cursor: 'pointer',
+                fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: '0 4px 14px rgba(255,149,0,0.30)',
+              }}
+            >
+              <Icons.coffee size={17} stroke={2} style={{ color: '#fff' }}/>
+              Dukung Pengembang
+            </a>
+          </div>
+
+          {/* Dismiss */}
+          <button
+            onClick={() => onClose()}
+            style={{
+              width: '100%', padding: '10px', border: 'none', background: 'none',
+              cursor: 'pointer', color: 'var(--label-tertiary)', fontSize: '0.875rem',
+              fontWeight: 500, marginBottom: 4,
+            }}
+          >
+            Nanti saja
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const bp = useBreakpoint();
   const isMobile = bp === 'mobile';
@@ -964,6 +1064,17 @@ export default function App() {
   }, []);
 
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [sessionPopupOpen, setSessionPopupOpen] = useState(false);
+  useEffect(() => {
+    if (sessionStorage.getItem('acls_session_popup_shown')) return;
+    const t = setTimeout(() => setSessionPopupOpen(true), 4000);
+    return () => clearTimeout(t);
+  }, []);
+  const closeSessionPopup = (andOpenFeedback = false) => {
+    sessionStorage.setItem('acls_session_popup_shown', '1');
+    setSessionPopupOpen(false);
+    if (andOpenFeedback) setTimeout(() => setFeedbackOpen(true), 200);
+  };
 
   const getCurrentPageLabel = (): string => {
     if (bp === 'mobile' || bp === 'tablet') {
@@ -1093,6 +1204,8 @@ export default function App() {
             currentUrl={window.location.href}
           />
         )}
+
+        {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
 
         {!cprOpen && (
           <>
@@ -1231,6 +1344,7 @@ export default function App() {
           currentUrl={window.location.href}
         />
       )}
+      {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
     </div>
   );
 }
