@@ -24,6 +24,7 @@ import {
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
+import { AboutScreen } from './screens/about';
 
 const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
 
@@ -72,6 +73,7 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'vaso')     return '/vaso';
   if (screen === 'rosc')     return '/rosc';
   if (screen === 'theory')   return '/theory';
+  if (screen === 'about')    return '/about';
   return '/';
 }
 
@@ -88,6 +90,7 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'vaso':   return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
     case 'rosc':   return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
     case 'theory': return { tab: 'home',  frame: { screen: 'theory' },                                      deskScreen: 'theory',    deskId: null        };
+    case 'about':  return { tab: 'home',  frame: { screen: 'about'  },                                      deskScreen: 'about',     deskId: null        };
     default:       return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
@@ -684,6 +687,7 @@ const MOBILE_MENU = [
   { key: 'theory', label: 'Teori',       desc: 'Sistem konduksi jantung',      icon: Icons.activity },
   { key: 'hsts',   label: 'Hs & Ts',     desc: '10 penyebab reversibel',       icon: Icons.clipboard },
   { key: 'calc',   label: 'Kalkulator',  desc: '13 kalkulator klinis',         icon: Icons.calculator },
+  { key: 'about',  label: 'Tentang',     desc: 'Versi & changelog',            icon: Icons.info },
 ];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
@@ -1022,6 +1026,10 @@ export default function App() {
       window.history.pushState(null, '', '#/theory');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'theory' }] }));
+    } else if (key === 'about') {
+      window.history.pushState(null, '', '#/about');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'about' }] }));
     } else if (key === 'rosc') {
       window.history.pushState(null, '', '#/rosc');
       setTab('home');
@@ -1152,6 +1160,7 @@ export default function App() {
       if (f.screen === 'defib') return <DefibScreen nav={nav} isMobile/>;
       if (f.screen === 'peds') return <PedsScreen nav={nav} isMobile/>;
       if (f.screen === 'theory') return <TheoryScreen nav={nav} isMobile/>;
+      if (f.screen === 'about') return <AboutScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -1185,6 +1194,7 @@ export default function App() {
     if (v.screen === 'theory') return <DesktopTheory/>;
     if (v.screen === 'defib')  return <DesktopDefib/>;
     if (v.screen === 'peds')   return <DesktopPeds/>;
+    if (v.screen === 'about')  return <AboutScreen isMobile={false}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
