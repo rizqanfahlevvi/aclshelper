@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 
-const CREATOR_PHOTO = '/about/rizqan.jpg';
+const CREATOR_PHOTO = '/about/rizqan.png';
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/rizqanfahlevvi';
 
