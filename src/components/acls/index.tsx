@@ -875,21 +875,39 @@ function CprAnimator({
 }) {
   if (!intubated) {
     if (cprVenting) {
+      const lungPath = (
+        <>
+          <path d="M12 4v7M9.5 6h5"/>
+          <path d="M6 9.5C4.5 9.5 3 10.7 3 14v3a3.5 3.5 0 0 0 6.5 1.8l.5-2.3V9.5C10 8.5 9 8 8.5 8S6 9 6 9.5z"/>
+          <path d="M18 9.5C19.5 9.5 21 10.7 21 14v3a3.5 3.5 0 0 1-6.5 1.8L14 16.5V9.5C14 8.5 15 8 15.5 8S18 9 18 9.5z"/>
+        </>
+      );
       return (
-        <div style={{ borderRadius: 14, padding: '16px 16px', background: 'rgba(52,199,89,0.10)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.4)', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.12em', marginBottom: 8 }}>
+        <div style={{ borderRadius: 14, padding: '14px 16px', background: 'rgba(52,199,89,0.10)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.4)', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.10em', marginBottom: 10 }}>
             VENTILASI 2×
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-            <svg className="acls-lung-vent" width="56" height="56" viewBox="0 0 24 24" fill="none"
-              stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 4v7M9.5 6h5"/>
-              <path d="M6 9.5C4.5 9.5 3 10.7 3 14v3a3.5 3.5 0 0 0 6.5 1.8l.5-2.3V9.5C10 8.5 9 8 8.5 8S6 9 6 9.5z"/>
-              <path d="M18 9.5C19.5 9.5 21 10.7 21 14v3a3.5 3.5 0 0 1-6.5 1.8L14 16.5V9.5C14 8.5 15 8 15.5 8S18 9 18 9.5z"/>
-            </svg>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 10 }}>
+            {/* Napas ke-1 — langsung */}
+            <div style={{ textAlign: 'center' }}>
+              <svg className="acls-lung-vent" width="52" height="52" viewBox="0 0 24 24" fill="none"
+                stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                {lungPath}
+              </svg>
+              <div className="t-caption-2" style={{ color: '#34C759', fontWeight: 700, marginTop: 2 }}>1</div>
+            </div>
+            {/* Napas ke-2 — delay 1.4 detik */}
+            <div style={{ textAlign: 'center' }}>
+              <svg className="acls-lung-vent" width="52" height="52" viewBox="0 0 24 24" fill="none"
+                stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+                style={{ animationDelay: '1.4s', opacity: 0.35 }}>
+                {lungPath}
+              </svg>
+              <div className="t-caption-2" style={{ color: '#34C759', fontWeight: 700, marginTop: 2 }}>2</div>
+            </div>
           </div>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
-            Berikan 2 napas lambat · ~1 detik tiap napas
+            ~1 detik tiap napas · dada tampak mengembang
           </div>
         </div>
       );
