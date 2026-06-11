@@ -506,6 +506,437 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
 }
 
 /* ============================================================
+   DefibScreen — Panduan Defibrilasi & Kardioversi
+   ============================================================ */
+const DEFIB_RHYTHMS = [
+  {
+    key: 'af',
+    label: 'Fibrilasi Atrium',
+    energy: { bifasik: '100–200 J', monofasik: '200 J' },
+    note: 'Titrasi naik jika tidak berhasil konversi',
+    color: '#007AFF',
+  },
+  {
+    key: 'flutter',
+    label: 'Atrial Flutter',
+    energy: { bifasik: '50–100 J', monofasik: '100–200 J' },
+    note: 'Umumnya lebih mudah dikonversi, energi lebih rendah',
+    color: '#30B0C7',
+  },
+  {
+    key: 'svt',
+    label: 'SVT',
+    energy: { bifasik: '50–100 J', monofasik: '100–200 J' },
+    note: 'Eskalasi energi jika tidak berhasil',
+    color: '#5856D6',
+  },
+  {
+    key: 'vt-mono',
+    label: 'VT Monomorfik',
+    energy: { bifasik: '100 J', monofasik: '200 J' },
+    note: 'Pasien stabil → pertimbangkan obat dulu; tidak stabil → kardioversi segera',
+    color: '#FF9500',
+  },
+  {
+    key: 'tdp',
+    label: 'TdP / VT Polimorfik',
+    energy: { bifasik: 'TIDAK SYNC', monofasik: 'TIDAK SYNC' },
+    note: '⚠ Perlakukan seperti VF — defibrilasi asinkron',
+    color: '#FF3B30',
+    isVf: true,
+  },
+];
+
+const DEFIB_STEPS_DEFIB = [
+  'Pad/paddle anterolateral — gel konduktif cukup',
+  'Pilih energi (lihat tabel di atas)',
+  'Charge — lanjutkan CPR saat charging',
+  '"Semua menjauh!" — konfirmasi visual',
+  'Deliver — segera lanjutkan CPR 2 menit',
+];
+const DEFIB_STEPS_CARDIO = [
+  'Pad/paddle anterolateral — gel konduktif cukup',
+  'Aktifkan mode SYNC — verifikasi marker pada gelombang R',
+  'Pilih energi (lihat tabel di atas)',
+  'Charge',
+  '"Semua menjauh!" — tahan tombol hingga discharge (ada jeda setelah R)',
+];
+
+export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }) {
+  const [tab, setTab] = useState<'defib' | 'cardio'>('defib');
+  const [isPeds, setIsPeds] = useState(false);
+  const [selectedRhythm, setSelectedRhythm] = useState<string | null>(null);
+
+  const steps = tab === 'defib' ? DEFIB_STEPS_DEFIB : DEFIB_STEPS_CARDIO;
+
+  return (
+    <div style={{ paddingBottom: 40 }}>
+      {isMobile && nav && (
+        <div style={{ padding: '8px 16px 0' }}>
+          <button onClick={nav.pop} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
+            <Icons.chevL size={16} stroke={2.5}/>
+            <span className="t-callout" style={{ fontWeight: 500 }}>Kembali</span>
+          </button>
+        </div>
+      )}
+
+      {/* Sticky header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg-primary)', borderBottom: '0.5px solid var(--separator)', padding: '10px 16px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,59,48,0.3)', flexShrink: 0 }}>
+            <Icons.boltFill size={20} style={{ color: '#fff' }}/>
+          </div>
+          <div>
+            <div className="t-title-2" style={{ fontWeight: 700 }}>Panduan Defibrilasi</div>
+            <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Energi per ritme · AHA 2020</div>
+          </div>
+        </div>
+        {/* Tab + Dewasa/Peds row */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3, flex: 1 }}>
+            {([{ key: 'defib', label: 'Defibrilasi' }, { key: 'cardio', label: 'Kardioversi' }] as const).map(t => (
+              <button key={t.key} onClick={() => { setTab(t.key); setSelectedRhythm(null); }}
+                style={{ height: 32, borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8125rem', fontWeight: 600, transition: 'all 150ms',
+                  background: tab === t.key ? 'var(--bg-primary)' : 'transparent',
+                  color: tab === t.key ? 'var(--label-primary)' : 'var(--label-secondary)',
+                  boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none' }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3, gap: 2 }}>
+            {(['Dewasa', 'Anak'] as const).map(p => (
+              <button key={p} onClick={() => setIsPeds(p === 'Anak')}
+                style={{ height: 32, padding: '0 10px', borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.75rem', fontWeight: 600, transition: 'all 150ms', whiteSpace: 'nowrap',
+                  background: (isPeds ? 'Anak' : 'Dewasa') === p ? 'var(--bg-primary)' : 'transparent',
+                  color: (isPeds ? 'Anak' : 'Dewasa') === p ? 'var(--label-primary)' : 'var(--label-secondary)',
+                  boxShadow: (isPeds ? 'Anak' : 'Dewasa') === p ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none' }}>
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '12px 16px 0' }}>
+        {/* ── DEFIBRILASI tab ── */}
+        {tab === 'defib' && (
+          <>
+            {!isPeds ? (
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,59,48,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,59,48,0.2)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#FF3B30', marginBottom: 6 }}>VF / pVT — ASINKRON</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>BIFASIK</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>120–200 J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Sesuai rekomendasi alat</div>
+                  </div>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MONOFASIK</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>360 J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Dosis tetap, ulangi 360 J</div>
+                  </div>
+                </div>
+                <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Ulangi setiap 2 menit jika tidak ada ROSC. Eskalasi energi jika bifasik gagal.</div>
+              </div>
+            ) : (
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,59,48,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,59,48,0.2)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#FF3B30', marginBottom: 8 }}>DEFIBRILASI PEDIATRIK — ASINKRON</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>2 J/kg</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Syok pertama</div>
+                  </div>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>4 J/kg</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Maks 10 J/kg atau dosis dewasa</div>
+                  </div>
+                </div>
+                <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Bifasik atau monofasik. Gunakan pad pediatrik jika tersedia (&lt;10 kg).</div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── KARDIOVERSI tab ── */}
+        {tab === 'cardio' && (
+          <>
+            <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,149,0,0.10)', boxShadow: 'inset 0 0 0 1px rgba(255,149,0,0.25)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: '1rem' }}>⚠</span>
+              <span className="t-caption-1" style={{ color: 'var(--label-primary)', fontWeight: 600 }}>MODE SINKRON harus aktif — verifikasi sync marker pada gelombang R sebelum discharge</span>
+            </div>
+
+            {!isPeds ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                {DEFIB_RHYTHMS.map(r => (
+                  <button key={r.key} onClick={() => setSelectedRhythm(sel => sel === r.key ? null : r.key)}
+                    style={{ padding: '12px 14px', borderRadius: 12, border: 0, cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'all 150ms',
+                      background: selectedRhythm === r.key ? r.color + '12' : 'var(--bg-primary)',
+                      boxShadow: selectedRhythm === r.key ? `inset 0 0 0 1.5px ${r.color}55` : 'inset 0 0 0 0.5px var(--separator)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="t-callout" style={{ fontWeight: 600, color: r.isVf ? '#FF3B30' : 'var(--label-primary)' }}>{r.label}</span>
+                      {r.isVf
+                        ? <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#FF3B30', background: 'rgba(255,59,48,0.12)', padding: '2px 8px', borderRadius: 6 }}>ASYNC</span>
+                        : <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: r.color, background: r.color + '15', padding: '2px 8px', borderRadius: 6 }}>SYNC</span>
+                      }
+                    </div>
+                    {selectedRhythm === r.key && (
+                      <div style={{ marginTop: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 6 }}>
+                          <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
+                            <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>BIFASIK</div>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#FF3B30' : r.color }}>{r.energy.bifasik}</div>
+                          </div>
+                          <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
+                            <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MONOFASIK</div>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#FF3B30' : r.color }}>{r.energy.monofasik}</div>
+                          </div>
+                        </div>
+                        <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>{r.note}</div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,149,0,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,149,0,0.2)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#FF9500', marginBottom: 8 }}>KARDIOVERSI PEDIATRIK — SINKRON</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF9500', marginTop: 2 }}>0.5–1 J/kg</div>
+                  </div>
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF9500', marginTop: 2 }}>2 J/kg</div>
+                  </div>
+                </div>
+                <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Berlaku untuk semua ritme supraventrikular. Pastikan mode SYNC aktif.</div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Langkah Prosedur */}
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>LANGKAH PROSEDUR</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+          {steps.map((step, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'var(--fill-quaternary)' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 11, background: tab === 'defib' ? '#FF3B30' : '#FF9500', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#fff' }}>{i + 1}</span>
+              </div>
+              <span className="t-callout" style={{ color: 'var(--label-primary)', flex: 1 }}>{step}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   PedsScreen — Referensi Pediatrik
+   ============================================================ */
+const BROSELOW_BANDS = [
+  { max: 5,  color: '#8E8E93', label: 'Abu-abu',  textColor: '#fff' },
+  { max: 7,  color: '#FF2D55', label: 'Pink',      textColor: '#fff' },
+  { max: 9,  color: '#FF3B30', label: 'Merah',     textColor: '#fff' },
+  { max: 11, color: '#AF52DE', label: 'Ungu',      textColor: '#fff' },
+  { max: 14, color: '#FFD60A', label: 'Kuning',    textColor: '#000' },
+  { max: 18, color: '#E5E5EA', label: 'Putih',     textColor: '#000' },
+  { max: 23, color: '#007AFF', label: 'Biru',      textColor: '#fff' },
+  { max: 29, color: '#FF9500', label: 'Oranye',    textColor: '#fff' },
+  { max: 36, color: '#34C759', label: 'Hijau',     textColor: '#fff' },
+  { max: Infinity, color: '#636366', label: '>36 kg', textColor: '#fff' },
+];
+
+function getBroselow(w: number) {
+  return BROSELOW_BANDS.find(b => w <= b.max) || BROSELOW_BANDS[BROSELOW_BANDS.length - 1];
+}
+
+function getAgeEst(w: number): string {
+  if (w < 5)  return '< 1 tahun';
+  if (w <= 7)  return '1 tahun';
+  if (w <= 9)  return '2 tahun';
+  if (w <= 11) return '3 tahun';
+  if (w <= 14) return '4–5 tahun';
+  if (w <= 18) return '6–8 tahun';
+  if (w <= 23) return '9–10 tahun';
+  if (w <= 29) return '11–12 tahun';
+  return '≥ 13 tahun';
+}
+
+function clamp(v: number, lo: number, hi: number) { return Math.min(hi, Math.max(lo, v)); }
+function d(v: number) { return v < 0.1 ? v.toFixed(3) : v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : Math.round(v).toString(); }
+
+export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }) {
+  const [weight, setWeight] = useState(20);
+  const [tab, setTab] = useState<'obat' | 'prosedur'>('obat');
+
+  const band = getBroselow(weight);
+  const ageEst = getAgeEst(weight);
+
+  const epiIv  = clamp(0.01 * weight, 0, 1);
+  const epiEtt = clamp(0.1  * weight, 0, 2.5);
+  const atropin = clamp(0.02 * weight, 0.1, 0.5);
+  const adenosin1 = clamp(0.1 * weight, 0, 6);
+  const adenosin2 = clamp(0.2 * weight, 0, 12);
+  const amio = clamp(5 * weight, 0, 300);
+  const lido = clamp(1 * weight, 0, 100);
+  const sux  = clamp((weight < 10 ? 2 : 1.5) * weight, 0, 150);
+  const rocu = 1.2 * weight;
+  const defib1 = 2 * weight;
+  const defib2 = clamp(4 * weight, 0, Math.min(10 * weight, 360));
+  const ns20 = clamp(20 * weight, 0, 1000);
+  const d10  = 5 * weight;
+
+  const DRUGS = [
+    { name: 'Epinefrin IV',        val: epiIv,      unit: 'mg',  note: `${d(epiIv / 0.1)} mL (1:10.000)`, capped: epiIv === 1 },
+    { name: 'Epinefrin ETT',       val: epiEtt,     unit: 'mg',  note: '0.1 mg/kg via ETT', capped: epiEtt === 2.5 },
+    { name: 'Atropin',             val: atropin,    unit: 'mg',  note: `${d(atropin / 0.5)} mL (0.5 mg/mL)`, capped: atropin === 0.1 || atropin === 0.5 },
+    { name: 'Adenosin (1st)',      val: adenosin1,  unit: 'mg',  note: 'Bolus cepat', capped: adenosin1 === 6 },
+    { name: 'Adenosin (2nd)',      val: adenosin2,  unit: 'mg',  note: 'Jika 1st gagal', capped: adenosin2 === 12 },
+    { name: 'Amiodarone',         val: amio,       unit: 'mg',  note: 'Bolus IV (VF/pVT maks 300 mg)', capped: amio === 300 },
+    { name: 'Lidokain',           val: lido,       unit: 'mg',  note: 'IV bolus', capped: lido === 100 },
+    { name: 'Suksinilkolin',      val: sux,        unit: 'mg',  note: weight < 10 ? '2 mg/kg (<10 kg)' : '1.5 mg/kg', capped: sux === 150 },
+    { name: 'Rokuronil',          val: rocu,       unit: 'mg',  note: '1.2 mg/kg RSI', capped: false },
+    { name: 'Defib 1st',          val: defib1,     unit: 'J',   note: '2 J/kg', capped: false },
+    { name: 'Defib 2nd+',         val: defib2,     unit: 'J',   note: 'Maks 10 J/kg atau 360 J', capped: defib2 === Math.min(10 * weight, 360) && defib2 < 4 * weight + 0.01 },
+    { name: 'Cairan NS',          val: ns20,       unit: 'mL',  note: '20 mL/kg bolus', capped: ns20 === 1000 },
+    { name: 'D10% (hipoglikemia)', val: d10,       unit: 'mL',  note: '5 mL/kg', capped: false },
+  ];
+
+  // Age in years for prosedur formulas (rough estimate from weight)
+  const ageYr = weight < 5 ? 0 : weight <= 7 ? 1 : weight <= 9 ? 2 : weight <= 11 ? 3 : weight <= 14 ? 5 : weight <= 18 ? 7 : weight <= 23 ? 10 : weight <= 29 ? 12 : 14;
+  const ettUncuffed = (ageYr / 4 + 4).toFixed(1);
+  const ettCuffed   = (ageYr / 4 + 3.5).toFixed(1);
+  const ettDepth    = (ageYr / 2 + 12).toFixed(1);
+  const sbpNormal   = `${70 + 2 * ageYr} mmHg`;
+  const mapNormal   = `${Math.round(55 + 1.5 * ageYr)} mmHg`;
+
+  return (
+    <div style={{ paddingBottom: 40 }}>
+      {isMobile && nav && (
+        <div style={{ padding: '8px 16px 0' }}>
+          <button onClick={nav.pop} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
+            <Icons.chevL size={16} stroke={2.5}/>
+            <span className="t-callout" style={{ fontWeight: 500 }}>Kembali</span>
+          </button>
+        </div>
+      )}
+
+      {/* Sticky header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg-primary)', borderBottom: '0.5px solid var(--separator)', padding: '10px 16px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#30B0C7', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(48,176,199,0.35)', flexShrink: 0 }}>
+            <Icons.heart size={20} stroke={1.8} style={{ color: '#fff' }}/>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="t-title-2" style={{ fontWeight: 700 }}>Referensi Pediatrik</div>
+            <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Dosis berbasis berat badan · PALS 2020</div>
+          </div>
+          {/* Broselow band badge */}
+          <div style={{ padding: '4px 12px', borderRadius: 10, background: band.color, flexShrink: 0 }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: band.textColor }}>{band.label}</span>
+          </div>
+        </div>
+
+        {/* Weight stepper + age */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>BERAT BADAN</div>
+            <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Est. usia: {ageEst}</div>
+          </div>
+          <Stepper value={weight} onChange={setWeight} min={3} max={80} step={1} unit=" kg"/>
+        </div>
+
+        {/* Tab bar */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3 }}>
+          {([{ key: 'obat', label: 'Obat & Dosis' }, { key: 'prosedur', label: 'Prosedur' }] as const).map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              style={{ height: 32, borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8125rem', fontWeight: 600, transition: 'all 150ms',
+                background: tab === t.key ? 'var(--bg-primary)' : 'transparent',
+                color: tab === t.key ? 'var(--label-primary)' : 'var(--label-secondary)',
+                boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none' }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: '12px 16px 0' }}>
+        {tab === 'obat' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {DRUGS.map(drug => (
+              <div key={drug.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 12, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="t-callout" style={{ fontWeight: 600 }}>{drug.name}</div>
+                  <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{drug.note}</div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 12 }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{d(drug.val)}</span>
+                  <span className="t-caption-1" style={{ color: 'var(--label-secondary)', marginLeft: 3 }}>{drug.unit}</span>
+                  {drug.capped && <div style={{ fontSize: '0.625rem', color: 'var(--warning)', fontWeight: 700 }}>MAKS</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'prosedur' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', paddingLeft: 2 }}>AIRWAY</div>
+            {[
+              { label: 'ETT Tanpa Cuff (≤8 thn)', val: `${ettUncuffed} mm`, note: '(usia/4) + 4' },
+              { label: 'ETT Dengan Cuff',          val: `${ettCuffed} mm`,  note: '(usia/4) + 3.5' },
+              { label: 'Kedalaman ETT',             val: `${ettDepth} cm`,   note: '(usia/2) + 12' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 12, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+                <div>
+                  <div className="t-callout" style={{ fontWeight: 600 }}>{item.label}</div>
+                  <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{item.note}</div>
+                </div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{item.val}</span>
+              </div>
+            ))}
+
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', paddingLeft: 2, marginTop: 6 }}>HEMODINAMIK NORMAL</div>
+            {[
+              { label: 'Tekanan Darah Sistolik', val: sbpNormal, note: '70 + (2 × usia thn)' },
+              { label: 'MAP Normal',              val: mapNormal, note: '55 + (1.5 × usia thn)' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 12, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+                <div>
+                  <div className="t-callout" style={{ fontWeight: 600 }}>{item.label}</div>
+                  <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{item.note}</div>
+                </div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{item.val}</span>
+              </div>
+            ))}
+
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', paddingLeft: 2, marginTop: 6 }}>LAJU JANTUNG NORMAL</div>
+            {[
+              { age: '< 1 tahun',  hr: '100–160 bpm' },
+              { age: '1–2 tahun',  hr: '90–150 bpm'  },
+              { age: '3–5 tahun',  hr: '80–140 bpm'  },
+              { age: '6–12 tahun', hr: '70–120 bpm'  },
+              { age: '> 12 tahun', hr: '60–100 bpm'  },
+            ].map(item => (
+              <div key={item.age} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderRadius: 10, background: 'var(--fill-quaternary)' }}>
+                <span className="t-callout" style={{ color: 'var(--label-primary)' }}>{item.age}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 600, color: '#30B0C7' }}>{item.hr}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    Desktop Wrappers
    ============================================================ */
 function DesktopToolShell({ title, children }: { title: string; children: React.ReactNode }) {
@@ -548,6 +979,26 @@ export function DesktopRosc({ onPick: _onPick }: { onPick?: (type: string, id: s
     <DesktopToolShell title="Post-ROSC Care">
       <div style={{ padding: '0 28px 40px', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <RoscScreen isMobile={false}/>
+      </div>
+    </DesktopToolShell>
+  );
+}
+
+export function DesktopDefib({ onPick: _onPick }: { onPick?: (type: string, id: string) => void }) {
+  return (
+    <DesktopToolShell title="Panduan Defibrilasi">
+      <div style={{ padding: '0 28px', maxWidth: 640 }}>
+        <DefibScreen isMobile={false}/>
+      </div>
+    </DesktopToolShell>
+  );
+}
+
+export function DesktopPeds({ onPick: _onPick }: { onPick?: (type: string, id: string) => void }) {
+  return (
+    <DesktopToolShell title="Referensi Pediatrik">
+      <div style={{ padding: '0 28px', maxWidth: 640 }}>
+        <PedsScreen isMobile={false}/>
       </div>
     </DesktopToolShell>
   );

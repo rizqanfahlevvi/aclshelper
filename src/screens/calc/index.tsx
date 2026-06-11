@@ -3,7 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
-import { VasoScreen } from '../tools';
+import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
 /* ============================================================
    CalcFieldInput
@@ -569,12 +569,10 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
               PANDUAN KLINIS
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <CalcListItem
-                name="Vasopressor"
-                description="Panduan & kalkulator vasopressor"
-                tint="#34C759"
-                onClick={() => nav.push({ screen: 'vaso' })}
-              />
+              <CalcListItem name="Vasopressor"        description="Panduan & kalkulator vasopressor"     tint="#34C759" onClick={() => nav.push({ screen: 'vaso'  })}/>
+              <CalcListItem name="Panduan Defibrilasi" description="Energi defib & kardioversi per ritme" tint="#FF3B30" onClick={() => nav.push({ screen: 'defib' })}/>
+              <CalcListItem name="Post-ROSC Care"     description="Checklist pasca Return of Spontaneous Circulation" tint="#FF9500" onClick={() => nav.push({ screen: 'rosc'  })}/>
+              <CalcListItem name="Referensi Pediatrik" description="Dosis PALS berbasis berat badan"      tint="#30B0C7" onClick={() => nav.push({ screen: 'peds'  })}/>
             </div>
           </div>
         )}
@@ -715,9 +713,22 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
   const [selectedKey, setSelectedKey] = useState(initialId || CALCULATORS[0].key);
   const [calcQ, setCalcQ] = useState('');
-  const isVaso = selectedKey === 'vaso';
+  const isVaso   = selectedKey === 'vaso';
+  const isDefib  = selectedKey === 'defib';
+  const isRoscD  = selectedKey === 'rosc-tool';
+  const isPedsD  = selectedKey === 'peds-tool';
+  const isToolPanel = isVaso || isDefib || isRoscD || isPedsD;
   const calc = CALCULATORS.find(c => c.key === selectedKey) || CALCULATORS[0];
-  const filteredVaso = calcQ.trim() ? 'Vasopressor'.toLowerCase().includes(calcQ.toLowerCase()) : true;
+
+  const PANDUAN_ITEMS = [
+    { key: 'vaso',      name: 'Vasopressor',         desc: 'Panduan & kalkulator vasopressor',          tint: '#34C759' },
+    { key: 'defib',     name: 'Panduan Defibrilasi',  desc: 'Energi defib & kardioversi per ritme',      tint: '#FF3B30' },
+    { key: 'rosc-tool', name: 'Post-ROSC Care',       desc: 'Checklist pasca Return of Spontaneous Circulation', tint: '#FF9500' },
+    { key: 'peds-tool', name: 'Referensi Pediatrik',  desc: 'Dosis PALS berbasis berat badan',           tint: '#30B0C7' },
+  ];
+  const filteredPanduan = calcQ.trim()
+    ? PANDUAN_ITEMS.filter(p => p.name.toLowerCase().includes(calcQ.toLowerCase()) || p.desc.toLowerCase().includes(calcQ.toLowerCase()))
+    : PANDUAN_ITEMS;
   const filtered = calcQ.trim()
     ? CALCULATORS.filter(c =>
         c.name.toLowerCase().includes(calcQ.toLowerCase()) ||
@@ -786,7 +797,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             </div>
           </div>
           <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px 16px' }}>
-            {filtered.length === 0 && !filteredVaso
+            {filtered.length === 0 && filteredPanduan.length === 0
               ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
               : (() => {
                   const scoring = filtered.filter(c => c.kind === 'scoring');
@@ -802,7 +813,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                             <button
                               key={c.key}
                               onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                              className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
+                              className={'acls-list-item ' + (!isToolPanel && selectedKey === c.key ? 'active' : '')}
                             >
                               <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
                               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -822,7 +833,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                             <button
                               key={c.key}
                               onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                              className={'acls-list-item ' + (!isVaso && selectedKey === c.key ? 'active' : '')}
+                              className={'acls-list-item ' + (!isToolPanel && selectedKey === c.key ? 'active' : '')}
                             >
                               <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
                               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -837,29 +848,34 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                   );
                 })()
             }
-            {filteredVaso && (
+            {filteredPanduan.length > 0 && (
               <>
                 <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '12px 6px 6px' }}>
                   PANDUAN KLINIS
                 </div>
-                <button
-                  onClick={() => { setSelectedKey('vaso'); onPick('calc', 'vaso'); }}
-                  className={'acls-list-item ' + (isVaso ? 'active' : '')}
-                >
-                  <span style={{ width: 6, height: 30, borderRadius: 3, background: '#34C759', flexShrink: 0 }}/>
-                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <div className="t-callout" style={{ fontWeight: 600 }}>Vasopressor</div>
-                    <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Panduan & kalkulator vasopressor</div>
-                  </div>
-                </button>
+                {filteredPanduan.map(p => (
+                  <button key={p.key}
+                    onClick={() => { setSelectedKey(p.key); onPick('calc', p.key); }}
+                    className={'acls-list-item ' + (selectedKey === p.key ? 'active' : '')}
+                  >
+                    <span style={{ width: 6, height: 30, borderRadius: 3, background: p.tint, flexShrink: 0 }}/>
+                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                      <div className="t-callout" style={{ fontWeight: 600 }}>{p.name}</div>
+                      <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{p.desc}</div>
+                    </div>
+                  </button>
+                ))}
               </>
             )}
           </div>
         </div>
 
-        {/* Right panel: detail */}
-        {isVaso && <VasoScreen/>}
-        <div style={{ overflowY: 'auto', padding: '20px 28px 40px', display: isVaso ? 'none' : undefined }}>
+        {/* Right panel: tool panels */}
+        {isVaso   && <VasoScreen/>}
+        {isDefib  && <DefibScreen isMobile={false}/>}
+        {isRoscD  && <RoscScreen isMobile={false}/>}
+        {isPedsD  && <PedsScreen isMobile={false}/>}
+        <div style={{ overflowY: 'auto', padding: '20px 28px 40px', display: isToolPanel ? 'none' : undefined }}>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
             <div style={{
               width: 56, height: 56, borderRadius: 14, background: calc.tint,

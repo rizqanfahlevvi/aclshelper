@@ -19,7 +19,7 @@ import {
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
-import { PalsScreen, VasoScreen, RoscScreen } from './screens/tools';
+import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 
 const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
@@ -888,6 +888,18 @@ export default function App() {
       window.history.pushState(null, '', '#/theory');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'theory' }] }));
+    } else if (key === 'rosc') {
+      window.history.pushState(null, '', '#/rosc');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'rosc' }] }));
+    } else if (key === 'defib') {
+      window.history.pushState(null, '', '#/defib');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'defib' }] }));
+    } else if (key === 'peds') {
+      window.history.pushState(null, '', '#/peds');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'peds' }] }));
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
@@ -991,6 +1003,9 @@ export default function App() {
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
       if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
+      if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
+      if (f.screen === 'defib') return <DefibScreen nav={nav} isMobile/>;
+      if (f.screen === 'peds') return <PedsScreen nav={nav} isMobile/>;
       if (f.screen === 'theory') return <TheoryScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
@@ -1023,6 +1038,8 @@ export default function App() {
     if (v.screen === 'hsts')   return <DesktopHsTs onPick={desktopPick}/>;
     if (v.screen === 'calc')   return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'theory') return <DesktopTheory/>;
+    if (v.screen === 'defib')  return <DesktopDefib/>;
+    if (v.screen === 'peds')   return <DesktopPeds/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
@@ -1106,10 +1123,12 @@ export default function App() {
                     gap: 6,
                   }}>
                     {([
-                      { key: 'tools',  label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)' },
-                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'   },
-                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'       },
-                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'rgba(52,199,89,0.14)',     color: 'var(--success)'},
+                      { key: 'tools',  label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)'   },
+                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'     },
+                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'         },
+                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'rgba(52,199,89,0.14)',     color: 'var(--success)'  },
+                      { key: 'defib',  label: 'Defibrilasi',  IconC: Icons.boltFill,   bg: 'rgba(255,59,48,0.12)',     color: 'var(--danger)'   },
+                      { key: 'peds',   label: 'Pediatrik',    IconC: Icons.heart,      bg: 'rgba(48,176,199,0.14)',    color: '#30B0C7'         },
                     ] as const).map(({ key, label, IconC, bg, color }) => (
                       <button key={key}
                         onClick={() => {
@@ -1137,7 +1156,7 @@ export default function App() {
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','theory'] as string[]).includes(topFrame.screen))}
+                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','rosc','defib','peds','theory'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMoreSheetOpen(false);
