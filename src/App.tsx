@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
 import { Icons } from './components/base';
 import type { Tab, DeskScreen, NavFrame, DeskView, NavStack, CprRhythm } from './types';
+import { useFavorites } from './utils/favorites';
+import { ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS } from './data';
+import { CALCULATORS } from './data/calculators';
 
 declare global {
   interface Navigator {
@@ -696,6 +699,14 @@ const MOBILE_QUICK = [
   { key: 'hypothermia', label: 'Hipotermia Berat', tint: 'var(--accent)' },
 ];
 
+function resolveFavMobile(f: { type: string; key: string }): { label: string; tint: string; screen: string } | null {
+  if (f.type === 'algo') { const x = ACLS_ALGORITHMS.find(a => a.key === f.key); return x ? { label: x.label, tint: x.tint, screen: 'algo' } : null; }
+  if (f.type === 'drug') { const x = ACLS_DRUGS.find(d => d.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'drug' } : null; }
+  if (f.type === 'ekg')  { const x = ACLS_RHYTHMS.find(r => r.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'ekg' } : null; }
+  if (f.type === 'calc') { const x = CALCULATORS.find(c => c.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'calc' } : null; }
+  return null;
+}
+
 interface MobileSidebarProps {
   open: boolean;
   onClose: () => void;
@@ -705,10 +716,15 @@ interface MobileSidebarProps {
 }
 function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: MobileSidebarProps) {
   const [query, setQuery] = useState('');
+  const { favs } = useFavorites();
   const q = query.trim().toLowerCase();
   const menuFiltered = q ? MOBILE_MENU.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : MOBILE_MENU;
   const quickFiltered = q ? MOBILE_QUICK.filter(it => it.label.toLowerCase().includes(q)) : MOBILE_QUICK;
-  const noResults = q && menuFiltered.length === 0 && quickFiltered.length === 0;
+  const favResolved = favs
+    .map((f: { type: string; key: string }) => { const info = resolveFavMobile(f); return info ? { ...f, ...info } : null; })
+    .filter((x): x is { type: string; key: string; label: string; tint: string; screen: string } => x !== null);
+  const favFiltered = q ? favResolved.filter(f => f.label.toLowerCase().includes(q)) : favResolved;
+  const noResults = q && menuFiltered.length === 0 && quickFiltered.length === 0 && favFiltered.length === 0;
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 150,
@@ -762,7 +778,20 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: Mob
               </div>
             </button>
           ))}
-          {quickFiltered.length > 0 && (
+          {favFiltered.length > 0 ? (
+            <>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>FAVORIT</div>
+              {favFiltered.map(f => (
+                <button key={f.type + f.key} className="acls-sidebar-item"
+                  style={{ padding: '8px 10px' }}
+                  onClick={() => { onNavigate(f.screen, f.key); onClose(); }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 4, background: f.tint,
+                    marginLeft: 6, marginRight: 6, flexShrink: 0 }}/>
+                  <span>{f.label}</span>
+                </button>
+              ))}
+            </>
+          ) : quickFiltered.length > 0 && (
             <>
               <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>AKSES CEPAT</div>
               {quickFiltered.map(it => (
