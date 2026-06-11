@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ACLS_RHYTHMS } from '../../data';
 import { NavBar, Icons } from '../../components/base';
+import { BottomSheet } from '../../components/acls';
 import { haptic } from '../../utils/haptic';
 import type { Nav } from '../../types';
 
@@ -2711,41 +2712,137 @@ function PocusTab() {
    Theory Screen — shared mobile + desktop layout
    ============================================================ */
 const THEORY_TABS = [
-  { key:'cycle',      label:'Siklus Jantung' },
-  { key:'ap',         label:'Aksi Potensial' },
-  { key:'ec',         label:'E-C Coupling' },
-  { key:'hemo',       label:'Hemodinamik' },
-  { key:'ans',        label:'Otonom' },
-  { key:'vasopress',  label:'Vasopressor' },
-  { key:'arrhythmia', label:'Mekanisme Aritmia' },
-  { key:'pharm',      label:'Farmakologi' },
-  { key:'acs',        label:'Patofisiologi ACS' },
-  { key:'shock',      label:'Jenis Syok' },
-  { key:'electrolyte',label:'Elektrolit & EKG' },
-  { key:'ekg12',      label:'EKG 12-Sadapan' },
-  { key:'pocus',      label:'POCUS' },
-  { key:'postarrest', label:'Post-Arrest' },
+  { key:'cycle',      label:'Siklus Jantung',    sub:'Sistol, diastol, tekanan',          tint:'#FF3B30' },
+  { key:'ap',         label:'Aksi Potensial',    sub:'Fase 0–4, ion channel',             tint:'#FF9500' },
+  { key:'ec',         label:'E-C Coupling',      sub:'Kalsium, troponin, cross-bridge',   tint:'#FF6B35' },
+  { key:'hemo',       label:'Hemodinamik',       sub:'CO, SVR, preload, afterload',       tint:'#007AFF' },
+  { key:'ans',        label:'Otonom',            sub:'SNS/PNS, baroreflex, vagal',        tint:'#34C759' },
+  { key:'vasopress',  label:'Vasopressor',       sub:'Reseptor α/β, profil obat',         tint:'#30B0C7' },
+  { key:'arrhythmia', label:'Mekanisme Aritmia', sub:'Reentry, ektopik, otomatisitas',    tint:'#AF52DE' },
+  { key:'pharm',      label:'Farmakologi',       sub:'Antiaritmia kelas I–IV',            tint:'#5856D6' },
+  { key:'acs',        label:'Patofisiologi ACS', sub:'Plak, trombosis, STEMI vs NSTEMI',  tint:'#FF2D55' },
+  { key:'shock',      label:'Jenis Syok',        sub:'Distributif, kardiogenik, obstruktif', tint:'#FF3B30' },
+  { key:'electrolyte',label:'Elektrolit & EKG',  sub:'K⁺, Ca²⁺, Mg²⁺, Na⁺',            tint:'#00C7BE' },
+  { key:'ekg12',      label:'EKG 12-Sadapan',   sub:'Sadapan, aksis, morfologi',         tint:'#34C759' },
+  { key:'pocus',      label:'POCUS',             sub:'Eko bedside, 4 views',             tint:'#007AFF' },
+  { key:'postarrest', label:'Post-Arrest',       sub:'PCAS, TTM, neuroproteksi',          tint:'#FF9500' },
 ];
 
 interface TheoryScreenProps { nav?: Nav; isMobile?: boolean; }
 
 export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
   const [tab, setTab] = useState('cycle');
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const activeTab = THEORY_TABS.find(t => t.key === tab) || THEORY_TABS[0];
+
+  const selectTab = (key: string) => {
+    haptic.monitorOn();
+    setTab(key);
+    setSheetOpen(false);
+  };
+
+  const TheoryContent = () => (
+    <>
+      {tab==='cycle'      && <CardiacCycleTab/>}
+      {tab==='ap'         && <ActionPotentialTab/>}
+      {tab==='ec'         && <ECCouplingTab/>}
+      {tab==='hemo'       && <HemodynamicsTab/>}
+      {tab==='ans'        && <ANSTab/>}
+      {tab==='vasopress'  && <VasopressorPharmTab/>}
+      {tab==='arrhythmia' && <ArrhythmiaMechanismTab/>}
+      {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
+      {tab==='acs'        && <ACSPathophysTab/>}
+      {tab==='shock'      && <ShockTypesTab/>}
+      {tab==='electrolyte'&& <ElectrolyteTab/>}
+      {tab==='ekg12'      && <Ekg12LeadTab/>}
+      {tab==='pocus'      && <PocusTab/>}
+      {tab==='postarrest' && <PostArrestTab/>}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden', background:'var(--bg-secondary)' }}>
+        {nav && <NavBar title="Teori Jantung" back="Kembali" onBack={nav.pop}/>}
+
+        {/* Sticky header with dropdown trigger */}
+        <div style={{ position:'sticky', top:0, zIndex:10, background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator)', padding:'10px 16px 12px', flexShrink:0 }}>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>
+            TOPIK TEORI · {THEORY_TABS.indexOf(activeTab) + 1} / {THEORY_TABS.length}
+          </div>
+          <button
+            onClick={() => setSheetOpen(true)}
+            style={{
+              display:'flex', alignItems:'center', gap:10, width:'100%',
+              background:'var(--fill-quaternary)', border:'none', borderRadius:14,
+              padding:'11px 14px', cursor:'pointer', textAlign:'left',
+              boxShadow:'inset 0 0 0 0.5px var(--separator)',
+            }}
+          >
+            <span style={{ width:10, height:10, borderRadius:5, background:activeTab.tint, flexShrink:0 }}/>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div className="t-callout" style={{ fontWeight:700, color:'var(--label-primary)' }}>{activeTab.label}</div>
+              <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginTop:1 }}>{activeTab.sub}</div>
+            </div>
+            <Icons.chevDown size={16} stroke={2.5} style={{ color:'var(--label-tertiary)', flexShrink:0 }}/>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex:1, overflowY:'auto', padding:'14px 16px 40px' }}>
+          <TheoryContent/>
+        </div>
+
+        {/* Bottom sheet picker */}
+        <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Pilih Topik" height="82%">
+          <div style={{ padding:'0 16px 32px', display:'flex', flexDirection:'column', gap:4 }}>
+            {THEORY_TABS.map((t, i) => {
+              const isActive = t.key === tab;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => selectTab(t.key)}
+                  style={{
+                    display:'flex', alignItems:'center', gap:12, padding:'13px 14px',
+                    borderRadius:14, border:'none', cursor:'pointer', textAlign:'left',
+                    background: isActive ? t.tint + '18' : 'var(--fill-quaternary)',
+                    boxShadow: isActive ? `inset 0 0 0 1px ${t.tint}55` : 'inset 0 0 0 0.5px var(--separator)',
+                    transition:'background 120ms',
+                  }}
+                >
+                  <div style={{ width:36, height:36, borderRadius:10, background:t.tint + '20', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <span style={{ width:10, height:10, borderRadius:5, background:t.tint }}/>
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:'0.9375rem', fontWeight: isActive ? 700 : 500, color: isActive ? t.tint : 'var(--label-primary)', lineHeight:1.3 }}>{t.label}</div>
+                    <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:2 }}>{t.sub}</div>
+                  </div>
+                  {isActive && (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={t.tint} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )}
+                  <span style={{ fontSize:'0.75rem', color:'var(--label-quaternary)', flexShrink:0 }}>{i + 1}</span>
+                </button>
+              );
+            })}
+          </div>
+        </BottomSheet>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden', background:'var(--bg-secondary)' }}>
-      {isMobile && nav && (
-        <NavBar title="Teori Jantung" back="Kembali" onBack={nav.pop}/>
-      )}
-      {/* Header */}
+      {/* Non-mobile: horizontal tab strip (used by TheoryScreen in non-mobile context if ever) */}
       <div style={{ padding:'16px 20px 0', flexShrink:0 }}>
         <div className="t-title-2" style={{ fontWeight:700, marginBottom:2 }}>Teori Jantung</div>
         <div className="t-footnote" style={{ color:'var(--label-secondary)', marginBottom:12 }}>
           Fisiologi kardiovaskular esensial untuk ACLS
         </div>
-        {/* Tab selector */}
         <div className="theory-tab-strip">
           {THEORY_TABS.map(t => (
-            <button key={t.key} onClick={() => { haptic.monitorOn(); setTab(t.key); }} style={{
+            <button key={t.key} onClick={() => selectTab(t.key)} style={{
               padding:'0 16px', borderRadius:20, border:'none', cursor:'pointer',
               background: tab===t.key ? 'var(--accent)' : 'var(--fill-quaternary)',
               color: tab===t.key ? '#fff' : 'var(--label-secondary)',
@@ -2757,22 +2854,8 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
           ))}
         </div>
       </div>
-      {/* Content */}
       <div style={{ flex:1, overflowY:'auto', padding:'14px 20px 40px' }}>
-        {tab==='cycle'      && <CardiacCycleTab/>}
-        {tab==='ap'         && <ActionPotentialTab/>}
-        {tab==='ec'         && <ECCouplingTab/>}
-        {tab==='hemo'       && <HemodynamicsTab/>}
-        {tab==='ans'        && <ANSTab/>}
-        {tab==='vasopress'  && <VasopressorPharmTab/>}
-        {tab==='arrhythmia' && <ArrhythmiaMechanismTab/>}
-        {tab==='pharm'      && <AntiarrhythmicPharmTab/>}
-        {tab==='acs'        && <ACSPathophysTab/>}
-        {tab==='shock'      && <ShockTypesTab/>}
-        {tab==='electrolyte'&& <ElectrolyteTab/>}
-        {tab==='ekg12'      && <Ekg12LeadTab/>}
-        {tab==='pocus'      && <PocusTab/>}
-        {tab==='postarrest' && <PostArrestTab/>}
+        <TheoryContent/>
       </div>
     </div>
   );
