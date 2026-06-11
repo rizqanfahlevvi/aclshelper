@@ -807,9 +807,9 @@ function useMetronome(active: boolean, intubated: boolean) {
             const gain = ctx2.createGain();
             osc.connect(gain); gain.connect(ctx2.destination);
             osc.frequency.value = 880;
-            gain.gain.setValueAtTime(0.18, nextRef.current);
-            gain.gain.exponentialRampToValueAtTime(0.001, nextRef.current + 0.045);
-            osc.start(nextRef.current); osc.stop(nextRef.current + 0.05);
+            gain.gain.setValueAtTime(1.0, nextRef.current);
+            gain.gain.exponentialRampToValueAtTime(0.001, nextRef.current + 0.09);
+            osc.start(nextRef.current); osc.stop(nextRef.current + 0.10);
           } catch(_) {}
           nextRef.current += interval;
           if (!intubated) {
