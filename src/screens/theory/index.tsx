@@ -2765,32 +2765,35 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
       <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden', background:'var(--bg-secondary)' }}>
         {nav && <NavBar title="Teori Jantung" back="Kembali" onBack={nav.pop}/>}
 
-        {/* Sticky header with dropdown trigger */}
-        <div style={{ position:'sticky', top:0, zIndex:10, background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator)', padding:'10px 16px 12px', flexShrink:0 }}>
-          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>
-            TOPIK TEORI · {THEORY_TABS.indexOf(activeTab) + 1} / {THEORY_TABS.length}
-          </div>
-          <button
-            onClick={() => setSheetOpen(true)}
-            style={{
-              display:'flex', alignItems:'center', gap:10, width:'100%',
-              background:'var(--fill-quaternary)', border:'none', borderRadius:14,
-              padding:'11px 14px', cursor:'pointer', textAlign:'left',
-              boxShadow:'inset 0 0 0 0.5px var(--separator)',
-            }}
-          >
-            <span style={{ width:10, height:10, borderRadius:5, background:activeTab.tint, flexShrink:0 }}/>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div className="t-callout" style={{ fontWeight:700, color:'var(--label-primary)' }}>{activeTab.label}</div>
-              <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginTop:1 }}>{activeTab.sub}</div>
+        {/* Single scroll container — sticky header lives INSIDE so it actually sticks */}
+        <div style={{ flex:1, overflowY:'auto' }}>
+          {/* Sticky header with dropdown trigger */}
+          <div style={{ position:'sticky', top:0, zIndex:10, background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator)', padding:'10px 16px 12px' }}>
+            <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>
+              TOPIK TEORI · {THEORY_TABS.indexOf(activeTab) + 1} / {THEORY_TABS.length}
             </div>
-            <Icons.chevDown size={16} stroke={2.5} style={{ color:'var(--label-tertiary)', flexShrink:0 }}/>
-          </button>
-        </div>
+            <button
+              onClick={() => setSheetOpen(true)}
+              style={{
+                display:'flex', alignItems:'center', gap:10, width:'100%',
+                background:'var(--fill-quaternary)', border:'none', borderRadius:14,
+                padding:'11px 14px', cursor:'pointer', textAlign:'left',
+                boxShadow:'inset 0 0 0 0.5px var(--separator)',
+              }}
+            >
+              <span style={{ width:10, height:10, borderRadius:5, background:activeTab.tint, flexShrink:0 }}/>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div className="t-callout" style={{ fontWeight:700, color:'var(--label-primary)' }}>{activeTab.label}</div>
+                <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginTop:1 }}>{activeTab.sub}</div>
+              </div>
+              <Icons.chevDown size={16} stroke={2.5} style={{ color:'var(--label-tertiary)', flexShrink:0 }}/>
+            </button>
+          </div>
 
-        {/* Content */}
-        <div style={{ flex:1, overflowY:'auto', padding:'14px 16px 40px' }}>
-          <TheoryContent/>
+          {/* Content */}
+          <div style={{ padding:'14px 16px 40px' }}>
+            <TheoryContent/>
+          </div>
         </div>
 
         {/* Bottom sheet picker */}
