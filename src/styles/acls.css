@@ -656,3 +656,27 @@ body {
   .acls-sheet                             { transition-duration: 0.01ms !important; }
   .ios-btn, .cpr-action, .acls-desk-quick { transition-duration: 0.01ms !important; }
 }
+
+/* CPR Animation widget */
+@keyframes acls-push-anim {
+  0%   { transform: scale(1.45) translateY(-4px); opacity: 0.65; letter-spacing: 0.22em; }
+  40%  { transform: scale(1.0)  translateY(0);    opacity: 1;    letter-spacing: 0.08em; }
+  100% { transform: scale(1.0)  translateY(0);    opacity: 1;    letter-spacing: 0.08em; }
+}
+.acls-push-word {
+  display: block;
+  animation: acls-push-anim 480ms cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+@keyframes acls-breathe-anim {
+  0%   { transform: scale(1.0);  opacity: 0.45; letter-spacing: 0.08em; }
+  18%  { transform: scale(1.18); opacity: 1;    letter-spacing: 0.14em; }
+  100% { transform: scale(1.0);  opacity: 0.6;  letter-spacing: 0.08em; }
+}
+.acls-breathe-word {
+  display: block;
+  animation: acls-breathe-anim 5.5s ease-in-out both;
+}
+@keyframes acls-vent-dot {
+  0%, 100% { transform: scale(1);   opacity: 0.4; }
+  50%      { transform: scale(1.4); opacity: 1;   }
+}
