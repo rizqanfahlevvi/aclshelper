@@ -687,7 +687,46 @@ export function BottomSheet({ open, onClose, title, children, height }: { open: 
    CPRTimer — full-screen workspace with AHA decision tree
    ============================================================ */
 
-const CPR_BPM = 110;
+const CPR_BPM_CONT = 110;  // continuous (airway definitif terpasang)
+const CPR_BPM_RATIO = 100; // rasio 30:2 (tanpa airway definitif)
+
+// Hook: visual compression counter for 30:2 mode (independent of audio)
+function useCompCounter(active: boolean): { count: number; venting: boolean } {
+  const [count, setCount] = useState(0);
+  const [venting, setVenting] = useState(false);
+
+  useEffect(() => {
+    if (!active) { setCount(0); setVenting(false); return; }
+    let c = 0;
+    let ventTimer: ReturnType<typeof setTimeout> | null = null;
+    let compTimer: ReturnType<typeof setInterval> | null = null;
+
+    const startCompressing = () => {
+      compTimer = setInterval(() => {
+        c = (c % 30) + 1;
+        setCount(c);
+        if (c === 30) {
+          if (compTimer) clearInterval(compTimer);
+          compTimer = null;
+          setVenting(true);
+          ventTimer = setTimeout(() => {
+            setVenting(false);
+            c = 0;
+            startCompressing();
+          }, 2000);
+        }
+      }, Math.round(60000 / CPR_BPM_RATIO)); // 600ms @ 100 BPM
+    };
+
+    startCompressing();
+    return () => {
+      if (compTimer) clearInterval(compTimer);
+      if (ventTimer) clearTimeout(ventTimer);
+    };
+  }, [active]);
+
+  return { count, venting };
+}
 
 // AHA 2025: VF/pVT path — 6 langkah, loop kembali ke index 2 (Shock = AHA Step 5)
 const VF_STEPS: FlowStepType[] = [
@@ -708,28 +747,40 @@ const PEA_STEPS: FlowStepType[] = [
   // Setelah index 2: rhythm check → no ROSC → wrap ke index 1 (CPR = Step 10)
 ];
 
-function useMetronome(active: boolean) {
-  const ctxRef = useRef(null);
-  const schedRef = useRef(null);
+function useMetronome(active: boolean, intubated: boolean) {
+  const ctxRef = useRef<AudioContext|null>(null);
+  const schedRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const nextRef = useRef(0);
+  const tickRef = useRef(0);      // compression count for 30:2
+  const ventUntilRef = useRef(0); // audio time when vent pause ends
 
   const stop = () => {
     if (schedRef.current) { clearInterval(schedRef.current); schedRef.current = null; }
+    tickRef.current = 0;
+    ventUntilRef.current = 0;
   };
 
   useEffect(() => {
     if (!active) { stop(); return; }
     try {
-      if (!ctxRef.current) ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const ctx = ctxRef.current;
       if (ctx.state === "suspended") ctx.resume();
-      const interval = 60 / CPR_BPM;
+      const bpm = intubated ? CPR_BPM_CONT : CPR_BPM_RATIO;
+      const interval = 60 / bpm;
       nextRef.current = ctx.currentTime + 0.05;
+      tickRef.current = 0;
+      ventUntilRef.current = 0;
 
       const schedule = () => {
         const ctx2 = ctxRef.current;
         if (!ctx2) return;
         while (nextRef.current < ctx2.currentTime + 0.3) {
+          // In ventilation pause — jump ahead to end of pause
+          if (!intubated && nextRef.current < ventUntilRef.current) {
+            nextRef.current = ventUntilRef.current;
+            tickRef.current = 0;
+          }
           try {
             const osc = ctx2.createOscillator();
             const gain = ctx2.createGain();
@@ -740,13 +791,21 @@ function useMetronome(active: boolean) {
             osc.start(nextRef.current); osc.stop(nextRef.current + 0.05);
           } catch(_) {}
           nextRef.current += interval;
+          if (!intubated) {
+            tickRef.current++;
+            if (tickRef.current >= 30) {
+              ventUntilRef.current = nextRef.current + 2.0;
+              nextRef.current += 2.0;
+              tickRef.current = 0;
+            }
+          }
         }
       };
       schedule();
       schedRef.current = setInterval(schedule, 100);
     } catch(_) {}
     return stop;
-  }, [active]);
+  }, [active, intubated]);
 }
 
 // Hanya 2 irama aktual — dipakai di rhythmCheck dan confirmRhythm picker
@@ -867,7 +926,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     if (initialRhythm) startCPR(initialRhythm);
   }, []);
 
-  useMetronome(soundOn && running);
+  useMetronome(soundOn && running, intubated);
 
   useEffect(() => {
     if (!running) return;
@@ -972,6 +1031,10 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     AWAIT_STEPS; // fallback aman
   const safeIdx = Math.min(stepIdx, steps.length - 1);
   const curStep = steps[safeIdx];
+  // 30:2 counter — aktif hanya saat CPR berjalan dan airway belum definitif
+  const { count: cprCount, venting: cprVenting } = useCompCounter(
+    running && curStep?.kind === 'cpr' && !intubated
+  );
   // unknownRhythm: stay at last step; VF: loop ke shock #5 (idx 2); PEA: loop ke CPR (idx 1)
   const wrapIdx =
     phase === 'unknownRhythm' ? steps.length - 1 :
@@ -1158,7 +1221,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 {soundOn?<><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>:<><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
               </svg>
               <span style={{ fontSize:11, fontWeight:600, color:soundOn?'var(--danger)':'var(--label-secondary)', whiteSpace:'nowrap' }}>
-                {soundOn ? `♩ ${CPR_BPM} BPM` : 'SENYAP'}
+                {soundOn ? `♩ ${intubated ? CPR_BPM_CONT : CPR_BPM_RATIO} BPM` : 'SENYAP'}
               </span>
             </button>
           </div>
@@ -1615,7 +1678,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
               </svg>
               <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
-                {soundOn ? `♩ ${CPR_BPM} BPM` : 'SENYAP'}
+                {soundOn ? `♩ ${intubated ? CPR_BPM_CONT : CPR_BPM_RATIO} BPM` : 'SENYAP'}
               </span>
             </button>
           </div>
@@ -1643,6 +1706,40 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                 <div style={{ height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', marginTop: 10, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: cycleProgress * 100 + '%', background: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--success)', borderRadius: 3, transition: 'width 50ms linear, background var(--dur-fast)' }}/>
                 </div>
+
+                {/* 30:2 Compression Counter (desktop) */}
+                {curStep?.kind === 'cpr' && (
+                  <div style={{ marginTop: 10 }}>
+                    {!intubated ? (
+                      cprVenting ? (
+                        <div style={{ borderRadius: 10, padding: '8px 12px', background: 'rgba(52,199,89,0.12)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.5)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontWeight: 800, fontSize: '0.875rem', color: '#34C759' }}>VENTILASI 2×</span>
+                          <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>Berikan 2 napas</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                              <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KOMPRESI · 30:2</span>
+                              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount} / 30</span>
+                            </div>
+                            <div style={{ height: 5, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: (cprCount / 30) * 100 + '%', borderRadius: 3, transition: 'width 120ms ease-out', background: cprCount >= 25 ? 'var(--warning)' : 'var(--info)' }}/>
+                            </div>
+                          </div>
+                          <div style={{ width: 36, height: 36, borderRadius: 9, background: cprCount >= 25 ? 'rgba(255,149,0,0.15)' : 'var(--fill-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 14, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount}</span>
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--success)' }}/>
+                        <span className="t-caption-2" style={{ color: 'var(--success)', fontWeight: 600 }}>ASINKRON · Airway definitif terpasang</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Pause / Reset */}
@@ -1915,7 +2012,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
             </svg>
             <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: soundOn ? 'var(--danger)' : 'var(--label-secondary)', whiteSpace: 'nowrap' }}>
-              {soundOn ? `♩ ${CPR_BPM} BPM` : 'SENYAP'}
+              {soundOn ? `♩ ${intubated ? CPR_BPM_CONT : CPR_BPM_RATIO} BPM` : 'SENYAP'}
             </span>
           </button>
         </div>
@@ -1937,6 +2034,47 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
           <div style={{ height: 5, borderRadius: 3, background: "var(--fill-tertiary)", marginTop: 8, overflow: "hidden" }}>
             <div style={{ height: "100%", width: cycleProgress * 100 + "%", background: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--success)", borderRadius: 3, transition: "width 50ms linear, background var(--dur-fast)" }}/>
           </div>
+
+          {/* 30:2 Compression Counter — hanya saat bukan intubated dan step CPR aktif */}
+          {curStep?.kind === 'cpr' && (
+            <div style={{ marginTop: 10 }}>
+              {!intubated ? (
+                cprVenting ? (
+                  <div style={{ borderRadius: 12, padding: '10px 14px', background: 'rgba(52,199,89,0.12)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.5)', display: 'flex', alignItems: 'center', gap: 10, animation: 'acls-pulse 0.6s ease-in-out 2' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#34C759', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#34C759' }}>VENTILASI 2×</div>
+                      <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>Berikan 2 napas — lanjut kompresi</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KOMPRESI · 30:2</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>
+                          {cprCount} / 30
+                        </span>
+                      </div>
+                      <div style={{ height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: (cprCount / 30) * 100 + '%', borderRadius: 3, transition: 'width 120ms ease-out', background: cprCount >= 25 ? 'var(--warning)' : 'var(--info)' }}/>
+                      </div>
+                    </div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: cprCount >= 25 ? 'rgba(255,149,0,0.15)' : 'var(--fill-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 200ms' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 15, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount}</span>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--success)' }}/>
+                  <span className="t-caption-2" style={{ color: 'var(--success)', fontWeight: 600 }}>ASINKRON · Airway definitif terpasang</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div style={{ padding: "0 20px 12px", display: "flex", gap: 10 }}>
