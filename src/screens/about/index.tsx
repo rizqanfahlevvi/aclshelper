@@ -160,30 +160,30 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
       {/* Feedback & Support */}
       <div style={{ padding: '0 16px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <button onClick={onFeedback}
-          style={{ padding: '14px 12px', borderRadius: 14, background: 'var(--accent-tint)',
+          style={{ padding: '11px 12px', borderRadius: 14, background: 'var(--accent-tint)',
             border: '0.5px solid rgba(48,176,199,0.25)', cursor: 'pointer',
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, textAlign: 'left' }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10,
+            display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0,
             background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icons.chat size={18} stroke={2} style={{ color: '#fff' }}/>
+            <Icons.chat size={16} stroke={2} style={{ color: '#fff' }}/>
           </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--label-primary)' }}>Feedback</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.4 }}>Bug, saran, atau komentar</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--label-primary)', lineHeight: 1.2 }}>Feedback</div>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.3 }}>Bug, saran, komentar</div>
           </div>
         </button>
         <a href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
-          style={{ textDecoration: 'none', padding: '14px 12px', borderRadius: 14,
+          style={{ textDecoration: 'none', padding: '11px 12px', borderRadius: 14,
             background: 'rgba(255,149,0,0.10)', border: '0.5px solid rgba(255,149,0,0.25)',
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10,
+            display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0,
             background: 'linear-gradient(135deg,#FF9500,#E67300)',
             display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icons.coffee size={18} stroke={2} style={{ color: '#fff' }}/>
+            <Icons.coffee size={16} stroke={2} style={{ color: '#fff' }}/>
           </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--label-primary)' }}>Dukung</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.4 }}>Saweria — traktir kopi ☕</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--label-primary)', lineHeight: 1.2 }}>Dukung</div>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2, lineHeight: 1.3 }}>Saweria ☕</div>
           </div>
         </a>
       </div>
@@ -247,18 +247,18 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
   if (isMobile) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px',
-          borderBottom: '0.5px solid var(--separator)', flexShrink: 0,
-          background: 'var(--bg-primary)' }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center',
+          padding: '10px 16px', borderBottom: '0.5px solid var(--separator)',
+          flexShrink: 0, background: 'var(--bg-primary)', height: 52 }}>
           <button onClick={() => nav?.pop()}
             style={{ height: 32, padding: '0 4px', background: 'none', border: 0,
               cursor: 'pointer', color: 'var(--label-secondary)', display: 'flex',
-              alignItems: 'center', gap: 2, fontSize: '1rem' }}>
+              alignItems: 'center', gap: 2, fontSize: '1rem', zIndex: 1 }}>
             <Icons.chevL size={18}/><span style={{ marginLeft: -2 }}>Kembali</span>
           </button>
-          <div style={{ flex: 1 }}/>
-          <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--label-primary)' }}>Tentang</span>
-          <div style={{ flex: 1 }}/>
+          <span style={{ position: 'absolute', left: 0, right: 0, textAlign: 'center',
+            fontSize: '0.9375rem', fontWeight: 600, color: 'var(--label-primary)',
+            pointerEvents: 'none' }}>Tentang</span>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'] }}>
           {content}
