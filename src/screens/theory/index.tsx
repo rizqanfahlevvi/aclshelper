@@ -2709,6 +2709,638 @@ function PocusTab() {
 }
 
 /* ============================================================
+   Tab: Ventilasi Mekanik
+   ============================================================ */
+type VentMode = 'vc'|'pc'|'simv'|'ps';
+const VENT_MODE_DATA: Record<VentMode, {
+  name: string; full: string; desc: string; tint: string;
+  settings: string[]; pros: string; cons: string;
+}> = {
+  vc: {
+    name:'VCV', full:'Volume Control Ventilation', tint:'#007AFF',
+    desc:'Volume tidal tetap diberikan tiap siklus — pressure berubah menyesuaikan compliance paru.',
+    settings:['Vt 6–8 mL/kg IBW','RR 12–20 /min','PEEP 5 cmH₂O','FiO₂ titrasi SpO₂ ≥94%','I:E 1:2'],
+    pros:'Volume tidal terjamin → PaCO₂ prediktabel.',
+    cons:'Pressure bisa tak terbatas → barotrauma jika compliance buruk.'
+  },
+  pc: {
+    name:'PCV', full:'Pressure Control Ventilation', tint:'#FF9500',
+    desc:'Pressure inspirasi tetap — volume tidal berubah sesuai compliance & resistensi.',
+    settings:['PC 15–20 cmH₂O (di atas PEEP)','RR 12–20 /min','PEEP 5 cmH₂O','FiO₂ titrasi','Ti 0.8–1.2 s'],
+    pros:'Pressure terbatas → safer pada paru kaku.',
+    cons:'Volume tidal tidak terjamin → hipoventilasi jika compliance berubah.'
+  },
+  simv: {
+    name:'SIMV', full:'Synchronized IMV', tint:'#34C759',
+    desc:'Ventilator memberi napas wajib tersinkron; pasien bisa bernafas spontan di antaranya.',
+    settings:['RR mandatory 8–14/min','Vt mandatory 6–8 mL/kg','PS support napas spontan','PEEP 5 cmH₂O'],
+    pros:'Latihan otot napas; WOB bertahap diturunkan.',
+    cons:'Auto-PEEP, patient-ventilator dyssynchrony lebih sering.'
+  },
+  ps: {
+    name:'PSV', full:'Pressure Support Ventilation', tint:'#AF52DE',
+    desc:'Setiap napas pasien mendapat dorongan pressure; pasien kendalikan RR & Ti.',
+    settings:['PS 5–15 cmH₂O','PEEP 5 cmH₂O','Apnea backup diperlukan'],
+    pros:'Nyaman, otot napas aktif, ideal untuk weaning.',
+    cons:'Tidak ada backup RR (apnea berbahaya).'
+  },
+};
+
+const RSBI_TIPS = [
+  { label:'RSBI < 80', ok:true,  text:'Sangat mungkin berhasil ekstubasi' },
+  { label:'RSBI 80–105', ok:null, text:'Zona abu-abu — nilai klinis lain penting' },
+  { label:'RSBI > 105', ok:false, text:'Kemungkinan tinggi gagal weaning' },
+];
+
+const VENT_REFS: RefItem[] = [
+  { n:1, text:'Slutsky AS, Ranieri VM. Ventilator-induced lung injury. N Engl J Med. 2013;369:2126–36.', url:'https://doi.org/10.1056/NEJMra1208707' },
+  { n:2, text:'ARDS Network. Ventilation with lower tidal volumes. N Engl J Med. 2000;342:1301–8.', url:'https://doi.org/10.1056/NEJM200005043421801' },
+  { n:3, text:'Boles JM, et al. Weaning from mechanical ventilation. Eur Respir J. 2007;29:1033–56.', url:'https://doi.org/10.1183/09031936.00010206' },
+];
+
+function VentMekTab() {
+  const [mode, setMode] = useState<VentMode>('vc');
+  const d = VENT_MODE_DATA[mode];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* Mode selector */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+        {(Object.keys(VENT_MODE_DATA) as VentMode[]).map(k => {
+          const m = VENT_MODE_DATA[k];
+          const active = mode === k;
+          return (
+            <button key={k} onClick={() => setMode(k)} style={{
+              border:'none', cursor:'pointer', borderRadius:14,
+              padding:'12px 14px', textAlign:'left',
+              background: active ? m.tint+'18' : 'var(--fill-tertiary)',
+              boxShadow: active ? `0 0 0 1.5px ${m.tint}` : '0 0 0 1px var(--separator)'
+            }}>
+              <div className="t-callout" style={{ color: active ? m.tint : 'var(--label-primary)', fontWeight:700 }}>{m.name}</div>
+              <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginTop:2 }}>{m.full}</div>
+            </button>
+          );
+        })}
+      </div>
+      {/* Detail card */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px', boxShadow:`0 0 0 1px ${d.tint}30` }}>
+        <div className="t-subhead" style={{ color:d.tint, fontWeight:700, marginBottom:6 }}>{d.name} — {d.full}</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55, marginBottom:10 }}>{d.desc}</div>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:600, marginBottom:4 }}>SETTING AWAL</div>
+        {d.settings.map((s,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+            <div style={{ width:6, height:6, borderRadius:3, background:d.tint, flexShrink:0 }}/>
+            <div className="t-caption-1" style={{ color:'var(--label-primary)' }}>{s}</div>
+          </div>
+        ))}
+        <div style={{ marginTop:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <div style={{ background:'rgba(52,199,89,0.08)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700 }}>✓ KELEBIHAN</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:3, lineHeight:1.4 }}>{d.pros}</div>
+          </div>
+          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700 }}>✗ KETERBATASAN</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:3, lineHeight:1.4 }}>{d.cons}</div>
+          </div>
+        </div>
+      </div>
+      {/* ARDSNet targets */}
+      <div style={{ background:'rgba(0,122,255,0.06)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px rgba(0,122,255,0.2)' }}>
+        <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700, marginBottom:8 }}>TARGET LUNG-PROTECTIVE (ARDSNet)<Cite n={2} href="https://doi.org/10.1056/NEJM200005043421801"/></div>
+        {[
+          ['Vt','4–6 mL/kg IBW'],['Pplat','≤ 30 cmH₂O'],['Driving pressure','≤ 15 cmH₂O'],
+          ['SpO₂','88–95% (toleransi hipoksemia relatif)'],['pH','7.30–7.45'],
+        ].map(([k,v]) => (
+          <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'5px 0', borderBottom:'0.5px solid var(--separator)' }}>
+            <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}>{k}</span>
+            <span className="t-caption-1" style={{ color:'var(--label-primary)', fontWeight:600 }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      {/* Weaning / RSBI */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:8 }}>WEANING — RSBI<Cite n={3} href="https://doi.org/10.1183/09031936.00010206"/></div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginBottom:8, lineHeight:1.5 }}>
+          <strong>RSBI = RR / Vt (L)</strong>. Hitung selama 1 menit SBT tanpa support (T-piece atau CPAP 5 cmH₂O).
+        </div>
+        {RSBI_TIPS.map((r,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+            <div style={{ width:10, height:10, borderRadius:5, flexShrink:0,
+              background: r.ok === true ? '#34C759' : r.ok === false ? '#FF3B30' : '#FF9500' }}/>
+            <div>
+              <span className="t-caption-1" style={{ fontWeight:700, color:'var(--label-primary)' }}>{r.label}</span>
+              <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}> — {r.text}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <RefBlock items={VENT_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Tab: Sedasi & Analgesia
+   ============================================================ */
+type SedasiGroup = 'analgesik'|'sedatif'|'nmba';
+const SEDASI_DRUGS: Record<SedasiGroup, Array<{
+  name: string; class: string; dose: string; onset: string;
+  duration: string; note: string; tint: string;
+}>> = {
+  analgesik: [
+    { name:'Fentanyl', class:'Opioid', dose:'0.5–1.5 mcg/kg IV bolus; 25–200 mcg/h infus', onset:'1–2 min', duration:'30–60 min', note:'Pilihan utama ICU; histamine release minimal.', tint:'#007AFF' },
+    { name:'Morfin', class:'Opioid', dose:'2–4 mg IV q2–4h', onset:'5–10 min', duration:'3–5 h', note:'Histamine release → hindari pada bronkospasme.', tint:'#5856D6' },
+    { name:'Remifentanil', class:'Opioid', dose:'0.05–0.2 mcg/kg/min', onset:'<1 min', duration:'3–5 min', note:'Metabolisme ester plasma → titrasi presisi.', tint:'#30B0C7' },
+  ],
+  sedatif: [
+    { name:'Propofol', class:'Alkylphenol', dose:'5–50 mcg/kg/min', onset:'1–2 min', duration:'5–10 min', note:'Cepat bangun, ideal neurologi; awasi PRIS (>4 mg/kg/h >48h).', tint:'#FF9500' },
+    { name:'Dexmedetomidine', class:'α2-agonis', dose:'0.2–1.5 mcg/kg/h', onset:'5–10 min', duration:'1–2 h', note:'Sedasi "kooperatif", analgetik ringan, tidak depresi napas.', tint:'#34C759' },
+    { name:'Midazolam', class:'Benzodiazepin', dose:'0.02–0.1 mg/kg/h', onset:'2–5 min', duration:'2–6 h', note:'Metabolit aktif → akumulasi di ginjal/hati. Hindari jangka panjang.', tint:'#FF3B30' },
+    { name:'Ketamin', class:'NMDA antagonis', dose:'0.1–0.5 mg/kg/h analgesia; 1–2 mg/kg induksi', onset:'1–2 min', duration:'15–30 min', note:'Bronkodilatasi, bronkospasme, tidak depresi napas. Ideal pada asma.', tint:'#AF52DE' },
+  ],
+  nmba: [
+    { name:'Cisatracurium', class:'Non-depolarisasi', dose:'0.15–0.2 mg/kg bolus; 1–3 mcg/kg/min', onset:'2–3 min', duration:'40–60 min', note:'Eliminasi Hofmann → aman gagal organ. Pilihan ARDS berat.', tint:'#FF2D55' },
+    { name:'Rokuronum', class:'Non-depolarisasi', dose:'1.2 mg/kg RSI; 0.6 mg/kg maintenance', onset:'60 s', duration:'30–60 min', note:'Reversibel dengan Sugammadex (16 mg/kg emergensi).', tint:'#FF6B35' },
+    { name:'Suksinilkolin', class:'Depolarisasi', dose:'1.5 mg/kg RSI', onset:'45–60 s', duration:'10–12 min', note:'Kontraindikasi: hiperkalemia, denervasi, luka bakar >24h.', tint:'#FF9500' },
+  ],
+};
+
+const RASS_SCALE = [
+  { score:+4, label:'Combative', desc:'Agresif, bahaya langsung ke staf', color:'#FF2D55' },
+  { score:+3, label:'Very Agitated', desc:'Menarik atau mencabut tube/kateter, agresif', color:'#FF3B30' },
+  { score:+2, label:'Agitated', desc:'Gerakan sering tanpa tujuan, melawan ventilator', color:'#FF6B35' },
+  { score:+1, label:'Restless', desc:'Gelisah tapi gerakan tidak agresif', color:'#FF9500' },
+  { score:0,  label:'Alert & Calm', desc:'Sadar dan tenang', color:'#34C759' },
+  { score:-1, label:'Drowsy', desc:'Tidak sepenuhnya waspada, ada eye contact >10s', color:'#30B0C7' },
+  { score:-2, label:'Light Sedation', desc:'Eye contact <10s terhadap suara', color:'#007AFF' },
+  { score:-3, label:'Moderate Sedation', desc:'Gerakan atau buka mata tapi tidak eye contact', color:'#5856D6' },
+  { score:-4, label:'Deep Sedation', desc:'Tidak respons suara, respons stimulasi fisik', color:'#AF52DE' },
+  { score:-5, label:'Unarousable', desc:'Tidak respons suara maupun stimulasi fisik', color:'#8E8E93' },
+];
+
+const SEDASI_REFS: RefItem[] = [
+  { n:1, text:'Devlin JW, et al. Clinical Practice Guidelines for the Prevention and Management of Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU. Crit Care Med. 2018;46(9):e825–e873.', url:'https://doi.org/10.1097/CCM.0000000000003299' },
+  { n:2, text:'Barr J, et al. Clinical practice guidelines for the management of pain, agitation, and delirium in adult patients in the intensive care unit. Crit Care Med. 2013;41:263–306.', url:'https://doi.org/10.1097/CCM.0b013e3182783b72' },
+];
+
+function SedasiTab() {
+  const [group, setGroup] = useState<SedasiGroup>('analgesik');
+  const [drugIdx, setDrugIdx] = useState(0);
+  const drugs = SEDASI_DRUGS[group];
+  const d = drugs[Math.min(drugIdx, drugs.length-1)];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* Group selector */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+        {([['analgesik','Analgesik','#007AFF'],['sedatif','Sedatif','#34C759'],['nmba','NMBA','#FF2D55']] as const).map(([k,lbl,c]) => (
+          <button key={k} onClick={() => { setGroup(k as SedasiGroup); setDrugIdx(0); }} style={{
+            border:'none', cursor:'pointer', borderRadius:12, padding:'10px 8px',
+            background: group===k ? c+'18' : 'var(--fill-tertiary)',
+            boxShadow: group===k ? `0 0 0 1.5px ${c}` : '0 0 0 1px var(--separator)'
+          }}>
+            <div className="t-caption-1" style={{ fontWeight:700, color: group===k ? c : 'var(--label-primary)' }}>{lbl}</div>
+          </button>
+        ))}
+      </div>
+      {/* Drug pills */}
+      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+        {drugs.map((drug,i) => (
+          <button key={i} onClick={() => setDrugIdx(i)} style={{
+            border:'none', cursor:'pointer', borderRadius:20, padding:'6px 14px',
+            background: drugIdx===i ? drug.tint+'18' : 'var(--fill-tertiary)',
+            boxShadow: drugIdx===i ? `0 0 0 1.5px ${drug.tint}` : '0 0 0 1px var(--separator)'
+          }}>
+            <span className="t-caption-1" style={{ fontWeight:600, color: drugIdx===i ? drug.tint : 'var(--label-primary)' }}>{drug.name}</span>
+          </button>
+        ))}
+      </div>
+      {/* Drug detail */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px', boxShadow:`0 0 0 1px ${d.tint}30` }}>
+        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+          <div className="t-subhead" style={{ fontWeight:700, color:d.tint }}>{d.name}</div>
+          <div className="t-caption-2" style={{ color:'var(--label-tertiary)', background:'var(--fill-secondary)', borderRadius:8, padding:'2px 8px' }}>{d.class}</div>
+        </div>
+        {[['Dosis',d.dose],['Onset',d.onset],['Durasi',d.duration]].map(([k,v]) => (
+          <div key={k} style={{ display:'flex', gap:8, marginBottom:5 }}>
+            <span className="t-caption-2" style={{ color:'var(--label-tertiary)', width:56, flexShrink:0, fontWeight:600 }}>{k}</span>
+            <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}>{v}</span>
+          </div>
+        ))}
+        <div style={{ background:d.tint+'10', borderRadius:10, padding:'8px 10px', marginTop:8 }}>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>💡 {d.note}</div>
+        </div>
+      </div>
+      {/* RASS Scale */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:10 }}>RASS — Richmond Agitation-Sedation Scale<Cite n={1} href="https://doi.org/10.1097/CCM.0000000000003299"/></div>
+        <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginBottom:8 }}>Target ICU umum: <strong style={{color:'#30B0C7'}}>RASS -1 hingga 0</strong> (kecuali indikasi NMBA: -3 s/d -5)</div>
+        {RASS_SCALE.map(r => (
+          <div key={r.score} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:6 }}>
+            <div style={{ width:28, height:28, borderRadius:8, background:r.color+'20', flexShrink:0,
+              display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <span className="t-caption-2" style={{ fontWeight:800, color:r.color }}>
+                {r.score > 0 ? '+'+r.score : r.score}
+              </span>
+            </div>
+            <div>
+              <div className="t-caption-1" style={{ fontWeight:700, color:'var(--label-primary)' }}>{r.label}</div>
+              <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>{r.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <RefBlock items={SEDASI_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Tab: Toksikologi Kardiovaskular
+   ============================================================ */
+type ToksikoKey = 'bb'|'ccb'|'dig'|'tca'|'cocaine';
+const TOKSIKO_DATA: Record<ToksikoKey, {
+  name: string; tint: string; ekgPattern: string;
+  mechanism: string; manifestations: string[];
+  treatment: string[]; antidote?: string;
+}> = {
+  bb: {
+    name:'Beta-Blocker', tint:'#007AFF',
+    ekgPattern:'Bradikardi sinus, PR memanjang, AV blok derajat tinggi',
+    mechanism:'Blokade reseptor β₁ → ↓ cAMP → ↓ HR, ↓ kontraktilitas, konduksi AV melambat.',
+    manifestations:['Bradikardi berat','Hipotensi','Bronkospasme (non-kardioselektif)','Hipoglikemia (pediatrik)'],
+    treatment:['Atropin 0.5–1 mg IV (sering tidak cukup)','Glucagon 3–10 mg IV bolus → 3–5 mg/h infus (bypass β-reseptor)','Kalsium IV (CCa²⁺ sinergis)','High-Dose Insulin (HDI) 1 unit/kg/h + Glukosa','Lipid Emulsion Therapy (LET) jika refrakter','Pacu Jantung Transvenous'],
+    antidote:'Glucagon (bypass adenilat siklase langsung)'
+  },
+  ccb: {
+    name:'Ca Channel Blocker', tint:'#FF9500',
+    ekgPattern:'Bradikardi, PR memanjang, AV blok, QRS lebar (dihidropiridin: takikardi refleks)',
+    mechanism:'Blokade L-type Ca²⁺ → ↓ HR (SA/AV node), ↓ kontraktilitas, vasodilatasi.',
+    manifestations:['Bradikardi & AV blok (non-DHP)','Hipotensi','Hiperglikemia (blokir sekresi insulin)','Edema paru'],
+    treatment:['Kalsium Glukonat 3 g IV atau CaCl₂ 1 g IV (kompetisi reseptor)','HDI 1 unit/kg/h + glukosa','Glukagon 3–10 mg IV','Vasopressor: NE/Epi','LET','ECMO jika refrakter'],
+    antidote:'Kalsium IV (kompetisi langsung di kanal L-type)'
+  },
+  dig: {
+    name:'Digoksin', tint:'#34C759',
+    ekgPattern:'Bidirectional VT, downsloping ST (digitalis effect), AV blok, bradikardi, takiaritmia',
+    mechanism:'Inhibisi Na⁺/K⁺-ATPase → ↑ Ca²⁺ intrasel → inotropik +; pada toksisitas: afterdepolarization, triggered activity.',
+    manifestations:['Mual/muntah (GI awal)','Bidirectional VT (patognomonik)','AV blok + irama junctional','Hiperkalemia (marker severity)'],
+    treatment:['Hentikan digoksin','Koreksi hipokalemia/hipomagnesemia (permissive)','Atropin bradikardi','Lidokain atau fenitoin (VT — hindari amiodarone)','Digoxin-Specific Fab Fragments (DigiFab)'],
+    antidote:'DigiFab — Fab antibodi spesifik digoksin'
+  },
+  tca: {
+    name:'Antidepresan Trisiklik', tint:'#AF52DE',
+    ekgPattern:'QRS lebar >100 ms, R wave tinggi di aVR, RBBB-like, QTc panjang, sinus takikardi',
+    mechanism:'Blokade fast Na⁺ (QRS ↑), blokade K⁺ (QT ↑), blokade α1 (hipotensi), antikolinergik, blokade H1.',
+    manifestations:['Takikardi & hipotensi','QRS ≥120 ms → seizure/aritmia','Antikolinergik: delirium, retensi urin, midriasis','Status epileptikus'],
+    treatment:['NaHCO₃ 1–2 mEq/kg IV → alkalinisasi (target pH 7.50–7.55, narrow QRS)','Intubasi & hiperventilasi jika perlu','Benzodiazepin untuk seizure','Hindari Ia & Ic antiaritmia'],
+    antidote:'Natrium Bikarbonat (alkalinisasi serum)'
+  },
+  cocaine: {
+    name:'Kokain / Stimulan', tint:'#FF2D55',
+    ekgPattern:'ST elevasi (vasospasme), sinus takikardi, QRS/QTc normal atau sedikit memanjang',
+    mechanism:'Blokade reuptake NE/DA → simpatomimetik; blokade Na⁺ channel → efek membran lokal.',
+    manifestations:['Vasospasme koroner → STEMI tanpa plak','Hipertensi krisis','Aortic dissection','Kardiomiopati'],
+    treatment:['Benzodiazepine (first-line semua komplikasi)','Nitrogliserin / CCB untuk vasospasme','Aspirin jika komponen trombosis','HINDARI β-blocker (beta-blockade unmasks α → paradoks vasokonstriksi)'],
+  },
+};
+
+const TOKSIKO_REFS: RefItem[] = [
+  { n:1, text:'Holstege CP, et al. Toxicologic Emergencies. Rosen\'s Emergency Medicine. 9th ed. 2018.', url:'https://doi.org/10.1016/B978-0-323-35479-3.00147-8' },
+  { n:2, text:'Engebretsen KM, et al. High-dose insulin therapy in beta-blocker and calcium channel-blocker poisoning. Clin Toxicol. 2011;49(4):277–83.', url:'https://doi.org/10.3109/15563650.2011.582471' },
+  { n:3, text:'Taboulet P, et al. Cardiovascular repercussions of seizures during cyclic antidepressant poisoning. J Toxicol Clin Toxicol. 1995;33(3):205–11.', url:'https://doi.org/10.3109/15563659509000468' },
+];
+
+function ToksikoTab() {
+  const [key, setKey] = useState<ToksikoKey>('bb');
+  const d = TOKSIKO_DATA[key];
+  const pills: [ToksikoKey, string][] = [['bb','β-Blocker'],['ccb','CCB'],['dig','Digoksin'],['tca','TCA'],['cocaine','Kokain']];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* Pill selector */}
+      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+        {pills.map(([k,lbl]) => {
+          const t = TOKSIKO_DATA[k].tint;
+          return (
+            <button key={k} onClick={() => setKey(k)} style={{
+              border:'none', cursor:'pointer', borderRadius:20, padding:'7px 16px',
+              background: key===k ? t+'18' : 'var(--fill-tertiary)',
+              boxShadow: key===k ? `0 0 0 1.5px ${t}` : '0 0 0 1px var(--separator)'
+            }}>
+              <span className="t-caption-1" style={{ fontWeight:600, color: key===k ? t : 'var(--label-primary)' }}>{lbl}</span>
+            </button>
+          );
+        })}
+      </div>
+      {/* EKG Pattern */}
+      <div style={{ background:d.tint+'10', borderRadius:14, padding:'12px 16px', boxShadow:`0 0 0 1px ${d.tint}30` }}>
+        <div className="t-caption-2" style={{ color:d.tint, fontWeight:700, marginBottom:4 }}>EKG PATTERN</div>
+        <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{d.ekgPattern}</div>
+      </div>
+      {/* Mechanism */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'12px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:4 }}>MEKANISME</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.mechanism}</div>
+      </div>
+      {/* Manifestations */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'12px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:6 }}>MANIFESTASI KLINIS</div>
+        {d.manifestations.map((m,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:5 }}>
+            <div style={{ width:6, height:6, borderRadius:3, background:d.tint, flexShrink:0, marginTop:5 }}/>
+            <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{m}</div>
+          </div>
+        ))}
+      </div>
+      {/* Treatment */}
+      <div style={{ background:'rgba(52,199,89,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(52,199,89,0.2)' }}>
+        <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700, marginBottom:6 }}>TATALAKSANA</div>
+        {d.treatment.map((t,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:5 }}>
+            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700, flexShrink:0, width:16 }}>{i+1}.</div>
+            <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{t}</div>
+          </div>
+        ))}
+        {d.antidote && (
+          <div style={{ background:'rgba(52,199,89,0.12)', borderRadius:10, padding:'8px 10px', marginTop:8 }}>
+            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700 }}>ANTIDOT SPESIFIK</div>
+            <div className="t-caption-1" style={{ color:'var(--label-primary)', marginTop:2 }}>{d.antidote}</div>
+          </div>
+        )}
+      </div>
+      <RefBlock items={TOKSIKO_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Tab: Koagulasi & Antikoagulan
+   ============================================================ */
+const CASCADE_STEPS = [
+  { label:'Jalur Ekstrinsik', items:['TF + VIIa → Xa + IXa'], color:'#FF9500' },
+  { label:'Jalur Intrinsik', items:['XII → XI → IX → IXa'], color:'#007AFF' },
+  { label:'Jalur Bersama', items:['Xa + Va → Protrombin → Trombin'], color:'#AF52DE' },
+  { label:'Fibrin', items:['Trombin: Fibrinogen → Fibrin','XIII → Fibrin cross-linked (clot)'], color:'#34C759' },
+];
+
+type AKKey = 'heparin'|'lmwh'|'warfarin'|'noac';
+const ANTICOAG_DATA: Record<AKKey, {
+  name: string; tint: string; target: string;
+  monitor: string; onset: string; reversal: string; indication: string;
+}> = {
+  heparin: {
+    name:'Heparin UFH', tint:'#007AFF',
+    target:'AT-III → inhibisi trombin (IIa) + Xa',
+    monitor:'aPTT 60–100 s (1.5–2.5× normal)',
+    onset:'Immediat IV',
+    reversal:'Protamine sulfate 1 mg per 100 unit heparin',
+    indication:'ACS, PE/DVT akut, bypass, ECMO'
+  },
+  lmwh: {
+    name:'LMWH (Enoxaparin)', tint:'#34C759',
+    target:'AT-III → inhibisi Xa > IIa',
+    monitor:'Anti-Xa (jika perlu: obesitas, gagal ginjal)',
+    onset:'1–2 jam SC',
+    reversal:'Protamine ~50% efektif',
+    indication:'ACS, tromboprofilaksis, DVT/PE'
+  },
+  warfarin: {
+    name:'Warfarin', tint:'#FF9500',
+    target:'Inhibisi vitamin K epoksida reduktase → ↓ II, VII, IX, X',
+    monitor:'INR (target 2–3; 2.5–3.5 katup prostetik)',
+    onset:'2–5 hari',
+    reversal:'4F-PCC (Prothrombinex) + Vit K IV; FFP jika PCC tidak ada',
+    indication:'AF, tromboprofilaksis jangka panjang, katup mekanik'
+  },
+  noac: {
+    name:'NOAC (Rivaroxaban / Apixaban / Dabigatran)', tint:'#AF52DE',
+    target:'Direct Xa inhibitor (Rivaroxaban, Apixaban) atau Direct trombin inhibitor (Dabigatran)',
+    monitor:'Tidak rutin (PT/aPTT tidak reliabel)',
+    onset:'1–4 jam',
+    reversal:'Andexanet alfa (anti-Xa); Idarucizumab (Dabigatran); PCC 4F jika tidak ada',
+    indication:'AF non-valvular, DVT/PE (prevention & treatment)'
+  },
+};
+
+const KOAGULASI_REFS: RefItem[] = [
+  { n:1, text:'Levi M, Hunt BJ. A critical appraisal of point-of-care coagulation testing in critically ill patients. J Thromb Haemost. 2015;13(11):1960–7.', url:'https://doi.org/10.1111/jth.13151' },
+  { n:2, text:'Piran S, Schulman S. Management of anticoagulant-associated bleeding. Thromb Res. 2012;130(S1):S29–S31.', url:'https://doi.org/10.1016/j.thromres.2012.08.264' },
+  { n:3, text:'Connolly SJ, et al. Andexanet Alfa for Acute Major Bleeding Associated with Factor Xa Inhibitors. N Engl J Med. 2019;380:1326–35.', url:'https://doi.org/10.1056/NEJMoa1814051' },
+];
+
+function KoagulasiTab() {
+  const [akKey, setAkKey] = useState<AKKey>('heparin');
+  const d = ANTICOAG_DATA[akKey];
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* Coagulation cascade visual */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:10 }}>KASKADE KOAGULASI</div>
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {CASCADE_STEPS.map((s,i) => (
+            <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+              <div style={{ width:4, alignSelf:'stretch', borderRadius:2, background:s.color, flexShrink:0 }}/>
+              <div>
+                <div className="t-caption-2" style={{ color:s.color, fontWeight:700, marginBottom:2 }}>{s.label}</div>
+                {s.items.map((item,j) => (
+                  <div key={j} className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{item}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop:10, background:'rgba(52,199,89,0.06)', borderRadius:10, padding:'8px 12px' }}>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>
+            <strong style={{color:'#34C759'}}>Lab:</strong> PT/INR (ekstrinsik + bersama), aPTT (intrinsik + bersama), TT (fibrin step), fibrinogen (Clauss).
+          </div>
+        </div>
+      </div>
+      {/* Anticoagulant selector */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+        {(Object.keys(ANTICOAG_DATA) as AKKey[]).map(k => {
+          const item = ANTICOAG_DATA[k];
+          const active = akKey === k;
+          return (
+            <button key={k} onClick={() => setAkKey(k)} style={{
+              border:'none', cursor:'pointer', borderRadius:14, padding:'10px 12px', textAlign:'left',
+              background: active ? item.tint+'18' : 'var(--fill-tertiary)',
+              boxShadow: active ? `0 0 0 1.5px ${item.tint}` : '0 0 0 1px var(--separator)'
+            }}>
+              <div className="t-caption-1" style={{ fontWeight:700, color: active ? item.tint : 'var(--label-primary)' }}>{item.name}</div>
+            </button>
+          );
+        })}
+      </div>
+      {/* Anticoagulant detail */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px', boxShadow:`0 0 0 1px ${d.tint}30` }}>
+        <div className="t-subhead" style={{ color:d.tint, fontWeight:700, marginBottom:8 }}>{d.name}</div>
+        {([['Target',d.target],['Monitor',d.monitor],['Onset',d.onset],['Indikasi',d.indication]] as [string,string][]).map(([k,v]) => (
+          <div key={k} style={{ marginBottom:7 }}>
+            <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700 }}>{k}</div>
+            <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{v}</div>
+          </div>
+        ))}
+        <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'10px 12px', marginTop:4, boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
+          <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700, marginBottom:3 }}>REVERSAL / ANTIDOT</div>
+          <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{d.reversal}</div>
+        </div>
+      </div>
+      {/* DIC quick note */}
+      <div style={{ background:'rgba(255,45,85,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(255,45,85,0.2)' }}>
+        <div className="t-caption-2" style={{ color:'#FF2D55', fontWeight:700, marginBottom:4 }}>DIC — Disseminated Intravascular Coagulation</div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
+          Aktivasi koagulasi sistemik (sepsis, trauma, obstetri) → konsumsi faktor → perdarahan + trombosis mikrovaskular.
+          Lab: ↓ fibrinogen, ↓ platelet, ↑ PT/aPTT, ↑ D-dimer.
+          Terapi: atasi penyebab + FFP + kriopresipitat + platelet.
+        </div>
+      </div>
+      <RefBlock items={KOAGULASI_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
+   Tab: Respirasi & Oksigenasi
+   ============================================================ */
+const HYPOXIA_TYPES: Array<{
+  key: string; name: string; tint: string;
+  mechanism: string; pao2: string; sao2: string; cao2: string; example: string;
+}> = [
+  { key:'hypoxic', name:'Hipoksik', tint:'#FF3B30',
+    mechanism:'↓ PaO₂ — pengiriman O₂ ke alveolus tidak cukup atau V/Q mismatch',
+    pao2:'↓', sao2:'↓', cao2:'↓',
+    example:'Pneumonia, PE, ARDS, dataran tinggi, hipoventilasi' },
+  { key:'anemic', name:'Anemik', tint:'#FF9500',
+    mechanism:'↓ [Hb] — pembawa O₂ kurang meski PaO₂ normal',
+    pao2:'N', sao2:'N', cao2:'↓',
+    example:'Anemia berat, perdarahan akut, CO poisoning' },
+  { key:'circulatory', name:'Sirkulasi', tint:'#AF52DE',
+    mechanism:'↓ CO — DO₂ turun meski CaO₂ normal (demand > supply)',
+    pao2:'N', sao2:'N', cao2:'N',
+    example:'Syok kardiogenik, PEA, gagal jantung berat' },
+  { key:'histotoxic', name:'Histotoksik', tint:'#34C759',
+    mechanism:'Sel tidak mampu menggunakan O₂ — mitokondria dihambat',
+    pao2:'N', sao2:'N', cao2:'N',
+    example:'Sianida, keracunan CO₂ tinggi, sepsis berat' },
+];
+
+const OXY_CURVE_POINTS = [
+  { po2:10, sat:13 },{ po2:20, sat:35 },{ po2:27, sat:50 },{ po2:40, sat:75 },
+  { po2:50, sat:83 },{ po2:60, sat:89 },{ po2:80, sat:95 },{ po2:100, sat:98 },
+  { po2:150, sat:99 },
+];
+
+const RESP_REFS: RefItem[] = [
+  { n:1, text:'West JB. Respiratory Physiology: The Essentials. 10th ed. Wolters Kluwer; 2016.', url:'https://doi.org/10.1097/00005373-197405000-00008' },
+  { n:2, text:'Barcroft J. The Respiratory Function of the Blood. Cambridge UP; 1914. (Classic: 4 types of hypoxia)' },
+  { n:3, text:'Marino PL. The ICU Book. 4th ed. Lippincott Williams & Wilkins; 2014. Ch. 1–4.' },
+];
+
+function RespirasiTab() {
+  const [hType, setHType] = useState(0);
+  const ht = HYPOXIA_TYPES[hType];
+  const W = 260; const H = 130; const PAD = 20;
+  const toX = (po2: number) => PAD + (po2/160)*(W - PAD*2);
+  const toY = (sat: number) => H - PAD - (sat/100)*(H - PAD*2);
+  const pathD = OXY_CURVE_POINTS.map((p,i) => `${i===0?'M':'L'}${toX(p.po2).toFixed(1)},${toY(p.sat).toFixed(1)}`).join(' ');
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* DO2 equation */}
+      <div style={{ background:'rgba(0,122,255,0.06)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px rgba(0,122,255,0.2)' }}>
+        <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700, marginBottom:6 }}>PERSAMAAN DO₂ (Oxygen Delivery)<Cite n={1} href="https://doi.org/10.1097/00005373-197405000-00008"/></div>
+        <div style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--label-primary)', marginBottom:8, lineHeight:1.7 }}>
+          DO₂ = CO × CaO₂ × 10<br/>
+          CaO₂ = (Hb × 1.34 × SaO₂) + (PaO₂ × 0.0031)
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
+          {[['Normal DO₂','950–1150 mL/min'],['VO₂ konsumsi','200–250 mL/min'],['EO₂ ratio','~25%']].map(([k,v]) => (
+            <div key={k} style={{ background:'var(--fill-tertiary)', borderRadius:10, padding:'8px 10px', textAlign:'center' }}>
+              <div className="t-caption-2" style={{ color:'var(--label-tertiary)' }}>{k}</div>
+              <div className="t-caption-1" style={{ color:'var(--label-primary)', fontWeight:700 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Oxyhemoglobin curve */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:8 }}>KURVA DISOSIASI OKSIHEMOGLOBIN</div>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:'auto', display:'block' }}>
+          {/* Grid lines */}
+          {[25,50,75,100].map(s => (
+            <line key={s} x1={PAD} x2={W-PAD} y1={toY(s)} y2={toY(s)} stroke="var(--separator)" strokeWidth="0.5"/>
+          ))}
+          {[40,80,120,160].map(p => (
+            <line key={p} x1={toX(p)} x2={toX(p)} y1={PAD} y2={H-PAD} stroke="var(--separator)" strokeWidth="0.5"/>
+          ))}
+          {/* Curve */}
+          <path d={pathD} fill="none" stroke="#007AFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* P50 marker */}
+          <circle cx={toX(27)} cy={toY(50)} r={4} fill="#FF9500"/>
+          <text x={toX(27)+6} y={toY(50)-5} fontSize="9" fill="#FF9500" fontWeight="bold">P50=27</text>
+          {/* SpO2 90% marker */}
+          <circle cx={toX(60)} cy={toY(90)} r={3} fill="#34C759"/>
+          <text x={toX(60)+5} y={toY(90)-4} fontSize="8" fill="#34C759">SpO₂90%@PO₂60</text>
+          {/* Axes labels */}
+          <text x={W/2} y={H-2} fontSize="9" fill="var(--label-tertiary)" textAnchor="middle">PaO₂ (mmHg)</text>
+          <text x={8} y={H/2} fontSize="9" fill="var(--label-tertiary)" textAnchor="middle" transform={`rotate(-90,8,${H/2})`}>SaO₂ (%)</text>
+        </svg>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginTop:8 }}>
+          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700 }}>Kurva KANAN (↓ afinitas)</div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>↑ Temp, ↑ CO₂, ↑ 2,3-DPG, ↓ pH → O₂ mudah lepas ke jaringan</div>
+          </div>
+          <div style={{ background:'rgba(0,122,255,0.08)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700 }}>Kurva KIRI (↑ afinitas)</div>
+            <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>↓ Temp, ↓ CO₂, ↓ 2,3-DPG, ↑ pH, CO poisoning → O₂ terikat kuat</div>
+          </div>
+        </div>
+      </div>
+      {/* Barcroft 4 types of hypoxia */}
+      <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
+        <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:8 }}>4 TIPE HIPOKSIA (Barcroft)<Cite n={2}/></div>
+        {/* Type selector */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:10 }}>
+          {HYPOXIA_TYPES.map((h,i) => (
+            <button key={h.key} onClick={() => setHType(i)} style={{
+              border:'none', cursor:'pointer', borderRadius:10, padding:'8px 12px', textAlign:'left',
+              background: hType===i ? h.tint+'18' : 'var(--fill-secondary)',
+              boxShadow: hType===i ? `0 0 0 1.5px ${h.tint}` : '0 0 0 1px var(--separator)'
+            }}>
+              <div className="t-caption-1" style={{ fontWeight:700, color: hType===i ? h.tint : 'var(--label-primary)' }}>{h.name}</div>
+            </button>
+          ))}
+        </div>
+        {/* Selected type detail */}
+        <div style={{ background:ht.tint+'08', borderRadius:12, padding:'12px 14px' }}>
+          <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginBottom:8, lineHeight:1.5 }}>{ht.mechanism}</div>
+          {/* PaO2/SaO2/CaO2 indicator */}
+          <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+            {[['PaO₂',ht.pao2],['SaO₂',ht.sao2],['CaO₂',ht.cao2]].map(([k,v]) => (
+              <div key={k} style={{ flex:1, background:'var(--fill-tertiary)', borderRadius:8, padding:'6px 8px', textAlign:'center' }}>
+                <div className="t-caption-2" style={{ color:'var(--label-tertiary)' }}>{k}</div>
+                <div className="t-callout" style={{ fontWeight:800, color: v==='↓' ? '#FF3B30' : v==='↑' ? '#34C759' : 'var(--label-secondary)' }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div className="t-caption-2" style={{ color:ht.tint, fontWeight:600 }}>Contoh: {ht.example}</div>
+        </div>
+      </div>
+      {/* A-a gradient */}
+      <div style={{ background:'rgba(48,176,199,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(48,176,199,0.2)' }}>
+        <div className="t-caption-2" style={{ color:'#30B0C7', fontWeight:700, marginBottom:4 }}>A-a GRADIENT</div>
+        <div style={{ fontFamily:'var(--font-mono)', fontSize:12, color:'var(--label-primary)', marginBottom:6 }}>
+          PAO₂ = FiO₂×(Patm−PH₂O) − PaCO₂/RQ<br/>
+          A-a = PAO₂ − PaO₂ (normal &lt;15 mmHg)
+        </div>
+        <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>
+          A-a ↑ → shunt, V/Q mismatch, difusi terganggu (pneumonia, ARDS, PE).
+          A-a normal → hipoventilasi murni, FiO₂ rendah.
+        </div>
+      </div>
+      <RefBlock items={RESP_REFS}/>
+    </div>
+  );
+}
+
+/* ============================================================
    Theory Screen — shared mobile + desktop layout
    ============================================================ */
 const THEORY_TABS = [
@@ -2726,6 +3358,11 @@ const THEORY_TABS = [
   { key:'ekg12',      label:'EKG 12-Sadapan',   sub:'Sadapan, aksis, morfologi',         tint:'#34C759' },
   { key:'pocus',      label:'POCUS',             sub:'Eko bedside, 4 views',             tint:'#007AFF' },
   { key:'postarrest', label:'Post-Arrest',       sub:'PCAS, TTM, neuroproteksi',          tint:'#FF9500' },
+  { key:'ventmek',   label:'Ventilasi Mekanik', sub:'Mode, setting, weaning',             tint:'#5856D6' },
+  { key:'sedasi',    label:'Sedasi & Analgesia', sub:'RASS, propofol, dexmed, NMBA',      tint:'#AF52DE' },
+  { key:'toksiko',   label:'Toksikologi Kardio', sub:'BB/CCB/digoksin overdosis',         tint:'#FF2D55' },
+  { key:'koagulasi', label:'Koagulasi & Antikoagulan', sub:'Heparin, warfarin, NOAC, reversal', tint:'#FF9500' },
+  { key:'respirasi', label:'Respirasi & Oksigenasi', sub:'DO₂, hipoksia, kurva disosiasi Hb', tint:'#30B0C7' },
 ];
 
 interface TheoryScreenProps { nav?: Nav; isMobile?: boolean; }
@@ -2757,6 +3394,11 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
       {tab==='ekg12'      && <Ekg12LeadTab/>}
       {tab==='pocus'      && <PocusTab/>}
       {tab==='postarrest' && <PostArrestTab/>}
+      {tab==='ventmek'    && <VentMekTab/>}
+      {tab==='sedasi'     && <SedasiTab/>}
+      {tab==='toksiko'    && <ToksikoTab/>}
+      {tab==='koagulasi'  && <KoagulasiTab/>}
+      {tab==='respirasi'  && <RespirasiTab/>}
     </>
   );
 
@@ -2910,6 +3552,11 @@ export function DesktopTheory() {
           {tab==='ekg12'      && <Ekg12LeadTab/>}
           {tab==='pocus'      && <PocusTab/>}
           {tab==='postarrest' && <PostArrestTab/>}
+          {tab==='ventmek'    && <VentMekTab/>}
+          {tab==='sedasi'     && <SedasiTab/>}
+          {tab==='toksiko'    && <ToksikoTab/>}
+          {tab==='koagulasi'  && <KoagulasiTab/>}
+          {tab==='respirasi'  && <RespirasiTab/>}
         </div>
       </div>
     </div>
