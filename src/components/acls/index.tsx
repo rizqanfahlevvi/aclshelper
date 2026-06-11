@@ -877,16 +877,16 @@ function CprAnimator({
     if (cprVenting) {
       return (
         <div style={{ borderRadius: 14, padding: '16px 16px', background: 'rgba(52,199,89,0.10)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.4)', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.12em', marginBottom: 10 }}>
-            VENTILASI
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.12em', marginBottom: 8 }}>
+            VENTILASI 2×
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginBottom: 10 }}>
-            {[0, 1].map(i => (
-              <div key={i} style={{ width: 18, height: 18, borderRadius: 9,
-                background: '#34C759', opacity: 1,
-                animation: `acls-vent-dot 1s ease-in-out ${i * 1.0}s infinite`
-              }}/>
-            ))}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+            <svg className="acls-lung-vent" width="56" height="56" viewBox="0 0 24 24" fill="none"
+              stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4v7M9.5 6h5"/>
+              <path d="M6 9.5C4.5 9.5 3 10.7 3 14v3a3.5 3.5 0 0 0 6.5 1.8l.5-2.3V9.5C10 8.5 9 8 8.5 8S6 9 6 9.5z"/>
+              <path d="M18 9.5C19.5 9.5 21 10.7 21 14v3a3.5 3.5 0 0 1-6.5 1.8L14 16.5V9.5C14 8.5 15 8 15.5 8S18 9 18 9.5z"/>
+            </svg>
           </div>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
             Berikan 2 napas lambat · ~1 detik tiap napas
@@ -935,11 +935,16 @@ function CprAnimator({
       </div>
       <div style={{ width: 1, background: 'var(--separator)', margin: '10px 0' }}/>
       <div style={{ padding: '14px 12px', textAlign: 'center' }}>
-        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 8 }}>VENTILASI</div>
-        <span key={ventKey} className="acls-breathe-word" style={{
-          fontSize: '1.25rem', fontWeight: 900, color: 'var(--info)'
-        }}>BREATHE</span>
-        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>10 / mnt · /6 dtk</div>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 6 }}>VENTILASI</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+          <svg key={ventKey} className="acls-lung-breathe" width="44" height="44" viewBox="0 0 24 24" fill="none"
+            stroke="var(--info)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 4v7M9.5 6h5"/>
+            <path d="M6 9.5C4.5 9.5 3 10.7 3 14v3a3.5 3.5 0 0 0 6.5 1.8l.5-2.3V9.5C10 8.5 9 8 8.5 8S6 9 6 9.5z"/>
+            <path d="M18 9.5C19.5 9.5 21 10.7 21 14v3a3.5 3.5 0 0 1-6.5 1.8L14 16.5V9.5C14 8.5 15 8 15.5 8S18 9 18 9.5z"/>
+          </svg>
+        </div>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>10 / mnt · /6 dtk</div>
       </div>
     </div>
   );
