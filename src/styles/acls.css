@@ -699,7 +699,7 @@ body {
   100% { transform: scale(0.72); opacity: 0.35; }
 }
 .acls-lung-vent {
-  animation: acls-lung-vent 1.8s cubic-bezier(0.45, 0, 0.55, 1) both;
+  animation: acls-lung-vent 2.8s cubic-bezier(0.45, 0, 0.55, 1) both;
   transform-box: fill-box;
   transform-origin: center;
 }

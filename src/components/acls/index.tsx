@@ -713,7 +713,7 @@ function useCompCounter(active: boolean): { count: number; venting: boolean } {
             setVenting(false);
             c = 0;
             startCompressing();
-          }, 2000);
+          }, 3000);
         }
       }, Math.round(60000 / CPR_BPM_RATIO)); // 600ms @ 100 BPM
     };
@@ -815,8 +815,8 @@ function useMetronome(active: boolean, intubated: boolean) {
           if (!intubated) {
             tickRef.current++;
             if (tickRef.current >= 30) {
-              ventUntilRef.current = nextRef.current + 2.0;
-              nextRef.current += 2.0;
+              ventUntilRef.current = nextRef.current + 3.0;
+              nextRef.current += 3.0;
               tickRef.current = 0;
             }
           }
@@ -1145,9 +1145,9 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
     AWAIT_STEPS; // fallback aman
   const safeIdx = Math.min(stepIdx, steps.length - 1);
   const curStep = steps[safeIdx];
-  // 30:2 counter — aktif hanya saat CPR berjalan dan airway belum definitif
+  // 30:2 counter — aktif selama CPR running, airway belum definitif
   const { count: cprCount, venting: cprVenting } = useCompCounter(
-    running && curStep?.kind === 'cpr' && !intubated
+    running && !intubated
   );
   const pushKey30    = usePushFlash(running && !intubated && !cprVenting, 600);
   const pushKeyAsync = usePushFlash(running && intubated, Math.round(60000 / CPR_BPM_CONT));
@@ -1813,8 +1813,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                   <div style={{ height: '100%', width: cycleProgress * 100 + '%', background: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--success)', borderRadius: 3, transition: 'width 50ms linear, background var(--dur-fast)' }}/>
                 </div>
 
-                {/* CprAnimator (desktop) */}
-                {curStep?.kind === 'cpr' && (
+                {/* CprAnimator (desktop) — selalu tampil saat running */}
+                {running && (
                   <div style={{ marginTop: 10 }}>
                     <CprAnimator intubated={intubated} cprCount={cprCount} cprVenting={cprVenting}
                       pushKey30={pushKey30} pushKeyAsync={pushKeyAsync} ventKey={ventKey}/>
@@ -2115,8 +2115,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <div style={{ height: "100%", width: cycleProgress * 100 + "%", background: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--success)", borderRadius: 3, transition: "width 50ms linear, background var(--dur-fast)" }}/>
           </div>
 
-          {/* CPR Animator — PUSH/BREATHE visual */}
-          {curStep?.kind === 'cpr' && (
+          {/* CPR Animator — selalu tampil saat running */}
+          {running && (
             <div style={{ marginTop: 10 }}>
               <CprAnimator intubated={intubated} cprCount={cprCount} cprVenting={cprVenting}
                 pushKey30={pushKey30} pushKeyAsync={pushKeyAsync} ventKey={ventKey}/>
