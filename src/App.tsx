@@ -228,17 +228,22 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
         WebkitBackdropFilter: 'blur(8px)',
       }} onClick={onClose}/>
 
-      {/* Modal card */}
+      {/* Modal card — centered with equal margins */}
       <div style={{
-        position: 'fixed', zIndex: 401,
-        bottom: 'calc(36px + env(safe-area-inset-bottom))',
-        left: 16, right: 16,
-        maxHeight: 'calc(88dvh - env(safe-area-inset-bottom))',
+        position: 'fixed', inset: 0, zIndex: 401,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '24px 16px',
+        pointerEvents: 'none',
+      }}>
+      <div style={{
+        width: '100%', maxWidth: 480,
+        maxHeight: 'calc(100dvh - 48px)',
         display: 'flex', flexDirection: 'column',
         background: 'var(--bg-primary)',
         borderRadius: 22,
         boxShadow: '0 8px 48px rgba(0,0,0,0.28), 0 0 0 0.5px var(--separator)',
-        animation: 'acls-fadeslide 260ms var(--ease-out) both',
+        animation: 'acls-fadein 260ms var(--ease-out) both',
+        pointerEvents: 'auto',
       }}>
 
 
@@ -478,6 +483,7 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
             </>
           )}
         </div>
+      </div>
       </div>
     </>
   );

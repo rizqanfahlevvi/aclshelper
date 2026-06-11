@@ -3371,11 +3371,14 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
   const [tab, setTab] = useState('cycle');
   const [sheetOpen, setSheetOpen] = useState(false);
   const activeTab = THEORY_TABS.find(t => t.key === tab) || THEORY_TABS[0];
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const selectTab = (key: string) => {
     haptic.monitorOn();
     setTab(key);
     setSheetOpen(false);
+    // Reset scroll to top so new content is visible from beginning
+    setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' }), 0);
   };
 
   const TheoryContent = () => (
@@ -3408,7 +3411,7 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
         {nav && <NavBar title="Teori Jantung" back="Kembali" onBack={nav.pop}/>}
 
         {/* Single scroll container — sticky header lives INSIDE so it actually sticks */}
-        <div style={{ flex:1, overflowY:'auto' }}>
+        <div ref={scrollRef} style={{ flex:1, overflowY:'auto' }}>
           {/* Sticky header with dropdown trigger */}
           <div style={{ position:'sticky', top:0, zIndex:10, background:'var(--bg-primary)', borderBottom:'0.5px solid var(--separator)', padding:'10px 16px 12px' }}>
             <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>
