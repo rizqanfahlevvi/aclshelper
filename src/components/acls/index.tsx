@@ -747,6 +747,27 @@ const PEA_STEPS: FlowStepType[] = [
   // Setelah index 2: rhythm check → no ROSC → wrap ke index 1 (CPR = Step 10)
 ];
 
+// Returns incrementing key each interval — use as key={} prop to restart CSS animation
+function usePushFlash(active: boolean, intervalMs: number): number {
+  const [key, setKey] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => setKey(k => k + 1), intervalMs);
+    return () => clearInterval(id);
+  }, [active, intervalMs]);
+  return key;
+}
+
+function useVentPulse(active: boolean): number {
+  const [key, setKey] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => setKey(k => k + 1), 6000);
+    return () => clearInterval(id);
+  }, [active]);
+  return key;
+}
+
 function useMetronome(active: boolean, intubated: boolean) {
   const ctxRef = useRef<AudioContext|null>(null);
   const schedRef = useRef<ReturnType<typeof setInterval>|null>(null);
@@ -842,6 +863,84 @@ function StepCard({ step, idx }: { step: FlowStepType; idx: number }) {
       </div>
       <div style={{ fontSize:14, fontWeight:600, color:'var(--label-primary)', lineHeight:1.3 }}>{step.title}</div>
       {step.sub && <div style={{ fontSize:12, color:'var(--label-secondary)', marginTop:2, lineHeight:1.4 }}>{step.sub}</div>}
+    </div>
+  );
+}
+
+function CprAnimator({
+  intubated, cprCount, cprVenting, pushKey30, pushKeyAsync, ventKey
+}: {
+  intubated: boolean; cprCount: number; cprVenting: boolean;
+  pushKey30: number; pushKeyAsync: number; ventKey: number;
+}) {
+  if (!intubated) {
+    if (cprVenting) {
+      return (
+        <div style={{ borderRadius: 14, padding: '16px 16px', background: 'rgba(52,199,89,0.10)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.4)', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.12em', marginBottom: 10 }}>
+            VENTILASI
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginBottom: 10 }}>
+            {[0, 1].map(i => (
+              <div key={i} style={{ width: 18, height: 18, borderRadius: 9,
+                background: '#34C759', opacity: 1,
+                animation: `acls-vent-dot 1s ease-in-out ${i * 1.0}s infinite`
+              }}/>
+            ))}
+          </div>
+          <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
+            Berikan 2 napas lambat · ~1 detik tiap napas
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div style={{ borderRadius: 14, padding: '14px 16px', background: 'var(--fill-quaternary)', textAlign: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '3.25rem', fontWeight: 900,
+          color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)',
+          lineHeight: 1, marginBottom: 2, transition: 'color 200ms',
+          fontFeatureSettings: '"tnum"' }}>
+          {cprCount || 0}
+        </div>
+        <span key={pushKey30} className="acls-push-word" style={{
+          fontSize: '1.625rem', fontWeight: 900, color: 'var(--danger)',
+          marginBottom: 12
+        }}>PUSH</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+          <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
+            <div style={{ height: '100%', borderRadius: 3,
+              width: (cprCount / 30 * 100) + '%',
+              background: cprCount >= 25 ? 'var(--warning)' : 'var(--info)',
+              transition: 'width 120ms ease-out, background 200ms'
+            }}/>
+          </div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
+            color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-secondary)', flexShrink: 0 }}>
+            {cprCount}/30
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Async mode (airway definitif terpasang)
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', borderRadius: 14, background: 'var(--fill-quaternary)', overflow: 'hidden' }}>
+      <div style={{ padding: '14px 12px', textAlign: 'center' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 8 }}>KOMPRESI</div>
+        <span key={pushKeyAsync} className="acls-push-word" style={{
+          fontSize: '1.5rem', fontWeight: 900, color: 'var(--danger)'
+        }}>PUSH</span>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>110 / mnt</div>
+      </div>
+      <div style={{ width: 1, background: 'var(--separator)', margin: '10px 0' }}/>
+      <div style={{ padding: '14px 12px', textAlign: 'center' }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 8 }}>VENTILASI</div>
+        <span key={ventKey} className="acls-breathe-word" style={{
+          fontSize: '1.25rem', fontWeight: 900, color: 'var(--info)'
+        }}>BREATHE</span>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>10 / mnt · /6 dtk</div>
+      </div>
     </div>
   );
 }
@@ -1035,6 +1134,9 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
   const { count: cprCount, venting: cprVenting } = useCompCounter(
     running && curStep?.kind === 'cpr' && !intubated
   );
+  const pushKey30    = usePushFlash(running && !intubated && !cprVenting, 600);
+  const pushKeyAsync = usePushFlash(running && intubated, Math.round(60000 / CPR_BPM_CONT));
+  const ventKey      = useVentPulse(running && intubated);
   // unknownRhythm: stay at last step; VF: loop ke shock #5 (idx 2); PEA: loop ke CPR (idx 1)
   const wrapIdx =
     phase === 'unknownRhythm' ? steps.length - 1 :
@@ -1302,24 +1404,13 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
           </div>
         </div>
 
-        <div className="cpr-log">
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 20px 4px' }}>
-            <div className="t-caption-2" style={{ color:"var(--label-secondary)" }}>LOG KEJADIAN</div>
-          </div>
-          <div style={{ padding:"0 20px 20px", display:"flex", flexDirection:"column", gap:6 }}>
-            {[...log].reverse().slice(0,6).map((e,i) => {
-              const tc = ({ info:"var(--label-primary)", warn:"var(--warning)", danger:"var(--danger)", success:"var(--success)" } as Record<string, string>)[e.tone];
-              return (
-                <div key={i} className="t-footnote" style={{ display:"flex", justifyContent:"space-between", gap:12, padding:"8px 12px", borderRadius:8, background:"var(--fill-quaternary)" }}>
-                  <span style={{ color:tc, fontWeight:600, flex:1, minWidth:0 }}>{e.action}</span>
-                  <span style={{ color:"var(--label-tertiary)", fontFamily:"var(--font-mono)", fontFeatureSettings:'"tnum"', textAlign:"right", flexShrink:0, lineHeight:1.25 }}>
-                    <div style={{ color:"var(--label-secondary)", fontWeight:600 }}>{e.wall}</div>
-                    <div style={{ fontSize:10, opacity:0.85 }}>+{fmt(e.t)}</div>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+        <div style={{ padding:'4px 16px 20px' }}>
+          <button onClick={() => setLogModalOpen(true)}
+            style={{ width:'100%', height:44, borderRadius:12, background:'var(--fill-tertiary)', border:'0.5px solid var(--separator)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+            <Icons.clipboard size={15} stroke={2}/>
+            <span className="t-caption-1" style={{ fontWeight:600, color:'var(--label-secondary)' }}>Log Kejadian · {log.length} item</span>
+            <Icons.chevR size={14} stroke={2} style={{ color:'var(--label-tertiary)' }}/>
+          </button>
         </div>
       </div>
 
@@ -1707,37 +1798,11 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                   <div style={{ height: '100%', width: cycleProgress * 100 + '%', background: cycleRemainingMs < 15000 ? 'var(--danger)' : 'var(--success)', borderRadius: 3, transition: 'width 50ms linear, background var(--dur-fast)' }}/>
                 </div>
 
-                {/* 30:2 Compression Counter (desktop) */}
+                {/* CprAnimator (desktop) */}
                 {curStep?.kind === 'cpr' && (
                   <div style={{ marginTop: 10 }}>
-                    {!intubated ? (
-                      cprVenting ? (
-                        <div style={{ borderRadius: 10, padding: '8px 12px', background: 'rgba(52,199,89,0.12)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.5)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontWeight: 800, fontSize: '0.875rem', color: '#34C759' }}>VENTILASI 2×</span>
-                          <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>Berikan 2 napas</span>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                              <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KOMPRESI · 30:2</span>
-                              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount} / 30</span>
-                            </div>
-                            <div style={{ height: 5, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: (cprCount / 30) * 100 + '%', borderRadius: 3, transition: 'width 120ms ease-out', background: cprCount >= 25 ? 'var(--warning)' : 'var(--info)' }}/>
-                            </div>
-                          </div>
-                          <div style={{ width: 36, height: 36, borderRadius: 9, background: cprCount >= 25 ? 'rgba(255,149,0,0.15)' : 'var(--fill-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 14, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount}</span>
-                          </div>
-                        </div>
-                      )
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--success)' }}/>
-                        <span className="t-caption-2" style={{ color: 'var(--success)', fontWeight: 600 }}>ASINKRON · Airway definitif terpasang</span>
-                      </div>
-                    )}
+                    <CprAnimator intubated={intubated} cprCount={cprCount} cprVenting={cprVenting}
+                      pushKey30={pushKey30} pushKeyAsync={pushKeyAsync} ventKey={ventKey}/>
                   </div>
                 )}
               </div>
@@ -2035,44 +2100,11 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <div style={{ height: "100%", width: cycleProgress * 100 + "%", background: cycleRemainingMs < 15000 ? "var(--danger)" : "var(--success)", borderRadius: 3, transition: "width 50ms linear, background var(--dur-fast)" }}/>
           </div>
 
-          {/* 30:2 Compression Counter — hanya saat bukan intubated dan step CPR aktif */}
+          {/* CPR Animator — PUSH/BREATHE visual */}
           {curStep?.kind === 'cpr' && (
             <div style={{ marginTop: 10 }}>
-              {!intubated ? (
-                cprVenting ? (
-                  <div style={{ borderRadius: 12, padding: '10px 14px', background: 'rgba(52,199,89,0.12)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.5)', display: 'flex', alignItems: 'center', gap: 10, animation: 'acls-pulse 0.6s ease-in-out 2' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#34C759', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#34C759' }}>VENTILASI 2×</div>
-                      <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>Berikan 2 napas — lanjut kompresi</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KOMPRESI · 30:2</span>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>
-                          {cprCount} / 30
-                        </span>
-                      </div>
-                      <div style={{ height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: (cprCount / 30) * 100 + '%', borderRadius: 3, transition: 'width 120ms ease-out', background: cprCount >= 25 ? 'var(--warning)' : 'var(--info)' }}/>
-                      </div>
-                    </div>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: cprCount >= 25 ? 'rgba(255,149,0,0.15)' : 'var(--fill-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 200ms' }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 15, color: cprCount >= 25 ? 'var(--warning)' : 'var(--label-primary)' }}>{cprCount}</span>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--success)' }}/>
-                  <span className="t-caption-2" style={{ color: 'var(--success)', fontWeight: 600 }}>ASINKRON · Airway definitif terpasang</span>
-                </div>
-              )}
+              <CprAnimator intubated={intubated} cprCount={cprCount} cprVenting={cprVenting}
+                pushKey30={pushKey30} pushKeyAsync={pushKeyAsync} ventKey={ventKey}/>
             </div>
           )}
         </div>
@@ -2234,30 +2266,13 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
 
       </div>
 
-      <div className="cpr-log">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px 4px' }}>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>LOG KEJADIAN</div>
-          {log.length > 6 && (
-            <button onClick={() => setLogModalOpen(true)}
-              style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)', background: 'none', border: 0, cursor: 'pointer', padding: '2px 0' }}>
-              Tampilkan semua ({log.length})
-            </button>
-          )}
-        </div>
-        <div style={{ padding: "0 20px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
-          {[...log].reverse().slice(0, 6).map((e, i) => {
-            const tc = ({ info: "var(--label-primary)", warn: "var(--warning)", danger: "var(--danger)", success: "var(--success)" } as Record<string, string>)[e.tone];
-            return (
-              <div key={i} className="t-footnote" style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "8px 12px", borderRadius: 8, background: "var(--bg-tertiary)", boxShadow: "var(--shadow-1)" }}>
-                <span style={{ color: tc, fontWeight: 600, flex: 1, minWidth: 0 }}>{e.action}</span>
-                <span style={{ color: "var(--label-tertiary)", fontFamily: "var(--font-mono)", fontFeatureSettings: '"tnum"', textAlign: "right", flexShrink: 0, lineHeight: 1.25 }}>
-                  <div style={{ color: "var(--label-secondary)", fontWeight: 600 }}>{e.wall}</div>
-                  <div style={{ fontSize: '0.625rem', opacity: 0.85 }}>+{fmt(e.t)}</div>
-                </span>
-              </div>
-            );
-          })}
-        </div>
+      <div style={{ padding:'4px 16px 20px' }}>
+        <button onClick={() => setLogModalOpen(true)}
+          style={{ width:'100%', height:44, borderRadius:12, background:'var(--fill-tertiary)', border:'0.5px solid var(--separator)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          <Icons.clipboard size={15} stroke={2}/>
+          <span className="t-caption-1" style={{ fontWeight:600, color:'var(--label-secondary)' }}>Log Kejadian · {log.length} item</span>
+          <Icons.chevR size={14} stroke={2} style={{ color:'var(--label-tertiary)' }}/>
+        </button>
       </div>
     </div>
 
