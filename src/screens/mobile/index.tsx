@@ -413,7 +413,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
             </div>
           </div>
 
-          {favItems.length > 0 && (
+          {favItems.length > 0 ? (
             <>
               <SectionHeader>Favorit</SectionHeader>
               <List>
@@ -440,33 +440,35 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                 ))}
               </List>
             </>
+          ) : (
+            <>
+              <SectionHeader>Akses Cepat</SectionHeader>
+              <div style={{ padding: '0 16px 12px', display: 'grid',
+                gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[
+                  { key: 'vfvt',  label: 'VF / pVT',       sub: 'Shockable',     tint: 'var(--danger)',     icon: <Icons.boltFill size={20}/> },
+                  { key: 'pea',   label: 'PEA / Asystole',  sub: 'Non-shockable', tint: 'var(--info)',       icon: <Icons.flatline size={20} stroke={2.2}/> },
+                  { key: 'brady', label: 'Bradikardi',       sub: 'HR < 50',       tint: 'var(--warning)',    icon: <Icons.slow size={20} stroke={2.2}/> },
+                  { key: 'tachy', label: 'Takikardi',        sub: 'HR > 150',      tint: 'var(--tint-neuro)', icon: <Icons.fast size={20} stroke={2.2}/> },
+                ].map(c => (
+                  <button key={c.key} onClick={() => nav.push({ screen: 'algo', id: c.key })}
+                    style={{ padding: '12px 14px', borderRadius: 16, background: 'var(--bg-tertiary)',
+                      boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'row',
+                      alignItems: 'center', gap: 12, border: 0, cursor: 'pointer',
+                      transition: 'transform 160ms, box-shadow 160ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-2)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-1)'; }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: '#fff',
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.icon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
+                      <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
-
-          <SectionHeader>Akses Cepat</SectionHeader>
-          <div style={{ padding: '0 16px 12px', display: 'grid',
-            gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {[
-              { key: 'vfvt',  label: 'VF / pVT',       sub: 'Shockable',     tint: 'var(--danger)',     icon: <Icons.boltFill size={20}/> },
-              { key: 'pea',   label: 'PEA / Asystole',  sub: 'Non-shockable', tint: 'var(--info)',       icon: <Icons.flatline size={20} stroke={2.2}/> },
-              { key: 'brady', label: 'Bradikardi',       sub: 'HR < 50',       tint: 'var(--warning)',    icon: <Icons.slow size={20} stroke={2.2}/> },
-              { key: 'tachy', label: 'Takikardi',        sub: 'HR > 150',      tint: 'var(--tint-neuro)', icon: <Icons.fast size={20} stroke={2.2}/> },
-            ].map(c => (
-              <button key={c.key} onClick={() => nav.push({ screen: 'algo', id: c.key })}
-                style={{ padding: '12px 14px', borderRadius: 16, background: 'var(--bg-tertiary)',
-                  boxShadow: 'var(--shadow-1)', textAlign: 'left', display: 'flex', flexDirection: 'row',
-                  alignItems: 'center', gap: 12, border: 0, cursor: 'pointer',
-                  transition: 'transform 160ms, box-shadow 160ms' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-1)'; }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: c.tint, color: '#fff',
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.3 }}>{c.label}</div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--label-secondary)', marginTop: 2 }}>{c.sub}</div>
-                </div>
-              </button>
-            ))}
-          </div>
 
           <SectionHeader>Algoritma</SectionHeader>
           <List>
