@@ -902,10 +902,14 @@ function CprAnimator({
           fontFeatureSettings: '"tnum"' }}>
           {cprCount || 0}
         </div>
-        <span key={pushKey30} className="acls-push-word" style={{
-          fontSize: '1.625rem', fontWeight: 900, color: 'var(--danger)',
-          marginBottom: 12
-        }}>PUSH</span>
+        <svg key={pushKey30} className="acls-push-hands" width="58" height="58" viewBox="0 0 24 24"
+          fill="none" stroke="var(--danger)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+          style={{ margin: '4px auto 8px' }}>
+          <path d="M12 3v2.5"/>
+          <rect x="4.5" y="6" width="15" height="4.5" rx="2.2"/>
+          <rect x="4.5" y="11" width="15" height="4.5" rx="2.2"/>
+          <path d="M12 16.5v3.5M9.5 18.5l2.5 2.5 2.5-2.5"/>
+        </svg>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
           <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--fill-tertiary)', overflow: 'hidden' }}>
             <div style={{ height: '100%', borderRadius: 3,
@@ -927,11 +931,17 @@ function CprAnimator({
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', borderRadius: 14, background: 'var(--fill-quaternary)', overflow: 'hidden' }}>
       <div style={{ padding: '14px 12px', textAlign: 'center' }}>
-        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 8 }}>KOMPRESI</div>
-        <span key={pushKeyAsync} className="acls-push-word" style={{
-          fontSize: '1.5rem', fontWeight: 900, color: 'var(--danger)'
-        }}>PUSH</span>
-        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>110 / mnt</div>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', letterSpacing: '0.06em', marginBottom: 4 }}>KOMPRESI</div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <svg key={pushKeyAsync} className="acls-push-hands" width="44" height="44" viewBox="0 0 24 24"
+            fill="none" stroke="var(--danger)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v2.5"/>
+            <rect x="4.5" y="6" width="15" height="4.5" rx="2.2"/>
+            <rect x="4.5" y="11" width="15" height="4.5" rx="2.2"/>
+            <path d="M12 16.5v3.5M9.5 18.5l2.5 2.5 2.5-2.5"/>
+          </svg>
+        </div>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 4 }}>110 / mnt</div>
       </div>
       <div style={{ width: 1, background: 'var(--separator)', margin: '10px 0' }}/>
       <div style={{ padding: '14px 12px', textAlign: 'center' }}>
