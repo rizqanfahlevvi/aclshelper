@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { Icons, NavBar, SectionHeader } from '../base';
 import { sfx } from '../../utils/sfx';
 import { haptic } from '../../utils/haptic';
@@ -662,7 +663,7 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
    BottomSheet
    ============================================================ */
 export function BottomSheet({ open, onClose, title, children, height }: { open: boolean; onClose: () => void; title?: string; children: React.ReactNode; height?: string }) {
-  return (
+  const sheet = (
     <div className={"acls-sheet-root " + (open ? "open" : "")}>
       <div className="acls-sheet-backdrop" onClick={onClose} />
       <div className="acls-sheet" style={{ maxHeight: height || "78%" }}>
@@ -679,6 +680,7 @@ export function BottomSheet({ open, onClose, title, children, height }: { open: 
       </div>
     </div>
   );
+  return ReactDOM.createPortal(sheet, document.body);
 }
 
 /* ============================================================
