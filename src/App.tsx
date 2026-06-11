@@ -792,26 +792,25 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 500,
-      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-      padding: '0 0 calc(env(safe-area-inset-bottom) + 16px)',
-      background: 'rgba(0,0,0,0.32)',
-      backdropFilter: 'blur(6px)',
-      WebkitBackdropFilter: 'blur(6px)',
-      animation: 'acls-fadein 220ms ease both',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '24px 20px',
+      background: 'rgba(0,0,0,0.40)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      animation: 'acls-fadein 200ms ease both',
     }}>
       <div style={{
-        width: '100%', maxWidth: 480,
+        width: '100%', maxWidth: 400,
         background: 'var(--material-thick)',
         backdropFilter: 'var(--blur-strong)',
         WebkitBackdropFilter: 'var(--blur-strong)',
-        borderRadius: '22px 22px 18px 18px',
+        borderRadius: 26,
         border: '0.5px solid var(--separator)',
         boxShadow: 'var(--shadow-modal)',
         overflow: 'hidden',
-        animation: 'acls-sheet-up 300ms var(--ease-out) both',
+        animation: 'acls-fadein 250ms var(--ease-out) both',
+        transform: 'translateZ(0)',
       }}>
-        {/* Handle */}
-        <div style={{ width: 36, height: 5, borderRadius: 3, background: 'var(--label-quaternary)', margin: '12px auto 0' }}/>
 
         {/* Body */}
         <div style={{ padding: '16px 20px 8px' }}>
