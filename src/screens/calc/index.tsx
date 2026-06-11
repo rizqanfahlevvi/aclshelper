@@ -6,6 +6,78 @@ import type { Calculator, CalcField } from '../../data/calculators';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
 /* ============================================================
+   CalcNumberField — stepper + direct text input
+   ============================================================ */
+function CalcNumberField({ field, num, step, onChange }: {
+  field: CalcField;
+  num: number;
+  step: number;
+  onChange: (val: number | string | boolean) => void;
+}) {
+  const [raw, setRaw] = React.useState('');
+  const [editing, setEditing] = React.useState(false);
+
+  const clamp = (v: number) => Math.min(field.max ?? Infinity, Math.max(field.min ?? -Infinity, v));
+  const commit = (s: string) => {
+    const v = parseFloat(s);
+    if (!isNaN(v)) onChange(clamp(v));
+    setEditing(false);
+    setRaw('');
+  };
+
+  const btnStyle: React.CSSProperties = {
+    width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
+    border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
+    color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  };
+
+  return (
+    <div style={{ padding: '12px 16px', borderRadius: 12, background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div className="t-callout" style={{ fontWeight: 500 }}>{field.label}</div>
+          {field.unit && <div className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{field.unit}</div>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button style={btnStyle} onClick={() => onChange(clamp(num - step))}>−</button>
+          {editing ? (
+            <input
+              autoFocus
+              type="number"
+              value={raw}
+              min={field.min} max={field.max}
+              onChange={e => setRaw(e.target.value)}
+              onBlur={e => commit(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') commit((e.target as HTMLInputElement).value); if (e.key === 'Escape') { setEditing(false); setRaw(''); } }}
+              style={{
+                width: 72, textAlign: 'center', background: 'var(--bg-primary)', border: 'none',
+                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
+                color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
+                outline: '2px solid var(--accent)',
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => { setRaw(String(num)); setEditing(true); }}
+              title="Ketuk untuk edit"
+              style={{
+                width: 72, textAlign: 'center', background: 'var(--bg-primary)',
+                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
+                color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
+                boxShadow: 'inset 0 0 0 0.5px var(--separator)', cursor: 'text',
+              }}
+            >
+              {num}
+            </div>
+          )}
+          <button style={btnStyle} onClick={() => onChange(clamp(num + step))}>+</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    CalcFieldInput
    ============================================================ */
 function CalcFieldInput({ field, value, onChange }: {
@@ -54,52 +126,7 @@ function CalcFieldInput({ field, value, onChange }: {
   if (field.type === 'number') {
     const num = Number(value) || 0;
     const step = field.step || 1;
-    return (
-      <div style={{
-        padding: '12px 16px', borderRadius: 12,
-        background: 'var(--fill-quaternary)',
-        boxShadow: 'inset 0 0 0 0.5px var(--separator)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div className="t-callout" style={{ fontWeight: 500 }}>{field.label}</div>
-            {field.unit && <div className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{field.unit}</div>}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <button
-              onClick={() => onChange(Math.max(field.min ?? -Infinity, num - step))}
-              style={{
-                width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
-                border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
-                color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >−</button>
-            <input
-              type="number"
-              value={num}
-              onChange={e => {
-                const v = parseFloat(e.target.value);
-                if (!isNaN(v)) onChange(Math.max(field.min ?? -Infinity, Math.min(field.max ?? Infinity, v)));
-              }}
-              style={{
-                width: 64, textAlign: 'center', background: 'var(--bg-primary)', border: 'none',
-                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
-                color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
-                boxShadow: 'inset 0 0 0 0.5px var(--separator)', outline: 'none',
-              }}
-            />
-            <button
-              onClick={() => onChange(Math.min(field.max ?? Infinity, num + step))}
-              style={{
-                width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
-                border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
-                color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >+</button>
-          </div>
-        </div>
-      </div>
-    );
+    return <CalcNumberField field={field} num={num} step={step} onChange={onChange}/>;
   }
 
   if (field.type === 'select') {

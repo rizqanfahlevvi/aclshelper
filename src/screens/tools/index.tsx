@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import {
@@ -25,21 +25,51 @@ function Stepper({ value, onChange, min = 1, max = 200, step = 1, unit = '' }: {
   value: number; onChange: (v: number) => void;
   min?: number; max?: number; step?: number; unit?: string;
 }) {
-  const btn = (d: number) => ({
-    onClick: () => onChange(Math.min(max, Math.max(min, value + d))),
-    style: {
-      width: 34, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
-      background: 'var(--fill-secondary)', color: 'var(--label-primary)',
-      fontSize: '1.25rem', fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    } as React.CSSProperties,
-  });
+  const [raw, setRaw] = React.useState('');
+  const [editing, setEditing] = React.useState(false);
+
+  const commit = (s: string) => {
+    const n = parseFloat(s);
+    if (!isNaN(n)) onChange(Math.min(max, Math.max(min, n)));
+    setEditing(false);
+    setRaw('');
+  };
+
+  const btnStyle: React.CSSProperties = {
+    width: 34, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
+    background: 'var(--fill-secondary)', color: 'var(--label-primary)',
+    fontSize: '1.25rem', fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center',
+  };
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <button {...btn(-step)}>−</button>
-      <div style={{ minWidth: 60, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: 'var(--label-primary)' }}>
-        {value}{unit && <span style={{ fontSize: '0.75rem', fontWeight: 400, marginLeft: 2, color: 'var(--label-secondary)' }}>{unit}</span>}
-      </div>
-      <button {...btn(+step)}>+</button>
+      <button style={btnStyle} onClick={() => onChange(Math.min(max, Math.max(min, value - step)))}>−</button>
+      {editing ? (
+        <input
+          autoFocus
+          type="number"
+          value={raw}
+          min={min} max={max}
+          onChange={e => setRaw(e.target.value)}
+          onBlur={e => commit(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') commit((e.target as HTMLInputElement).value); if (e.key === 'Escape') { setEditing(false); setRaw(''); } }}
+          style={{
+            width: 64, height: 34, borderRadius: 9, border: 'none', textAlign: 'center',
+            fontFamily: 'var(--font-mono)', fontSize: '1.0625rem', fontWeight: 700,
+            background: 'var(--fill-secondary)', color: 'var(--label-primary)',
+            outline: '2px solid var(--accent)', WebkitAppearance: 'none', MozAppearance: 'textfield' as never,
+          }}
+        />
+      ) : (
+        <div
+          onClick={() => { setRaw(String(value)); setEditing(true); }}
+          title="Ketuk untuk edit"
+          style={{ minWidth: 60, textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: 'var(--label-primary)', cursor: 'text', borderRadius: 9, padding: '5px 4px', transition: 'background 120ms' }}
+        >
+          {value}{unit && <span style={{ fontSize: '0.75rem', fontWeight: 400, marginLeft: 2, color: 'var(--label-secondary)' }}>{unit}</span>}
+        </div>
+      )}
+      <button style={btnStyle} onClick={() => onChange(Math.min(max, Math.max(min, value + step)))}>+</button>
     </div>
   );
 }
