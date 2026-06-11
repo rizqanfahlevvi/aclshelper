@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 
+const CREATOR_PHOTO = '/about/rizqan.jpg';
+
 const LINKEDIN_URL = 'https://www.linkedin.com/in/rizqanfahlevvi';
 
 const MDKIT_APPS = [
@@ -42,6 +44,7 @@ interface AboutProps { isMobile?: boolean; nav?: Nav; }
 
 export function AboutScreen({ isMobile = true, nav }: AboutProps) {
   const [openVer, setOpenVer] = useState('2.0');
+  const [photoErr, setPhotoErr] = useState(false);
 
   const content = (
     <div style={{ maxWidth: isMobile ? undefined : 600 }}>
@@ -49,10 +52,12 @@ export function AboutScreen({ isMobile = true, nav }: AboutProps) {
       {/* App header */}
       <div style={{ padding: '32px 20px 20px', textAlign: 'center' }}>
         <div style={{ width: 88, height: 88, borderRadius: 22,
-          background: 'linear-gradient(135deg,#FF3B30,#FF6B6B)',
+          background: 'var(--danger)',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: 14, boxShadow: '0 8px 28px rgba(255,59,48,0.30)' }}>
-          <Icons.heartFill size={50} style={{ color: '#fff' }}/>
+          <svg width="46" height="46" viewBox="0 0 24 24" fill="#fff">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
         </div>
         <div style={{ fontSize: '1.875rem', fontWeight: 800, letterSpacing: '-0.02em',
           color: 'var(--label-primary)' }}>ACLS Helper</div>
@@ -90,10 +95,16 @@ export function AboutScreen({ isMobile = true, nav }: AboutProps) {
         <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
           <div style={{ padding: '14px 16px', borderRadius: 14, background: 'var(--bg-tertiary)',
             boxShadow: 'var(--shadow-1)', display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-              background: 'rgba(10,102,194,0.12)',
+            <div style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(10,102,194,0.12)', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icons.user size={22} stroke={2} style={{ color: '#0A66C2' }}/>
+              {!photoErr ? (
+                <img src={CREATOR_PHOTO} alt="Rizqan"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={() => setPhotoErr(true)}/>
+              ) : (
+                <Icons.user size={24} stroke={2} style={{ color: '#0A66C2' }}/>
+              )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--label-primary)' }}>Rizqan</div>
@@ -204,9 +215,10 @@ export function AboutScreen({ isMobile = true, nav }: AboutProps) {
 
   if (isMobile) {
     return (
-      <div className="acls-screen" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px',
-          borderBottom: '0.5px solid var(--separator)', flexShrink: 0 }}>
+          borderBottom: '0.5px solid var(--separator)', flexShrink: 0,
+          background: 'var(--bg-primary)' }}>
           <button onClick={() => nav?.pop()}
             style={{ height: 32, padding: '0 4px', background: 'none', border: 0,
               cursor: 'pointer', color: 'var(--label-secondary)', display: 'flex',
@@ -217,7 +229,7 @@ export function AboutScreen({ isMobile = true, nav }: AboutProps) {
           <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--label-primary)' }}>Tentang</span>
           <div style={{ flex: 1 }}/>
         </div>
-        <div style={{ overflowY: 'auto', flex: 1 }}>
+        <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'] }}>
           {content}
         </div>
       </div>
