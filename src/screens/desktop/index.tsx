@@ -48,50 +48,40 @@ function resolveFav(f: { type: string; key: string }) {
   return null;
 }
 
-export function DesktopSidebar({ active, onChange, onFeedback, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onFeedback: () => void; collapsed?: boolean }) {
-  const [query, setQuery] = React.useState('');
+export function DesktopSidebar({ active, onChange, onFeedback, onSearch, collapsed = false }: { active: string; onChange: (key: string, sub?: string) => void; onFeedback: () => void; onSearch?: () => void; collapsed?: boolean }) {
   const { favs } = useFavorites();
-  const q = query.trim().toLowerCase();
-  const navItems = q ? SIDEBAR_NAV.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : SIDEBAR_NAV;
   const favResolved = useMemo(() =>
     favs.map(f => { const info = resolveFav(f); return info ? { ...f, ...info } : null; }).filter((x): x is { type: string; key: string; label: string; tint: string; screen: string } => x !== null),
     [favs]
   );
-  const favFiltered = q ? favResolved.filter(f => f.label.toLowerCase().includes(q)) : favResolved;
-  const noResults = q && navItems.length === 0 && favFiltered.length === 0;
   return (
     <aside className={collapsed ? 'acls-sidebar acls-sidebar--collapsed' : 'acls-sidebar'}>
       {collapsed ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 48, flexShrink: 0 }}>
-          <Icons.search size={18} stroke={1.9} style={{ color: 'var(--label-secondary)' }}/>
+          <button onClick={onSearch} title="Pencarian global"
+            style={{ background: 'none', border: 0, cursor: 'pointer', color: 'var(--label-secondary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 36, height: 36, borderRadius: 9 }}>
+            <Icons.search size={18} stroke={1.9}/>
+          </button>
         </div>
       ) : (
         <div style={{ padding: '10px 12px 4px', flexShrink: 0 }}>
-          <div className="acls-sidebar-search" style={{ margin: 0, animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
-            <Icons.search size={14} stroke={2}/>
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Cari…"
-              style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none',
-                color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}
-            />
-            {query && (
-              <button onClick={() => setQuery('')}
-                style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
-                  color: 'var(--label-tertiary)', display: 'flex', alignItems: 'center',
-                  lineHeight: 1, flexShrink: 0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            )}
-          </div>
+          <button onClick={onSearch}
+            className="acls-sidebar-search"
+            style={{ margin: 0, cursor: 'pointer', width: '100%', textAlign: 'left',
+              animation: 'acls-fadeslide 200ms var(--ease-out) both' }}>
+            <Icons.search size={14} stroke={2} style={{ flexShrink: 0 }}/>
+            <span style={{ flex: 1, color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Cari semua konten…</span>
+            <span style={{ fontSize: '0.6875rem', color: 'var(--label-quaternary)',
+              background: 'var(--fill-secondary)', borderRadius: 5, padding: '1px 5px',
+              fontFamily: 'var(--font-mono)', flexShrink: 0 }}>⌘K</span>
+          </button>
         </div>
       )}
 
       <nav className="acls-sidebar-nav">
-        {(collapsed ? SIDEBAR_NAV : navItems).map(it => (
+        {SIDEBAR_NAV.map(it => (
           <button key={it.key} onClick={() => onChange(it.key)}
             className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
             style={{ padding: '0 10px', height: 48 }}
@@ -112,25 +102,18 @@ export function DesktopSidebar({ active, onChange, onFeedback, collapsed = false
 
         {!collapsed && (
           <>
-            {noResults && (
-              <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
-            )}
-            {!noResults && (
-              <>
-                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>FAVORIT</div>
-                {favFiltered.length === 0 ? (
-                  <div style={{ padding: '6px 18px 10px', color: 'var(--label-quaternary)', fontSize: '0.75rem', lineHeight: 1.5 }}>
-                    Ketuk ikon 🔖 di algoritma, obat, EKG, atau kalkulator untuk menyimpan
-                  </div>
-                ) : (
-                  favFiltered.map(f => (
-                    <button key={f.type + f.key} onClick={() => onChange(f.screen, f.key)} className="acls-sidebar-item">
-                      <span style={{ width: 8, height: 8, borderRadius: 4, background: f.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.label}</span>
-                    </button>
-                  ))
-                )}
-              </>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>FAVORIT</div>
+            {favResolved.length === 0 ? (
+              <div style={{ padding: '6px 18px 10px', color: 'var(--label-quaternary)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                Ketuk ikon 🔖 di algoritma, obat, EKG, atau kalkulator untuk menyimpan
+              </div>
+            ) : (
+              favResolved.map(f => (
+                <button key={f.type + f.key} onClick={() => onChange(f.screen, f.key)} className="acls-sidebar-item">
+                  <span style={{ width: 8, height: 8, borderRadius: 4, background: f.tint, marginLeft: 5, marginRight: 5, flexShrink: 0 }}/>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.label}</span>
+                </button>
+              ))
             )}
           </>
         )}

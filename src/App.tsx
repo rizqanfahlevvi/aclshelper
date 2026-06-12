@@ -734,18 +734,13 @@ interface MobileSidebarProps {
   activeTab: string;
   onNavigate: (key: string, id?: string) => void;
   onFeedback: () => void;
+  onSearch: () => void;
 }
-function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: MobileSidebarProps) {
-  const [query, setQuery] = useState('');
+function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback, onSearch }: MobileSidebarProps) {
   const { favs } = useFavorites();
-  const q = query.trim().toLowerCase();
-  const menuFiltered = q ? MOBILE_MENU.filter(it => it.label.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) : MOBILE_MENU;
-  const quickFiltered = q ? MOBILE_QUICK.filter(it => it.label.toLowerCase().includes(q)) : MOBILE_QUICK;
   const favResolved = favs
     .map((f: { type: string; key: string }) => { const info = resolveFavMobile(f); return info ? { ...f, ...info } : null; })
     .filter((x): x is { type: string; key: string; label: string; tint: string; screen: string } => x !== null);
-  const favFiltered = q ? favResolved.filter(f => f.label.toLowerCase().includes(q)) : favResolved;
-  const noResults = q && menuFiltered.length === 0 && quickFiltered.length === 0 && favFiltered.length === 0;
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 150,
@@ -759,32 +754,16 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: Mob
         transition: 'transform 280ms var(--ease-out)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         boxShadow: '4px 0 32px rgba(0,0,0,0.18)' }}>
-        <div style={{ padding: '10px 14px 0' }}>
-          <div className="acls-sidebar-search">
-            <Icons.search size={14} stroke={2}/>
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Cari…"
-              style={{ flex: 1, background: 'none', border: 0, outline: 'none',
-                color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit' }}
-            />
-            {query && (
-              <button onClick={() => setQuery('')}
-                style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0,
-                  color: 'var(--label-tertiary)', display: 'flex', alignItems: 'center' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            )}
-          </div>
+        <div style={{ padding: '10px 14px 8px' }}>
+          <button onClick={() => { onSearch(); onClose(); }}
+            className="acls-sidebar-search"
+            style={{ margin: 0, cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+            <Icons.search size={14} stroke={2} style={{ flexShrink: 0 }}/>
+            <span style={{ flex: 1, color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Cari semua konten…</span>
+          </button>
         </div>
         <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
-          {noResults && (
-            <div style={{ padding: '12px 18px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
-          )}
-          {menuFiltered.map(it => (
+          {MOBILE_MENU.map(it => (
             <button key={it.key}
               className={'acls-sidebar-item ' + (activeTab === it.key ? 'active' : '')}
               style={{ padding: '8px 10px' }}
@@ -799,10 +778,10 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: Mob
               </div>
             </button>
           ))}
-          {favFiltered.length > 0 ? (
+          {favResolved.length > 0 ? (
             <>
               <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>FAVORIT</div>
-              {favFiltered.map(f => (
+              {favResolved.map(f => (
                 <button key={f.type + f.key} className="acls-sidebar-item"
                   style={{ padding: '8px 10px' }}
                   onClick={() => { onNavigate(f.screen, f.key); onClose(); }}>
@@ -812,10 +791,10 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback }: Mob
                 </button>
               ))}
             </>
-          ) : quickFiltered.length > 0 && (
+          ) : (
             <>
               <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '14px 18px 4px' }}>AKSES CEPAT</div>
-              {quickFiltered.map(it => (
+              {MOBILE_QUICK.map(it => (
                 <button key={it.key} className="acls-sidebar-item"
                   style={{ padding: '8px 10px' }}
                   onClick={() => { onNavigate('algo', it.key); onClose(); }}>
@@ -1258,7 +1237,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} onSearch={() => setSearchOpen(true)}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
         </div>
 
         <MobileSidebar
@@ -1266,7 +1245,8 @@ export default function App() {
           onClose={() => setMobileSidebarOpen(false)}
           activeTab={tab}
           onNavigate={mobileNavFromSidebar}
-          onFeedback={() => { setFeedbackOpen(true); setMobileSidebarOpen(false); }}/>
+          onFeedback={() => { setFeedbackOpen(true); setMobileSidebarOpen(false); }}
+          onSearch={() => setSearchOpen(true)}/>
 
         <div className="acls-mobile-content" key={screenKey}>
           {renderMobile()}
@@ -1400,14 +1380,15 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale} onSearch={() => setSearchOpen(true)}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale}/>
 
       <div className="acls-desktop-body">
         <DesktopSidebar
           collapsed={sidebarCollapsed}
           active={deskView.screen}
           onChange={(screen, id) => desktopPick(screen, id)}
-          onFeedback={() => setFeedbackOpen(true)}/>
+          onFeedback={() => setFeedbackOpen(true)}
+          onSearch={() => setSearchOpen(true)}/>
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
