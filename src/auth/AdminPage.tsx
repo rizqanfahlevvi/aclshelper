@@ -47,7 +47,7 @@ function tsToDisplay(val: any): string {
 
 export function AdminPage({ onBack }: AdminPageProps) {
   const { user, userProfile } = useAuth();
-  const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
+  const isAdmin = userProfile?.role === 'admin' || (user?.email || '').trim().toLowerCase() === 'driverizqanf@gmail.com';
 
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -197,7 +197,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100vh', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ background: 'var(--bg-primary)', borderBottom: '0.5px solid var(--separator)',
         padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>

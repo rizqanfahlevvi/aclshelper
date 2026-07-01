@@ -43,7 +43,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout, onOpenAdmin }: Profile
 
   if (!isOpen) return null;
 
-  const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
+  const isAdmin = userProfile?.role === 'admin' || (user?.email || '').trim().toLowerCase() === 'driverizqanf@gmail.com';
   const displayName = userProfile?.namaLengkap || userProfile?.username || user?.email || 'Pengguna';
   const initials = displayName.trim().slice(0, 1).toUpperCase();
 

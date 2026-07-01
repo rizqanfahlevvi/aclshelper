@@ -1263,7 +1263,11 @@ export default function App() {
     return <AdminPage onBack={() => setAdminOpen(false)}/>;
   }
 
-  const isLocked = !!user && !isAuthorized;
+  /* isAuthorized (from AuthContext) only checks subscriptionExpiredAt, so an
+     "inactive" profile with no expiry date (the sign-up default) would slip
+     through as authorized — require an active/trial subscriptionStatus too. */
+  const hasEntitlement = userProfile?.subscriptionStatus === 'active' || userProfile?.subscriptionStatus === 'trial';
+  const isLocked = !!user && (!isAuthorized || !hasEntitlement);
   const isCalcScreen = topFrame.screen === 'calc' || topFrame.screen === 'calcList' || topFrame.screen === 'vaso'
     || (bp === 'desktop' && (deskView.screen === 'calc'));
   const waLockLink = `https://wa.me/6287749076019?text=${encodeURIComponent(
