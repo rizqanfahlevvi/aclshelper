@@ -26,6 +26,11 @@ import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDef
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 import { AboutScreen } from './screens/about';
 import { SearchModal } from './screens/search';
+import { useAuth } from './context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { ProfilePopup } from './auth/ProfilePopup';
+import { AdminPage } from './auth/AdminPage';
 
 const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
 
@@ -505,8 +510,10 @@ interface AppTopBarProps {
   fontScale: number;
   onFontScaleChange: (v: number) => void;
   onSearch?: () => void;
+  onOpenProfile?: () => void;
+  userInitial?: string;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onSearch }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onSearch, onOpenProfile, userInitial }: AppTopBarProps) {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
@@ -689,6 +696,20 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
           aria-label="Toggle tema">
           {theme === 'dark' ? <SunIcon/> : <MoonIcon/>}
         </button>
+        {onOpenProfile && userInitial && (
+          <button
+            onClick={onOpenProfile}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32, borderRadius: 8,
+              background: 'var(--accent)',
+              border: 0, cursor: 'pointer',
+              color: '#fff', fontSize: '0.8125rem', fontWeight: 700,
+            }}
+            aria-label="Profil">
+            {userInitial}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -923,6 +944,12 @@ export default function App() {
   const bp = useBreakpoint();
   const isMobile = bp === 'mobile';
   const [theme, setTheme] = useState('light');
+
+  const { user, userProfile, isAuthorized } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [subBannerOpen, setSubBannerOpen] = useState(true);
+  const userInitial = (userProfile?.namaLengkap || userProfile?.username || user?.email || '?').trim().slice(0, 1).toUpperCase();
 
   const [fontScale, setFontScale] = useState<number>(() => {
     const saved = parseFloat(localStorage.getItem('acls_font_scale') || '');
@@ -1232,12 +1259,83 @@ export default function App() {
 
   const screenKey = tab + '-' + topFrame.screen + '-' + (('id' in topFrame ? topFrame.id : '') || '');
 
+  if (adminOpen) {
+    return <AdminPage onBack={() => setAdminOpen(false)}/>;
+  }
+
+  const isLocked = !!user && !isAuthorized;
+  const isCalcScreen = topFrame.screen === 'calc' || topFrame.screen === 'calcList' || topFrame.screen === 'vaso'
+    || (bp === 'desktop' && (deskView.screen === 'calc'));
+  const waLockLink = `https://wa.me/6287749076019?text=${encodeURIComponent(
+    'Hai dok, saya sudah daftar ACLS Helper MD Kit, username saya ' + (userProfile?.username || userProfile?.email || '')
+  )}`;
+
+  const lockedOverlay = isLocked && isCalcScreen && (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center',
+      justifyContent: 'center', padding: 24, background: 'var(--bg-secondary)' }}>
+      <div style={{ textAlign: 'center', maxWidth: 320 }}>
+        <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto 16px',
+          background: 'rgba(255,149,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--label-primary)', marginBottom: 8 }}>
+          Fitur Terkunci
+        </div>
+        <div style={{ fontSize: '0.875rem', color: 'var(--label-secondary)', lineHeight: 1.55, marginBottom: 20 }}>
+          Anda belum mengaktifkan langganan. Silakan hubungi kami via WhatsApp untuk verifikasi dan aktivasi akses.
+        </div>
+        <a href={waLockLink} target="_blank" rel="noopener noreferrer" style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          padding: '12px 22px', borderRadius: 12, textDecoration: 'none',
+          background: 'linear-gradient(135deg,#FF9500,#E67300)', color: '#fff', fontWeight: 700, fontSize: '0.9375rem',
+        }}>Hubungi via WhatsApp</a>
+      </div>
+    </div>
+  );
+
+  const subBanner = subBannerOpen && userProfile && (userProfile.subscriptionStatus === 'trial' || userProfile.subscriptionStatus === 'active') && (() => {
+    const isTrial = userProfile.subscriptionStatus === 'trial';
+    const expiredRaw = userProfile.subscriptionExpiredAt;
+    const expDate = expiredRaw && (expiredRaw as any).toDate ? (expiredRaw as any).toDate() : null;
+    const expLabel = expDate ? expDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
+        background: isTrial ? 'rgba(255,149,0,0.12)' : 'rgba(52,199,89,0.12)',
+        borderBottom: '0.5px solid var(--separator)', flexShrink: 0,
+      }}>
+        <span style={{ flex: 1, fontSize: '0.8125rem', color: isTrial ? 'var(--warning)' : 'var(--success)', lineHeight: 1.4 }}>
+          {isTrial
+            ? `Anda sedang dalam masa Trial.${expLabel ? ` Akses Anda dibatasi hingga ${expLabel}.` : ''}`
+            : `Terima kasih telah berlangganan!${expLabel ? ` Status aktif hingga ${expLabel}.` : ''}`}
+        </span>
+        {isTrial && (
+          <a href={waLockLink} target="_blank" rel="noopener noreferrer" style={{
+            fontSize: '0.75rem', fontWeight: 700, color: 'var(--warning)', whiteSpace: 'nowrap', textDecoration: 'underline',
+          }}>WA</a>
+        )}
+        <button onClick={() => setSubBannerOpen(false)} style={{
+          background: 'none', border: 0, cursor: 'pointer', color: 'var(--label-tertiary)',
+          display: 'flex', alignItems: 'center', flexShrink: 0,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    );
+  })();
+
   /* ── MOBILE ──────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}/>
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}
+            onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
+          {subBanner}
         </div>
 
         <MobileSidebar
@@ -1248,7 +1346,9 @@ export default function App() {
           onFeedback={() => { setFeedbackOpen(true); setMobileSidebarOpen(false); }}
           onSearch={() => setSearchOpen(true)}/>
 
-        <div className="acls-mobile-content" key={screenKey}>
+        <div className="acls-mobile-content" key={screenKey}
+          style={subBanner ? { top: 'calc(52px + env(safe-area-inset-top) + 44px)' } : undefined}>
+          {lockedOverlay}
           {renderMobile()}
         </div>
 
@@ -1283,6 +1383,19 @@ export default function App() {
         )}
 
         <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onNavigate={handleSearchNavigate}/>
+
+        <ProfilePopup
+          isOpen={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          onLogout={async () => {
+            await signOut(auth);
+            setProfileOpen(false);
+          }}
+          onOpenAdmin={() => {
+            setProfileOpen(false);
+            setAdminOpen(true);
+          }}
+        />
 
         {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
 
@@ -1380,7 +1493,9 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale}/>
+        fontScale={fontScale} onFontScaleChange={setFontScale}
+        onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
+      {subBanner}
 
       <div className="acls-desktop-body">
         <DesktopSidebar
@@ -1392,6 +1507,7 @@ export default function App() {
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
+            {lockedOverlay}
             {renderDesktop()}
 
             {cprOpen && (
@@ -1425,6 +1541,18 @@ export default function App() {
         />
       )}
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onNavigate={handleSearchNavigate}/>
+      <ProfilePopup
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onLogout={async () => {
+          await signOut(auth);
+          setProfileOpen(false);
+        }}
+        onOpenAdmin={() => {
+          setProfileOpen(false);
+          setAdminOpen(true);
+        }}
+      />
       {sessionPopupOpen && <SessionFeedbackPopup onClose={closeSessionPopup}/>}
     </div>
   );
