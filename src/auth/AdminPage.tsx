@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { collection, getDocs, doc, updateDoc, deleteDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, setDoc, Timestamp, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -65,7 +65,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const snap = await getDocs(collection(db, 'users'));
+      const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
       setUsers(snap.docs.map(d => ({ uid: d.id, ...d.data() } as UserRow)));
     } catch (err) {
       console.error('Failed to load users:', err);

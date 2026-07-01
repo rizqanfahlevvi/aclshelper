@@ -1268,13 +1268,14 @@ export default function App() {
      through as authorized — require an active/trial subscriptionStatus too. */
   const hasEntitlement = userProfile?.subscriptionStatus === 'active' || userProfile?.subscriptionStatus === 'trial';
   const isLocked = !!user && (!isAuthorized || !hasEntitlement);
-  const isCalcScreen = topFrame.screen === 'calc' || topFrame.screen === 'calcList' || topFrame.screen === 'vaso'
-    || (bp === 'desktop' && (deskView.screen === 'calc'));
+  const isContentScreen = bp === 'desktop'
+    ? deskView.screen !== 'dashboard'
+    : topFrame.screen !== 'home';
   const waLockLink = `https://wa.me/6287749076019?text=${encodeURIComponent(
     'Hai dok, saya sudah daftar ACLS Helper MD Kit, username saya ' + (userProfile?.username || userProfile?.email || '')
   )}`;
 
-  const lockedOverlay = isLocked && isCalcScreen && (
+  const lockedOverlay = isLocked && isContentScreen && (
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center',
       justifyContent: 'center', padding: 24, background: 'var(--bg-secondary)' }}>
       <div style={{ textAlign: 'center', maxWidth: 320 }}>
