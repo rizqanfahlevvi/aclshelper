@@ -147,6 +147,14 @@ export const PALS_DRUGS: PalsDrug[] = [
 /* ------------------------------------------------------------
    2. VASOPRESSORS — Vasopressor & inotrope reference
    ------------------------------------------------------------ */
+export interface VasoStockPreset {
+  label: string;              // e.g. '4 mg dalam 50 mL (pekat)'
+  method: 'syringe' | 'infus'; // syringe pump (pekat, vol kecil) vs infus pump/gravitasi (bag, vol besar)
+  amount: number;              // jumlah obat dilarutkan
+  amountUnit: 'mg' | 'unit';   // satuan dasar obat (dikonversi ke mcg bila perlu)
+  volumeMl: number;            // total volume pelarut (mL)
+}
+
 export interface Vasopressor {
   key: string;
   name: string;
@@ -161,6 +169,7 @@ export interface Vasopressor {
   titration: string;         // titration strategy
   sideEffects: string;
   pearls: string[];
+  stockPresets: VasoStockPreset[]; // preset pengenceran umum (syringe pump & infus pump)
 }
 
 export const VASOPRESSORS: Vasopressor[] = [
@@ -181,6 +190,11 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Kombinasikan vasopressin 0.03 unit/min jika butuh dosis tinggi',
       'Gunakan akses sentral jika memungkinkan',
     ],
+    stockPresets: [
+      { label: '4 mg dalam 50 mL NS/D5% (80 mcg/mL)',  method: 'syringe', amount: 4, amountUnit: 'mg', volumeMl: 50 },
+      { label: '8 mg dalam 50 mL NS/D5% (160 mcg/mL, pekat)', method: 'syringe', amount: 8, amountUnit: 'mg', volumeMl: 50 },
+      { label: '4 mg dalam 100 mL NS/D5% (40 mcg/mL)',  method: 'infus',   amount: 4, amountUnit: 'mg', volumeMl: 100 },
+    ],
   },
   {
     key: 'epi',
@@ -200,6 +214,11 @@ export const VASOPRESSORS: Vasopressor[] = [
       'IM 0.3-0.5 mg pada anafilaksis sebelum akses IV',
       'Laktasidosis bisa terjadi — bukan selalu tanda gagal terapi',
     ],
+    stockPresets: [
+      { label: '1 mg dalam 50 mL NS/D5% (20 mcg/mL)',  method: 'syringe', amount: 1, amountUnit: 'mg', volumeMl: 50 },
+      { label: '4 mg dalam 50 mL NS/D5% (80 mcg/mL, pekat)', method: 'syringe', amount: 4, amountUnit: 'mg', volumeMl: 50 },
+      { label: '1 mg dalam 250 mL NS/D5% (4 mcg/mL)',  method: 'infus',   amount: 1, amountUnit: 'mg', volumeMl: 250 },
+    ],
   },
   {
     key: 'dopamin',
@@ -217,6 +236,11 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Vasopressor alternatif (lebih banyak aritmia vs norepinefrin)',
       'Dosis rendah renal (1-3 mcg/kg/min) tidak terbukti proteksi ginjal',
       'Kurangi dosis bertahap saat weaning',
+    ],
+    stockPresets: [
+      { label: '200 mg dalam 50 mL NS/D5% (4 mg/mL)',  method: 'syringe', amount: 200, amountUnit: 'mg', volumeMl: 50 },
+      { label: '400 mg dalam 50 mL NS/D5% (8 mg/mL, pekat)', method: 'syringe', amount: 400, amountUnit: 'mg', volumeMl: 50 },
+      { label: '400 mg dalam 250 mL NS/D5% (1.6 mg/mL)', method: 'infus',   amount: 400, amountUnit: 'mg', volumeMl: 250 },
     ],
   },
   {
@@ -236,6 +260,10 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Kombinasikan dengan norepinefrin pada syok kardiogenik',
       'Dapat memperburuk iskemia pada IHD',
     ],
+    stockPresets: [
+      { label: '250 mg dalam 50 mL NS/D5% (5 mg/mL)',  method: 'syringe', amount: 250, amountUnit: 'mg', volumeMl: 50 },
+      { label: '250 mg dalam 250 mL NS/D5% (1 mg/mL)', method: 'infus',   amount: 250, amountUnit: 'mg', volumeMl: 250 },
+    ],
   },
   {
     key: 'vasopresin',
@@ -253,6 +281,11 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Hemat norepinefrin (steroid-sparing analogy)',
       'Tidak dititrasi seperti katekolamin — dosis tetap',
       'Lebih dari 0.04 unit/mnt meningkatkan iskemia tanpa benefit tambahan',
+    ],
+    stockPresets: [
+      { label: '20 unit dalam 50 mL NS/D5% (0.4 unit/mL)', method: 'syringe', amount: 20, amountUnit: 'unit', volumeMl: 50 },
+      { label: '40 unit dalam 50 mL NS/D5% (0.8 unit/mL, pekat)', method: 'syringe', amount: 40, amountUnit: 'unit', volumeMl: 50 },
+      { label: '20 unit dalam 100 mL NS/D5% (0.2 unit/mL)', method: 'infus', amount: 20, amountUnit: 'unit', volumeMl: 100 },
     ],
   },
   {
@@ -272,6 +305,10 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Hindari pada gagal jantung dengan CO rendah',
       'Cocok untuk kasus SVT/takiaritmia dengan hipotensi',
     ],
+    stockPresets: [
+      { label: '10 mg dalam 50 mL NS/D5% (200 mcg/mL)', method: 'syringe', amount: 10, amountUnit: 'mg', volumeMl: 50 },
+      { label: '10 mg dalam 250 mL NS/D5% (40 mcg/mL)', method: 'infus',   amount: 10, amountUnit: 'mg', volumeMl: 250 },
+    ],
   },
   {
     key: 'milrinon',
@@ -290,6 +327,10 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Awasi hipotensi terutama saat loading dose',
       'Kurangi dosis pada gagal ginjal (renal clearance)',
     ],
+    stockPresets: [
+      { label: '20 mg dalam 50 mL NS/D5% (400 mcg/mL, pekat)', method: 'syringe', amount: 20, amountUnit: 'mg', volumeMl: 50 },
+      { label: '20 mg dalam 100 mL NS/D5% (200 mcg/mL)', method: 'infus', amount: 20, amountUnit: 'mg', volumeMl: 100 },
+    ],
   },
   {
     key: 'isopro',
@@ -307,6 +348,10 @@ export const VASOPRESSORS: Vasopressor[] = [
       'Gunakan sementara sambil menunggu pacu jantung transvenous',
       'Untuk torsades: tingkatkan HR > 90 bpm untuk memendekan QT',
       'HINDARI pada stenosis aorta berat atau iskemia aktif',
+    ],
+    stockPresets: [
+      { label: '1 mg dalam 50 mL NS/D5% (20 mcg/mL)',  method: 'syringe', amount: 1, amountUnit: 'mg', volumeMl: 50 },
+      { label: '1 mg dalam 250 mL NS/D5% (4 mcg/mL)',  method: 'infus',   amount: 1, amountUnit: 'mg', volumeMl: 250 },
     ],
   },
 ];

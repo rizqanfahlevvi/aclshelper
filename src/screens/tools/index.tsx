@@ -240,30 +240,59 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
    Vasopressor Screen
    ============================================================ */
 function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
-  const perKgVaso = vasoPressors.filter(v => v.doseUnit === "mcg/kg/min");
   const [weight, setWeight] = useState(70);
-  const [selKey, setSelKey] = useState(perKgVaso[0]?.key || 'norepi');
-  const [dose, setDose] = useState(0.1);
-  const sel = perKgVaso.find(v => v.key === selKey) || perKgVaso[0];
+  const [selKey, setSelKey] = useState(vasoPressors[0]?.key || 'norepi');
+  const [dose, setDose] = useState(vasoPressors[0]?.doseMin ?? 0.1);
+  const [method, setMethod] = useState<'syringe' | 'infus'>('syringe');
+  const [presetIdx, setPresetIdx] = useState(0);
+  const [customAmount, setCustomAmount] = useState<number | null>(null);
+  const [customVolume, setCustomVolume] = useState<number | null>(null);
 
-  const rateMcgMin  = dose * weight;
-  const rateMgHr    = rateMcgMin * 60 / 1000;
-  const concMcgMl   = (rateMgHr * 1000) / 250;   // std 250 mL bag
+  const sel = vasoPressors.find(v => v.key === selKey) || vasoPressors[0];
+  const needsWeight = sel?.doseUnit === 'mcg/kg/min';
+
+  const presetsForMethod = (sel?.stockPresets || []).filter(p => p.method === method);
+  const activePreset = presetsForMethod[presetIdx] || presetsForMethod[0];
+  const usingCustom = customAmount !== null && customVolume !== null && customVolume > 0;
+
+  const amount   = usingCustom ? customAmount!  : (activePreset?.amount ?? 0);
+  const volumeMl = usingCustom ? customVolume!  : (activePreset?.volumeMl ?? 1);
+  const amountUnit = sel?.doseUnit === 'unit/min' ? 'unit' : 'mg';
+
+  // Konsentrasi dasar dalam basis mcg/mL (atau unit/mL untuk vasopressin)
+  const concPerMl = amountUnit === 'mg'
+    ? (amount * 1000) / volumeMl   // mg → mcg
+    : amount / volumeMl;           // unit tetap unit
+
+  // Laju dasar per menit, dalam basis yang sama dengan concPerMl (mcg/mnt atau unit/mnt)
+  const rateBaseMin = needsWeight ? dose * weight : dose;
+  const mlPerHour = concPerMl > 0 ? (rateBaseMin / concPerMl) * 60 : 0;
+  const syringeVol = usingCustom ? customVolume! : volumeMl;
+  const durationHr = mlPerHour > 0 ? syringeVol / mlPerHour : 0;
+
+  const concLabel = amountUnit === 'mg' ? `${concPerMl.toFixed(1)} mcg/mL` : `${concPerMl.toFixed(2)} unit/mL`;
+
+  const selectDrug = (v: Vasopressor) => {
+    setSelKey(v.key);
+    setDose(v.doseMin);
+    setPresetIdx(0);
+    setCustomAmount(null);
+    setCustomVolume(null);
+    const hasMethod = v.stockPresets.some(p => p.method === method);
+    if (!hasMethod && v.stockPresets[0]) setMethod(v.stockPresets[0].method);
+  };
+
+  if (!sel) return null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
-        boxShadow: 'inset 0 0 0 0.5px var(--separator)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="t-callout" style={{ fontWeight: 600 }}>Berat Badan</div>
-        <Stepper value={weight} onChange={setWeight} min={30} max={200} step={5} unit="kg"/>
-      </div>
-
+      {/* Pilih obat */}
       <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
         boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
-        <div className="t-callout" style={{ fontWeight: 600, marginBottom: 8 }}>Obat (berbasis BB)</div>
+        <div className="t-callout" style={{ fontWeight: 600, marginBottom: 8 }}>Obat</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {perKgVaso.map(v => (
-            <button key={v.key} onClick={() => { setSelKey(v.key); setDose(v.doseMin); }}
+          {vasoPressors.map(v => (
+            <button key={v.key} onClick={() => selectDrug(v)}
               style={{ padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
                 background: selKey === v.key ? v.tint + '18' : 'var(--fill-secondary)',
                 boxShadow: selKey === v.key ? `inset 0 0 0 1px ${v.tint}55` : 'none',
@@ -274,40 +303,104 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
         </div>
       </div>
 
-      {sel && (
-        <>
-          <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
-            boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <div className="t-callout" style={{ fontWeight: 600 }}>Dosis</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1rem' }}>{dose.toFixed(2)} {sel.doseUnit}</div>
-            </div>
-            <input type="range" min={sel.doseMin} max={sel.doseMax} step={(sel.doseMax - sel.doseMin) / 100}
-              value={dose} onChange={e => setDose(parseFloat(e.target.value))}
-              style={{ width: '100%', accentColor: sel.tint }}/>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{sel.doseMin}</span>
-              <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{sel.doseMax}</span>
-            </div>
-          </div>
-
-          <div style={{ padding: '12px 14px', borderRadius: 12, background: sel.tint + '12',
-            boxShadow: `inset 0 0 0 1px ${sel.tint}33` }}>
-            <div className="t-caption-2" style={{ color: sel.tint, fontWeight: 700, marginBottom: 8 }}>HASIL KALKULASI</div>
-            {[
-              [`${dose.toFixed(3)} mcg/kg/mnt × ${weight} kg`, `= ${rateMcgMin.toFixed(1)} mcg/mnt`],
-              ['mcg/mnt → mg/jam', `= ${rateMgHr.toFixed(2)} mg/jam`],
-              ['Bag 250 mL (konsentrasi)', `= ${concMcgMl.toFixed(2)} mcg/mL → ${(rateMcgMin / concMcgMl * 60).toFixed(1)} mL/jam`],
-            ].map(([label, value], i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-                borderTop: i > 0 ? `0.5px solid ${sel.tint}22` : 'none', paddingTop: i > 0 ? 6 : 0, marginTop: i > 0 ? 6 : 0 }}>
-                <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{label}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.875rem', color: sel.tint }}>{value}</span>
-              </div>
-            ))}
-          </div>
-        </>
+      {needsWeight && (
+        <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
+          boxShadow: 'inset 0 0 0 0.5px var(--separator)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="t-callout" style={{ fontWeight: 600 }}>Berat Badan</div>
+          <Stepper value={weight} onChange={setWeight} min={30} max={200} step={5} unit="kg"/>
+        </div>
       )}
+
+      {/* Alat pemberian */}
+      <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
+        boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+        <div className="t-callout" style={{ fontWeight: 600, marginBottom: 8 }}>Alat Pemberian</div>
+        <TabBar tabs={['Syringe Pump', 'Infus Pump']}
+          active={method === 'syringe' ? 'Syringe Pump' : 'Infus Pump'}
+          onChange={t => { setMethod(t === 'Syringe Pump' ? 'syringe' : 'infus'); setPresetIdx(0); setCustomAmount(null); setCustomVolume(null); }}/>
+      </div>
+
+      {/* Konsentrasi / pengenceran */}
+      <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
+        boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+        <div className="t-callout" style={{ fontWeight: 600, marginBottom: 8 }}>Konsentrasi Pengenceran</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: presetsForMethod.length ? 8 : 0 }}>
+          {presetsForMethod.map((p, i) => (
+            <button key={p.label} onClick={() => { setPresetIdx(i); setCustomAmount(null); setCustomVolume(null); }}
+              style={{ padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
+                background: !usingCustom && presetIdx === i ? sel.tint + '18' : 'var(--fill-secondary)',
+                boxShadow: !usingCustom && presetIdx === i ? `inset 0 0 0 1px ${sel.tint}55` : 'none',
+                color: !usingCustom && presetIdx === i ? sel.tint : 'var(--label-primary)',
+                fontSize: '0.8125rem', fontWeight: !usingCustom && presetIdx === i ? 700 : 400 }}>
+              {p.label}
+            </button>
+          ))}
+          {!presetsForMethod.length && (
+            <div className="t-caption-1" style={{ color: 'var(--label-tertiary)' }}>
+              Tidak ada preset untuk {method === 'syringe' ? 'syringe pump' : 'infus pump'} — gunakan kustom di bawah.
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input type="number" placeholder={`Jumlah (${amountUnit})`} value={customAmount ?? ''}
+            onChange={e => setCustomAmount(e.target.value === '' ? null : parseFloat(e.target.value))}
+            style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 8, border: '1px solid var(--separator)',
+              background: 'var(--bg-primary)', color: 'var(--label-primary)', fontSize: '0.8125rem' }}/>
+          <span className="t-caption-1" style={{ color: 'var(--label-tertiary)' }}>dalam</span>
+          <input type="number" placeholder="mL" value={customVolume ?? ''}
+            onChange={e => setCustomVolume(e.target.value === '' ? null : parseFloat(e.target.value))}
+            style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 8, border: '1px solid var(--separator)',
+              background: 'var(--bg-primary)', color: 'var(--label-primary)', fontSize: '0.8125rem' }}/>
+          <span className="t-caption-1" style={{ color: 'var(--label-tertiary)' }}>mL</span>
+        </div>
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginTop: 6 }}>
+          Konsentrasi terpakai: <strong style={{ color: sel.tint }}>{concLabel}</strong>. Selalu verifikasi dengan protokol/instruksi apoteker setempat — konsentrasi dapat berbeda antar RS.
+        </div>
+      </div>
+
+      {/* Dosis */}
+      <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--fill-quaternary)',
+        boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div className="t-callout" style={{ fontWeight: 600 }}>Dosis</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1rem' }}>{dose.toFixed(3)} {sel.doseUnit}</div>
+        </div>
+        <input type="range" min={sel.doseMin} max={sel.doseMax} step={(sel.doseMax - sel.doseMin) / 100}
+          value={dose} onChange={e => setDose(parseFloat(e.target.value))}
+          style={{ width: '100%', accentColor: sel.tint }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{sel.doseMin}</span>
+          <span className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{sel.doseMax}</span>
+        </div>
+      </div>
+
+      {/* Hasil */}
+      <div style={{ padding: '12px 14px', borderRadius: 12, background: sel.tint + '12',
+        boxShadow: `inset 0 0 0 1px ${sel.tint}33` }}>
+        <div className="t-caption-2" style={{ color: sel.tint, fontWeight: 700, marginBottom: 8 }}>HASIL KALKULASI</div>
+        {[
+          needsWeight
+            ? [`${dose.toFixed(3)} ${sel.doseUnit.replace('/kg/min', '')} × ${weight} kg`, `= ${rateBaseMin.toFixed(2)} ${amountUnit === 'unit' ? 'unit' : 'mcg'}/mnt`]
+            : [`Dosis`, `= ${rateBaseMin.toFixed(2)} ${amountUnit === 'unit' ? 'unit' : 'mcg'}/mnt`],
+          [`Konsentrasi (${amount} ${amountUnit} / ${volumeMl} mL)`, `= ${concLabel}`],
+          ['Laju syringe/infus pump', `= ${mlPerHour.toFixed(2)} mL/jam`],
+        ].map(([label, value], i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+            borderTop: i > 0 ? `0.5px solid ${sel.tint}22` : 'none', paddingTop: i > 0 ? 6 : 0, marginTop: i > 0 ? 6 : 0 }}>
+            <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{label}</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.875rem', color: sel.tint }}>{value}</span>
+          </div>
+        ))}
+        {durationHr > 0 && isFinite(durationHr) && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+            borderTop: `0.5px solid ${sel.tint}22`, paddingTop: 6, marginTop: 6 }}>
+            <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>Perkiraan habis dalam</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.875rem', color: sel.tint }}>
+              {durationHr < 1 ? `${Math.round(durationHr * 60)} mnt` : `${durationHr.toFixed(1)} jam`}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
