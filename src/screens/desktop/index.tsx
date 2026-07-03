@@ -14,23 +14,13 @@ import {
 } from '../../data';
 import { HS_TS_REFERENCES } from '../../data/tools';
 import { CALCULATORS } from '../../data/calculators';
+import { NAV_SECTIONS } from '../../data/nav';
 
 /* ============================================================
-   Sidebar
+   Sidebar — item & urutan berasal dari NAV_SECTIONS (data/nav.ts),
+   sumber tunggal yang sama dipakai drawer mobile agar keduanya
+   selalu identik.
    ============================================================ */
-const SIDEBAR_NAV = [
-  { key: "dashboard", label: "Beranda",     desc: "Ikhtisar & akses cepat",       icon: Icons.house },
-  { key: "algo",      label: "Algoritma",   desc: "14 protokol ACLS",             icon: Icons.algo },
-  { key: "drugs",     label: "Obat",        desc: "25 obat emergensi",            icon: Icons.pill },
-  { key: "ekg",       label: "Pustaka EKG", desc: "16 ritme kardiologi",          icon: Icons.ekg },
-  { key: "theory",    label: "Teori",       desc: "Sistem konduksi jantung",      icon: Icons.activity },
-  { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",       icon: Icons.clipboard },
-  { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor",  icon: Icons.calculator },
-  { key: "defib",     label: "Defibrilasi", desc: "Panduan energi & kardioversi", icon: Icons.bolt },
-  { key: "peds",      label: "Pediatrik",   desc: "Referensi PALS & Broselow",    icon: Icons.heart },
-  { key: "about",     label: "Tentang",     desc: "Versi & changelog",            icon: Icons.info },
-  { key: "settings",  label: "Pengaturan",  desc: "Tampilan, font & cache",       icon: Icons.settings },
-];
 function resolveFav(f: { type: string; key: string }) {
   if (f.type === 'algo') {
     const a = ACLS_ALGORITHMS.find(x => x.key === f.key);
@@ -84,23 +74,35 @@ export function DesktopSidebar({ active, onChange, onFeedback, onSearch, collaps
       )}
 
       <nav className="acls-sidebar-nav">
-        {SIDEBAR_NAV.map(it => (
-          <button key={it.key} onClick={() => onChange(it.key)}
-            className={"acls-sidebar-item " + (active === it.key ? "active" : "")}
-            style={{ padding: '0 10px', height: 48 }}
-            title={collapsed ? it.label : undefined}>
-            <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-              <it.icon size={18} stroke={1.9}/>
-            </div>
-            {!collapsed && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0,
-                animation: 'acls-fadeslide 180ms var(--ease-out) both' }}>
-                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
-                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
-                  textTransform: 'none', letterSpacing: 0, lineHeight: 1.2 }}>{it.desc}</span>
+        {NAV_SECTIONS.map((section, si) => (
+          <React.Fragment key={si}>
+            {section.title && !collapsed && (
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: si === 0 ? '4px 18px 4px' : '14px 18px 4px' }}>
+                {section.title}
               </div>
             )}
-          </button>
+            {section.items.map(it => {
+              const deskKey = it.key === 'home' ? 'dashboard' : it.key; // Beranda: NAV_SECTIONS pakai 'home', DeskScreen pakai 'dashboard'
+              return (
+                <button key={it.key} onClick={() => onChange(deskKey)}
+                  className={"acls-sidebar-item " + (active === deskKey ? "active" : "")}
+                  style={{ padding: '0 10px', height: 48 }}
+                  title={collapsed ? it.label : undefined}>
+                  <div style={{ width: 20, height: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+                    <it.icon size={18} stroke={1.9}/>
+                  </div>
+                  {!collapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0,
+                      animation: 'acls-fadeslide 180ms var(--ease-out) both' }}>
+                      <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                      <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                        textTransform: 'none', letterSpacing: 0, lineHeight: 1.2 }}>{it.desc}</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </React.Fragment>
         ))}
 
         {!collapsed && (

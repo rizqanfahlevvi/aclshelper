@@ -5,6 +5,7 @@ import type { Tab, DeskScreen, NavFrame, DeskView, NavStack, CprRhythm } from '.
 import { useFavorites } from './utils/favorites';
 import { ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS } from './data';
 import { CALCULATORS } from './data/calculators';
+import { NAV_SECTIONS } from './data/nav';
 
 declare global {
   interface Navigator {
@@ -625,17 +626,6 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
 
 const ACCENT = { color: '#00838F', dark: '#4DB6AC' };
 
-const MOBILE_MENU = [
-  { key: 'home',   label: 'Beranda',     desc: 'Ikhtisar & akses cepat',       icon: Icons.house },
-  { key: 'algo',   label: 'Algoritma',   desc: '14 protokol ACLS',             icon: Icons.algo },
-  { key: 'drugs',  label: 'Obat',        desc: '25 obat emergensi',            icon: Icons.pill },
-  { key: 'tools',  label: 'Pustaka EKG', desc: '16 ritme kardiologi',          icon: Icons.ekg },
-  { key: 'theory', label: 'Teori',       desc: 'Sistem konduksi jantung',      icon: Icons.activity },
-  { key: 'hsts',   label: 'Hs & Ts',     desc: '10 penyebab reversibel',       icon: Icons.clipboard },
-  { key: 'calc',   label: 'Kalkulator',  desc: '13 kalkulator klinis',         icon: Icons.calculator },
-  { key: 'about',  label: 'Tentang',     desc: 'Versi & changelog',            icon: Icons.info },
-  { key: 'settings', label: 'Pengaturan', desc: 'Tampilan, font & cache',      icon: Icons.settings },
-];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
   { key: 'vfvt',        label: 'VF / pVT',         tint: 'var(--danger)' },
@@ -693,20 +683,33 @@ function MobileSidebar({ open, onClose, activeTab, onNavigate, onFeedback, onSea
           </button>
         </div>
         <nav className="acls-sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
-          {MOBILE_MENU.map(it => (
-            <button key={it.key}
-              className={'acls-sidebar-item ' + (activeTab === it.key ? 'active' : '')}
-              style={{ padding: '8px 10px' }}
-              onClick={() => { onNavigate(it.key); onClose(); }}>
-              <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-                <it.icon size={18} stroke={1.9}/>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-                <span style={{ lineHeight: 1.3 }}>{it.label}</span>
-                <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
-                  textTransform: 'none', letterSpacing: 0 }}>{it.desc}</span>
-              </div>
-            </button>
+          {NAV_SECTIONS.map((section, si) => (
+            <div key={si}>
+              {section.title && (
+                <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: si === 0 ? '4px 18px 4px' : '14px 18px 4px' }}>
+                  {section.title}
+                </div>
+              )}
+              {section.items.map(it => {
+                // 'ekg' adalah kunci kanonik NAV_SECTIONS; tab mobile utk layar ini bernama 'tools'.
+                const isActive = it.key === 'ekg' ? activeTab === 'tools' : activeTab === it.key;
+                return (
+                  <button key={it.key}
+                    className={'acls-sidebar-item ' + (isActive ? 'active' : '')}
+                    style={{ padding: '8px 10px' }}
+                    onClick={() => { onNavigate(it.key); onClose(); }}>
+                    <div style={{ width: 20, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                      <it.icon size={18} stroke={1.9}/>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                      <span style={{ lineHeight: 1.3 }}>{it.label}</span>
+                      <span className="t-caption-2" style={{ color: 'var(--label-secondary)', fontWeight: 400,
+                        textTransform: 'none', letterSpacing: 0 }}>{it.desc}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           ))}
           {favResolved.length > 0 ? (
             <>
@@ -954,7 +957,6 @@ export default function App() {
   const [cprRhythm, setCprRhythm] = useState<CprRhythm | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const openCPR = (rhythm: CprRhythm | null = null) => {
     window.history.pushState(null, '', location.href);
@@ -1005,11 +1007,14 @@ export default function App() {
       window.history.pushState(null, '', '#/peds');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'peds' }] }));
+    } else if (key === 'ekg') {
+      window.history.pushState(null, '', '#/ekg');
+      setTab('tools');
     } else if (key === 'algo' && id) {
       openAlgoFromHome(id);
     } else {
       if (key !== 'home') {
-        const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs', tools: '/ekg' };
+        const pathMap: Record<string, string> = { algo: '/algo', drugs: '/drugs' };
         const path = pathMap[key] || '/';
         window.history.pushState(null, '', '#' + path);
       }
@@ -1286,7 +1291,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }}
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => { setTab('home'); setFabOpen(false); }}
             onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
           {subBanner}
         </div>
@@ -1354,70 +1359,13 @@ export default function App() {
 
         {!cprOpen && (
           <>
-            {/* Lainnya sheet — slides up above bottom nav */}
-            {moreSheetOpen && (
-              <>
-                <div style={{
-                  position: 'fixed', top: 0, left: 0, right: 0,
-                  bottom: 'calc(60px + env(safe-area-inset-bottom))',
-                  zIndex: 180,
-                  background: 'rgba(0,0,0,0.25)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                }} onClick={() => setMoreSheetOpen(false)}/>
-                <div style={{
-                  position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0,
-                  zIndex: 181, padding: '0 12px 8px',
-                  animation: 'acls-fadeslide 200ms var(--ease-out) both',
-                }}>
-                  <div style={{
-                    background: 'var(--bg-primary)',
-                    borderRadius: 18,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
-                    overflow: 'hidden',
-                    padding: 10,
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 6,
-                  }}>
-                    {([
-                      { key: 'tools',  label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)'   },
-                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'color-mix(in srgb, var(--accent) 12%, transparent)',    color: 'var(--info)'     },
-                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'color-mix(in srgb, var(--sys-purple) 14%, transparent)',    color: '#9333EA'         },
-                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'color-mix(in srgb, var(--success) 14%, transparent)',     color: 'var(--success)'  },
-                      { key: 'defib',  label: 'Defibrilasi',  IconC: Icons.boltFill,   bg: 'color-mix(in srgb, var(--danger) 12%, transparent)',     color: 'var(--danger)'   },
-                      { key: 'peds',   label: 'Pediatrik',    IconC: Icons.heart,      bg: 'color-mix(in srgb, var(--sys-teal) 14%, transparent)',    color: '#00838F'         },
-                    ] as const).map(({ key, label, IconC, bg, color }) => (
-                      <button key={key}
-                        onClick={() => {
-                          setMoreSheetOpen(false);
-                          setFabOpen(false);
-                          mobileNavFromSidebar(key);
-                        }}
-                        style={{
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                          padding: '12px 8px',
-                          background: 'var(--fill-quaternary)', borderRadius: 12,
-                          border: 'none', cursor: 'pointer',
-                        }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0,
-                          background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <IconC size={20} stroke={1.9} style={{ color }}/>
-                        </div>
-                        <span className="t-caption-2" style={{ fontWeight: 600, color: 'var(--label-primary)', textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','rosc','defib','peds','theory'] as string[]).includes(topFrame.screen))}
+                moreActive={mobileSidebarOpen || tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','rosc','defib','peds','theory'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
-                  setMoreSheetOpen(false);
+                  setMobileSidebarOpen(false);
                   if (k === 'home') {
                     window.history.replaceState(null, '', '#/');
                     setStack(s => ({ ...s, home: [{ screen: 'home' }] }));
@@ -1428,11 +1376,11 @@ export default function App() {
                   }
                   setTab(k as Tab);
                 }}
-                onMore={() => { setFabOpen(false); setMoreSheetOpen(o => !o); }}
+                onMore={() => { setFabOpen(false); setMobileSidebarOpen(o => !o); }}
                 fabShape="circle"
                 accent="var(--danger)"
                 fabOpen={fabOpen}
-                onFabClick={() => { setMoreSheetOpen(false); setFabOpen(o => !o); }}/>
+                onFabClick={() => { setMobileSidebarOpen(false); setFabOpen(o => !o); }}/>
             </div>
           </>
         )}
