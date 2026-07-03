@@ -509,11 +509,13 @@ interface AppTopBarProps {
   onGoHome?: () => void;
   fontScale: number;
   onFontScaleChange: (v: number) => void;
+  bwMode: boolean;
+  onBwModeChange: (v: boolean) => void;
   onSearch?: () => void;
   onOpenProfile?: () => void;
   userInitial?: string;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, onSearch, onOpenProfile, userInitial }: AppTopBarProps) {
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, bwMode, onBwModeChange, onSearch, onOpenProfile, userInitial }: AppTopBarProps) {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const time = useClock();
   const [updateState, setUpdateState] = useState('idle'); // idle | checking
@@ -623,16 +625,16 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setFontPopoverOpen(o => !o)}
-            title="Ukuran teks"
+            title="Aksesibilitas"
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: 32, height: 32, borderRadius: 8,
-              background: fontPopoverOpen || fontScale !== 1 ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
+              background: fontPopoverOpen || fontScale !== 1 || bwMode ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
               border: 0, cursor: 'pointer',
-              color: fontPopoverOpen || fontScale !== 1 ? 'var(--accent)' : 'var(--label-secondary)',
+              color: fontPopoverOpen || fontScale !== 1 || bwMode ? 'var(--accent)' : 'var(--label-secondary)',
               transition: 'background 200ms, color 200ms',
             }}
-            aria-label="Ubah ukuran teks">
+            aria-label="Pengaturan aksesibilitas">
             <span style={{ fontWeight: 700, fontSize: '0.875rem', lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em' }}>A</span>
           </button>
 
@@ -680,6 +682,36 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
                     Reset ke Normal
                   </button>
                 )}
+
+                {/* Mode kontras tinggi (B&W) */}
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '0.5px solid var(--separator)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="t-footnote" style={{ fontWeight: 600, color: 'var(--label-primary)' }}>Kontras Tinggi</div>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', marginTop: 1, lineHeight: 1.3 }}>
+                      Monokrom; warna bahaya tetap
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onBwModeChange(!bwMode)}
+                    role="switch"
+                    aria-checked={bwMode}
+                    aria-label="Mode kontras tinggi"
+                    style={{
+                      position: 'relative', flexShrink: 0, width: 44, height: 26, borderRadius: 999,
+                      border: 0, cursor: 'pointer', padding: 0,
+                      background: bwMode ? 'var(--accent)' : 'var(--fill-secondary)',
+                      transition: 'background 200ms',
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: 2, left: 2, width: 22, height: 22, borderRadius: '50%',
+                      background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                      transform: bwMode ? 'translateX(18px)' : 'translateX(0)',
+                      transition: 'transform 200ms var(--ease-spring)',
+                    }}/>
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -960,6 +992,12 @@ export default function App() {
     localStorage.setItem('acls_font_scale', String(fontScale));
   }, [fontScale]);
 
+  const [bwMode, setBwMode] = useState<boolean>(() => localStorage.getItem('acls_bw_mode') === '1');
+  useEffect(() => {
+    document.documentElement.classList.toggle('bw-mode', bwMode);
+    localStorage.setItem('acls_bw_mode', bwMode ? '1' : '0');
+  }, [bwMode]);
+
   /* Ref always holds latest nav state — used by popstate to avoid stale closures */
   const navRef = useRef<{ cprOpen: boolean; bp: string; tab?: Tab; stack?: NavStack; deskView?: DeskView }>({ cprOpen: false, bp: 'mobile' });
 
@@ -967,11 +1005,20 @@ export default function App() {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
     const isDark = theme === 'dark';
-    root.style.setProperty('--accent', isDark ? ACCENT.dark : ACCENT.color);
-    root.style.setProperty('--accent-fg', '#fff');
-    root.style.setProperty('--accent-tint', ACCENT.color + '1F');
-    root.style.setProperty('--label-link', isDark ? ACCENT.dark : ACCENT.color);
-  }, [theme]);
+    if (bwMode) {
+      /* Serahkan accent ke CSS .bw-mode (monokrom) — lepas override inline
+         agar tidak mengalahkan kelas. */
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-fg');
+      root.style.removeProperty('--accent-tint');
+      root.style.removeProperty('--label-link');
+    } else {
+      root.style.setProperty('--accent', isDark ? ACCENT.dark : ACCENT.color);
+      root.style.setProperty('--accent-fg', '#fff');
+      root.style.setProperty('--accent-tint', ACCENT.color + '1F');
+      root.style.setProperty('--label-link', isDark ? ACCENT.dark : ACCENT.color);
+    }
+  }, [theme, bwMode]);
 
   const toggleTheme = () => {
     document.documentElement.classList.add('theme-transitioning');
@@ -1338,7 +1385,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale}
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} bwMode={bwMode} onBwModeChange={setBwMode}
             onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
           {subBanner}
         </div>
@@ -1498,7 +1545,7 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale}
+        fontScale={fontScale} onFontScaleChange={setFontScale} bwMode={bwMode} onBwModeChange={setBwMode}
         onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
       {subBanner}
 

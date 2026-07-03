@@ -168,6 +168,9 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --neu-shadow-dark:  rgba(163, 168, 179, 0.65);
   --neu-out:   5px 5px 12px var(--neu-shadow-dark), -5px -5px 12px var(--neu-shadow-light);
   --neu-inset: inset 3px 3px 8px var(--neu-shadow-dark), inset -3px -3px 8px var(--neu-shadow-light);
+
+  /* --- Minimum touch target (aksesibilitas, PICNIC parity) - */
+  --hit: 44px;
 }
 
 /* ============================================================
@@ -290,6 +293,43 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --neu-shadow-dark:  rgba(0, 0, 0, 0.55);
   --neu-out:   4px 4px 10px var(--neu-shadow-dark), -3px -3px 8px var(--neu-shadow-light);
   --neu-inset: inset 3px 3px 7px var(--neu-shadow-dark), inset -2px -2px 5px var(--neu-shadow-light);
+}
+
+/* ============================================================
+   MODE KONTRAS TINGGI (B&W / monokrom) — aksesibilitas
+   ------------------------------------------------------------
+   Me-monokrom-kan warna DEKORATIF (brand, accent, tint kategori)
+   ke label-primary agar tenang & jelas untuk low-vision / buta
+   warna. SENGAJA MEMPERTAHANKAN warna status klinis
+   (--danger/--warning/--success via sys-red/orange/green yang
+   tidak diremap) dan gradien tombol emergency CPR (hex hardcoded),
+   karena di alat resusitasi warna itu sinyal keselamatan.
+   Selektor ganda: yang kedua menjamin menang di dark mode. */
+:root.bw-mode,
+:root[data-theme="dark"].bw-mode {
+  --sys-blue:   var(--label-primary);
+  --sys-indigo: var(--label-primary);
+  --sys-purple: var(--label-primary);
+  --sys-teal:   var(--label-primary);
+  --sys-cyan:   var(--label-primary);
+  --sys-pink:   var(--label-primary);
+  --sys-mint:   var(--label-primary);
+  --sys-brown:  var(--label-primary);
+  --sys-yellow: var(--label-primary);
+
+  --accent:      var(--label-primary);
+  --accent-tint: var(--fill-secondary);
+  --accent-fg:   var(--bg-secondary);
+  --label-link:  var(--label-primary);
+
+  --tint-vital:  var(--label-primary);
+  --tint-resp:   var(--label-primary);
+  --tint-neuro:  var(--label-primary);
+  --tint-fluid:  var(--label-primary);
+  --tint-drug:   var(--label-primary);
+  --tint-renal:  var(--label-primary);
+  --tint-score:  var(--label-primary);
+  --tint-theory: var(--label-primary);
 }
 
 /* ============================================================
