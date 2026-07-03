@@ -92,8 +92,8 @@ function CalcFieldInput({ field, value, onChange }: {
         style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           padding: '12px 16px', borderRadius: 12,
-          background: value ? 'rgba(0,122,255,0.08)' : 'var(--fill-quaternary)',
-          boxShadow: value ? 'inset 0 0 0 1px rgba(0,122,255,0.25)' : 'inset 0 0 0 0.5px var(--separator)',
+          background: value ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : 'var(--fill-quaternary)',
+          boxShadow: value ? 'inset 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent)' : 'inset 0 0 0 0.5px var(--separator)',
           cursor: 'pointer', transition: 'all 180ms',
         }}
         onClick={() => onChange(!value)}
@@ -111,7 +111,7 @@ function CalcFieldInput({ field, value, onChange }: {
         </div>
         <div style={{
           width: 30, height: 18, borderRadius: 9,
-          background: value ? '#007AFF' : 'var(--fill-secondary)',
+          background: value ? '#0056B3' : 'var(--fill-secondary)',
           transition: 'background 200ms', flexShrink: 0, position: 'relative',
         }}>
           <div style={{
@@ -210,9 +210,9 @@ function FibrNolyticFields({ calc, values, setValues }: {
   const relKeys = ['htn', 'strokeOver3m', 'cpr', 'majorSurgery', 'internalBleeding', 'pregnancy', 'activePeptic', 'anticoagulant'];
 
   const sections: Array<{ title: string; keys: string[]; accentColor: string }> = [
-    { title: 'KRITERIA INKLUSI',          keys: inclusionKeys, accentColor: '#34C759' },
-    { title: 'KONTRAINDIKASI ABSOLUT',    keys: absKeys,       accentColor: '#FF3B30' },
-    { title: 'KONTRAINDIKASI RELATIF',    keys: relKeys,       accentColor: '#FF9500' },
+    { title: 'KRITERIA INKLUSI',          keys: inclusionKeys, accentColor: '#1E8E3E' },
+    { title: 'KONTRAINDIKASI ABSOLUT',    keys: absKeys,       accentColor: '#BA1A1A' },
+    { title: 'KONTRAINDIKASI RELATIF',    keys: relKeys,       accentColor: '#FFA000' },
   ];
 
   return (
@@ -278,10 +278,10 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
 
   const sections: Array<{ title: string; content: string; accent: string }> = [];
   if (lines[0]) sections.push({ title: 'GANGGUAN PRIMER', content: lines[0], accent: result.color });
-  if (lines[1]) sections.push({ title: 'ANION GAP', content: lines[1], accent: agHigh ? '#FF9500' : '#34C759' });
+  if (lines[1]) sections.push({ title: 'ANION GAP', content: lines[1], accent: agHigh ? '#FFA000' : '#1E8E3E' });
   if (lines[2]) sections.push({ title: 'EVALUASI KOMPENSASI', content: lines[2], accent: 'var(--label-secondary)' });
-  if (lines[3]) sections.push({ title: 'STATUS KOMPENSASI', content: lines[3], accent: lines[3].includes('ADEKUAT') ? '#34C759' : '#FF9500' });
-  if (lines[4]) sections.push({ title: 'DELTA RATIO', content: lines[4], accent: '#AF52DE' });
+  if (lines[3]) sections.push({ title: 'STATUS KOMPENSASI', content: lines[3], accent: lines[3].includes('ADEKUAT') ? '#1E8E3E' : '#FFA000' });
+  if (lines[4]) sections.push({ title: 'DELTA RATIO', content: lines[4], accent: '#9333EA' });
 
   return (
     <div style={{ marginBottom: 16 }}>
@@ -373,7 +373,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
 
   const checkItem = (text: string) => (
     <div key={text} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 4 }}>
-      <span style={{ color: '#34C759', fontWeight: 700, flexShrink: 0 }}>✓</span>
+      <span style={{ color: '#1E8E3E', fontWeight: 700, flexShrink: 0 }}>✓</span>
       <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{text}</span>
     </div>
   );
@@ -399,7 +399,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
       </div>
       </div>
 
-      {section('1. PREOXYGENASI', '#34C759', (
+      {section('1. PREOXYGENASI', '#1E8E3E', (
         <div style={{ padding: '10px 14px', borderRadius: 10, background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
           {checkItem('O₂ 100% via NRM atau BVM selama ≥3 menit')}
           {checkItem('Target SpO₂ >95% sebelum induksi')}
@@ -407,26 +407,26 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
         </div>
       ))}
 
-      {section('2. PRETREATMENT (3 mnt sebelum RSI, opsional)', '#007AFF', (
+      {section('2. PRETREATMENT (3 mnt sebelum RSI, opsional)', '#0056B3', (
         <>
-          {dose('Fentanyl', 3, 'mcg', true, '#007AFF', 'respon simpatis, TIK')}
-          {ctx === 'icp' && dose('Lidokain', 1.5, 'mg', true, '#5856D6', 'TIK — IV lambat 2–3 menit')}
+          {dose('Fentanyl', 3, 'mcg', true, '#0056B3', 'respon simpatis, TIK')}
+          {ctx === 'icp' && dose('Lidokain', 1.5, 'mg', true, '#003F87', 'TIK — IV lambat 2–3 menit')}
         </>
       ))}
 
       {section('3. INDUKSI (pilih 1)', 'var(--warning)', (
         <>
-          {dose('Ketamin', 1.5, 'mg', inductionRec === 'ketamine', '#FF9500',
+          {dose('Ketamin', 1.5, 'mg', inductionRec === 'ketamine', '#FFA000',
             ctx === 'hemodynamic' ? 'hemodinamik instabil, asma' : ctx === 'asthma' ? 'bronkospasme' : 'simpatomimetik')}
-          {dose('Etomidat', 0.3, 'mg/1dp', inductionRec === 'etomidate', '#34C759', 'hemodinamik netral')}
-          {dose('Propofol', 1.5, 'mg', false, '#AF52DE', 'awas hipotensi')}
+          {dose('Etomidat', 0.3, 'mg/1dp', inductionRec === 'etomidate', '#1E8E3E', 'hemodinamik netral')}
+          {dose('Propofol', 1.5, 'mg', false, '#9333EA', 'awas hipotensi')}
         </>
       ))}
 
       {section('4. PARALITIK (berikan segera setelah induksi)', 'var(--danger)', (
         <>
-          {!suxContra && dose('Suksinilkolin', 1.5, 'mg', paralytic === 'succinylcholine', '#FF3B30', 'onset 45–60 dtk, durasi ~10 mnt')}
-          {dose('Rokuronil', 1.2, 'mg', paralytic === 'rocuronium', '#FF9500', 'onset setara sux pada dosis ini')}
+          {!suxContra && dose('Suksinilkolin', 1.5, 'mg', paralytic === 'succinylcholine', '#BA1A1A', 'onset 45–60 dtk, durasi ~10 mnt')}
+          {dose('Rokuronil', 1.2, 'mg', paralytic === 'rocuronium', '#FFA000', 'onset setara sux pada dosis ini')}
           <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.04)', boxShadow: 'inset 0 0 0 0.5px var(--separator)', marginTop: 4 }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 3 }}>REVERSAL ROKURONIL (emergensi)</div>
             <div className="t-footnote" style={{ color: 'var(--label-primary)' }}>
@@ -597,10 +597,10 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
               PANDUAN KLINIS
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <CalcListItem name="Vasopressor"        description="Panduan & kalkulator vasopressor"     tint="#34C759" onClick={() => nav.push({ screen: 'vaso'  })}/>
-              <CalcListItem name="Panduan Defibrilasi" description="Energi defib & kardioversi per ritme" tint="#FF3B30" onClick={() => nav.push({ screen: 'defib' })}/>
-              <CalcListItem name="Post-ROSC Care"     description="Checklist pasca Return of Spontaneous Circulation" tint="#FF9500" onClick={() => nav.push({ screen: 'rosc'  })}/>
-              <CalcListItem name="Referensi Pediatrik" description="Dosis PALS berbasis berat badan"      tint="#30B0C7" onClick={() => nav.push({ screen: 'peds'  })}/>
+              <CalcListItem name="Vasopressor"        description="Panduan & kalkulator vasopressor"     tint="#1E8E3E" onClick={() => nav.push({ screen: 'vaso'  })}/>
+              <CalcListItem name="Panduan Defibrilasi" description="Energi defib & kardioversi per ritme" tint="#BA1A1A" onClick={() => nav.push({ screen: 'defib' })}/>
+              <CalcListItem name="Post-ROSC Care"     description="Checklist pasca Return of Spontaneous Circulation" tint="#FFA000" onClick={() => nav.push({ screen: 'rosc'  })}/>
+              <CalcListItem name="Referensi Pediatrik" description="Dosis PALS berbasis berat badan"      tint="#00838F" onClick={() => nav.push({ screen: 'peds'  })}/>
             </div>
           </div>
         )}
@@ -758,10 +758,10 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
   const calc = CALCULATORS.find(c => c.key === selectedKey) || CALCULATORS[0];
 
   const PANDUAN_ITEMS = [
-    { key: 'vaso',      name: 'Vasopressor',         desc: 'Panduan & kalkulator vasopressor',          tint: '#34C759' },
-    { key: 'defib',     name: 'Panduan Defibrilasi',  desc: 'Energi defib & kardioversi per ritme',      tint: '#FF3B30' },
-    { key: 'rosc-tool', name: 'Post-ROSC Care',       desc: 'Checklist pasca Return of Spontaneous Circulation', tint: '#FF9500' },
-    { key: 'peds-tool', name: 'Referensi Pediatrik',  desc: 'Dosis PALS berbasis berat badan',           tint: '#30B0C7' },
+    { key: 'vaso',      name: 'Vasopressor',         desc: 'Panduan & kalkulator vasopressor',          tint: '#1E8E3E' },
+    { key: 'defib',     name: 'Panduan Defibrilasi',  desc: 'Energi defib & kardioversi per ritme',      tint: '#BA1A1A' },
+    { key: 'rosc-tool', name: 'Post-ROSC Care',       desc: 'Checklist pasca Return of Spontaneous Circulation', tint: '#FFA000' },
+    { key: 'peds-tool', name: 'Referensi Pediatrik',  desc: 'Dosis PALS berbasis berat badan',           tint: '#00838F' },
   ];
   const filteredPanduan = calcQ.trim()
     ? PANDUAN_ITEMS.filter(p => p.name.toLowerCase().includes(calcQ.toLowerCase()) || p.desc.toLowerCase().includes(calcQ.toLowerCase()))

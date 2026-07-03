@@ -79,7 +79,7 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
             width: 80, height: 80, borderRadius: 20,
             background: 'var(--danger)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(255,59,48,0.35)',
+            boxShadow: '0 8px 24px color-mix(in srgb, var(--danger) 35%, transparent)',
             marginBottom: 14,
           }}>
             <svg width="42" height="42" viewBox="0 0 24 24" fill="#fff">
@@ -281,14 +281,14 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
     <>
       <div style={{ padding: '14px 20px 4px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
-          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
+          background: 'color-mix(in srgb, var(--danger) 10%, transparent)', borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
           <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
           </span>
         </div>
         <div style={{ fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 8 }}>
-          <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+          <span style={{ background: 'linear-gradient(135deg, #C62828 0%, #E64A19 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             fontSize: 'clamp(36px, 11vw, 48px)' }}>
             ACLS
@@ -361,9 +361,9 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
               {spotlight === 0
                 ? <button key="cb" onClick={() => openCPR()}
                     style={{ width: '100%', borderRadius: 16,
-                      background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                      background: 'linear-gradient(135deg, var(--danger), #8E1410)', color: '#fff',
                       display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
-                      boxShadow: '0 8px 24px rgba(255,59,48,0.30)',
+                      boxShadow: '0 8px 24px color-mix(in srgb, var(--danger) 30%, transparent)',
                       border: 0, cursor: 'pointer',
                       animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
@@ -380,9 +380,9 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                   </button>
                 : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
                     style={{ width: '100%', borderRadius: 16,
-                      background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
+                      background: 'linear-gradient(135deg, #FFA000, #C67C00)', color: '#fff',
                       display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
-                      boxShadow: '0 8px 24px rgba(255,149,0,0.30)',
+                      boxShadow: '0 8px 24px color-mix(in srgb, var(--warning) 30%, transparent)',
                       border: 0, cursor: 'pointer', textDecoration: 'none',
                       animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.20)',
@@ -405,7 +405,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                   style={{
                     width: spotlight === i ? 16 : 6, height: 6, borderRadius: 3, cursor: 'pointer',
                     background: spotlight === i
-                      ? (i === 0 ? 'var(--danger)' : '#FF9500')
+                      ? (i === 0 ? 'var(--danger)' : '#FFA000')
                       : 'var(--fill-tertiary)',
                     transition: 'width 200ms var(--ease-out), background 200ms'
                   }}/>
@@ -1126,7 +1126,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
         <>
           <SectionHeader>Pitfalls &amp; Pearls</SectionHeader>
           <div style={{ padding: "0 16px 12px" }}>
-            <div style={{ background: "rgba(255,196,0,0.10)", borderRadius: 12, border: "0.5px solid rgba(255,196,0,0.45)", padding: "12px 14px" }}>
+            <div style={{ background: "rgba(249,168,37,0.10)", borderRadius: 12, border: "0.5px solid rgba(249,168,37,0.45)", padding: "12px 14px" }}>
               {r.pitfalls.map((p, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginTop: i > 0 ? 8 : 0, alignItems: "flex-start" }}>
                   <span style={{ flexShrink: 0, fontSize: '0.8125rem' }}>⚠️</span>

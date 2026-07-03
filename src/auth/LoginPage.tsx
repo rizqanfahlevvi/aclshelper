@@ -114,7 +114,7 @@ export function LoginPage({ onGoToSignUp, onLoginSuccess }: LoginPageProps) {
 
         {error && (
           <div style={{
-            padding: '10px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.10)',
+            padding: '10px 14px', borderRadius: 10, background: 'color-mix(in srgb, var(--danger) 10%, transparent)',
             color: 'var(--danger)', fontSize: '0.8125rem', marginBottom: 16, lineHeight: 1.4,
           }}>
             {error}

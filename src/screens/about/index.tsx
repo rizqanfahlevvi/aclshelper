@@ -54,7 +54,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
         <div style={{ width: 88, height: 88, borderRadius: 22,
           background: 'var(--danger)',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 14, boxShadow: '0 8px 28px rgba(255,59,48,0.30)' }}>
+          marginBottom: 14, boxShadow: '0 8px 28px color-mix(in srgb, var(--danger) 30%, transparent)' }}>
           <svg width="46" height="46" viewBox="0 0 24 24" fill="#fff">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
           </svg>
@@ -62,7 +62,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
         <div style={{ fontSize: '1.875rem', fontWeight: 800, letterSpacing: '-0.02em',
           color: 'var(--label-primary)' }}>ACLS Helper</div>
         <div style={{ display: 'inline-block', margin: '6px 0',
-          background: 'rgba(255,59,48,0.12)', color: 'var(--danger)',
+          background: 'color-mix(in srgb, var(--danger) 12%, transparent)', color: 'var(--danger)',
           fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.08em',
           padding: '3px 12px', borderRadius: 8 }}>V2.0</div>
         <div style={{ fontSize: '0.9375rem', color: 'var(--label-secondary)',
@@ -161,7 +161,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
       <div style={{ padding: '0 16px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <button onClick={onFeedback}
           style={{ padding: '11px 12px', borderRadius: 14, background: 'var(--accent-tint)',
-            border: '0.5px solid rgba(48,176,199,0.25)', cursor: 'pointer',
+            border: '0.5px solid color-mix(in srgb, var(--sys-teal) 25%, transparent)', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left' }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0,
             background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -174,10 +174,10 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
         </button>
         <a href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
           style={{ textDecoration: 'none', padding: '11px 12px', borderRadius: 14,
-            background: 'rgba(255,149,0,0.10)', border: '0.5px solid rgba(255,149,0,0.25)',
+            background: 'color-mix(in srgb, var(--warning) 10%, transparent)', border: '0.5px solid color-mix(in srgb, var(--warning) 25%, transparent)',
             display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-            background: 'linear-gradient(135deg,#FF9500,#E67300)',
+            background: 'linear-gradient(135deg,#FFA000,#C67C00)',
             display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icons.coffee size={16} stroke={2} style={{ color: '#fff' }}/>
           </div>
@@ -199,7 +199,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
                 style={{ width: '100%', padding: '14px 16px', background: 'none', border: 0,
                   cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                  background: ver.current ? 'rgba(255,59,48,0.12)' : 'var(--fill-tertiary)',
+                  background: ver.current ? 'color-mix(in srgb, var(--danger) 12%, transparent)' : 'var(--fill-tertiary)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '0.6875rem', fontWeight: 800,
                     color: ver.current ? 'var(--danger)' : 'var(--label-secondary)' }}>v{ver.version}</span>
@@ -210,7 +210,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
                     Versi {ver.version}
                     {ver.current && (
                       <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--success)',
-                        background: 'rgba(52,199,89,0.12)', padding: '1px 7px', borderRadius: 6 }}>
+                        background: 'color-mix(in srgb, var(--success) 12%, transparent)', padding: '1px 7px', borderRadius: 6 }}>
                         Saat ini
                       </span>
                     )}

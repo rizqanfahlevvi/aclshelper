@@ -134,7 +134,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
       <div style={{ padding: '8px 16px 12px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--danger)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,59,48,0.35)' }}>
+            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px color-mix(in srgb, var(--danger) 35%, transparent)' }}>
             <Icons.heart size={22} stroke={1.9} style={{ color: '#fff' }}/>
           </div>
           <div>
@@ -422,8 +422,8 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
 
       <div style={{ padding: '8px 16px 12px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#34C759',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(52,199,89,0.35)' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1E8E3E',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px color-mix(in srgb, var(--success) 35%, transparent)' }}>
             <Icons.droplet size={22} stroke={1.9} style={{ color: '#fff' }}/>
           </div>
           <div>
@@ -462,7 +462,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                       <span className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>{p}</span>
                     </div>
                   ))}
-                  <div style={{ marginTop: 6, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,149,0,0.08)' }}>
+                  <div style={{ marginTop: 6, padding: '6px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--warning) 8%, transparent)' }}>
                     <span className="t-caption-2" style={{ color: 'var(--warning)' }}>Efek samping: </span>
                     <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{v.sideEffects}</span>
                   </div>
@@ -532,7 +532,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
       <div style={{ padding: '8px 16px 12px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--warning)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,149,0,0.35)' }}>
+            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px color-mix(in srgb, var(--warning) 35%, transparent)' }}>
             <Icons.activity size={22} stroke={1.9} style={{ color: '#fff' }}/>
           </div>
           <div>
@@ -547,18 +547,18 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>PROGRES</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: doneCount === totalItems ? '#34C759' : 'var(--label-primary)' }}>{doneCount}</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: doneCount === totalItems ? '#1E8E3E' : 'var(--label-primary)' }}>{doneCount}</span>
               <span className="t-footnote" style={{ color: 'var(--label-secondary)' }}>/ {totalItems} item</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: 'var(--fill-secondary)', marginTop: 4 }}>
-              <div style={{ height: '100%', borderRadius: 2, background: doneCount === totalItems ? '#34C759' : 'var(--warning)',
+              <div style={{ height: '100%', borderRadius: 2, background: doneCount === totalItems ? '#1E8E3E' : 'var(--warning)',
                 width: `${(doneCount / totalItems) * 100}%`, transition: 'width 300ms' }}/>
             </div>
           </div>
           <button onClick={() => roscTime ? (setRoscTime(null)) : startRosc()}
             style={{ padding: '8px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
-              background: roscTime ? 'rgba(255,59,48,0.1)' : 'rgba(52,199,89,0.1)',
-              color: roscTime ? 'var(--danger)' : '#34C759' }}>
+              background: roscTime ? 'color-mix(in srgb, var(--danger) 10%, transparent)' : 'color-mix(in srgb, var(--success) 10%, transparent)',
+              color: roscTime ? 'var(--danger)' : '#1E8E3E' }}>
             <div className="t-caption-2" style={{ fontWeight: 700 }}>{roscTime ? 'ROSC' : 'Catat'}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 800, marginTop: 2 }}>
               {roscTime ? fmtElapsed(elapsed) : 'ROSC'}
@@ -637,35 +637,35 @@ const DEFIB_RHYTHMS = [
     label: 'Fibrilasi Atrium',
     energy: { bifasik: '100–200 J', monofasik: '200 J' },
     note: 'Titrasi naik jika tidak berhasil konversi',
-    color: '#007AFF',
+    color: '#0056B3',
   },
   {
     key: 'flutter',
     label: 'Atrial Flutter',
     energy: { bifasik: '50–100 J', monofasik: '100–200 J' },
     note: 'Umumnya lebih mudah dikonversi, energi lebih rendah',
-    color: '#30B0C7',
+    color: '#00838F',
   },
   {
     key: 'svt',
     label: 'SVT',
     energy: { bifasik: '50–100 J', monofasik: '100–200 J' },
     note: 'Eskalasi energi jika tidak berhasil',
-    color: '#5856D6',
+    color: '#003F87',
   },
   {
     key: 'vt-mono',
     label: 'VT Monomorfik',
     energy: { bifasik: '100 J', monofasik: '200 J' },
     note: 'Pasien stabil → pertimbangkan obat dulu; tidak stabil → kardioversi segera',
-    color: '#FF9500',
+    color: '#FFA000',
   },
   {
     key: 'tdp',
     label: 'TdP / VT Polimorfik',
     energy: { bifasik: 'TIDAK SYNC', monofasik: 'TIDAK SYNC' },
     note: '⚠ Perlakukan seperti VF — defibrilasi asinkron',
-    color: '#FF3B30',
+    color: '#BA1A1A',
     isVf: true,
   },
 ];
@@ -706,7 +706,7 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
       {/* Sticky header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg-primary)', borderBottom: '0.5px solid var(--separator)', padding: '10px 16px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,59,48,0.3)', flexShrink: 0 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#BA1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px color-mix(in srgb, var(--danger) 30%, transparent)', flexShrink: 0 }}>
             <Icons.boltFill size={20} style={{ color: '#fff' }}/>
           </div>
           <div>
@@ -746,34 +746,34 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
         {tab === 'defib' && (
           <>
             {!isPeds ? (
-              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,59,48,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,59,48,0.2)', marginBottom: 12 }}>
-                <div className="t-caption-2" style={{ color: '#FF3B30', marginBottom: 6 }}>VF / pVT — ASINKRON</div>
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--danger) 7%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#BA1A1A', marginBottom: 6 }}>VF / pVT — ASINKRON</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>BIFASIK</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>120–200 J</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>120–200 J</div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Sesuai rekomendasi alat</div>
                   </div>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MONOFASIK</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>360 J</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>360 J</div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Dosis tetap, ulangi 360 J</div>
                   </div>
                 </div>
                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Ulangi setiap 2 menit jika tidak ada ROSC. Eskalasi energi jika bifasik gagal.</div>
               </div>
             ) : (
-              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,59,48,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,59,48,0.2)', marginBottom: 12 }}>
-                <div className="t-caption-2" style={{ color: '#FF3B30', marginBottom: 8 }}>DEFIBRILASI PEDIATRIK — ASINKRON</div>
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--danger) 7%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#BA1A1A', marginBottom: 8 }}>DEFIBRILASI PEDIATRIK — ASINKRON</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>2 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>2 J/kg</div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Syok pertama</div>
                   </div>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF3B30', marginTop: 2 }}>4 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>4 J/kg</div>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Maks 10 J/kg atau dosis dewasa</div>
                   </div>
                 </div>
@@ -786,7 +786,7 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
         {/* ── KARDIOVERSI tab ── */}
         {tab === 'cardio' && (
           <>
-            <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,149,0,0.10)', boxShadow: 'inset 0 0 0 1px rgba(255,149,0,0.25)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '10px 12px', borderRadius: 10, background: 'color-mix(in srgb, var(--warning) 10%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--warning) 25%, transparent)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: '1rem' }}>⚠</span>
               <span className="t-caption-1" style={{ color: 'var(--label-primary)', fontWeight: 600 }}>MODE SINKRON harus aktif — verifikasi sync marker pada gelombang R sebelum discharge</span>
             </div>
@@ -799,9 +799,9 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
                       background: selectedRhythm === r.key ? r.color + '12' : 'var(--bg-primary)',
                       boxShadow: selectedRhythm === r.key ? `inset 0 0 0 1.5px ${r.color}55` : 'inset 0 0 0 0.5px var(--separator)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="t-callout" style={{ fontWeight: 600, color: r.isVf ? '#FF3B30' : 'var(--label-primary)' }}>{r.label}</span>
+                      <span className="t-callout" style={{ fontWeight: 600, color: r.isVf ? '#BA1A1A' : 'var(--label-primary)' }}>{r.label}</span>
                       {r.isVf
-                        ? <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#FF3B30', background: 'rgba(255,59,48,0.12)', padding: '2px 8px', borderRadius: 6 }}>ASYNC</span>
+                        ? <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#BA1A1A', background: 'color-mix(in srgb, var(--danger) 12%, transparent)', padding: '2px 8px', borderRadius: 6 }}>ASYNC</span>
                         : <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: r.color, background: r.color + '15', padding: '2px 8px', borderRadius: 6 }}>SYNC</span>
                       }
                     </div>
@@ -810,11 +810,11 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 6 }}>
                           <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
                             <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>BIFASIK</div>
-                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#FF3B30' : r.color }}>{r.energy.bifasik}</div>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#BA1A1A' : r.color }}>{r.energy.bifasik}</div>
                           </div>
                           <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--fill-quaternary)' }}>
                             <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>MONOFASIK</div>
-                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#FF3B30' : r.color }}>{r.energy.monofasik}</div>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: r.isVf ? '#BA1A1A' : r.color }}>{r.energy.monofasik}</div>
                           </div>
                         </div>
                         <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>{r.note}</div>
@@ -824,16 +824,16 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
                 ))}
               </div>
             ) : (
-              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,149,0,0.07)', boxShadow: 'inset 0 0 0 1px rgba(255,149,0,0.2)', marginBottom: 12 }}>
-                <div className="t-caption-2" style={{ color: '#FF9500', marginBottom: 8 }}>KARDIOVERSI PEDIATRIK — SINKRON</div>
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--warning) 7%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--warning) 20%, transparent)', marginBottom: 12 }}>
+                <div className="t-caption-2" style={{ color: '#FFA000', marginBottom: 8 }}>KARDIOVERSI PEDIATRIK — SINKRON</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF9500', marginTop: 2 }}>0.5–1 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>0.5–1 J/kg</div>
                   </div>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FF9500', marginTop: 2 }}>2 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>2 J/kg</div>
                   </div>
                 </div>
                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Berlaku untuk semua ritme supraventrikular. Pastikan mode SYNC aktif.</div>
@@ -847,7 +847,7 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
           {steps.map((step, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'var(--fill-quaternary)' }}>
-              <div style={{ width: 22, height: 22, borderRadius: 11, background: tab === 'defib' ? '#FF3B30' : '#FF9500', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <div style={{ width: 22, height: 22, borderRadius: 11, background: tab === 'defib' ? '#BA1A1A' : '#FFA000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
                 <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#fff' }}>{i + 1}</span>
               </div>
               <span className="t-callout" style={{ color: 'var(--label-primary)', flex: 1 }}>{step}</span>
@@ -953,7 +953,7 @@ export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
       {/* Sticky header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg-primary)', borderBottom: '0.5px solid var(--separator)', padding: '10px 16px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#30B0C7', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(48,176,199,0.35)', flexShrink: 0 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: '#00838F', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px color-mix(in srgb, var(--sys-teal) 35%, transparent)', flexShrink: 0 }}>
             <Icons.heart size={20} stroke={1.8} style={{ color: '#fff' }}/>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -999,7 +999,7 @@ export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                   <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{drug.note}</div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 12 }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{d(drug.val)}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#00838F' }}>{d(drug.val)}</span>
                   <span className="t-caption-1" style={{ color: 'var(--label-secondary)', marginLeft: 3 }}>{drug.unit}</span>
                   {drug.capped && <div style={{ fontSize: '0.625rem', color: 'var(--warning)', fontWeight: 700 }}>MAKS</div>}
                 </div>
@@ -1021,7 +1021,7 @@ export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                   <div className="t-callout" style={{ fontWeight: 600 }}>{item.label}</div>
                   <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{item.note}</div>
                 </div>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{item.val}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#00838F' }}>{item.val}</span>
               </div>
             ))}
 
@@ -1035,7 +1035,7 @@ export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                   <div className="t-callout" style={{ fontWeight: 600 }}>{item.label}</div>
                   <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{item.note}</div>
                 </div>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#30B0C7' }}>{item.val}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.125rem', fontWeight: 700, color: '#00838F' }}>{item.val}</span>
               </div>
             ))}
 
@@ -1049,7 +1049,7 @@ export function PedsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             ].map(item => (
               <div key={item.age} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderRadius: 10, background: 'var(--fill-quaternary)' }}>
                 <span className="t-callout" style={{ color: 'var(--label-primary)' }}>{item.age}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 600, color: '#30B0C7' }}>{item.hr}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 600, color: '#00838F' }}>{item.hr}</span>
               </div>
             ))}
           </div>

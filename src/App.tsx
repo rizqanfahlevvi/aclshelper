@@ -467,7 +467,7 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
               </div>
 
               {status === 'error' && (
-                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)',
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'color-mix(in srgb, var(--danger) 10%, transparent)',
                   marginBottom: 14, color: 'var(--danger)', fontSize: '0.875rem' }}>
                   Gagal mengirim. Periksa koneksi internet dan coba lagi.
                 </div>
@@ -715,7 +715,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
   );
 }
 
-const ACCENT = { color: '#30B0C7', dark: '#40C8E0' };
+const ACCENT = { color: '#00838F', dark: '#4DB6AC' };
 
 const MOBILE_MENU = [
   { key: 'home',   label: 'Beranda',     desc: 'Ikhtisar & akses cepat',       icon: Icons.house },
@@ -873,9 +873,9 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <div style={{
               width: 44, height: 44, borderRadius: 13, flexShrink: 0,
-              background: 'linear-gradient(135deg, var(--accent), #5856D6)',
+              background: 'linear-gradient(135deg, var(--accent), #003F87)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(0,122,255,0.35)',
+              boxShadow: '0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent)',
             }}>
               <Icons.heartFill size={22} style={{ color: '#fff' }}/>
             </div>
@@ -899,7 +899,7 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
                 background: 'var(--accent)', color: 'var(--accent-fg)', cursor: 'pointer',
                 fontSize: '0.9375rem', fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                boxShadow: '0 4px 14px rgba(0,122,255,0.30)',
+                boxShadow: '0 4px 14px color-mix(in srgb, var(--accent) 30%, transparent)',
               }}
             >
               <Icons.chat size={17} stroke={2} style={{ color: '#fff' }}/>
@@ -912,10 +912,10 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
               onClick={() => onClose()}
               style={{
                 width: '100%', padding: '13px 16px', borderRadius: 14, border: 'none',
-                background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #FFA000, #C67C00)', color: '#fff', cursor: 'pointer',
                 fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                boxShadow: '0 4px 14px rgba(255,149,0,0.30)',
+                boxShadow: '0 4px 14px color-mix(in srgb, var(--warning) 30%, transparent)',
               }}
             >
               <Icons.coffee size={17} stroke={2} style={{ color: '#fff' }}/>
@@ -1280,7 +1280,7 @@ export default function App() {
       justifyContent: 'center', padding: 24, background: 'var(--bg-secondary)' }}>
       <div style={{ textAlign: 'center', maxWidth: 320 }}>
         <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto 16px',
-          background: 'rgba(255,149,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          background: 'color-mix(in srgb, var(--warning) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
@@ -1294,7 +1294,7 @@ export default function App() {
         <a href={waLockLink} target="_blank" rel="noopener noreferrer" style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           padding: '12px 22px', borderRadius: 12, textDecoration: 'none',
-          background: 'linear-gradient(135deg,#FF9500,#E67300)', color: '#fff', fontWeight: 700, fontSize: '0.9375rem',
+          background: 'linear-gradient(135deg,#FFA000,#C67C00)', color: '#fff', fontWeight: 700, fontSize: '0.9375rem',
         }}>Hubungi via WhatsApp</a>
       </div>
     </div>
@@ -1308,7 +1308,7 @@ export default function App() {
     return (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
-        background: isTrial ? 'rgba(255,149,0,0.12)' : 'rgba(52,199,89,0.12)',
+        background: isTrial ? 'color-mix(in srgb, var(--warning) 12%, transparent)' : 'color-mix(in srgb, var(--success) 12%, transparent)',
         borderBottom: '0.5px solid var(--separator)', flexShrink: 0,
       }}>
         <span style={{ flex: 1, fontSize: '0.8125rem', color: isTrial ? 'var(--warning)' : 'var(--success)', lineHeight: 1.4 }}>
@@ -1434,11 +1434,11 @@ export default function App() {
                   }}>
                     {([
                       { key: 'tools',  label: 'Pustaka EKG',  IconC: Icons.ekg,        bg: 'var(--accent-tint)',        color: 'var(--accent)'   },
-                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'rgba(10,132,255,0.12)',    color: 'var(--info)'     },
-                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'rgba(175,82,222,0.14)',    color: '#AF52DE'         },
-                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'rgba(52,199,89,0.14)',     color: 'var(--success)'  },
-                      { key: 'defib',  label: 'Defibrilasi',  IconC: Icons.boltFill,   bg: 'rgba(255,59,48,0.12)',     color: 'var(--danger)'   },
-                      { key: 'peds',   label: 'Pediatrik',    IconC: Icons.heart,      bg: 'rgba(48,176,199,0.14)',    color: '#30B0C7'         },
+                      { key: 'hsts',   label: 'Hs & Ts',      IconC: Icons.clipboard,  bg: 'color-mix(in srgb, var(--accent) 12%, transparent)',    color: 'var(--info)'     },
+                      { key: 'calc',   label: 'Kalkulator',   IconC: Icons.calculator, bg: 'color-mix(in srgb, var(--sys-purple) 14%, transparent)',    color: '#9333EA'         },
+                      { key: 'theory', label: 'Teori',        IconC: Icons.activity,   bg: 'color-mix(in srgb, var(--success) 14%, transparent)',     color: 'var(--success)'  },
+                      { key: 'defib',  label: 'Defibrilasi',  IconC: Icons.boltFill,   bg: 'color-mix(in srgb, var(--danger) 12%, transparent)',     color: 'var(--danger)'   },
+                      { key: 'peds',   label: 'Pediatrik',    IconC: Icons.heart,      bg: 'color-mix(in srgb, var(--sys-teal) 14%, transparent)',    color: '#00838F'         },
                     ] as const).map(({ key, label, IconC, bg, color }) => (
                       <button key={key}
                         onClick={() => {

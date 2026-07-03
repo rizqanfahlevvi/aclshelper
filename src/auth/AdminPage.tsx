@@ -283,9 +283,9 @@ export function AdminPage({ onBack }: AdminPageProps) {
                   background: 'var(--fill-tertiary)', color: 'var(--label-secondary)' }}>{u.role}</span>
                 <span style={{
                   fontSize: '0.6875rem', fontWeight: 700, padding: '3px 9px', borderRadius: 7,
-                  background: u.subscriptionStatus === 'active' ? 'rgba(52,199,89,0.14)'
-                    : u.subscriptionStatus === 'trial' ? 'rgba(255,149,0,0.14)'
-                    : u.subscriptionStatus === 'expired' ? 'rgba(255,59,48,0.14)'
+                  background: u.subscriptionStatus === 'active' ? 'color-mix(in srgb, var(--success) 14%, transparent)'
+                    : u.subscriptionStatus === 'trial' ? 'color-mix(in srgb, var(--warning) 14%, transparent)'
+                    : u.subscriptionStatus === 'expired' ? 'color-mix(in srgb, var(--danger) 14%, transparent)'
                     : 'var(--fill-tertiary)',
                   color: u.subscriptionStatus === 'active' ? 'var(--success)'
                     : u.subscriptionStatus === 'trial' ? 'var(--warning)'
@@ -306,7 +306,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
                   </button>
                   <button onClick={() => setDeletingUser(u)}
                     style={{ width: 30, height: 30, borderRadius: 8, border: 0, cursor: 'pointer',
-                      background: 'rgba(255,59,48,0.10)', color: 'var(--danger)',
+                      background: 'color-mix(in srgb, var(--danger) 10%, transparent)', color: 'var(--danger)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Trash2 size={14}/>
                   </button>

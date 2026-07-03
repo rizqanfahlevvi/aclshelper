@@ -58,17 +58,17 @@ export function ProfilePopup({ isOpen, onClose, onLogout, onOpenAdmin }: Profile
   if (isExpired) {
     statusLabel = 'Kedaluwarsa';
     statusColor = 'var(--danger)';
-    statusBg = 'rgba(255,59,48,0.10)';
+    statusBg = 'color-mix(in srgb, var(--danger) 10%, transparent)';
     statusSub = expiredDate ? `Akses berakhir: ${formatDateID(expiredDate)}` : '';
   } else if (userProfile?.subscriptionStatus === 'active') {
     statusLabel = 'Aktif';
     statusColor = 'var(--success)';
-    statusBg = 'rgba(52,199,89,0.10)';
+    statusBg = 'color-mix(in srgb, var(--success) 10%, transparent)';
     statusSub = expiredDate ? `Berlaku hingga: ${formatDateID(expiredDate)}` : 'Seumur hidup';
   } else if (userProfile?.subscriptionStatus === 'trial') {
     statusLabel = 'Masa Trial';
     statusColor = 'var(--warning)';
-    statusBg = 'rgba(255,149,0,0.10)';
+    statusBg = 'color-mix(in srgb, var(--warning) 10%, transparent)';
     statusSub = expiredDate ? `Berlaku hingga: ${formatDateID(expiredDate)}` : 'Seumur hidup';
   }
 
@@ -129,7 +129,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout, onOpenAdmin }: Profile
               </span>
               <span style={{ fontSize: '0.6875rem', fontWeight: 700, padding: '3px 10px', borderRadius: 8,
                 display: 'inline-flex', alignItems: 'center', gap: 4,
-                background: user?.emailVerified ? 'rgba(52,199,89,0.12)' : 'rgba(142,142,147,0.12)',
+                background: user?.emailVerified ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'color-mix(in srgb, var(--label-tertiary) 12%, transparent)',
                 color: user?.emailVerified ? 'var(--success)' : 'var(--label-tertiary)' }}>
                 {user?.emailVerified ? <BadgeCheck size={11}/> : <Mail size={11}/>}
                 {user?.emailVerified ? 'Email Terverifikasi' : 'Email Belum Verifikasi'}
@@ -180,7 +180,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout, onOpenAdmin }: Profile
 
             <button onClick={onLogout} style={{
               width: '100%', padding: '12px 14px', borderRadius: 12, border: 0, cursor: 'pointer',
-              background: 'rgba(255,59,48,0.10)', display: 'flex', alignItems: 'center', gap: 10,
+              background: 'color-mix(in srgb, var(--danger) 10%, transparent)', display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <LogOut size={16} style={{ color: 'var(--danger)' }}/>
               <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--danger)' }}>Keluar</span>

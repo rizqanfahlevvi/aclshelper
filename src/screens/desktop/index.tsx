@@ -196,7 +196,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
     <div style={{ padding: "16px 24px 32px", overflowY: "auto", height: "100%" }}>
       <div style={{ marginBottom: 20, animation: 'acls-fadeslide 360ms var(--ease-out) both' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5,
-          background: 'rgba(255,59,48,0.10)', borderRadius: 20, padding: '4px 12px', marginBottom: 10 }}>
+          background: 'color-mix(in srgb, var(--danger) 10%, transparent)', borderRadius: 20, padding: '4px 12px', marginBottom: 10 }}>
           <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--danger)',
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Your daily Cardiac Problem Companion
@@ -208,7 +208,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
           <div style={{ animation: 'acls-fadeslide 400ms 40ms var(--ease-out) both' }}>
             <div style={{ fontSize: 'clamp(22px, 2.6vw, 34px)', fontWeight: 800, lineHeight: 1.0,
               letterSpacing: '-0.03em', marginBottom: 8 }}>
-              <span style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF6830 100%)',
+              <span style={{ background: 'linear-gradient(135deg, #C62828 0%, #E64A19 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 ACLS
               </span>
@@ -263,9 +263,9 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
               ? <button key="cb" onClick={onOpenCpr}
                   style={{ width: '100%', minHeight: 140, display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
-                    background: 'linear-gradient(135deg, var(--danger), #c81e10)', color: '#fff',
+                    background: 'linear-gradient(135deg, var(--danger), #8E1410)', color: '#fff',
                     borderRadius: 16, border: 0, cursor: 'pointer',
-                    boxShadow: '0 8px 20px rgba(255,59,48,0.30)',
+                    boxShadow: '0 8px 20px color-mix(in srgb, var(--danger) 30%, transparent)',
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                   <Icons.heartFill size={26}/>
                   <div style={{ textAlign: 'center' }}>
@@ -276,9 +276,9 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
               : <a key="sw" href="https://saweria.co/rizqanfahlevvi" target="_blank" rel="noopener noreferrer"
                   style={{ width: '100%', minHeight: 140, display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px',
-                    background: 'linear-gradient(135deg, #FF9500, #E67300)', color: '#fff',
+                    background: 'linear-gradient(135deg, #FFA000, #C67C00)', color: '#fff',
                     borderRadius: 16, border: 0, cursor: 'pointer', textDecoration: 'none',
-                    boxShadow: '0 8px 20px rgba(255,149,0,0.30)',
+                    boxShadow: '0 8px 20px color-mix(in srgb, var(--warning) 30%, transparent)',
                     animation: `acls-slide-from-${dir} 280ms var(--ease-out) both` }}>
                   <Icons.coffee size={26} stroke={2}/>
                   <div style={{ textAlign: 'center' }}>
@@ -294,7 +294,7 @@ export function DesktopDashboard({ onPick, onOpenCpr }: { onPick: (type: string,
                 style={{
                   width: spotlight === i ? 16 : 6, height: 6, borderRadius: 3, cursor: 'pointer',
                   background: spotlight === i
-                    ? (i === 0 ? 'var(--danger)' : '#FF9500')
+                    ? (i === 0 ? 'var(--danger)' : '#FFA000')
                     : 'var(--fill-tertiary)',
                   transition: 'width 200ms var(--ease-out), background 200ms'
                 }}/>
@@ -665,7 +665,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
                       const target = step.yes?.targetIndex ?? Math.min(selected + 1, flow.length - 1);
                       setSelected(target);
                     }}
-                    style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,59,48,0.10)",
+                    style={{ padding: "14px 16px", borderRadius: 12, background: "color-mix(in srgb, var(--danger) 10%, transparent)",
                       boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "55", border: 0, cursor: "pointer",
                       textAlign: "left", transition: "opacity 150ms" }}
                   >
@@ -677,7 +677,7 @@ export function DesktopAlgorithm({ id, onPick }: { id?: string; onPick: (type: s
                       const target = step.no?.targetIndex ?? Math.min(selected + 2, flow.length - 1);
                       setSelected(target);
                     }}
-                    style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(0,122,255,0.08)",
+                    style={{ padding: "14px 16px", borderRadius: 12, background: "color-mix(in srgb, var(--accent) 8%, transparent)",
                       boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "55", border: 0, cursor: "pointer",
                       textAlign: "left", transition: "opacity 150ms" }}
                   >
@@ -826,7 +826,7 @@ export function DesktopDrugs({ initialId, onPick }: { initialId?: string; onPick
             ))}
           </div>
         </div>
-        <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 12, background: "rgba(255,149,0,0.10)", boxShadow: "inset 0 0 0 0.5px rgba(255,149,0,0.30)" }}>
+        <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 12, background: "color-mix(in srgb, var(--warning) 10%, transparent)", boxShadow: "inset 0 0 0 0.5px color-mix(in srgb, var(--warning) 30%, transparent)" }}>
           <div className="t-caption-2" style={{ color: "var(--warning)", fontWeight: 700 }}>KONTRAINDIKASI &amp; PERHATIAN</div>
           <div className="t-footnote" style={{ marginTop: 4, lineHeight: 1.5 }}>{d.contra}</div>
         </div>
@@ -1011,10 +1011,10 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
               </div>
             )}
             {r.pitfalls?.length > 0 && (
-              <div style={{ background: "rgba(255,196,0,0.10)", borderRadius: 12, border: "0.5px solid rgba(255,196,0,0.45)", overflow: "hidden" }}>
-                <div className="t-caption-2" style={{ color: "#b38600", fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid rgba(255,196,0,0.3)" }}>⚠️ PITFALLS &amp; PEARLS</div>
+              <div style={{ background: "rgba(249,168,37,0.10)", borderRadius: 12, border: "0.5px solid rgba(249,168,37,0.45)", overflow: "hidden" }}>
+                <div className="t-caption-2" style={{ color: "#9A6C00", fontWeight: 700, padding: "10px 14px 8px", borderBottom: "0.5px solid rgba(249,168,37,0.3)" }}>⚠️ PITFALLS &amp; PEARLS</div>
                 {r.pitfalls.map((p, i) => (
-                  <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid rgba(255,196,0,0.2)" : "none", alignItems: "flex-start" }}>
+                  <div key={i} style={{ display: "flex", gap: 8, padding: "8px 14px", borderTop: i > 0 ? "0.5px solid rgba(249,168,37,0.2)" : "none", alignItems: "flex-start" }}>
                     <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{p}</span>
                   </div>
                 ))}

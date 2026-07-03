@@ -238,9 +238,9 @@ interface ConductionState {
   caption?: string;
 }
 const CD_COLORS: Record<NodeState, string> = {
-  active:   '#34C759',
-  blocked:  '#FF3B30',
-  ectopic:  '#FF9500',
+  active:   '#1E8E3E',
+  blocked:  '#BA1A1A',
+  ectopic:  '#FFA000',
   inactive: 'var(--label-quaternary)',
   dim:      'var(--label-quaternary)',
 };
@@ -386,7 +386,7 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
         <text x="120" y="385" textAnchor="start" fontSize="12" fill="var(--label-tertiary)" fontWeight="600">RBB</text>
         {/* WPW accessory pathway — from SA area bypassing AV node to ventricle */}
         {rhythmKey === 'wpw' && (
-          <path d="M135,225 Q60,295 115,350 Q150,385 208,360" fill="none" stroke="#FF9500"
+          <path d="M135,225 Q60,295 115,350 Q150,385 208,360" fill="none" stroke="#FFA000"
             strokeWidth="3" strokeDasharray="8 4" opacity={0.85} />
         )}
         {/* AF — multi-focal ectopics in right atrium (left side of SVG = patient right) */}
@@ -497,10 +497,10 @@ export function FlowStep({ step, index, total, onAction, expandable = true }: { 
 
   const tone = ({
     action:   { tint: "var(--accent)",      label: "Tindakan",  bg: "var(--bg-tertiary)" },
-    shock:    { tint: "var(--danger)",       label: "Shock",     bg: "rgba(255,59,48,0.10)" },
+    shock:    { tint: "var(--danger)",       label: "Shock",     bg: "color-mix(in srgb, var(--danger) 10%, transparent)" },
     drug:     { tint: "var(--tint-drug)",    label: "Obat",      bg: "var(--bg-tertiary)" },
     note:     { tint: "var(--tint-theory)", label: "Catatan",   bg: "var(--bg-tertiary)" },
-    outcome:  { tint: "var(--success)",      label: "Hasil",     bg: "rgba(52,199,89,0.10)" },
+    outcome:  { tint: "var(--success)",      label: "Hasil",     bg: "color-mix(in srgb, var(--success) 10%, transparent)" },
     decision: { tint: "var(--warning)",      label: "Keputusan", bg: "var(--bg-tertiary)" },
   } as Record<string, { tint: string; label: string; bg: string }>)[step.kind] || { tint: "var(--accent)", label: "Langkah", bg: "var(--bg-tertiary)" };
 
@@ -508,20 +508,20 @@ export function FlowStep({ step, index, total, onAction, expandable = true }: { 
   if (step.kind === "decision") {
     return (
       <div className="flow-step decision">
-        <div className="flow-tag" style={{ background: "rgba(255,149,0,0.14)", color: "var(--warning)" }}>Keputusan</div>
+        <div className="flow-tag" style={{ background: "color-mix(in srgb, var(--warning) 14%, transparent)", color: "var(--warning)" }}>Keputusan</div>
         <div className="t-headline" style={{ marginTop: 2 }}>{step.title}</div>
         <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 2 }}>{step.q}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
           <button
             onClick={() => onAction && onAction("yes")}
-            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(255,59,48,0.10)", color: step.yes.tint, boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "40", border: 0, cursor: "pointer" }}
+            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "color-mix(in srgb, var(--danger) 10%, transparent)", color: step.yes.tint, boxShadow: "inset 0 0 0 0.5px " + step.yes.tint + "40", border: 0, cursor: "pointer" }}
           >
             <div className="t-caption-2">YES</div>
             <div className="t-subheadline" style={{ fontWeight: 600, marginTop: 1 }}>{step.yes.label}</div>
           </button>
           <button
             onClick={() => onAction && onAction("no")}
-            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "rgba(0,122,255,0.08)", color: step.no.tint, boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "40", border: 0, cursor: "pointer" }}
+            style={{ padding: "10px 12px", borderRadius: 10, textAlign: "left", background: "color-mix(in srgb, var(--accent) 8%, transparent)", color: step.no.tint, boxShadow: "inset 0 0 0 0.5px " + step.no.tint + "40", border: 0, cursor: "pointer" }}
           >
             <div className="t-caption-2">NO</div>
             <div className="t-subheadline" style={{ fontWeight: 600, marginTop: 1 }}>{step.no.label}</div>
@@ -883,27 +883,27 @@ function CprAnimator({
         </>
       );
       return (
-        <div style={{ borderRadius: 14, padding: '14px 16px', background: 'rgba(52,199,89,0.10)', boxShadow: 'inset 0 0 0 1.5px rgba(52,199,89,0.4)', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#34C759', letterSpacing: '0.10em', marginBottom: 10 }}>
+        <div style={{ borderRadius: 14, padding: '14px 16px', background: 'color-mix(in srgb, var(--success) 10%, transparent)', boxShadow: 'inset 0 0 0 1.5px color-mix(in srgb, var(--success) 40%, transparent)', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E8E3E', letterSpacing: '0.10em', marginBottom: 10 }}>
             VENTILASI 2×
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 10 }}>
             {/* Napas ke-1 — langsung */}
             <div style={{ textAlign: 'center' }}>
               <svg className="acls-lung-vent" width="52" height="52" viewBox="0 0 24 24" fill="none"
-                stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                stroke="#1E8E3E" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 {lungPath}
               </svg>
-              <div className="t-caption-2" style={{ color: '#34C759', fontWeight: 700, marginTop: 2 }}>1</div>
+              <div className="t-caption-2" style={{ color: '#1E8E3E', fontWeight: 700, marginTop: 2 }}>1</div>
             </div>
             {/* Napas ke-2 — delay 1.4 detik */}
             <div style={{ textAlign: 'center' }}>
               <svg className="acls-lung-vent" width="52" height="52" viewBox="0 0 24 24" fill="none"
-                stroke="#34C759" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+                stroke="#1E8E3E" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
                 style={{ animationDelay: '1.4s', opacity: 0.35 }}>
                 {lungPath}
               </svg>
-              <div className="t-caption-2" style={{ color: '#34C759', fontWeight: 700, marginTop: 2 }}>2</div>
+              <div className="t-caption-2" style={{ color: '#1E8E3E', fontWeight: 700, marginTop: 2 }}>2</div>
             </div>
           </div>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>
@@ -1326,7 +1326,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             ))}
           </div>
 
-          <div style={{ marginTop: 20, padding: "12px 14px", borderRadius: 12, background: "rgba(255,149,0,0.08)", boxShadow: "inset 0 0 0 0.5px rgba(255,149,0,0.3)" }}>
+          <div style={{ marginTop: 20, padding: "12px 14px", borderRadius: 12, background: "color-mix(in srgb, var(--warning) 8%, transparent)", boxShadow: "inset 0 0 0 0.5px color-mix(in srgb, var(--warning) 30%, transparent)" }}>
             <div className="t-caption-2" style={{ color: "var(--warning)", fontWeight: 700, marginBottom: 4 }}>PANDUAN AHA 2025</div>
             <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.5 }}>
               100–120 kompresi/mnt · kedalaman 5–6 cm · recoil penuh · rasio 30:2 · minimal interupsi
@@ -1351,7 +1351,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <span style={{ display:"inline-block", width:7, height:7, borderRadius:4, background:"var(--info)", marginRight:5, verticalAlign:"middle", animation:"acls-blink 1s infinite" }}/>
               CODE BLUE · BOX 1
             </div>
-            <button onClick={() => setSoundOn(s => !s)} style={{ display:'inline-flex', alignItems:'center', gap:4, height:28, padding:'0 10px', borderRadius:8, background:soundOn?'rgba(255,59,48,0.15)':'var(--fill-tertiary)', border:0, cursor:'pointer', flexShrink:0 }}>
+            <button onClick={() => setSoundOn(s => !s)} style={{ display:'inline-flex', alignItems:'center', gap:4, height:28, padding:'0 10px', borderRadius:8, background:soundOn?'color-mix(in srgb, var(--danger) 15%, transparent)':'var(--fill-tertiary)', border:0, cursor:'pointer', flexShrink:0 }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn?'var(--danger)':'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 {soundOn?<><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>:<><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
               </svg>
@@ -1395,7 +1395,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
         {/* Primary CTA — Monitor terpasang */}
         <div style={{ padding:'6px 16px 8px', display:'flex', flexDirection:'column', gap:8, flexShrink:0 }}>
           <button onClick={() => setRhythmPickerOpen(true)}
-            style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'16px 18px', borderRadius:16, background:'linear-gradient(135deg,var(--info),#005FCC)', color:'#fff', border:0, cursor:'pointer', boxShadow:'0 6px 18px rgba(0,122,255,0.30)', minHeight:70 }}>
+            style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'16px 18px', borderRadius:16, background:'linear-gradient(135deg,var(--info),#003C7E)', color:'#fff', border:0, cursor:'pointer', boxShadow:'0 6px 18px color-mix(in srgb, var(--accent) 30%, transparent)', minHeight:70 }}>
             <Icons.check size={28} stroke={2.8}/>
             <div style={{ textAlign:'left', flex:1 }}>
               <div className="t-title-3" style={{ color:'#fff' }}>Monitor terpasang — cek irama</div>
@@ -1422,7 +1422,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             </button>
           )}
           {intubated && (
-            <div style={{ padding:'8px 12px', borderRadius:10, background:'rgba(52,199,89,0.10)', boxShadow:'0 0 0 0.5px rgba(52,199,89,0.4)', display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ padding:'8px 12px', borderRadius:10, background:'color-mix(in srgb, var(--success) 10%, transparent)', boxShadow:'0 0 0 0.5px color-mix(in srgb, var(--success) 40%, transparent)', display:'flex', alignItems:'center', gap:8 }}>
               <Icons.check size={14} stroke={2.5} style={{ color:'var(--success)', flexShrink:0 }}/>
               <span className="t-caption-1" style={{ color:'var(--success)', fontWeight:600 }}>Airway lanjut terpasang · ventilasi 1×/6 dtk</span>
             </div>
@@ -1509,7 +1509,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', textAlign:'center' }}>Raba arteri karotis · jangan &gt; 10 detik</div>
             <div style={{ display:'flex', flexDirection:'column', gap:8, width:'100%' }}>
               <button onClick={() => { setRhythmPickerOpen(true); closePulseCheck(); }}
-                style={{ padding:'14px 18px', borderRadius:14, background:'rgba(52,199,89,0.12)', boxShadow:'0 0 0 1px rgba(52,199,89,0.5)', border:0, cursor:'pointer', display:'flex', alignItems:'center', gap:12, textAlign:'left' }}>
+                style={{ padding:'14px 18px', borderRadius:14, background:'color-mix(in srgb, var(--success) 12%, transparent)', boxShadow:'0 0 0 1px color-mix(in srgb, var(--success) 50%, transparent)', border:0, cursor:'pointer', display:'flex', alignItems:'center', gap:12, textAlign:'left' }}>
                 <div style={{ width:36, height:36, borderRadius:9, background:'var(--success)', display:'inline-flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   <Icons.check size={20} stroke={2.6} style={{ color:'#fff' }}/>
                 </div>
@@ -1546,7 +1546,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
 
         <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Status banner */}
-          <div style={{ padding: '18px 20px', borderRadius: 16, background: 'rgba(142,142,147,0.10)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.3)', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ padding: '18px 20px', borderRadius: 16, background: 'color-mix(in srgb, var(--label-tertiary) 10%, transparent)', boxShadow: '0 0 0 0.5px color-mix(in srgb, var(--label-tertiary) 30%, transparent)', display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--label-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icons.cross size={22} stroke={2.4} style={{ color: '#fff' }}/>
             </div>
@@ -1611,7 +1611,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
         </div>
 
         <div style={{ padding: "20px 20px 16px" }}>
-          <div style={{ padding: "14px 16px", borderRadius: 14, background: "rgba(255,59,48,0.08)", boxShadow: "inset 0 0 0 1px rgba(255,59,48,0.25)", marginBottom: 20 }}>
+          <div style={{ padding: "14px 16px", borderRadius: 14, background: "color-mix(in srgb, var(--danger) 8%, transparent)", boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--danger) 25%, transparent)", marginBottom: 20 }}>
             <div className="t-headline" style={{ color: "var(--danger)" }}>Siklus {cycles} selesai</div>
             <div className="t-footnote" style={{ color: "var(--label-secondary)", marginTop: 4 }}>
               Hentikan kompresi &lt; 10 detik · cek irama di monitor · total: {fmt(elapsed)}
@@ -1634,7 +1634,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               </button>
             ))}
             <button onClick={() => handleRhythmResult("rosc")}
-              style={{ padding: "16px 18px", borderRadius: 14, background: "rgba(52,199,89,0.10)", boxShadow: "0 0 0 1px rgba(52,199,89,0.4)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+              style={{ padding: "16px 18px", borderRadius: 14, background: "color-mix(in srgb, var(--success) 10%, transparent)", boxShadow: "0 0 0 1px color-mix(in srgb, var(--success) 40%, transparent)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--success)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icons.check size={22} stroke={2.6} style={{ color: "#fff" }}/>
               </div>
@@ -1645,7 +1645,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             </button>
 
             <button onClick={() => setStopAlsOpen(true)}
-              style={{ padding: "16px 18px", borderRadius: 14, background: "rgba(142,142,147,0.10)", boxShadow: "0 0 0 1px rgba(142,142,147,0.3)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+              style={{ padding: "16px 18px", borderRadius: 14, background: "color-mix(in srgb, var(--label-tertiary) 10%, transparent)", boxShadow: "0 0 0 1px color-mix(in srgb, var(--label-tertiary) 30%, transparent)", textAlign: "left", border: 0, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--label-tertiary)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icons.cross size={20} stroke={2.4} style={{ color: "#fff" }}/>
               </div>
@@ -1656,7 +1656,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             </button>
           </div>
 
-          <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)" }}>
+          <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: "color-mix(in srgb, var(--accent) 7%, transparent)", boxShadow: "inset 0 0 0 0.5px color-mix(in srgb, var(--accent) 25%, transparent)" }}>
             <div className="t-caption-2" style={{ color: "var(--info)", fontWeight: 700, marginBottom: 4 }}>LANGKAH BERIKUTNYA (AHA 2025)</div>
             <div className="t-caption-1" style={{ color: "var(--label-secondary)", lineHeight: 1.6 }}>
               {rhythm === "shockable" ? (
@@ -1727,8 +1727,8 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                             style={{ width: "100%", display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left",
                               padding: "9px 10px", marginTop: i > 0 ? 6 : 0, borderRadius: 10, border: 0,
                               cursor: c.auto ? "default" : "pointer",
-                              background: c.met ? "rgba(52,199,89,0.10)" : "var(--bg-tertiary)",
-                              boxShadow: c.met ? "inset 0 0 0 0.5px rgba(52,199,89,0.4)" : "inset 0 0 0 0.5px var(--separator)" }}>
+                              background: c.met ? "color-mix(in srgb, var(--success) 10%, transparent)" : "var(--bg-tertiary)",
+                              boxShadow: c.met ? "inset 0 0 0 0.5px color-mix(in srgb, var(--success) 40%, transparent)" : "inset 0 0 0 0.5px var(--separator)" }}>
                             <span style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
                               background: c.met ? "var(--success)" : "var(--fill-tertiary)",
                               display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -1748,14 +1748,14 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
 
                       {/* Verdict per alur ALS TOR */}
                       {allMet ? (
-                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(255,149,0,0.10)", boxShadow: "inset 0 0 0 0.5px rgba(255,149,0,0.4)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "color-mix(in srgb, var(--warning) 10%, transparent)", boxShadow: "inset 0 0 0 0.5px color-mix(in srgb, var(--warning) 40%, transparent)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
                           <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>⚠️</span>
                           <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
                             <strong>Semua kriteria terpenuhi.</strong> Pertimbangkan terminasi resusitasi. Keputusan tetap milik tim — dokumentasikan waktu dan alasan.
                           </span>
                         </div>
                       ) : (
-                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(0,122,255,0.07)", boxShadow: "inset 0 0 0 0.5px rgba(0,122,255,0.25)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                        <div style={{ padding: "12px 14px", borderRadius: 12, background: "color-mix(in srgb, var(--accent) 7%, transparent)", boxShadow: "inset 0 0 0 0.5px color-mix(in srgb, var(--accent) 25%, transparent)", marginBottom: 20, display: "flex", gap: 8, alignItems: "flex-start" }}>
                           <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>ℹ️</span>
                           <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.5 }}>
                             <strong>Ada kriteria belum terpenuhi.</strong> Lanjutkan resusitasi dan pertimbangkan transport ke fasilitas yang sesuai.
@@ -1803,7 +1803,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: 4, background: 'var(--danger)', marginRight: 5, verticalAlign: 'middle', animation: 'acls-blink 1s infinite' }}/>
               CODE BLUE
             </div>
-            <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'rgba(255,59,48,0.15)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
+            <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'color-mix(in srgb, var(--danger) 15%, transparent)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
               </svg>
@@ -1915,7 +1915,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         <button
                           className="cpr-action midaz"
-                          style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5856D6,#3B39B8)' }}
+                          style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5B4FD0,#3A2FA0)' }}
                           onClick={handleAmio}
                         >
                           <Icons.syringe size={22} stroke={2}/>
@@ -1959,7 +1959,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
                       </button>
                     )}
                     {curStep.actions?.includes('airway') && intubated && (
-                      <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 0.5px rgba(52,199,89,0.4)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ padding: '8px 12px', borderRadius: 10, background: 'color-mix(in srgb, var(--success) 10%, transparent)', boxShadow: '0 0 0 0.5px color-mix(in srgb, var(--success) 40%, transparent)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Icons.check size={14} stroke={2.5} style={{ color: 'var(--success)', flexShrink: 0 }}/>
                         <span className="t-caption-1" style={{ color: 'var(--success)', fontWeight: 600 }}>Airway lanjut terpasang · ventilasi 1×/6 dtk</span>
                       </div>
@@ -1981,7 +1981,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
 
                 {/* Terminasi — akses langsung tanpa menunggu rhythm check */}
                 <button onClick={() => setStopAlsOpen(true)}
-                  style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'rgba(142,142,147,0.08)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.25)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'color-mix(in srgb, var(--label-tertiary) 8%, transparent)', boxShadow: '0 0 0 0.5px color-mix(in srgb, var(--label-tertiary) 25%, transparent)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Icons.cross size={14} stroke={2.2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
                   <span className="t-caption-1" style={{ color: 'var(--label-secondary)', fontWeight: 600, flex: 1, textAlign: 'left' }}>Pertimbangkan Menghentikan ALS</span>
                   <span style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)' }}>▸</span>
@@ -2039,7 +2039,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <div className="t-caption-1" style={{ color: 'var(--label-secondary)', textAlign: 'center' }}>Raba arteri karotis · jangan &gt; 10 detik</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
                 <button onClick={() => { addLog('ROSC tercapai · post-cardiac arrest care', 'success'); setRunning(false); sfx.rosc(); haptic.rosc(); closePulseCheck(); }}
-                  style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(52,199,89,0.12)', boxShadow: '0 0 0 1px rgba(52,199,89,0.5)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+                  style={{ padding: '14px 18px', borderRadius: 14, background: 'color-mix(in srgb, var(--success) 12%, transparent)', boxShadow: '0 0 0 1px color-mix(in srgb, var(--success) 50%, transparent)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icons.check size={20} stroke={2.6} style={{ color: '#fff' }}/>
                   </div>
@@ -2111,7 +2111,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
             <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: 4, background: "var(--danger)", marginRight: 5, verticalAlign: "middle", animation: "acls-blink 1s infinite" }}/>
             CODE BLUE
           </div>
-          <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'rgba(255,59,48,0.15)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
+          <button onClick={() => setSoundOn(s => !s)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 28, padding: '0 10px', borderRadius: 8, background: soundOn ? 'color-mix(in srgb, var(--danger) 15%, transparent)' : 'var(--fill-tertiary)', border: 0, cursor: 'pointer', flexShrink: 0 }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={soundOn ? 'var(--danger)' : 'var(--label-secondary)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               {soundOn ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></>}
             </svg>
@@ -2227,7 +2227,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <button
                   className="cpr-action midaz"
-                  style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5856D6,#3B39B8)' }}
+                  style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, padding: '10px 16px', background: 'linear-gradient(150deg,#5B4FD0,#3A2FA0)' }}
                   onClick={handleAmio}
                 >
                   <Icons.syringe size={22} stroke={2}/>
@@ -2273,7 +2273,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
               </button>
             )}
             {curStep.actions?.includes('airway') && intubated && (
-              <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(52,199,89,0.10)', boxShadow: '0 0 0 0.5px rgba(52,199,89,0.4)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '8px 12px', borderRadius: 10, background: 'color-mix(in srgb, var(--success) 10%, transparent)', boxShadow: '0 0 0 0.5px color-mix(in srgb, var(--success) 40%, transparent)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Icons.check size={14} stroke={2.5} style={{ color: 'var(--success)', flexShrink: 0 }}/>
                 <span className="t-caption-1" style={{ color: 'var(--success)', fontWeight: 600 }}>Airway lanjut terpasang · ventilasi 1×/6 dtk</span>
               </div>
@@ -2297,7 +2297,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
 
         {/* Terminasi — akses langsung tanpa menunggu rhythm check */}
         <button onClick={() => setStopAlsOpen(true)}
-          style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'rgba(142,142,147,0.08)', boxShadow: '0 0 0 0.5px rgba(142,142,147,0.25)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          style={{ width: '100%', padding: '9px 14px', borderRadius: 10, background: 'color-mix(in srgb, var(--label-tertiary) 8%, transparent)', boxShadow: '0 0 0 0.5px color-mix(in srgb, var(--label-tertiary) 25%, transparent)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Icons.cross size={14} stroke={2.2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
           <span className="t-caption-1" style={{ color: 'var(--label-secondary)', fontWeight: 600, flex: 1, textAlign: 'left' }}>Pertimbangkan Menghentikan ALS</span>
           <span style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)' }}>▸</span>
@@ -2341,7 +2341,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)', textAlign: 'center' }}>Raba arteri karotis · jangan &gt; 10 detik</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
             <button onClick={() => { addLog('ROSC tercapai · post-cardiac arrest care', 'success'); setRunning(false); sfx.rosc(); haptic.rosc(); closePulseCheck(); }}
-              style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(52,199,89,0.12)', boxShadow: '0 0 0 1px rgba(52,199,89,0.5)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+              style={{ padding: '14px 18px', borderRadius: 14, background: 'color-mix(in srgb, var(--success) 12%, transparent)', boxShadow: '0 0 0 1px color-mix(in srgb, var(--success) 50%, transparent)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
               <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icons.check size={20} stroke={2.6} style={{ color: '#fff' }}/>
               </div>

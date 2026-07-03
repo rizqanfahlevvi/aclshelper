@@ -100,7 +100,7 @@ export function SignUpPage({ onGoToLogin }: SignUpPageProps) {
         }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%', margin: '0 auto 18px',
-            background: 'rgba(52,199,89,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'color-mix(in srgb, var(--success) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <CheckCircle2 size={34} style={{ color: 'var(--success)' }}/>
           </div>
@@ -147,7 +147,7 @@ export function SignUpPage({ onGoToLogin }: SignUpPageProps) {
 
         {error && (
           <div style={{
-            padding: '10px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.10)',
+            padding: '10px 14px', borderRadius: 10, background: 'color-mix(in srgb, var(--danger) 10%, transparent)',
             color: 'var(--danger)', fontSize: '0.8125rem', marginBottom: 16, lineHeight: 1.4,
           }}>
             {error}
