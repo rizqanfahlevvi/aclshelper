@@ -1528,7 +1528,7 @@ export default function App() {
                   <div style={{ width: 'min(900px, 100%)', height: '100%',
                     background: 'var(--bg-secondary)', pointerEvents: 'all',
                     animation: 'acls-overlay-in 280ms var(--ease-out) both',
-                    boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)' }}>
+                    boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--glass-border)' }}>
                     <CPRTimer isMobile={false} initialRhythm={cprRhythm} onClose={closeCPR}/>
                   </div>
                 </div>

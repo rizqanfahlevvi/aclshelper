@@ -1677,7 +1677,7 @@ export function CPRTimer({ onClose, isMobile = true, initialRhythm }: { onClose:
         {/* Stop ALS confirmation modal */}
         {stopAlsOpen && (
           <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 0 env(safe-area-inset-bottom,0)" }}>
-            <div style={{ width: "100%", maxWidth: 480, background: "var(--bg-secondary)", borderRadius: "20px 20px 0 0", boxShadow: "var(--shadow-2), 0 0 0 0.5px var(--separator)", overflow: "hidden", animation: "acls-sheet-in 260ms var(--ease-out) both" }}>
+            <div style={{ width: "100%", maxWidth: 480, background: "var(--bg-secondary)", borderRadius: "20px 20px 0 0", boxShadow: "var(--shadow-2), 0 0 0 0.5px var(--glass-border)", overflow: "hidden", animation: "acls-sheet-in 260ms var(--ease-out) both" }}>
               {/* Handle */}
               <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
                 <div style={{ width: 36, height: 4, borderRadius: 2, background: "var(--fill-tertiary)" }}/>

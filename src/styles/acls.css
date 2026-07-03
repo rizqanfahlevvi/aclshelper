@@ -233,7 +233,7 @@ body {
   background: var(--material-regular);
   backdrop-filter: var(--blur-base);
   -webkit-backdrop-filter: var(--blur-base);
-  border: 0.5px solid var(--separator);
+  border: 0.5px solid var(--glass-border);
   box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.22), var(--shadow-2);
   border-radius: var(--r-card);
 }
@@ -266,9 +266,9 @@ body {
 /* ---------- Card large -------------------------------------- */
 .acls-card-lg {
   padding: 16px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--bg-tertiary);
-  box-shadow: var(--shadow-1), 0 0 0 0.5px var(--separator);
+  box-shadow: var(--shadow-1), 0 0 0 0.5px var(--glass-border);
   transition: transform var(--dur-fast);
 }
 .acls-card-lg:active { transform: scale(0.98); }
@@ -277,16 +277,16 @@ body {
 .acls-desk-quick {
   display: flex; flex-direction: row; align-items: center; gap: 12px;
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--bg-tertiary);
-  box-shadow: var(--shadow-1), 0 0 0 0.5px var(--separator);
+  box-shadow: var(--shadow-1), 0 0 0 0.5px var(--glass-border);
   text-align: left;
   border: 0; cursor: pointer;
   transition: transform var(--dur-fast), box-shadow var(--dur-fast);
 }
 .acls-desk-quick:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-2), 0 0 0 0.5px var(--separator);
+  box-shadow: var(--shadow-2), 0 0 0 0.5px var(--glass-border);
 }
 .acls-desk-quick .glyph {
   width: 34px; height: 34px; border-radius: 9px;

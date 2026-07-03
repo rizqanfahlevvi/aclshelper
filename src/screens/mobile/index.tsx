@@ -55,7 +55,7 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
         width: '100%', maxWidth: 360,
         background: 'var(--bg-secondary)',
         borderRadius: 24,
-        boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--separator)',
+        boxShadow: 'var(--shadow-2), 0 0 0 0.5px var(--glass-border)',
         overflow: 'hidden',
       }}>
         {/* Close button */}
@@ -1265,7 +1265,7 @@ export function SpeedDial({ onClose, onPick }: { onClose: () => void; onPick: (k
               color: 'var(--label-primary)',
               padding: '8px 14px',
               borderRadius: 12,
-              boxShadow: 'var(--shadow-1), 0 0 0 0.5px var(--separator)',
+              boxShadow: 'var(--shadow-1), 0 0 0 0.5px var(--glass-border)',
               whiteSpace: 'nowrap',
               textAlign: 'right',
             }}>

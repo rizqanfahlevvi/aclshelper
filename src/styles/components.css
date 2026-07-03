@@ -123,7 +123,8 @@ a { color: var(--accent); text-decoration: none; }
 .ios-list {
   margin: 0 16px 16px;
   background: var(--bg-tertiary);
-  border-radius: var(--r-md);
+  border-radius: var(--r-card);
+  box-shadow: 0 0 0 0.5px var(--glass-border);
   overflow: hidden;
 }
 .ios-row {
@@ -272,11 +273,11 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--bg-tertiary);
   border-radius: var(--r-card);
   padding: 16px;
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-1), 0 0 0 0.5px var(--glass-border);
   transition: transform var(--dur-fast);
 }
 .ios-card:active { transform: scale(0.98); }
-.ios-card.flat { box-shadow: 0 0 0 0.5px var(--separator); }
+.ios-card.flat { box-shadow: 0 0 0 0.5px var(--glass-border); }
 
 /* Responsive auto-fit grid */
 .grid-auto {
