@@ -189,7 +189,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
           </div>
           <button onClick={onBack} style={{
             padding: '10px 22px', borderRadius: 10, border: 0, cursor: 'pointer',
-            background: 'var(--accent)', color: '#fff', fontWeight: 600, fontSize: '0.875rem',
+            background: 'var(--accent)', color: 'var(--accent-fg)', fontWeight: 600, fontSize: '0.875rem',
           }}>Kembali</button>
         </div>
       </div>
@@ -387,7 +387,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
                 Batal
               </button>
               <button onClick={handleSaveEdit} disabled={savingEdit} style={{ flex: 1, padding: '11px', borderRadius: 10, border: 0,
-                background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
+                background: 'var(--accent)', color: 'var(--accent-fg)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 {savingEdit ? <Loader2 size={15} style={{ animation: 'acls-spin 0.8s linear infinite' }}/> : 'Simpan'}
               </button>
@@ -440,7 +440,7 @@ export function AdminPage({ onBack }: AdminPageProps) {
                 Batal
               </button>
               <button onClick={() => setImportStep(2)} style={{ flex: 1, padding: '11px', borderRadius: 10, border: 0,
-                background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}>
+                background: 'var(--accent)', color: 'var(--accent-fg)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}>
                 Lanjutkan
               </button>
             </div>

@@ -114,7 +114,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout, onOpenAdmin }: Profile
             <div style={{
               width: 64, height: 64, borderRadius: '50%', margin: '0 auto 10px',
               background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.5rem', fontWeight: 700, color: '#fff',
+              fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-fg)',
             }}>{initials}</div>
 
             <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: 'var(--label-primary)' }}>{displayName}</div>

@@ -259,10 +259,10 @@ a { color: var(--accent); text-decoration: none; }
   box-shadow: 0 3px 8px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04);
 }
 [data-theme="dark"] .ios-segmented button.active {
-  background: #636366;
+  background: #3A3D44;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ios-segmented button.active { background: #636366; }
+  :root:not([data-theme="light"]) .ios-segmented button.active { background: #3A3D44; }
 }
 
 /* ============================================================
@@ -390,12 +390,12 @@ a { color: var(--accent); text-decoration: none; }
   border-radius: 6px;
   font-size: 0.75rem; font-weight: 600; letter-spacing: -0.005em;
 }
-.ios-tag.blue   { background: rgba(0,122,255,0.12);  color: var(--sys-blue); }
-.ios-tag.green  { background: rgba(52,199,89,0.16);  color: var(--sys-green); }
-.ios-tag.red    { background: rgba(255,59,48,0.12);  color: var(--sys-red); }
-.ios-tag.orange { background: rgba(255,149,0,0.14);  color: var(--sys-orange); }
-.ios-tag.purple { background: rgba(175,82,222,0.14); color: var(--sys-purple); }
-.ios-tag.teal   { background: rgba(48,176,199,0.14); color: var(--sys-teal); }
+.ios-tag.blue   { background: color-mix(in srgb, var(--sys-blue) 12%, transparent);   color: var(--sys-blue); }
+.ios-tag.green  { background: color-mix(in srgb, var(--sys-green) 14%, transparent);  color: var(--sys-green); }
+.ios-tag.red    { background: color-mix(in srgb, var(--sys-red) 12%, transparent);    color: var(--sys-red); }
+.ios-tag.orange { background: color-mix(in srgb, var(--sys-orange) 14%, transparent); color: var(--sys-orange); }
+.ios-tag.purple { background: color-mix(in srgb, var(--sys-purple) 14%, transparent); color: var(--sys-purple); }
+.ios-tag.teal   { background: color-mix(in srgb, var(--sys-teal) 14%, transparent);   color: var(--sys-teal); }
 .ios-tag.gray   { background: var(--fill-tertiary);  color: var(--label-secondary); }
 
 /* ============================================================
@@ -416,11 +416,11 @@ a { color: var(--accent); text-decoration: none; }
 .ios-alert .body {
   font-size: 0.875rem; color: var(--label-secondary); letter-spacing: -0.005em;
 }
-.ios-alert.warn { background: rgba(255,149,0,0.10); }
+.ios-alert.warn { background: color-mix(in srgb, var(--warning) 10%, transparent); }
 .ios-alert.warn .title { color: var(--warning); }
-.ios-alert.info { background: rgba(0,122,255,0.08); }
+.ios-alert.info { background: color-mix(in srgb, var(--info) 8%, transparent); }
 .ios-alert.info .title { color: var(--info); }
-.ios-alert.danger { background: rgba(255,59,48,0.10); }
+.ios-alert.danger { background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .ios-alert.danger .title { color: var(--danger); }
 
 /* ============================================================

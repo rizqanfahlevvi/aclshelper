@@ -450,7 +450,7 @@ function SimulationModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
             <a href="https://www.humanbiomedia.org/cardiac-cycle-simulation/" target="_blank" rel="noopener noreferrer"
-              style={{ padding:'12px 24px', borderRadius:12, background:'var(--accent)', color:'#fff',
+              style={{ padding:'12px 24px', borderRadius:12, background:'var(--accent)', color:'var(--accent-fg)',
                 fontWeight:700, textDecoration:'none', fontSize:'0.9375rem' }}>
               Buka di Browser ↗
             </a>
@@ -3493,7 +3493,7 @@ export function TheoryScreen({ nav, isMobile = false }: TheoryScreenProps) {
             <button key={t.key} onClick={() => selectTab(t.key)} style={{
               padding:'0 16px', borderRadius:20, border:'none', cursor:'pointer',
               background: tab===t.key ? 'var(--accent)' : 'var(--fill-quaternary)',
-              color: tab===t.key ? '#fff' : 'var(--label-secondary)',
+              color: tab===t.key ? 'var(--accent-fg)' : 'var(--label-secondary)',
               fontSize:'0.8125rem', fontWeight: tab===t.key ? 600 : 400,
               transition:'background 150ms ease, color 150ms ease',
             }}>

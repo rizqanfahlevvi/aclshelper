@@ -6,30 +6,29 @@
    Reference: developer.apple.com/design/human-interface-guidelines
    ============================================================ */
 
-/* ---------- Typography (San Francisco family) -------------- */
-/* SF Pro is shipped on Apple devices. We use the same stack
-   and fall back to Inter (loaded via fonts/) for non-Apple. */
-@import url('https://rsms.me/inter/inter.css');
+/* ---------- Typography (Clinical Precision / PICNIC parity) */
+/* Lexend untuk teks UI, JetBrains Mono untuk angka klinis.
+   Fallback ke system stack Apple bila font belum termuat. */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap');
 
 html { font-size: clamp(14px, 1.6vw, 16px); }
 
 :root {
   /* --- Font families ------------------------------------- */
   --font-sans:
+    "Lexend",
     -apple-system, BlinkMacSystemFont,
-    "SF Pro Text", "SF Pro Display",
-    "Google Sans", "Google Sans Text", Roboto,
-    "Inter var", "Inter",
+    "SF Pro Text", "Segoe UI", Roboto,
     "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   --font-rounded:
+    "Lexend",
     ui-rounded, -apple-system-ui-rounded,
-    "SF Pro Rounded", "SF Pro Display",
-    "Google Sans Display", Nunito,
-    "Inter var", system-ui, sans-serif;
+    "SF Pro Rounded", system-ui, sans-serif;
 
   --font-mono:
-    ui-monospace, "SF Mono", "JetBrains Mono",
+    "JetBrains Mono",
+    ui-monospace, "SF Mono",
     "Roboto Mono", Menlo, Monaco, Consolas, monospace;
 
   /* --- Type scale (iOS Human Interface Guidelines) -------- */
@@ -47,30 +46,30 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --type-caption-2:     0.6875rem / 0.8125rem 400  0.005em;  /* Caption 2 */
 
   /* ============================================================
-     LIGHT MODE — iOS System Colors
+     LIGHT MODE — Rich Clinical palette (PICNIC parity)
      ============================================================ */
 
-  /* --- System tints (Apple system colors, light) --------- */
-  --sys-blue:    #007AFF;
-  --sys-green:   #34C759;
-  --sys-indigo:  #5856D6;
-  --sys-orange:  #FF9500;
-  --sys-pink:    #FF2D55;
-  --sys-purple:  #AF52DE;
-  --sys-red:     #FF3B30;
-  --sys-teal:    #30B0C7;
-  --sys-cyan:    #32ADE6;
-  --sys-yellow:  #FFCC00;
-  --sys-mint:    #00C7BE;
-  --sys-brown:   #A2845E;
+  /* --- System tints (Rich Clinical, light) ---------------- */
+  --sys-blue:    #0056B3;
+  --sys-green:   #1E8E3E;
+  --sys-indigo:  #003F87;
+  --sys-orange:  #FFA000;
+  --sys-pink:    #B6171E;
+  --sys-purple:  #9333EA;
+  --sys-red:     #BA1A1A;
+  --sys-teal:    #00838F;
+  --sys-cyan:    #00ACC1;
+  --sys-yellow:  #FFC585;
+  --sys-mint:    #00BFA5;
+  --sys-brown:   #5F3900;
 
   /* --- Backgrounds (3-layer system: base/secondary/tertiary) */
   --bg-primary:           #FFFFFF;
-  --bg-secondary:         #F2F2F7;   /* systemGroupedBackground */
-  --bg-tertiary:          #FFFFFF;   /* secondarySystemGroupedBackground */
-  --bg-quaternary:        #F2F2F7;   /* tertiarySystemGroupedBackground */
+  --bg-secondary:         #F3F3F8;   /* surface-container-low */
+  --bg-tertiary:          #FFFFFF;   /* card / surface */
+  --bg-quaternary:        #F3F3F8;
   --bg-elevated:          #FFFFFF;   /* sheets / modals */
-  --bg-overlay:           rgba(0,0,0,0.40);
+  --bg-overlay:           rgba(26,28,31,0.40);
 
   /* --- Fill (interactive surfaces, e.g. segmented control) */
   --fill-primary:         rgba(120,120,128,0.20);
@@ -79,16 +78,17 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --fill-quaternary:      rgba(116,116,128,0.08);
 
   /* --- Labels / text hierarchy --------------------------- */
-  --label-primary:        #000000;          /* labelColor */
-  --label-secondary:      rgba(60,60,67,0.60);
-  --label-tertiary:       rgba(60,60,67,0.30);
-  --label-quaternary:     rgba(60,60,67,0.18);
-  --label-link:           #007AFF;
+  --label-primary:        #1A1C1F;          /* on-surface */
+  --label-secondary:      #424752;          /* on-surface-variant */
+  --label-tertiary:       #727784;          /* outline */
+  --label-quaternary:     #C2C6D4;          /* outline-variant */
+  --label-link:           #0056B3;
   --label-on-color:       #FFFFFF;
 
   /* --- Separators ---------------------------------------- */
-  --separator-opaque:     #C6C6C8;          /* opaqueSeparator */
-  --separator:            rgba(60,60,67,0.29);
+  --separator-opaque:     #C2C6D4;          /* outline-variant */
+  --separator:            #C2C6D4;
+  --glass-border:         #C2C6D4;          /* border kartu (PICNIC parity) */
 
   /* --- Scrollbar ----------------------------------------- */
   --scrollbar-thumb:      rgba(0,0,0,0.22);
@@ -97,7 +97,7 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   /* --- Semantic accents (used for clinical states) ------- */
   --accent:               var(--sys-blue);    /* primary brand */
   --accent-fg:            #FFFFFF;
-  --accent-tint:          rgba(0,122,255,0.12);
+  --accent-tint:          #D7E2FF;            /* primary-fixed */
   --success:              var(--sys-green);
   --warning:              var(--sys-orange);
   --danger:               var(--sys-red);
@@ -120,14 +120,14 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --r-lg:  14px;
   --r-xl:  18px;
   --r-2xl: 22px;
-  --r-card:14px;   /* default card */
+  --r-card:16px;   /* default card (PICNIC parity) */
   --r-app: 22.37%; /* app icon squircle (use border-radius % on square) */
 
-  /* --- Elevation / shadow -------------------------------- */
-  --shadow-1: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.03);
-  --shadow-2: 0 4px 12px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-3: 0 12px 28px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
-  --shadow-modal: 0 24px 64px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.08);
+  /* --- Elevation / shadow (Clinical Precision) ------------ */
+  --shadow-1: 0 1px 2px 0 rgba(60,64,67,0.15), 0 1px 3px 1px rgba(60,64,67,0.08);
+  --shadow-2: 0 4px 16px 0 rgba(60,64,67,0.08), 0 1px 3px 0 rgba(60,64,67,0.04);
+  --shadow-3: 0 12px 28px rgba(60,64,67,0.14), 0 4px 8px rgba(60,64,67,0.07);
+  --shadow-modal: 0 24px 64px rgba(60,64,67,0.20), 0 8px 16px rgba(60,64,67,0.09);
 
   /* --- Spacing scale (4-pt grid) ------------------------- */
   --sp-1:  2px;
@@ -153,7 +153,7 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   --material-thin:    rgba(255,255,255,0.55);
   --material-regular: rgba(255,255,255,0.72);
   --material-thick:   rgba(255,255,255,0.86);
-  --material-chrome:  rgba(248,248,248,0.78);
+  --material-chrome:  rgba(243,243,248,0.82);
   --blur-base:        saturate(180%) blur(20px);
   --blur-strong:      saturate(180%) blur(30px);
 
@@ -169,69 +169,71 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
    ============================================================ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* System tints (darker, slightly desaturated per Apple) */
-    --sys-blue:    #0A84FF;
-    --sys-green:   #30D158;
-    --sys-indigo:  #5E5CE6;
-    --sys-orange:  #FF9F0A;
-    --sys-pink:    #FF375F;
-    --sys-purple:  #BF5AF2;
-    --sys-red:     #FF453A;
-    --sys-teal:    #40C8E0;
-    --sys-cyan:    #64D2FF;
-    --sys-yellow:  #FFD60A;
-    --sys-mint:    #66D4CF;
-    --sys-brown:   #AC8E68;
+    /* System tints (Rich Clinical dark — PICNIC parity) */
+    --sys-blue:    #8AB4F8;
+    --sys-green:   #81C995;
+    --sys-indigo:  #C7D2FE;
+    --sys-orange:  #FFB74D;
+    --sys-pink:    #F28B82;
+    --sys-purple:  #C084FC;
+    --sys-red:     #EA4335;
+    --sys-teal:    #4DB6AC;
+    --sys-cyan:    #4DD0E1;
+    --sys-yellow:  #FDD663;
+    --sys-mint:    #4EBD93;
+    --sys-brown:   #BCAAA4;
 
-    --bg-primary:        #000000;
-    --bg-secondary:      #000000;   /* systemGroupedBackground dark */
-    --bg-tertiary:       #1C1C1E;   /* secondarySystemGroupedBackground */
-    --bg-quaternary:     #2C2C2E;
-    --bg-elevated:       #1C1C1E;
-    --bg-overlay:        rgba(0,0,0,0.60);
+    --bg-primary:        #1A1C1F;   /* dark card surface */
+    --bg-secondary:      #111215;   /* dark charcoal screen bg */
+    --bg-tertiary:       #1A1C1F;
+    --bg-quaternary:     #222428;
+    --bg-elevated:       #222428;
+    --bg-overlay:        rgba(0,0,0,0.65);
 
     --fill-primary:      rgba(120,120,128,0.36);
     --fill-secondary:    rgba(120,120,128,0.32);
     --fill-tertiary:     rgba(118,118,128,0.24);
     --fill-quaternary:   rgba(118,118,128,0.18);
 
-    --label-primary:     #FFFFFF;
-    --label-secondary:   rgba(235,235,245,0.60);
-    --label-tertiary:    rgba(235,235,245,0.30);
+    --label-primary:     #F0F0F5;
+    --label-secondary:   #C2C6D4;
+    --label-tertiary:    #727784;
     --label-quaternary:  rgba(235,235,245,0.16);
-    --label-link:        #0A84FF;
+    --label-link:        #ACC7FF;
 
-    --separator-opaque:  #38383A;
-    --separator:         rgba(84,84,88,0.65);
+    --separator-opaque:  #3A3D44;
+    --separator:         #2D2F33;
+    --glass-border:      #3A3D44;
 
     --scrollbar-thumb:       rgba(255,255,255,0.22);
     --scrollbar-thumb-hover: rgba(255,255,255,0.40);
 
-    --accent:            #0A84FF;
-    --accent-tint:       rgba(10,132,255,0.18);
-    --success:           #30D158;
-    --warning:           #FF9F0A;
-    --danger:            #FF453A;
-    --info:              #0A84FF;
+    --accent:            #ACC7FF;   /* soft light blue */
+    --accent-fg:         #111215;   /* teks gelap di atas aksen terang */
+    --accent-tint:       rgba(172,199,255,0.12);
+    --success:           #81C995;
+    --warning:           #FFB74D;
+    --danger:            #EA4335;
+    --info:              #8AB4F8;
 
-    --tint-vital:  #FF453A;
-    --tint-resp:   #40C8E0;
-    --tint-neuro:  #BF5AF2;
-    --tint-fluid:  #0A84FF;
-    --tint-drug:   #5E5CE6;
-    --tint-renal:  #66D4CF;
-    --tint-score:  #FF9F0A;
-    --tint-theory: #AC8E68;
+    --tint-vital:  #EA4335;
+    --tint-resp:   #4DB6AC;
+    --tint-neuro:  #C084FC;
+    --tint-fluid:  #8AB4F8;
+    --tint-drug:   #C7D2FE;
+    --tint-renal:  #4EBD93;
+    --tint-score:  #FFB74D;
+    --tint-theory: #BCAAA4;
 
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.40);
-    --shadow-2: 0 4px 12px rgba(0,0,0,0.50), 0 1px 2px rgba(0,0,0,0.40);
-    --shadow-3: 0 12px 28px rgba(0,0,0,0.60), 0 4px 8px rgba(0,0,0,0.40);
-    --shadow-modal: 0 24px 64px rgba(0,0,0,0.70), 0 8px 16px rgba(0,0,0,0.40);
+    --shadow-1: 0 4px 12px rgba(0,0,0,0.55);
+    --shadow-2: 0 12px 32px rgba(0,0,0,0.65);
+    --shadow-3: 0 16px 40px rgba(0,0,0,0.70), 0 4px 8px rgba(0,0,0,0.45);
+    --shadow-modal: 0 24px 64px rgba(0,0,0,0.75), 0 8px 16px rgba(0,0,0,0.45);
 
-    --material-thin:    rgba(28,28,30,0.55);
-    --material-regular: rgba(28,28,30,0.78);
-    --material-thick:   rgba(28,28,30,0.90);
-    --material-chrome:  rgba(10,10,12,0.82);
+    --material-thin:    rgba(26,28,31,0.55);
+    --material-regular: rgba(26,28,31,0.78);
+    --material-thick:   rgba(26,28,31,0.90);
+    --material-chrome:  rgba(17,18,21,0.85);
 
     --neu-shadow-light: rgba(255, 255, 255, 0.05);
     --neu-shadow-dark:  rgba(0, 0, 0, 0.55);
@@ -242,41 +244,41 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
 
 /* Manual theme override */
 [data-theme="dark"] {
-  --sys-blue: #0A84FF; --sys-green:#30D158; --sys-indigo:#5E5CE6;
-  --sys-orange:#FF9F0A; --sys-pink:#FF375F; --sys-purple:#BF5AF2;
-  --sys-red:#FF453A; --sys-teal:#40C8E0; --sys-cyan:#64D2FF;
-  --sys-yellow:#FFD60A; --sys-mint:#66D4CF; --sys-brown:#AC8E68;
+  --sys-blue: #8AB4F8; --sys-green:#81C995; --sys-indigo:#C7D2FE;
+  --sys-orange:#FFB74D; --sys-pink:#F28B82; --sys-purple:#C084FC;
+  --sys-red:#EA4335; --sys-teal:#4DB6AC; --sys-cyan:#4DD0E1;
+  --sys-yellow:#FDD663; --sys-mint:#4EBD93; --sys-brown:#BCAAA4;
 
-  --bg-primary:#000; --bg-secondary:#000; --bg-tertiary:#1C1C1E;
-  --bg-quaternary:#2C2C2E; --bg-elevated:#1C1C1E; --bg-overlay:rgba(0,0,0,.60);
+  --bg-primary:#1A1C1F; --bg-secondary:#111215; --bg-tertiary:#1A1C1F;
+  --bg-quaternary:#222428; --bg-elevated:#222428; --bg-overlay:rgba(0,0,0,.65);
 
   --fill-primary:rgba(120,120,128,.36); --fill-secondary:rgba(120,120,128,.32);
   --fill-tertiary:rgba(118,118,128,.24); --fill-quaternary:rgba(118,118,128,.18);
 
-  --label-primary:#fff; --label-secondary:rgba(235,235,245,.60);
-  --label-tertiary:rgba(235,235,245,.30); --label-quaternary:rgba(235,235,245,.16);
-  --label-link:#0A84FF;
+  --label-primary:#F0F0F5; --label-secondary:#C2C6D4;
+  --label-tertiary:#727784; --label-quaternary:rgba(235,235,245,.16);
+  --label-link:#ACC7FF;
 
-  --separator-opaque:#38383A; --separator:rgba(84,84,88,.65);
+  --separator-opaque:#3A3D44; --separator:#2D2F33; --glass-border:#3A3D44;
 
   --scrollbar-thumb:rgba(255,255,255,.22); --scrollbar-thumb-hover:rgba(255,255,255,.40);
 
-  --accent:#0A84FF; --accent-tint:rgba(10,132,255,.18);
-  --success:#30D158; --warning:#FF9F0A; --danger:#FF453A; --info:#0A84FF;
+  --accent:#ACC7FF; --accent-fg:#111215; --accent-tint:rgba(172,199,255,.12);
+  --success:#81C995; --warning:#FFB74D; --danger:#EA4335; --info:#8AB4F8;
 
-  --tint-vital:#FF453A; --tint-resp:#40C8E0; --tint-neuro:#BF5AF2;
-  --tint-fluid:#0A84FF; --tint-drug:#5E5CE6; --tint-renal:#66D4CF;
-  --tint-score:#FF9F0A; --tint-theory:#AC8E68;
+  --tint-vital:#EA4335; --tint-resp:#4DB6AC; --tint-neuro:#C084FC;
+  --tint-fluid:#8AB4F8; --tint-drug:#C7D2FE; --tint-renal:#4EBD93;
+  --tint-score:#FFB74D; --tint-theory:#BCAAA4;
 
-  --shadow-1:0 1px 2px rgba(0,0,0,.40);
-  --shadow-2:0 4px 12px rgba(0,0,0,.50),0 1px 2px rgba(0,0,0,.40);
-  --shadow-3:0 12px 28px rgba(0,0,0,.60),0 4px 8px rgba(0,0,0,.40);
-  --shadow-modal:0 24px 64px rgba(0,0,0,.70),0 8px 16px rgba(0,0,0,.40);
+  --shadow-1:0 4px 12px rgba(0,0,0,.55);
+  --shadow-2:0 12px 32px rgba(0,0,0,.65);
+  --shadow-3:0 16px 40px rgba(0,0,0,.70),0 4px 8px rgba(0,0,0,.45);
+  --shadow-modal:0 24px 64px rgba(0,0,0,.75),0 8px 16px rgba(0,0,0,.45);
 
-  --material-thin:rgba(28,28,30,.55);
-  --material-regular:rgba(28,28,30,.78);
-  --material-thick:rgba(28,28,30,.90);
-  --material-chrome:rgba(10,10,12,.82);
+  --material-thin:rgba(26,28,31,.55);
+  --material-regular:rgba(26,28,31,.78);
+  --material-thick:rgba(26,28,31,.90);
+  --material-chrome:rgba(17,18,21,.85);
 
   --neu-shadow-light: rgba(255, 255, 255, 0.05);
   --neu-shadow-dark:  rgba(0, 0, 0, 0.55);

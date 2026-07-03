@@ -289,7 +289,7 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
               </div>
               <button onClick={onClose} style={{
                 padding: '12px 28px', borderRadius: 12, border: 0, cursor: 'pointer',
-                background: 'var(--accent)', color: '#fff', fontWeight: 600, fontSize: '0.9375rem',
+                background: 'var(--accent)', color: 'var(--accent-fg)', fontWeight: 600, fontSize: '0.9375rem',
               }}>Tutup</button>
             </div>
           ) : (
@@ -412,7 +412,7 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
                       style={{
                         padding: '8px 14px', borderRadius: 10, border: 0, cursor: 'pointer',
                         background: jenis === o.key ? 'var(--accent)' : 'var(--fill-quaternary)',
-                        color: jenis === o.key ? '#fff' : 'var(--label-primary)',
+                        color: jenis === o.key ? 'var(--accent-fg)' : 'var(--label-primary)',
                         fontSize: '0.8125rem', fontWeight: jenis === o.key ? 600 : 400,
                         display: 'flex', alignItems: 'center', gap: 6,
                         transition: 'background 150ms, color 150ms',
@@ -480,7 +480,7 @@ function FeedbackModal({ onClose, currentPage, currentUrl }: FeedbackModalProps)
                 style={{
                   width: '100%', padding: '14px', borderRadius: 12, border: 0,
                   background: canSubmit ? 'var(--accent)' : 'var(--fill-secondary)',
-                  color: canSubmit ? '#fff' : 'var(--label-quaternary)',
+                  color: canSubmit ? 'var(--accent-fg)' : 'var(--label-quaternary)',
                   fontSize: '1rem', fontWeight: 700, cursor: canSubmit ? 'pointer' : 'not-allowed',
                   transition: 'background 200ms, color 200ms',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -704,7 +704,7 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
               width: 32, height: 32, borderRadius: 8,
               background: 'var(--accent)',
               border: 0, cursor: 'pointer',
-              color: '#fff', fontSize: '0.8125rem', fontWeight: 700,
+              color: 'var(--accent-fg)', fontSize: '0.8125rem', fontWeight: 700,
             }}
             aria-label="Profil">
             {userInitial}
@@ -896,7 +896,7 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
               onClick={() => onClose(true)}
               style={{
                 width: '100%', padding: '13px 16px', borderRadius: 14, border: 'none',
-                background: 'var(--accent)', color: '#fff', cursor: 'pointer',
+                background: 'var(--accent)', color: 'var(--accent-fg)', cursor: 'pointer',
                 fontSize: '0.9375rem', fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 boxShadow: '0 4px 14px rgba(0,122,255,0.30)',

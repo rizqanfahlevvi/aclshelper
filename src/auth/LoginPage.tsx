@@ -161,7 +161,7 @@ export function LoginPage({ onGoToSignUp, onLoginSuccess }: LoginPageProps) {
           <button type="submit" disabled={loading || googleLoading} style={{
             width: '100%', padding: '13px', borderRadius: 12, border: 0,
             background: loading ? 'var(--fill-secondary)' : 'var(--accent)',
-            color: loading ? 'var(--label-quaternary)' : '#fff',
+            color: loading ? 'var(--label-quaternary)' : 'var(--accent-fg)',
             fontSize: '0.9375rem', fontWeight: 700, cursor: loading ? 'default' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}>

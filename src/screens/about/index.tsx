@@ -165,7 +165,7 @@ export function AboutScreen({ isMobile = true, nav, onFeedback }: AboutProps) {
             display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left' }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0,
             background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icons.chat size={16} stroke={2} style={{ color: '#fff' }}/>
+            <Icons.chat size={16} stroke={2} style={{ color: 'var(--accent-fg)' }}/>
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--label-primary)', lineHeight: 1.2 }}>Feedback</div>
