@@ -1,6 +1,6 @@
 // Navigation
 export type Tab = 'home' | 'algo' | 'drugs' | 'tools';
-export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc' | 'theory' | 'defib' | 'peds' | 'about';
+export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc' | 'theory' | 'defib' | 'peds' | 'about' | 'settings';
 export type NavFrame =
   | { screen: 'home' }
   | { screen: 'algoList' }
@@ -18,7 +18,8 @@ export type NavFrame =
   | { screen: 'defib' }
   | { screen: 'peds' }
   | { screen: 'theory' }
-  | { screen: 'about' };
+  | { screen: 'about' }
+  | { screen: 'settings' };
 export type DeskView = { screen: DeskScreen; id?: string };
 export type NavStack = Record<Tab, NavFrame[]>;
 export interface Nav {

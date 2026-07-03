@@ -25,7 +25,10 @@ import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
 import { TheoryScreen, DesktopTheory } from './screens/theory';
 import { AboutScreen } from './screens/about';
+import { SettingsScreen } from './screens/settings';
 import { SearchModal } from './screens/search';
+import { useSettings, setSetting } from './lib/settings';
+import { loadFont, fontFamilyStack } from './lib/fontLoader';
 import { useAuth } from './context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
@@ -80,6 +83,7 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'rosc')     return '/rosc';
   if (screen === 'theory')   return '/theory';
   if (screen === 'about')    return '/about';
+  if (screen === 'settings') return '/settings';
   return '/';
 }
 
@@ -97,6 +101,7 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'rosc':   return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
     case 'theory': return { tab: 'home',  frame: { screen: 'theory' },                                      deskScreen: 'theory',    deskId: null        };
     case 'about':  return { tab: 'home',  frame: { screen: 'about'  },                                      deskScreen: 'about',     deskId: null        };
+    case 'settings': return { tab: 'home', frame: { screen: 'settings' },                                    deskScreen: 'settings',  deskId: null        };
     default:       return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }
@@ -758,6 +763,7 @@ const MOBILE_MENU = [
   { key: 'hsts',   label: 'Hs & Ts',     desc: '10 penyebab reversibel',       icon: Icons.clipboard },
   { key: 'calc',   label: 'Kalkulator',  desc: '13 kalkulator klinis',         icon: Icons.calculator },
   { key: 'about',  label: 'Tentang',     desc: 'Versi & changelog',            icon: Icons.info },
+  { key: 'settings', label: 'Pengaturan', desc: 'Tampilan, font & cache',      icon: Icons.settings },
 ];
 const MOBILE_QUICK = [
   { key: 'bhjd',        label: 'BHJD Dewasa',     tint: 'var(--accent)' },
@@ -975,7 +981,18 @@ function SessionFeedbackPopup({ onClose }: { onClose: (andOpenFeedback?: boolean
 export default function App() {
   const bp = useBreakpoint();
   const isMobile = bp === 'mobile';
-  const [theme, setTheme] = useState('light');
+
+  const settings = useSettings();
+  const [systemDark, setSystemDark] = useState<boolean>(
+    () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => setSystemDark(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  const theme = settings.themeMode === 'system' ? (systemDark ? 'dark' : 'light') : settings.themeMode;
 
   const { user, userProfile, isAuthorized } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -983,26 +1000,27 @@ export default function App() {
   const [subBannerOpen, setSubBannerOpen] = useState(true);
   const userInitial = (userProfile?.namaLengkap || userProfile?.username || user?.email || '?').trim().slice(0, 1).toUpperCase();
 
-  const [fontScale, setFontScale] = useState<number>(() => {
-    const saved = parseFloat(localStorage.getItem('acls_font_scale') || '');
-    return !isNaN(saved) && saved >= 0.75 && saved <= 1.5 ? saved : 1;
-  });
-  useEffect(() => {
-    document.documentElement.style.fontSize = fontScale === 1 ? '' : `calc(clamp(13px, 1.5vw, 15px) * ${fontScale})`;
-    localStorage.setItem('acls_font_scale', String(fontScale));
-  }, [fontScale]);
-
-  const [bwMode, setBwMode] = useState<boolean>(() => localStorage.getItem('acls_bw_mode') === '1');
-  useEffect(() => {
-    document.documentElement.classList.toggle('bw-mode', bwMode);
-    localStorage.setItem('acls_bw_mode', bwMode ? '1' : '0');
-  }, [bwMode]);
+  const fontScale = settings.fontScale;
+  const bwMode = settings.bwMode;
 
   /* Ref always holds latest nav state — used by popstate to avoid stale closures */
   const navRef = useRef<{ cprOpen: boolean; bp: string; tab?: Tab; stack?: NavStack; deskView?: DeskView }>({ cprOpen: false, bp: 'mobile' });
 
+  /* Efek global setting — satu sumber kebenaran (menggantikan state useState
+     terpisah). Menerapkan: skala font, offset ketebalan, font family (loadFont),
+     bw-mode, data-theme (light/dark/system), dan override accent. */
   useEffect(() => {
     const root = document.documentElement;
+
+    root.style.setProperty('--font-scale', String(fontScale));
+    root.style.fontSize = fontScale === 1 ? '' : `calc(clamp(13px, 1.5vw, 15px) * ${fontScale})`;
+    root.style.setProperty('--fw-base', String(400 + settings.fontWeight));
+
+    loadFont(settings.fontFamily);
+    root.style.setProperty('--font-sans', fontFamilyStack(settings.fontFamily));
+
+    root.classList.toggle('bw-mode', bwMode);
+
     root.setAttribute('data-theme', theme);
     const isDark = theme === 'dark';
     if (bwMode) {
@@ -1018,11 +1036,11 @@ export default function App() {
       root.style.setProperty('--accent-tint', ACCENT.color + '1F');
       root.style.setProperty('--label-link', isDark ? ACCENT.dark : ACCENT.color);
     }
-  }, [theme, bwMode]);
+  }, [settings, theme, fontScale, bwMode]);
 
   const toggleTheme = () => {
     document.documentElement.classList.add('theme-transitioning');
-    setTheme(t => t === 'light' ? 'dark' : 'light');
+    setSetting('themeMode', theme === 'dark' ? 'light' : 'dark');
     setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
   };
 
@@ -1100,6 +1118,10 @@ export default function App() {
       window.history.pushState(null, '', '#/about');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'about' }] }));
+    } else if (key === 'settings') {
+      window.history.pushState(null, '', '#/settings');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'settings' }] }));
     } else if (key === 'rosc') {
       window.history.pushState(null, '', '#/rosc');
       setTab('home');
@@ -1267,6 +1289,7 @@ export default function App() {
       if (f.screen === 'peds') return <PedsScreen nav={nav} isMobile/>;
       if (f.screen === 'theory') return <TheoryScreen nav={nav} isMobile/>;
       if (f.screen === 'about') return <AboutScreen nav={nav} isMobile onFeedback={() => { nav.pop(); setTimeout(() => setFeedbackOpen(true), 200); }}/>;
+      if (f.screen === 'settings') return <SettingsScreen nav={nav} isMobile/>;
       return <MobileHome
         nav={{ push: (fr) => { if (fr.screen === 'algo') { openAlgoFromHome(fr.id); return; } nav.push(fr); }, pop: nav.pop }}
         openCPR={() => openCPR()}/>;
@@ -1301,6 +1324,7 @@ export default function App() {
     if (v.screen === 'defib')  return <DesktopDefib/>;
     if (v.screen === 'peds')   return <DesktopPeds/>;
     if (v.screen === 'about')  return <AboutScreen isMobile={false} onFeedback={() => setFeedbackOpen(true)}/>;
+    if (v.screen === 'settings') return <SettingsScreen isMobile={false}/>;
     return <DesktopDashboard onPick={desktopPick} onOpenCpr={() => openCPR()}/>;
   };
 
@@ -1318,6 +1342,12 @@ export default function App() {
   const isContentScreen = bp === 'desktop'
     ? deskView.screen !== 'dashboard'
     : topFrame.screen !== 'home';
+
+  /* Reading Mode hanya dipasang di halaman konten baca (teori/algoritma/obat/
+     EKG/Hs&Ts), bukan di root — mengikuti pola ICU Helper. */
+  const READING_SCREENS = new Set(['theory', 'algo', 'drug', 'ekg', 'hsts']);
+  const readingActiveMobile = settings.readingMode && READING_SCREENS.has(topFrame.screen);
+  const readingActiveDesk = settings.readingMode && READING_SCREENS.has(deskView.screen);
   const waLockLink = `https://wa.me/6287749076019?text=${encodeURIComponent(
     'Hai dok, saya sudah daftar ACLS Helper MD Kit, username saya ' + (userProfile?.username || userProfile?.email || '')
   )}`;
@@ -1385,7 +1415,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={setFontScale} bwMode={bwMode} onBwModeChange={setBwMode}
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={v => setSetting('fontScale', v)} bwMode={bwMode} onBwModeChange={v => setSetting('bwMode', v)}
             onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
           {subBanner}
         </div>
@@ -1398,7 +1428,7 @@ export default function App() {
           onFeedback={() => { setFeedbackOpen(true); setMobileSidebarOpen(false); }}
           onSearch={() => setSearchOpen(true)}/>
 
-        <div className="acls-mobile-content" key={screenKey}
+        <div className={readingActiveMobile ? 'acls-mobile-content reading-mode' : 'acls-mobile-content'} key={screenKey}
           style={subBanner ? { top: 'calc(52px + env(safe-area-inset-top) + 44px)' } : undefined}>
           {lockedOverlay}
           {renderMobile()}
@@ -1545,11 +1575,11 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={setFontScale} bwMode={bwMode} onBwModeChange={setBwMode}
+        fontScale={fontScale} onFontScaleChange={v => setSetting('fontScale', v)} bwMode={bwMode} onBwModeChange={v => setSetting('bwMode', v)}
         onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
       {subBanner}
 
-      <div className="acls-desktop-body">
+      <div className={readingActiveDesk ? 'acls-desktop-body reading-mode' : 'acls-desktop-body'}>
         <DesktopSidebar
           collapsed={sidebarCollapsed}
           active={deskView.screen}

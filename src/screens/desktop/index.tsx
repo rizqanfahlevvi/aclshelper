@@ -27,6 +27,7 @@ const SIDEBAR_NAV = [
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",       icon: Icons.clipboard },
   { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor",  icon: Icons.calculator },
   { key: "about",     label: "Tentang",     desc: "Versi & changelog",            icon: Icons.info },
+  { key: "settings",  label: "Pengaturan",  desc: "Tampilan, font & cache",       icon: Icons.settings },
 ];
 function resolveFav(f: { type: string; key: string }) {
   if (f.type === 'algo') {

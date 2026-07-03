@@ -171,6 +171,10 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
 
   /* --- Minimum touch target (aksesibilitas, PICNIC parity) - */
   --hit: 44px;
+
+  /* --- Setting pengguna (di-set runtime oleh store settings) - */
+  --font-scale: 1;   /* skala font global */
+  --fw-base: 400;    /* base weight body (offset ketebalan font) */
 }
 
 /* ============================================================
@@ -337,6 +341,7 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
    ============================================================ */
 body {
   font-family: var(--font-sans);
+  font-weight: var(--fw-base, 400); /* offset ketebalan font (teks yg mewarisi weight) */
   font-feature-settings: "cv11", "ss01", "ss03"; /* nicer numerals via Inter */
   color: var(--label-primary);
   background: var(--bg-secondary);

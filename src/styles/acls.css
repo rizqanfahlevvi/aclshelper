@@ -13,6 +13,30 @@ html.theme-transitioning *::after {
   transition-timing-function: ease !important;
 }
 
+/* ---------- Reading Mode (serif kontras tinggi) ------------- */
+/* Dipasang oleh App.tsx hanya pada kontainer konten baca
+   (teori/algoritma/obat/EKG/Hs&Ts) saat setting readingMode aktif —
+   BUKAN global. Body copy jadi serif & longgar; heading tetap sans. */
+.reading-mode {
+  --font-sans: "Charter", "Georgia", "Merriweather", ui-serif, serif;
+}
+.reading-mode p,
+.reading-mode li,
+.reading-mode .t-body,
+.reading-mode .t-callout,
+.reading-mode .t-footnote,
+.reading-mode .t-subheadline {
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  letter-spacing: 0.006em;
+}
+.reading-mode h1, .reading-mode h2, .reading-mode h3, .reading-mode h4,
+.reading-mode .t-large-title, .reading-mode .t-title-1,
+.reading-mode .t-title-2, .reading-mode .t-title-3, .reading-mode .t-headline {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Lexend", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
 /* ---------- App layout -------------------------------------- */
 html, body, #root { height: 100%; }
 body {
