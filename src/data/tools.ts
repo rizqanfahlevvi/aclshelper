@@ -31,7 +31,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     minMax: 'maks 1 mg',
     route: 'IV/IO/ET',
     concentration: '0.1 mg/mL (1:10.000)',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     notes: 'Ulangi tiap 3-5 menit. ET: encerkan dg 3-5 mL NS.',
   },
   {
@@ -43,7 +43,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 300,
     minMax: 'maks 300 mg bolus',
     route: 'IV/IO',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     notes: 'Untuk VF/pVT refrakter. Berikan pelan (10-20 mnt) jika ada nadi.',
   },
   {
@@ -55,7 +55,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 6,
     minMax: 'maks 6 mg (dosis pertama)',
     route: 'IV/IO cepat',
-    tint: '#007AFF',
+    tint: '#0056B3',
     notes: 'Dosis kedua: 0.2 mg/kg (max 12 mg). Beri bolus cepat + flush NS.',
   },
   {
@@ -68,7 +68,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 1,
     minMax: 'min 0.1 mg; maks anak 0.5 mg, remaja 1 mg',
     route: 'IV/IO',
-    tint: '#FF9500',
+    tint: '#FFA000',
     notes: 'Dosis minimum 0.1 mg untuk hindari bradikardi paradoksikal.',
   },
   {
@@ -80,7 +80,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 3000,
     minMax: 'maks 3 g',
     route: 'IV/IO pelan',
-    tint: '#34C759',
+    tint: '#1E8E3E',
     notes: 'Hanya untuk hiperkalemia, hipokalsemia, hipermagnesemia, OD CCB.',
   },
   {
@@ -92,7 +92,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 2000,
     minMax: '25-50 mg/kg; maks 2 g',
     route: 'IV/IO',
-    tint: '#30B0C7',
+    tint: '#00838F',
     notes: 'Untuk torsades de pointes dan hipomagnesemia.',
   },
   {
@@ -116,7 +116,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 10,
     minMax: 'energi awal 2 J/kg; maks 10 J/kg atau 200 J',
     route: 'Defib',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     notes: 'Kejutan ke-2 dan seterusnya: 4 J/kg (maks 10 J/kg atau 200 J).',
   },
   {
@@ -128,7 +128,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     max: 2,
     minMax: '0.5-1 J/kg; maks 2 J/kg',
     route: 'Kardioversi',
-    tint: '#FF9500',
+    tint: '#FFA000',
     notes: 'Untuk SVT/takikardi dengan nadi tidak stabil. Sedasi jika memungkinkan.',
   },
   {
@@ -139,7 +139,7 @@ export const PALS_DRUGS: PalsDrug[] = [
     doseUnit: 'mL/kg',
     minMax: '0.5-1 g/kg (D10W: 5-10 mL/kg; D25W: 2-4 mL/kg)',
     route: 'IV/IO',
-    tint: '#FFD60A',
+    tint: '#F9A825',
     notes: 'Gunakan D10W pada neonatus. Target glukosa 70-180 mg/dL.',
   },
 ];
@@ -176,7 +176,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'norepi',
     name: 'Norepinefrin',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     indication: 'Vasopressor lini pertama pada syok septik & distribusi',
     mechanism: 'α₁ >> β₁ (vasokonstriksi kuat, inotrop sedang)',
     doseRange: '0.01–3 mcg/kg/min',
@@ -223,7 +223,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'dopamin',
     name: 'Dopamin',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     indication: 'Syok kardiogenik, bradikardia simtomatis',
     mechanism: 'Dosis-dependen: D1 (1-5) → β1 (5-10) → α1 (>10) mcg/kg/min',
     doseRange: '1–20 mcg/kg/min',
@@ -246,7 +246,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'dobut',
     name: 'Dobutamin',
-    tint: '#007AFF',
+    tint: '#0056B3',
     indication: 'Syok kardiogenik, gagal jantung akut dekompensasi',
     mechanism: 'β₁ >> β₂ (inotrop kuat, kronotropik sedang, vasodilasi ringan)',
     doseRange: '2–20 mcg/kg/min',
@@ -268,7 +268,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'vasopresin',
     name: 'Vasopressin',
-    tint: '#34C759',
+    tint: '#1E8E3E',
     indication: 'Syok septik (add-on), syok vasodilatori refrakter',
     mechanism: 'V1 (vasokonstriksi langsung, tidak β-dependent)',
     doseRange: '0.01–0.04 unit/min',
@@ -291,7 +291,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'phenyl',
     name: 'Fenilefrin',
-    tint: '#FF9500',
+    tint: '#FFA000',
     indication: 'Hipotensi perioperatif, SVR rendah dengan takikardi',
     mechanism: 'Pure α₁ (vasokonstriksi murni, tidak ada efek inotrop)',
     doseRange: '50–300 mcg/mnt (atau 0.5-5 mcg/kg/mnt)',
@@ -313,7 +313,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'milrinon',
     name: 'Milrinon',
-    tint: '#30B0C7',
+    tint: '#00838F',
     indication: 'Gagal jantung kanan berat, hipertensi pulmonal, post-operasi jantung',
     mechanism: 'PDE-3 inhibitor (↑cAMP → inotrop + vasodilatasi pulmonal & sistemik)',
     doseRange: '0.25–0.75 mcg/kg/min',
@@ -335,7 +335,7 @@ export const VASOPRESSORS: Vasopressor[] = [
   {
     key: 'isopro',
     name: 'Isoproterenol',
-    tint: '#FF2D55',
+    tint: '#B6171E',
     indication: 'AV blok komplit (sementara), torsades de pointes, bradikardia refrakter',
     mechanism: 'β₁ + β₂ (kronotropik dan inotrop kuat, vasodilatasi)',
     doseRange: '1–10 mcg/mnt',
@@ -379,7 +379,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'ventilasi',
     title: 'Ventilasi & Oksigenasi',
     icon: 'lungs',
-    tint: '#30B0C7',
+    tint: '#00838F',
     items: [
       {
         key: 'spo2',
@@ -409,7 +409,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'hemodinamik',
     title: 'Hemodinamik',
     icon: 'activity',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     items: [
       {
         key: 'map',
@@ -443,7 +443,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'reperfusi',
     title: 'Reperfusi Koroner',
     icon: 'heart',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     items: [
       {
         key: 'pci',
@@ -472,7 +472,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'suhu',
     title: 'Manajemen Suhu',
     icon: 'droplet',
-    tint: '#007AFF',
+    tint: '#0056B3',
     items: [
       {
         key: 'ttm',
@@ -502,7 +502,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'neurologi',
     title: 'Neurologi',
     icon: 'activity',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     items: [
       {
         key: 'sedasi',
@@ -535,7 +535,7 @@ export const ROSC_CHECKLIST: RoscSection[] = [
     key: 'metabolik',
     title: 'Metabolik & Lab',
     icon: 'syringe',
-    tint: '#34C759',
+    tint: '#1E8E3E',
     items: [
       {
         key: 'glukosa',
@@ -581,7 +581,7 @@ export const PALS_ALGORITHMS: PalsAlgo[] = [
   {
     key: 'vfvt',
     title: 'VF / pVT',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     steps: [
       'CPR berkualitas tinggi — minimalkan interupsi',
       'Defibrilasi segera: 2 J/kg, kemudian 4 J/kg',
@@ -593,7 +593,7 @@ export const PALS_ALGORITHMS: PalsAlgo[] = [
   {
     key: 'pea',
     title: 'PEA / Asistol',
-    tint: '#007AFF',
+    tint: '#0056B3',
     steps: [
       'CPR berkualitas tinggi — minimalkan interupsi',
       'Epinefrin IV/IO: 0.01 mg/kg (maks 1 mg) tiap 3-5 menit',
@@ -605,7 +605,7 @@ export const PALS_ALGORITHMS: PalsAlgo[] = [
   {
     key: 'brady',
     title: 'Bradikardi',
-    tint: '#FF9500',
+    tint: '#FFA000',
     steps: [
       'O2 dan jalan napas — pertahankan saturasi',
       'Monitor EKG — identifikasi jenis bradikardia',
@@ -617,7 +617,7 @@ export const PALS_ALGORITHMS: PalsAlgo[] = [
   {
     key: 'svt',
     title: 'SVT / Takikardi',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     steps: [
       'Nilai stabilitas: ada nadi? perfusi adekuat?',
       'Manuver vagal (ice bag di wajah bayi, Valsalva pada anak)',

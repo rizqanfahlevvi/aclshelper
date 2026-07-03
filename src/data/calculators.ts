@@ -50,7 +50,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'CHA₂DS₂-VASc',
     short: 'CHA₂DS₂-VASc',
     category: 'Fibrilasi Atrium',
-    tint: '#007AFF',
+    tint: '#0056B3',
     description: 'Risiko stroke pada fibrilasi atrium non-valvular',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -74,9 +74,9 @@ export const CALCULATORS: Calculator[] = [
       if (vals.age6574)      score += 1;
       if (vals.female)       score += 1;
       const femaleOnly = vals.female && score === 1;
-      if (femaleOnly || score === 0) return { score, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: '#34C759' };
-      if (score === 1)               return { score, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: '#FF9500' };
-      return                                { score, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: '#FF3B30' };
+      if (femaleOnly || score === 0) return { score, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: '#1E8E3E' };
+      if (score === 1)               return { score, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: '#FFA000' };
+      return                                { score, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: '#BA1A1A' };
     },
     notes: [
       'Skor hanya berlaku untuk pasien dengan fibrilasi atrium non-valvular',
@@ -93,7 +93,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'HAS-BLED',
     short: 'HAS-BLED',
     category: 'Fibrilasi Atrium',
-    tint: '#FF9500',
+    tint: '#FFA000',
     description: 'Risiko perdarahan pada terapi antikoagulan',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -114,9 +114,9 @@ export const CALCULATORS: Calculator[] = [
       if (vals.labileinr)    score += 1;
       if (vals.elderly)      score += 1;
       if (vals.drugs)        score += 1;
-      if (score <= 1) return { score, label: 'Risiko Rendah',  risk: 'Perdarahan mayor <1%/tahun',                                                        color: '#34C759' };
-      if (score === 2) return { score, label: 'Risiko Sedang', risk: 'Perdarahan mayor ~1.9%/tahun',                                                       color: '#FF9500' };
-      return                 { score, label: 'Risiko Tinggi',  risk: 'Perdarahan mayor ≥3%/tahun — koreksi faktor risiko yang dapat dimodifikasi',         color: '#FF3B30' };
+      if (score <= 1) return { score, label: 'Risiko Rendah',  risk: 'Perdarahan mayor <1%/tahun',                                                        color: '#1E8E3E' };
+      if (score === 2) return { score, label: 'Risiko Sedang', risk: 'Perdarahan mayor ~1.9%/tahun',                                                       color: '#FFA000' };
+      return                 { score, label: 'Risiko Tinggi',  risk: 'Perdarahan mayor ≥3%/tahun — koreksi faktor risiko yang dapat dimodifikasi',         color: '#BA1A1A' };
     },
     notes: [
       'Skor tinggi BUKAN kontraindikasi antikoagulan — gunakan untuk mengidentifikasi dan mengoreksi faktor risiko yang dapat dimodifikasi',
@@ -133,7 +133,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'HEART Score',
     short: 'HEART',
     category: 'ACS / Koroner',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     description: 'Risiko MACE pada nyeri dada akut',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -195,9 +195,9 @@ export const CALCULATORS: Calculator[] = [
     ],
     compute: (vals) => {
       const score = (Number(vals.history) || 0) + (Number(vals.ekg) || 0) + (Number(vals.age) || 0) + (Number(vals.riskfactors) || 0) + (Number(vals.troponin) || 0);
-      if (score <= 3) return { score, label: 'Risiko Rendah',  risk: 'MACE <2% — pertimbangkan early discharge',               color: '#34C759' };
-      if (score <= 6) return { score, label: 'Risiko Sedang',  risk: 'MACE ~12-17% — observasi & pemeriksaan lanjutan',        color: '#FF9500' };
-      return               { score, label: 'Risiko Tinggi',  risk: 'MACE ~50-65% — evaluasi kardiak segera / invasif',       color: '#FF3B30' };
+      if (score <= 3) return { score, label: 'Risiko Rendah',  risk: 'MACE <2% — pertimbangkan early discharge',               color: '#1E8E3E' };
+      if (score <= 6) return { score, label: 'Risiko Sedang',  risk: 'MACE ~12-17% — observasi & pemeriksaan lanjutan',        color: '#FFA000' };
+      return               { score, label: 'Risiko Tinggi',  risk: 'MACE ~50-65% — evaluasi kardiak segera / invasif',       color: '#BA1A1A' };
     },
   },
 
@@ -210,7 +210,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'GRACE Score',
     short: 'GRACE',
     category: 'ACS / Koroner',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     description: 'Mortalitas di RS pada ACS (STEMI/NSTEMI/UA)',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -281,9 +281,9 @@ export const CALCULATORS: Calculator[] = [
       if (vals.enzymes)       score += 14;
 
       let label: string, risk: string, color: string;
-      if      (score <= 108) { label = 'Risiko Rendah'; risk = 'Mortalitas di RS <1% — pertimbangkan intervensi dini';            color = '#34C759'; }
-      else if (score <= 140) { label = 'Risiko Sedang'; risk = 'Mortalitas di RS 1-3% — revaskularisasi dini direkomendasikan';   color = '#FF9500'; }
-      else                   { label = 'Risiko Tinggi'; risk = 'Mortalitas di RS >3% — revaskularisasi segera';                   color = '#FF3B30'; }
+      if      (score <= 108) { label = 'Risiko Rendah'; risk = 'Mortalitas di RS <1% — pertimbangkan intervensi dini';            color = '#1E8E3E'; }
+      else if (score <= 140) { label = 'Risiko Sedang'; risk = 'Mortalitas di RS 1-3% — revaskularisasi dini direkomendasikan';   color = '#FFA000'; }
+      else                   { label = 'Risiko Tinggi'; risk = 'Mortalitas di RS >3% — revaskularisasi segera';                   color = '#BA1A1A'; }
       return { score, label, risk, color };
     },
     notes: [
@@ -302,7 +302,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Mean Arterial Pressure',
     short: 'MAP',
     category: 'Hemodinamik',
-    tint: '#34C759',
+    tint: '#1E8E3E',
     description: 'Mean Arterial Pressure — perfusi organ',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -314,10 +314,10 @@ export const CALCULATORS: Calculator[] = [
       const dbp = Number(vals.dbp) || 0;
       const map = dbp + (sbp - dbp) / 3;
       const score = map.toFixed(1);
-      if      (map < 60)  return { score, label: 'Hipoperfusi',  risk: 'Perfusi organ terancam — tangani penyebab',                   color: '#FF3B30' };
-      else if (map < 70)  return { score, label: 'Borderline',   risk: 'Pertahankan MAP ≥65 mmHg pada syok',                          color: '#FF9500' };
-      else if (map <= 100) return { score, label: 'Normal',       risk: 'Target MAP tercapai',                                         color: '#34C759' };
-      else                return { score, label: 'Hipertensi',   risk: 'Pertimbangkan titrasi antihipertensi',                        color: '#FF9500' };
+      if      (map < 60)  return { score, label: 'Hipoperfusi',  risk: 'Perfusi organ terancam — tangani penyebab',                   color: '#BA1A1A' };
+      else if (map < 70)  return { score, label: 'Borderline',   risk: 'Pertahankan MAP ≥65 mmHg pada syok',                          color: '#FFA000' };
+      else if (map <= 100) return { score, label: 'Normal',       risk: 'Target MAP tercapai',                                         color: '#1E8E3E' };
+      else                return { score, label: 'Hipertensi',   risk: 'Pertimbangkan titrasi antihipertensi',                        color: '#FFA000' };
     },
   },
 
@@ -330,7 +330,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Shock Index',
     short: 'SI',
     category: 'Hemodinamik',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     description: 'Syok Index — keparahan syok hemodinamik',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -342,10 +342,10 @@ export const CALCULATORS: Calculator[] = [
       const sbp = Number(vals.sbp) || 1;
       const si  = hr / sbp;
       const score = si.toFixed(2);
-      if      (si < 0.6)  return { score, label: 'Normal',              risk: 'Risiko rendah',                             color: '#34C759' };
-      else if (si < 1.0)  return { score, label: 'Normal-Tinggi',       risk: 'Awasi ketat',                               color: '#FF9500' };
-      else if (si < 1.5)  return { score, label: 'Syok Ringan-Sedang',  risk: 'Resusitasi agresif diindikasikan',          color: '#FF9500' };
-      else                return { score, label: 'Syok Berat',          risk: 'Resusitasi masif — perhatian khusus',       color: '#FF3B30' };
+      if      (si < 0.6)  return { score, label: 'Normal',              risk: 'Risiko rendah',                             color: '#1E8E3E' };
+      else if (si < 1.0)  return { score, label: 'Normal-Tinggi',       risk: 'Awasi ketat',                               color: '#FFA000' };
+      else if (si < 1.5)  return { score, label: 'Syok Ringan-Sedang',  risk: 'Resusitasi agresif diindikasikan',          color: '#FFA000' };
+      else                return { score, label: 'Syok Berat',          risk: 'Resusitasi masif — perhatian khusus',       color: '#BA1A1A' };
     },
   },
 
@@ -358,7 +358,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'CrCl Cockcroft-Gault',
     short: 'CrCl',
     category: 'Fungsi Ginjal',
-    tint: '#30B0C7',
+    tint: '#00838F',
     description: 'Estimasi klirens kreatinin (Cockcroft-Gault)',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -374,11 +374,11 @@ export const CALCULATORS: Calculator[] = [
       const sex = vals.female ? 0.85 : 1;
       const crcl = ((140 - age) * wt) / (72 * cr) * sex;
       const score = Math.round(crcl) + ' mL/min';
-      if      (crcl < 15)  return { score, label: 'Gagal Ginjal Berat',           risk: 'Pertimbangkan HD — sesuaikan dosis semua obat ginjal',     color: '#FF3B30' };
-      else if (crcl < 30)  return { score, label: 'Gagal Ginjal Sedang-Berat',    risk: 'Penyesuaian dosis signifikan diperlukan',                  color: '#FF3B30' };
-      else if (crcl < 60)  return { score, label: 'Gagal Ginjal Sedang',          risk: 'Sesuaikan dosis — kontraindikasi beberapa obat',           color: '#FF9500' };
-      else if (crcl < 90)  return { score, label: 'Gagal Ginjal Ringan',          risk: 'Pantau fungsi ginjal',                                     color: '#FF9500' };
-      else                 return { score, label: 'Normal / Sedikit Menurun',     risk: 'Dosis standar umumnya aman',                              color: '#34C759' };
+      if      (crcl < 15)  return { score, label: 'Gagal Ginjal Berat',           risk: 'Pertimbangkan HD — sesuaikan dosis semua obat ginjal',     color: '#BA1A1A' };
+      else if (crcl < 30)  return { score, label: 'Gagal Ginjal Sedang-Berat',    risk: 'Penyesuaian dosis signifikan diperlukan',                  color: '#BA1A1A' };
+      else if (crcl < 60)  return { score, label: 'Gagal Ginjal Sedang',          risk: 'Sesuaikan dosis — kontraindikasi beberapa obat',           color: '#FFA000' };
+      else if (crcl < 90)  return { score, label: 'Gagal Ginjal Ringan',          risk: 'Pantau fungsi ginjal',                                     color: '#FFA000' };
+      else                 return { score, label: 'Normal / Sedikit Menurun',     risk: 'Dosis standar umumnya aman',                              color: '#1E8E3E' };
     },
   },
 
@@ -391,7 +391,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Fibrinolisis STEMI',
     short: 'Fibrinolisis',
     category: 'ACS / Koroner',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     description: 'Checklist fibrinolisis STEMI',
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
@@ -427,10 +427,10 @@ export const CALCULATORS: Calculator[] = [
       const relCount = relKeys.filter(k => vals[k]).length;
 
       if (!inclusionsMet)   return { score: '-',  label: 'Kriteria Inklusi Tidak Terpenuhi', color: 'var(--label-tertiary)', detail: 'Pastikan semua kriteria inklusi terpenuhi' };
-      if (hasAbsolute)      return { score: '✗',  label: 'KONTRAINDIKASI ABSOLUT',           risk: 'Fibrinolisis TIDAK boleh diberikan',                              color: '#FF3B30', detail: 'Terdapat kontraindikasi absolut — pertimbangkan PCI rescue' };
-      if (relCount >= 2)    return { score: '△',  label: 'Risiko Tinggi — Pertimbangkan Ulang', risk: `${relCount} kontraindikasi relatif — timbang risiko vs manfaat`, color: '#FF9500', detail: 'Diskusi dengan kardiolog sebelum memberikan fibrinolisis' };
-      if (relCount === 1)   return { score: '△',  label: 'Kontraindikasi Relatif',           risk: '1 kontraindikasi relatif — pertimbangkan risiko',                color: '#FF9500', detail: 'Fibrinolisis dapat diberikan dengan hati-hati' };
-      return                       { score: '✓',  label: 'DAPAT DIBERIKAN',                  risk: 'Tidak ada kontraindikasi terdeteksi',                            color: '#34C759', detail: 'Fibrinolisis dapat dilanjutkan' };
+      if (hasAbsolute)      return { score: '✗',  label: 'KONTRAINDIKASI ABSOLUT',           risk: 'Fibrinolisis TIDAK boleh diberikan',                              color: '#BA1A1A', detail: 'Terdapat kontraindikasi absolut — pertimbangkan PCI rescue' };
+      if (relCount >= 2)    return { score: '△',  label: 'Risiko Tinggi — Pertimbangkan Ulang', risk: `${relCount} kontraindikasi relatif — timbang risiko vs manfaat`, color: '#FFA000', detail: 'Diskusi dengan kardiolog sebelum memberikan fibrinolisis' };
+      if (relCount === 1)   return { score: '△',  label: 'Kontraindikasi Relatif',           risk: '1 kontraindikasi relatif — pertimbangkan risiko',                color: '#FFA000', detail: 'Fibrinolisis dapat diberikan dengan hati-hati' };
+      return                       { score: '✓',  label: 'DAPAT DIBERIKAN',                  risk: 'Tidak ada kontraindikasi terdeteksi',                            color: '#1E8E3E', detail: 'Fibrinolisis dapat dilanjutkan' };
     },
     notes: [
       'Checklist berdasarkan ACC/AHA Guidelines STEMI 2013 + update 2022',
@@ -448,7 +448,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'ABG / Asidosis-Alkalosis',
     short: 'ABG',
     category: 'Kritis',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     description: 'Interpretasi gas darah arteri step-by-step',
     source: 'Brandis Acid-Base; AHA/ACCP Critical Care Guidelines',
     fields: [
@@ -546,7 +546,7 @@ export const CALCULATORS: Calculator[] = [
         deltaLine = `Delta ratio (ΔAG/ΔHCO₃) = ${deltaAg}/${deltaHco3} = ${ratio} → ${ddInterp}`;
       }
 
-      const color = phState === 'acidemia' ? '#FF3B30' : phState === 'alkalemia' ? '#007AFF' : '#34C759';
+      const color = phState === 'acidemia' ? '#BA1A1A' : phState === 'alkalemia' ? '#0056B3' : '#1E8E3E';
       const score = phState === 'normal' ? 'Normal' : phState === 'acidemia' ? 'Asidemia' : 'Alkalemia';
 
       const detail = [primary, agLine, compLine, compStatus, deltaLine].filter(Boolean).join('\n');
@@ -647,14 +647,14 @@ export const CALCULATORS: Calculator[] = [
       const score = (['age65','riskFactor','stenosis','stChange','angina2','aspirin','marker'] as const)
         .reduce((s, k) => s + (v[k] ? 1 : 0), 0);
       const riskMap: Record<number, { pct: string; label: string; color: string }> = {
-        0: { pct: '5%',  label: 'Risiko Rendah',          color: '#34C759' },
-        1: { pct: '5%',  label: 'Risiko Rendah',          color: '#34C759' },
-        2: { pct: '8%',  label: 'Risiko Rendah',          color: '#34C759' },
-        3: { pct: '13%', label: 'Risiko Menengah',        color: '#FF9500' },
-        4: { pct: '20%', label: 'Risiko Menengah',        color: '#FF9500' },
-        5: { pct: '26%', label: 'Risiko Tinggi',          color: '#FF3B30' },
-        6: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#FF3B30' },
-        7: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#FF3B30' },
+        0: { pct: '5%',  label: 'Risiko Rendah',          color: '#1E8E3E' },
+        1: { pct: '5%',  label: 'Risiko Rendah',          color: '#1E8E3E' },
+        2: { pct: '8%',  label: 'Risiko Rendah',          color: '#1E8E3E' },
+        3: { pct: '13%', label: 'Risiko Menengah',        color: '#FFA000' },
+        4: { pct: '20%', label: 'Risiko Menengah',        color: '#FFA000' },
+        5: { pct: '26%', label: 'Risiko Tinggi',          color: '#BA1A1A' },
+        6: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#BA1A1A' },
+        7: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: '#BA1A1A' },
       };
       const r = riskMap[score] || riskMap[7];
       return {
@@ -686,7 +686,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'TIMI STEMI',
     short: 'TIMI STEMI',
     category: 'ACS / Koroner',
-    tint: '#FF3B30',
+    tint: '#BA1A1A',
     description: 'Prediksi mortalitas 30 hari pada STEMI',
     source: 'Morrow et al. Circulation 2000; InTIME II Trial',
     fields: [
@@ -713,15 +713,15 @@ export const CALCULATORS: Calculator[] = [
 
       // Approximate 30-day mortality from InTIME II
       const mortalityMap: Array<[number, string, string, string]> = [
-        [1,  '0.8%',  'Risiko Rendah',    '#34C759'],
-        [2,  '1.6%',  'Risiko Rendah',    '#34C759'],
-        [3,  '2.2%',  'Risiko Rendah',    '#34C759'],
-        [4,  '4.4%',  'Risiko Menengah',  '#FF9500'],
-        [5,  '7.3%',  'Risiko Menengah',  '#FF9500'],
-        [6,  '10.6%', 'Risiko Tinggi',    '#FF3B30'],
-        [7,  '12.9%', 'Risiko Tinggi',    '#FF3B30'],
-        [8,  '17.4%', 'Risiko Tinggi',    '#FF3B30'],
-        [Infinity, '22–35%+', 'Risiko Sangat Tinggi', '#FF3B30'],
+        [1,  '0.8%',  'Risiko Rendah',    '#1E8E3E'],
+        [2,  '1.6%',  'Risiko Rendah',    '#1E8E3E'],
+        [3,  '2.2%',  'Risiko Rendah',    '#1E8E3E'],
+        [4,  '4.4%',  'Risiko Menengah',  '#FFA000'],
+        [5,  '7.3%',  'Risiko Menengah',  '#FFA000'],
+        [6,  '10.6%', 'Risiko Tinggi',    '#BA1A1A'],
+        [7,  '12.9%', 'Risiko Tinggi',    '#BA1A1A'],
+        [8,  '17.4%', 'Risiko Tinggi',    '#BA1A1A'],
+        [Infinity, '22–35%+', 'Risiko Sangat Tinggi', '#BA1A1A'],
       ];
       const row = mortalityMap.find(([max]) => score <= max) || mortalityMap[mortalityMap.length - 1];
       const [, pct, label, color] = row;
@@ -755,7 +755,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Wells Score PE',
     short: 'Wells PE',
     category: 'Tromboembolisme',
-    tint: '#5856D6',
+    tint: '#003F87',
     description: 'Probabilitas klinis emboli paru (PE)',
     source: 'Wells et al. Lancet 1999; Thromb Haemost 2000',
     fields: [
@@ -779,7 +779,7 @@ export const CALCULATORS: Calculator[] = [
           score,
           label: 'PE Likely — Lakukan CT-PA',
           risk: `Skor ${score} > 4 — probabilitas PE tinggi`,
-          color: '#FF3B30',
+          color: '#BA1A1A',
           detail: 'CT pulmonary angiography (CT-PA) direkomendasikan sebagai langkah diagnostik berikutnya. Pertimbangkan antikoagulasi empiris sambil menunggu hasil imaging jika tidak ada kontraindikasi',
         };
       }
@@ -787,7 +787,7 @@ export const CALCULATORS: Calculator[] = [
         score,
         label: 'PE Unlikely — Periksa D-Dimer',
         risk: `Skor ${score} ≤ 4 — probabilitas PE rendah`,
-        color: score <= 1 ? '#34C759' : '#FF9500',
+        color: score <= 1 ? '#1E8E3E' : '#FFA000',
         detail: score <= 1
           ? 'Pertimbangkan PERC Rule: jika semua 8 kriteria PERC terpenuhi, PE dapat disingkirkan tanpa D-dimer. Jika tidak, lakukan D-dimer'
           : 'D-dimer sensitif; jika negatif (<500 ng/mL), PE dapat disingkirkan. Jika positif → CT-PA',
@@ -810,7 +810,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Ventilasi Mekanik (ARDSnet)',
     short: 'Ventilator',
     category: 'Kritis',
-    tint: '#0A84FF',
+    tint: '#0056B3',
     description: 'Volume tidal berbasis PBW & rasio P/F (Berlin)',
     source: 'ARDSNet NEJM 2000; Berlin Definition JAMA 2012',
     fields: [
@@ -836,13 +836,13 @@ export const CALCULATORS: Calculator[] = [
       // P/F ratio & Berlin severity
       let pfLine = '';
       let severity = '';
-      let color = '#0A84FF';
+      let color = '#0056B3';
       if (pao2 > 0 && fio2 >= 21) {
         const pf = Math.round(pao2 / (fio2 / 100));
-        if (pf >= 300)      { severity = 'Normal / non-ARDS'; color = '#34C759'; }
-        else if (pf >= 200) { severity = 'ARDS Ringan (200–300)'; color = '#FFCC00'; }
-        else if (pf >= 100) { severity = 'ARDS Sedang (100–200)'; color = '#FF9500'; }
-        else                { severity = 'ARDS Berat (<100)'; color = '#FF3B30'; }
+        if (pf >= 300)      { severity = 'Normal / non-ARDS'; color = '#1E8E3E'; }
+        else if (pf >= 200) { severity = 'ARDS Ringan (200–300)'; color = '#F9A825'; }
+        else if (pf >= 100) { severity = 'ARDS Sedang (100–200)'; color = '#FFA000'; }
+        else                { severity = 'ARDS Berat (<100)'; color = '#BA1A1A'; }
         pfLine = `P/F = ${pao2} / ${(fio2 / 100).toFixed(2)} = ${pf} mmHg → ${severity}`;
       }
 
@@ -873,7 +873,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Heparin Drip (Berbasis BB)',
     short: 'Heparin',
     category: 'Tromboembolisme',
-    tint: '#BF5AF2',
+    tint: '#9333EA',
     description: 'Bolus & infus heparin tak terfraksi (UFH) per protokol',
     source: 'Raschke et al. Ann Intern Med 1993; CHEST/AHA Guidelines',
     fields: [
@@ -905,7 +905,7 @@ export const CALCULATORS: Calculator[] = [
         `Target aPTT 1.5–2.5× kontrol (atau anti-Xa 0.3–0.7 IU/mL)`,
       ].join('\n');
 
-      return { score: `${bolus} U`, label: `Bolus + ${rate} U/jam (${indLabel})`, color: '#BF5AF2', detail };
+      return { score: `${bolus} U`, label: `Bolus + ${rate} U/jam (${indLabel})`, color: '#9333EA', detail };
     },
     notes: [
       'Protokol VTE (Raschke): bolus 80 U/kg, infus 18 U/kg/jam',
@@ -925,7 +925,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'Resusitasi Cairan',
     short: 'Cairan',
     category: 'Kritis',
-    tint: '#30B0C7',
+    tint: '#00838F',
     description: 'Parkland formula, sepsis bolus, dan maintenance pediatrik',
     source: 'AHA/ATLS/ILCOR Guidelines',
     fields: [
@@ -957,7 +957,7 @@ export const CALCULATORS: Calculator[] = [
         return {
           score: `${total24h} mL / 24 jam`,
           label: 'Ringer Laktat',
-          color: '#30B0C7',
+          color: '#00838F',
           detail: `8 jam pertama: ${first8h} mL (${rate8h} mL/jam)\n16 jam berikutnya: ${next16h} mL (${rate16h} mL/jam)\nCatatan: Hitung dari waktu cedera, bukan waktu masuk`,
         };
       }
@@ -967,7 +967,7 @@ export const CALCULATORS: Calculator[] = [
         return {
           score: `${bolus} mL bolus`,
           label: 'NaCl 0.9% / RL',
-          color: '#30B0C7',
+          color: '#00838F',
           detail: `Berikan dalam 30 menit\nNilai ulang setelah bolus (tanda perfusi, urin output)\nUlangi jika masih ada tanda hipoperfusi`,
         };
       }
@@ -985,7 +985,7 @@ export const CALCULATORS: Calculator[] = [
       return {
         score: `${hourly} mL/jam`,
         label: 'Cairan Maintenance',
-        color: '#30B0C7',
+        color: '#00838F',
         detail: `Per 24 jam: ${daily} mL\nFormula: 4 mL/kg untuk 10 kg pertama + 2 mL/kg untuk 10 kg berikutnya + 1 mL/kg untuk sisanya\nKoreksi berdasarkan kondisi klinis`,
       };
     },
@@ -1000,7 +1000,7 @@ export const CALCULATORS: Calculator[] = [
     name: 'CPP — Tekanan Perfusi Serebral',
     short: 'CPP',
     category: 'Neuro',
-    tint: '#AF52DE',
+    tint: '#9333EA',
     description: 'Cerebral Perfusion Pressure = MAP − ICP',
     source: 'Neurocritical Care Guidelines',
     fields: [
@@ -1014,7 +1014,7 @@ export const CALCULATORS: Calculator[] = [
       const icp = Number(vals.icp) || 10;
       const map = (sbp + 2 * dbp) / 3;
       const cpp = map - icp;
-      const colorHex = cpp >= 60 ? '#34C759' : cpp >= 50 ? '#FF9500' : '#FF3B30';
+      const colorHex = cpp >= 60 ? '#1E8E3E' : cpp >= 50 ? '#FFA000' : '#BA1A1A';
       const label = cpp >= 60 ? 'CPP Adekuat' : cpp >= 50 ? 'CPP Batas' : 'CPP Kritis — Risiko Iskemia Serebral';
       return {
         score: `${Math.round(cpp)} mmHg`,
