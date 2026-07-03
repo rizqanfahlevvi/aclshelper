@@ -625,18 +625,16 @@ export function BottomNav({ active, onChange, fabShape = "circle", onFabClick, a
           const isActive = moreActive;
           const I = isActive ? t.iconFill : t.icon;
           return (
-            <button key="more" className={"nav-btn " + (isActive ? "active" : "")} onClick={onMore}>
+            <button key="more" className={"nav-btn " + (isActive ? "active" : "")} onClick={onMore} aria-label={t.label}>
               <I size={24} />
-              <span>{t.label}</span>
             </button>
           );
         }
         const isActive = active === t.key;
         const I = isActive ? t.iconFill : t.icon;
         return (
-          <button key={t.key} className={"nav-btn " + (isActive ? "active" : "")} onClick={() => onChange(t.key)}>
+          <button key={t.key} className={"nav-btn " + (isActive ? "active" : "")} onClick={() => onChange(t.key)} aria-label={t.label}>
             <I size={24} />
-            <span>{t.label}</span>
           </button>
         );
       })}

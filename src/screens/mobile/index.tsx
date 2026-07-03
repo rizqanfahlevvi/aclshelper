@@ -195,13 +195,6 @@ export function InstallPopup({ deferredPrompt, onClose, onDismiss }: { deferredP
 /* ============================================================
    HOME
    ============================================================ */
-const STAT_CARDS = [
-  { value: '14',   label: 'Algoritma', color: 'var(--danger)',  screen: 'algoList' },
-  { value: '25',   label: 'Obat',      color: 'var(--warning)', screen: 'drugList' },
-  { value: '16',   label: 'EKG',       color: 'var(--info)',    screen: 'ekgList' },
-  { value: '2025', label: 'Panduan',   color: 'var(--success)', screen: null },
-];
-
 export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprRhythm) => void }) {
   const [query, setQuery] = useState('');
   const [spotlight, setSpotlight] = useState(0);
@@ -309,22 +302,6 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
           <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#0A66C2',
             letterSpacing: '0.06em', textTransform: 'uppercase' }}>Made by Rizqanfahlevvi</span>
         </a>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          {STAT_CARDS.map((c) => (
-            <button key={c.label}
-              onClick={() => c.screen && nav.push({ screen: c.screen as 'algoList' | 'drugList' | 'ekgList' })}
-              style={{ flex: 1, background: 'var(--fill-secondary)',
-                borderRadius: 14, padding: '10px 8px', textAlign: 'center',
-                border: 0, cursor: c.screen ? 'pointer' : 'default',
-                transition: 'opacity 120ms',
-              }}
-              onMouseEnter={e => { if (c.screen) e.currentTarget.style.opacity = '0.75'; }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}>
-              <div style={{ fontSize: '1.125rem', fontWeight: 700, color: c.color, lineHeight: 1 }}>{c.value}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--label-secondary)', marginTop: 3 }}>{c.label}</div>
-            </button>
-          ))}
-        </div>
       </div>
 
       <SearchField placeholder="Cari algoritma, obat, EKG…" value={query} onChange={setQuery}/>
