@@ -512,35 +512,12 @@ interface AppTopBarProps {
   onOpenSidebar?: () => void;
   sidebarOpen?: boolean;
   onGoHome?: () => void;
-  fontScale: number;
-  onFontScaleChange: (v: number) => void;
-  bwMode: boolean;
-  onBwModeChange: (v: boolean) => void;
   onSearch?: () => void;
   onOpenProfile?: () => void;
   userInitial?: string;
 }
-function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, fontScale, onFontScaleChange, bwMode, onBwModeChange, onSearch, onOpenProfile, userInitial }: AppTopBarProps) {
-  const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
+function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, onGoHome, onSearch, onOpenProfile, userInitial }: AppTopBarProps) {
   const time = useClock();
-  const [updateState, setUpdateState] = useState('idle'); // idle | checking
-
-  const checkUpdate = async () => {
-    if (updateState !== 'idle') return;
-    setUpdateState('checking');
-    try {
-      // 1. Minta SW baru dari server (lewati cache HTTP)
-      const reg = await navigator.serviceWorker?.getRegistration();
-      if (reg) await reg.update();
-      // 2. Bersihkan semua cache Workbox agar reload tidak sajikan aset lama
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k => caches.delete(k)));
-      }
-    } catch (_) {}
-    // 3. Selalu reload — jaminan pengguna dapat versi terbaru
-    window.location.reload();
-  };
 
   return (
     <div style={{
@@ -613,114 +590,6 @@ function AppTopBar({ theme, onToggleTheme, onOpenSidebar, sidebarOpen = false, o
             </svg>
           </button>
         )}
-        <button
-          onClick={checkUpdate}
-          title={updateState === 'checking' ? 'Memeriksa pembaruan...' : 'Cek pembaruan'}
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 32, height: 32, borderRadius: 8,
-            background: 'var(--fill-tertiary)',
-            border: 0, cursor: updateState === 'idle' ? 'pointer' : 'default',
-            color: 'var(--label-secondary)',
-          }}
-          aria-label="Cek pembaruan">
-          <Icons.reset size={15} stroke={2}
-            style={{ animation: updateState === 'checking' ? 'acls-spin 0.8s linear infinite' : 'none' }}/>
-        </button>
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setFontPopoverOpen(o => !o)}
-            title="Aksesibilitas"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 32, borderRadius: 8,
-              background: fontPopoverOpen || fontScale !== 1 || bwMode ? 'var(--accent-tint)' : 'var(--fill-tertiary)',
-              border: 0, cursor: 'pointer',
-              color: fontPopoverOpen || fontScale !== 1 || bwMode ? 'var(--accent)' : 'var(--label-secondary)',
-              transition: 'background 200ms, color 200ms',
-            }}
-            aria-label="Pengaturan aksesibilitas">
-            <span style={{ fontWeight: 700, fontSize: '0.875rem', lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em' }}>A</span>
-          </button>
-
-          {fontPopoverOpen && (
-            <>
-              <div style={{ position: 'fixed', inset: 0, zIndex: 199 }} onClick={() => setFontPopoverOpen(false)}/>
-              <div style={{
-                position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                zIndex: 200,
-                background: 'var(--bg-secondary)',
-                borderRadius: 18,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
-                padding: '16px 18px',
-                width: 288,
-                animation: 'acls-fadeslide 200ms var(--ease-out) both',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <span className="t-footnote" style={{ fontWeight: 600, color: 'var(--label-secondary)' }}>Ukuran Teks</span>
-                  <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
-                    {Math.round(fontScale * 100)}%
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
-                  <input
-                    type="range"
-                    min={0.75}
-                    max={1.5}
-                    step={0.05}
-                    value={fontScale}
-                    onChange={e => onFontScaleChange(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor: 'var(--accent)', cursor: 'pointer', height: 4 }}
-                  />
-                  <span style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--label-tertiary)', fontFamily: 'var(--font-sans)', flexShrink: 0, lineHeight: 1 }}>A</span>
-                </div>
-                {fontScale !== 1 && (
-                  <button
-                    onClick={() => onFontScaleChange(1)}
-                    style={{
-                      marginTop: 14, width: '100%', padding: '9px', borderRadius: 10,
-                      background: 'var(--fill-quaternary)', border: 'none', cursor: 'pointer',
-                      color: 'var(--label-secondary)', fontSize: '0.8125rem', fontWeight: 500,
-                    }}
-                  >
-                    Reset ke Normal
-                  </button>
-                )}
-
-                {/* Mode kontras tinggi (B&W) */}
-                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '0.5px solid var(--separator)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div className="t-footnote" style={{ fontWeight: 600, color: 'var(--label-primary)' }}>Kontras Tinggi</div>
-                    <div style={{ fontSize: '0.6875rem', color: 'var(--label-tertiary)', marginTop: 1, lineHeight: 1.3 }}>
-                      Monokrom; warna bahaya tetap
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => onBwModeChange(!bwMode)}
-                    role="switch"
-                    aria-checked={bwMode}
-                    aria-label="Mode kontras tinggi"
-                    style={{
-                      position: 'relative', flexShrink: 0, width: 44, height: 26, borderRadius: 999,
-                      border: 0, cursor: 'pointer', padding: 0,
-                      background: bwMode ? 'var(--accent)' : 'var(--fill-secondary)',
-                      transition: 'background 200ms',
-                    }}
-                  >
-                    <span style={{
-                      position: 'absolute', top: 2, left: 2, width: 22, height: 22, borderRadius: '50%',
-                      background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-                      transform: bwMode ? 'translateX(18px)' : 'translateX(0)',
-                      transition: 'transform 200ms var(--ease-spring)',
-                    }}/>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
         <button
           onClick={onToggleTheme}
           style={{
@@ -1415,7 +1284,7 @@ export default function App() {
     return (
       <div className="acls-app-mobile">
         <div className="acls-mobile-statusbar">
-          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }} fontScale={fontScale} onFontScaleChange={v => setSetting('fontScale', v)} bwMode={bwMode} onBwModeChange={v => setSetting('bwMode', v)}
+          <AppTopBar theme={theme} onToggleTheme={toggleTheme} onOpenSidebar={() => setMobileSidebarOpen(o => !o)} sidebarOpen={mobileSidebarOpen} onGoHome={() => { setTab('home'); setFabOpen(false); }}
             onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
           {subBanner}
         </div>
@@ -1575,7 +1444,7 @@ export default function App() {
       {/* Full-width topbar — same structure as mobile */}
       <AppTopBar theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setDeskView({ screen: 'dashboard' })}
         onOpenSidebar={() => setSidebarCollapsed(c => !c)} sidebarOpen={!sidebarCollapsed}
-        fontScale={fontScale} onFontScaleChange={v => setSetting('fontScale', v)} bwMode={bwMode} onBwModeChange={v => setSetting('bwMode', v)}
+       
         onOpenProfile={user ? () => setProfileOpen(true) : undefined} userInitial={user ? userInitial : undefined}/>
       {subBanner}
 
