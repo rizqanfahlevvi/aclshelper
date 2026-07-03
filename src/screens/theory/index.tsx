@@ -50,7 +50,7 @@ interface ConductionState {
   beatMs: number;
 }
 const COL: Record<NodeState, string> = {
-  active:'#34C759', blocked:'#FF3B30', ectopic:'#FF9500', inactive:'#8E8E93', dim:'#8E8E93',
+  active:'#1E8E3E', blocked:'#BA1A1A', ectopic:'#FFA000', inactive:'#8E8E93', dim:'#8E8E93',
 };
 const CONDUCTION_MAP: Record<string, ConductionState> = {
   nsr:      { sa:'active',av:'active',his:'active',lbb:'active',rbb:'active',lv:'active',rv:'active',ra:'active',la:'active', caption:'SA node memulai impuls → AV node (delay 120–200 ms) → His → LBB + RBB → kedua ventrikel bersamaan.', beatMs:820 },
@@ -205,7 +205,7 @@ export function EkgConductionPanel({ rhythmKey }: { rhythmKey: string }) {
         {/* Legend inline */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 8, paddingTop: 8,
           borderTop: '0.5px solid var(--separator)' }}>
-          {([['#34C759','Aktif'],['#FF3B30','Blok'],['#FF9500','Ektopik'],['#8E8E93','Inaktif']] as const).map(([col,label])=>(
+          {([['#1E8E3E','Aktif'],['#BA1A1A','Blok'],['#FFA000','Ektopik'],['#8E8E93','Inaktif']] as const).map(([col,label])=>(
             <div key={label} style={{ display:'flex', alignItems:'center', gap:5 }}>
               <div style={{ width:8, height:8, borderRadius:4, background:col, flexShrink:0 }}/>
               <span className="t-caption-2" style={{ color:'var(--label-secondary)' }}>{label}</span>
@@ -241,7 +241,7 @@ function WiggersDiagramAnimated() {
   return (
     <svg viewBox="0 0 360 155" width="100%" style={{ display:'block' }}>
       {/* Phase backgrounds — discrete highlight follows cursor */}
-      <rect x="0" y="12" width="30" height="80" fill="#FF9500">
+      <rect x="0" y="12" width="30" height="80" fill="#FFA000">
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.28;0.10;0.10" keyTimes="0;0.083;1"/>
       </rect>
@@ -249,7 +249,7 @@ function WiggersDiagramAnimated() {
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.10;0.28;0.10;0.10" keyTimes="0;0.083;0.161;1"/>
       </rect>
-      <rect x="58" y="12" width="117" height="80" fill="#FF3B30">
+      <rect x="58" y="12" width="117" height="80" fill="#BA1A1A">
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.10;0.28;0.10;0.10" keyTimes="0;0.161;0.486;1"/>
       </rect>
@@ -257,48 +257,48 @@ function WiggersDiagramAnimated() {
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.10;0.28;0.10;0.10" keyTimes="0;0.486;0.569;1"/>
       </rect>
-      <rect x="205" y="12" width="70" height="80" fill="#30B0C7">
+      <rect x="205" y="12" width="70" height="80" fill="#00838F">
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.10;0.28;0.10;0.10" keyTimes="0;0.569;0.764;1"/>
       </rect>
-      <rect x="275" y="12" width="85" height="80" fill="#30B0C7">
+      <rect x="275" y="12" width="85" height="80" fill="#00838F">
         <animate attributeName="opacity" dur={DUR} repeatCount="indefinite" calcMode="discrete"
           values="0.10;0.28;0.28" keyTimes="0;0.764;1"/>
       </rect>
       {/* Baseline */}
       <line x1="0" y1="92" x2="360" y2="92" stroke="var(--separator)" strokeWidth="0.5"/>
       {/* LV Pressure curve */}
-      <path d={LV_PATH} fill="none" stroke="#FF3B30" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={LV_PATH} fill="none" stroke="#BA1A1A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
       {/* Aortic pressure (dashed) */}
       <path d="M58,48 C72,18 112,8 140,9 C160,10 168,25 175,36 C177,40 178,37 180,38 C188,44 215,50 360,50"
-        fill="none" stroke="#30B0C7" strokeWidth="1.5" strokeDasharray="5 3" strokeLinecap="round" strokeOpacity={0.7}/>
+        fill="none" stroke="#00838F" strokeWidth="1.5" strokeDasharray="5 3" strokeLinecap="round" strokeOpacity={0.7}/>
       {/* Valve events — dashed verticals */}
       <line x1="30"  y1="12" x2="30"  y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       <line x1="58"  y1="12" x2="58"  y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       <line x1="175" y1="12" x2="175" y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       <line x1="205" y1="12" x2="205" y2="92" stroke="var(--separator-opaque)" strokeWidth="1" strokeDasharray="3 2"/>
       {/* Phase labels */}
-      <text x="15"  y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF9500">Kick</text>
-      <text x="44"  y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF3B30">IC</text>
-      <text x="116" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF3B30">Ejeksi</text>
-      <text x="190" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF3B30">IR</text>
-      <text x="240" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#30B0C7">Pengisian Cepat</text>
-      <text x="317" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#30B0C7">Diastasis</text>
+      <text x="15"  y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FFA000">Kick</text>
+      <text x="44"  y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#BA1A1A">IC</text>
+      <text x="116" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#BA1A1A">Ejeksi</text>
+      <text x="190" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#BA1A1A">IR</text>
+      <text x="240" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#00838F">Pengisian Cepat</text>
+      <text x="317" y="8" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#00838F">Diastasis</text>
       {/* SISTOLE / DIASTOLE */}
-      <text x="116" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FF3B30" opacity={0.8}>— SISTOLE —</text>
-      <text x="282" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#30B0C7" opacity={0.8}>— DIASTOLE —</text>
+      <text x="116" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#BA1A1A" opacity={0.8}>— SISTOLE —</text>
+      <text x="282" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#00838F" opacity={0.8}>— DIASTOLE —</text>
       {/* ECG trace */}
-      <path d={ECG_PATH} fill="none" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={ECG_PATH} fill="none" stroke="#1E8E3E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       {/* ECG labels */}
-      <text x="26"  y="118" textAnchor="middle" fontSize="7" fill="#34C759" opacity={0.8}>P</text>
-      <text x="40"  y="118" textAnchor="middle" fontSize="7" fill="#34C759" opacity={0.8}>QRS</text>
-      <text x="258" y="118" textAnchor="middle" fontSize="7" fill="#34C759" opacity={0.8}>T</text>
+      <text x="26"  y="118" textAnchor="middle" fontSize="7" fill="#1E8E3E" opacity={0.8}>P</text>
+      <text x="40"  y="118" textAnchor="middle" fontSize="7" fill="#1E8E3E" opacity={0.8}>QRS</text>
+      <text x="258" y="118" textAnchor="middle" fontSize="7" fill="#1E8E3E" opacity={0.8}>T</text>
       {/* Legend */}
-      <circle cx="10" cy="150" r="3" fill="#FF3B30" opacity={0.7}/>
+      <circle cx="10" cy="150" r="3" fill="#BA1A1A" opacity={0.7}/>
       <text x="16" y="153" fontSize="7" fill="var(--label-secondary)">LV</text>
-      <line x1="38" y1="150" x2="50" y2="150" stroke="#30B0C7" strokeWidth="1.5" strokeDasharray="4 2"/>
+      <line x1="38" y1="150" x2="50" y2="150" stroke="#00838F" strokeWidth="1.5" strokeDasharray="4 2"/>
       <text x="53" y="153" fontSize="7" fill="var(--label-secondary)">Ao</text>
-      <circle cx="72" cy="150" r="3" fill="#34C759" opacity={0.7}/>
+      <circle cx="72" cy="150" r="3" fill="#1E8E3E" opacity={0.7}/>
       <text x="78" y="153" fontSize="7" fill="var(--label-secondary)">ECG</text>
       {/* ── ANIMATED CURSOR ── sweeps left→right synced with phase highlights */}
       <line x1="0" y1="10" x2="0" y2="110" stroke="var(--label-secondary)" strokeWidth="1.2" opacity="0.4">
@@ -306,13 +306,13 @@ function WiggersDiagramAnimated() {
         <animate attributeName="x2" from="0" to="360" dur={DUR} repeatCount="indefinite" calcMode="linear"/>
       </line>
       {/* ── ANIMATED DOT — LV Pressure curve ── */}
-      <circle r="4.5" fill="#FF3B30" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5"
-        style={{ filter:'drop-shadow(0 0 5px rgba(255,59,48,0.85))' }}>
+      <circle r="4.5" fill="#BA1A1A" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5"
+        style={{ filter:'drop-shadow(0 0 5px color-mix(in srgb, var(--danger) 85%, transparent))' }}>
         <animateMotion path={LV_PATH} dur={DUR} repeatCount="indefinite"/>
       </circle>
       {/* ── ANIMATED DOT — ECG trace ── */}
-      <circle r="3.5" fill="#34C759" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2"
-        style={{ filter:'drop-shadow(0 0 4px rgba(52,199,89,0.85))' }}>
+      <circle r="3.5" fill="#1E8E3E" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2"
+        style={{ filter:'drop-shadow(0 0 4px color-mix(in srgb, var(--success) 85%, transparent))' }}>
         <animateMotion path={ECG_PATH} dur={DUR} repeatCount="indefinite"/>
       </circle>
     </svg>
@@ -356,11 +356,11 @@ function RefBlock({ items }: { items: RefItem[] }) {
 }
 
 const CYCLE_PHASES = [
-  { name:'Atrial Contraction', abbr:'Kick', color:'#FF9500', mmhg:'~8 mmHg', desc:'Atrium berkontraksi → atrial kick mengisi LV 15–25%. Sesuai gelombang P di EKG.' },
+  { name:'Atrial Contraction', abbr:'Kick', color:'#FFA000', mmhg:'~8 mmHg', desc:'Atrium berkontraksi → atrial kick mengisi LV 15–25%. Sesuai gelombang P di EKG.' },
   { name:'Isovolumetric Contraction', abbr:'IC', color:'#FF6B6B', mmhg:'5→80 mmHg', desc:'MV & AoV tertutup. LV berkontraksi, tekanan naik cepat. Volume konstan. Setelah QRS.' },
-  { name:'Ejection', abbr:'Ejeksi', color:'#FF3B30', mmhg:'80→120 mmHg', desc:'AoV terbuka saat LV > Ao. LV memompa darah ke aorta. Stroke Volume = EDV − ESV.' },
+  { name:'Ejection', abbr:'Ejeksi', color:'#BA1A1A', mmhg:'80→120 mmHg', desc:'AoV terbuka saat LV > Ao. LV memompa darah ke aorta. Stroke Volume = EDV − ESV.' },
   { name:'Isovolumetric Relaxation', abbr:'IR', color:'#FF6B6B', mmhg:'120→5 mmHg', desc:'AoV & MV tertutup. LV relaksasi, tekanan turun cepat. Volume konstan. Setelah T wave.' },
-  { name:'Rapid Filling', abbr:'Pengisian Cepat', color:'#30B0C7', mmhg:'~5 mmHg', desc:'MV terbuka saat LA > LV. 70% volume pengisian diastol terjadi di fase ini.' },
+  { name:'Rapid Filling', abbr:'Pengisian Cepat', color:'#00838F', mmhg:'~5 mmHg', desc:'MV terbuka saat LA > LV. 70% volume pengisian diastol terjadi di fase ini.' },
   { name:'Diastasis', abbr:'Diastasis', color:'#5AC8FA', mmhg:'~3 mmHg', desc:'Pengisian lambat. Aliran minimum. Frekuensi tinggi memperpendek fase ini.' },
 ];
 
@@ -490,12 +490,12 @@ function CardiacCycleTab() {
       <button onClick={() => setShowSim(true)} style={{
         display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderRadius:16, border:'none',
         cursor:'pointer', textAlign:'left', width:'100%',
-        background:'linear-gradient(135deg, rgba(0,122,255,0.08), rgba(48,176,199,0.10))',
-        boxShadow:'0 0 0 1px rgba(0,122,255,0.3), 0 4px 16px rgba(0,122,255,0.12)',
+        background:'linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, transparent), color-mix(in srgb, var(--sys-teal) 10%, transparent))',
+        boxShadow:'0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent)',
       }}>
         <div style={{ width:44, height:44, borderRadius:12, background:'var(--accent)',
           display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-          boxShadow:'0 4px 12px rgba(0,122,255,0.3)' }}>
+          boxShadow:'0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent)' }}>
           <Icons.activity size={22} stroke={2} style={{ color:'#fff' }}/>
         </div>
         <div style={{ flex:1 }}>
@@ -540,7 +540,7 @@ function CardiacCycleTab() {
           ['Gelombang T','Repolarisasi ventrikel → relaksasi (IR + awal diastol)'],
         ].map(([wave,desc])=>(
           <div key={wave} style={{ display:'flex', gap:8, marginBottom:6, alignItems:'flex-start' }}>
-            <span className="t-caption-1" style={{ fontWeight:700, color:'#34C759', flexShrink:0, minWidth:100 }}>{wave}</span>
+            <span className="t-caption-1" style={{ fontWeight:700, color:'#1E8E3E', flexShrink:0, minWidth:100 }}>{wave}</span>
             <span className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{desc}</span>
           </div>
         ))}
@@ -573,7 +573,7 @@ function VentricularAP() {
       <line x1="20" y1="92" x2="40" y2="92" stroke="var(--label-quaternary)" strokeWidth="0.5" strokeDasharray="3 2"/>
       {/* AP curve */}
       <path d="M20,92 L40,92 C41,92 42,88 43,20 C44,12 47,10 52,12 L55,25 L120,25 C130,25 140,65 145,88 C148,94 152,92 210,92"
-        fill="none" stroke="#FF9500" strokeWidth="2" strokeLinecap="round"/>
+        fill="none" stroke="#FFA000" strokeWidth="2" strokeLinecap="round"/>
       {/* Phase labels */}
       <text x="30" y="106" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)">4</text>
       <text x="43" y="9"   textAnchor="middle" fontSize="8" fill="var(--label-secondary)" fontWeight="700">0</text>
@@ -587,7 +587,7 @@ function VentricularAP() {
       <text x="18" y="58" textAnchor="end" fontSize="7" fill="var(--label-tertiary)">0</text>
       <line x1="19" y1="55" x2="21" y2="55" stroke="var(--separator)" strokeWidth="0.5"/>
       {/* Title */}
-      <text x="115" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FF9500">Kardiomiosit Ventrikel</text>
+      <text x="115" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFA000">Kardiomiosit Ventrikel</text>
     </svg>
   );
 }
@@ -599,7 +599,7 @@ function SANodeAP() {
       <line x1="20" y1="100" x2="210" y2="100" stroke="var(--separator)" strokeWidth="0.5"/>
       {/* SA node AP — spontaneous depolarization (phase 4 slope) */}
       <path d="M20,85 C35,83 55,78 68,68 C78,60 83,18 88,12 C93,6 97,10 100,18 C108,38 118,70 125,82 C130,87 138,86 155,83 C170,80 188,75 210,65"
-        fill="none" stroke="#30B0C7" strokeWidth="2" strokeLinecap="round"/>
+        fill="none" stroke="#00838F" strokeWidth="2" strokeLinecap="round"/>
       {/* Labels */}
       <text x="40" y="106" textAnchor="middle" fontSize="8" fill="var(--label-secondary)">4 (spontan)</text>
       <text x="86" y="9"   textAnchor="middle" fontSize="8" fill="var(--label-secondary)" fontWeight="700">0</text>
@@ -609,7 +609,7 @@ function SANodeAP() {
       <text x="18" y="71" textAnchor="end" fontSize="7" fill="var(--label-tertiary)">th</text>
       <text x="18" y="86" textAnchor="end" fontSize="7" fill="var(--label-tertiary)">−60</text>
       <text x="18" y="22" textAnchor="end" fontSize="7" fill="var(--label-tertiary)">+20</text>
-      <text x="115" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#30B0C7">SA Node (Pacu Jantung)</text>
+      <text x="115" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#00838F">SA Node (Pacu Jantung)</text>
     </svg>
   );
 }
@@ -630,10 +630,10 @@ function ActionPotentialTab() {
       <div style={{ background:'var(--bg-primary)', borderRadius:16, overflow:'hidden',
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         {[
-          { phase:'Fase 0', name:'Depolarisasi Cepat', color:'#FF3B30', desc:'Kanal Na⁺ cepat terbuka → upstroke. Hanya kardiomiosit cepat (tidak ada di SA node).' },
-          { phase:'Fase 1', name:'Repolarisasi Awal',  color:'#FF9500', desc:'Kanal Na⁺ inaktif, K⁺ keluar (Ito). Takik kecil pada puncak.' },
-          { phase:'Fase 2', name:'Plateau',            color:'#34C759', desc:'Kanal Ca²⁺ tipe-L masuk = kanal K⁺ keluar. Sesuai segmen ST. Khas jantung.' },
-          { phase:'Fase 3', name:'Repolarisasi',       color:'#30B0C7', desc:'K⁺ dominan, Ca²⁺ tutup. Membran kembali ke −90 mV. Sesuai gelombang T.' },
+          { phase:'Fase 0', name:'Depolarisasi Cepat', color:'#BA1A1A', desc:'Kanal Na⁺ cepat terbuka → upstroke. Hanya kardiomiosit cepat (tidak ada di SA node).' },
+          { phase:'Fase 1', name:'Repolarisasi Awal',  color:'#FFA000', desc:'Kanal Na⁺ inaktif, K⁺ keluar (Ito). Takik kecil pada puncak.' },
+          { phase:'Fase 2', name:'Plateau',            color:'#1E8E3E', desc:'Kanal Ca²⁺ tipe-L masuk = kanal K⁺ keluar. Sesuai segmen ST. Khas jantung.' },
+          { phase:'Fase 3', name:'Repolarisasi',       color:'#00838F', desc:'K⁺ dominan, Ca²⁺ tutup. Membran kembali ke −90 mV. Sesuai gelombang T.' },
           { phase:'Fase 4', name:'Istirahat / Spontan',color:'#8E8E93', desc:'SA node: depolarisasi spontan lambat (If, ICa) → pacu jantung. Ventrikel: flat.' },
         ].map((r,i)=>(
           <div key={r.phase} style={{ display:'flex', gap:12, padding:'10px 16px',
@@ -698,9 +698,9 @@ function HemodynamicsTab() {
       {/* SV determinants */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
         {[
-          { label:'Preload', icon:'↑', color:'#30B0C7', desc:'Volume EDV. Hk. Frank-Starling: EDV↑ → kontraksi lebih kuat.', clinical:'Cairan IV, PCWP, CVP' },
-          { label:'Afterload', icon:'↓', color:'#FF9500', desc:'Resistansi terhadap ejeksi (SVR). Afterload↑ → SV↓ (jantung gagal).', clinical:'Vasodilator, AoV stenosis' },
-          { label:'Kontraktilitas', icon:'⚡', color:'#34C759', desc:'Inotropi intrinsik. Independen dari preload/afterload.', clinical:'Dobutamin, Ca²⁺, iskemia' },
+          { label:'Preload', icon:'↑', color:'#00838F', desc:'Volume EDV. Hk. Frank-Starling: EDV↑ → kontraksi lebih kuat.', clinical:'Cairan IV, PCWP, CVP' },
+          { label:'Afterload', icon:'↓', color:'#FFA000', desc:'Resistansi terhadap ejeksi (SVR). Afterload↑ → SV↓ (jantung gagal).', clinical:'Vasodilator, AoV stenosis' },
+          { label:'Kontraktilitas', icon:'⚡', color:'#1E8E3E', desc:'Inotropi intrinsik. Independen dari preload/afterload.', clinical:'Dobutamin, Ca²⁺, iskemia' },
         ].map(({ label, icon, color, desc, clinical }) => (
           <div key={label} style={{ background:'var(--bg-primary)', borderRadius:14, padding:'14px 12px',
             boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
@@ -725,10 +725,10 @@ function HemodynamicsTab() {
             <line x1="30" y1="85" x2="270" y2="85" stroke="var(--label-tertiary)" strokeWidth="1"/>
             <text x="28" y="50" textAnchor="end" fontSize="8" fill="var(--label-tertiary)" transform="rotate(-90,28,50)">Stroke Volume</text>
             <text x="150" y="96" textAnchor="middle" fontSize="8" fill="var(--label-tertiary)">EDV / Preload</text>
-            <path d="M30,82 C60,75 90,55 120,35 C145,20 175,16 240,15" fill="none" stroke="#34C759" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M30,82 C60,78 90,70 120,58 C145,50 175,46 240,44" fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 3"/>
-            <text x="195" y="12" fontSize="8" fill="#34C759" fontWeight="600">Normal</text>
-            <text x="195" y="42" fontSize="8" fill="#FF3B30" fontWeight="600">Gagal Jantung</text>
+            <path d="M30,82 C60,75 90,55 120,35 C145,20 175,16 240,15" fill="none" stroke="#1E8E3E" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M30,82 C60,78 90,70 120,58 C145,50 175,46 240,44" fill="none" stroke="#BA1A1A" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 3"/>
+            <text x="195" y="12" fontSize="8" fill="#1E8E3E" fontWeight="600">Normal</text>
+            <text x="195" y="42" fontSize="8" fill="#BA1A1A" fontWeight="600">Gagal Jantung</text>
           </svg>
         }/>
         <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
@@ -789,30 +789,30 @@ function ReentrySVG() {
     <svg viewBox="0 0 220 140" width="100%" style={{ display: 'block' }}>
       {/* Dual pathway schematic */}
       {/* AV node */}
-      <ellipse cx="110" cy="22" rx="22" ry="12" fill="#FF3B30" opacity={0.85}/>
+      <ellipse cx="110" cy="22" rx="22" ry="12" fill="#BA1A1A" opacity={0.85}/>
       <text x="110" y="26" textAnchor="middle" fontSize="9" fontWeight="700" fill="#fff">AV Node</text>
       {/* Fast pathway left — blocked antegrade */}
-      <path d="M96,34 L62,90" fill="none" stroke="#FF3B30" strokeWidth="2.5" strokeDasharray="6 3"/>
-      <text x="54" y="58" fontSize="8" fill="#FF3B30" fontWeight="700">Fast</text>
+      <path d="M96,34 L62,90" fill="none" stroke="#BA1A1A" strokeWidth="2.5" strokeDasharray="6 3"/>
+      <text x="54" y="58" fontSize="8" fill="#BA1A1A" fontWeight="700">Fast</text>
       {/* Block symbol on fast pathway */}
-      <line x1="70" y1="70" x2="60" y2="78" stroke="#FF3B30" strokeWidth="2.5"/>
-      <line x1="60" y1="70" x2="70" y2="78" stroke="#FF3B30" strokeWidth="2.5"/>
+      <line x1="70" y1="70" x2="60" y2="78" stroke="#BA1A1A" strokeWidth="2.5"/>
+      <line x1="60" y1="70" x2="70" y2="78" stroke="#BA1A1A" strokeWidth="2.5"/>
       {/* Slow pathway right — conducts antegrade */}
-      <path d="M124,34 L158,90" fill="none" stroke="#34C759" strokeWidth="2.5"/>
-      <text x="150" y="58" fontSize="8" fill="#34C759" fontWeight="700">Slow</text>
+      <path d="M124,34 L158,90" fill="none" stroke="#1E8E3E" strokeWidth="2.5"/>
+      <text x="150" y="58" fontSize="8" fill="#1E8E3E" fontWeight="700">Slow</text>
       {/* His bundle junction */}
-      <ellipse cx="110" cy="95" rx="18" ry="9" fill="#FF9500" opacity={0.85}/>
+      <ellipse cx="110" cy="95" rx="18" ry="9" fill="#FFA000" opacity={0.85}/>
       <text x="110" y="99" textAnchor="middle" fontSize="8" fontWeight="700" fill="#fff">His</text>
       {/* Retrograde up fast pathway */}
-      <path d="M92,90 L74,48" fill="none" stroke="#FF9500" strokeWidth="2" strokeDasharray="4 2"/>
-      <polygon points="73,48 69,58 79,55" fill="#FF9500"/>
-      <text x="46" y="82" fontSize="7.5" fill="#FF9500" fontWeight="600">Retrograd</text>
+      <path d="M92,90 L74,48" fill="none" stroke="#FFA000" strokeWidth="2" strokeDasharray="4 2"/>
+      <polygon points="73,48 69,58 79,55" fill="#FFA000"/>
+      <text x="46" y="82" fontSize="7.5" fill="#FFA000" fontWeight="600">Retrograd</text>
       {/* Antegrade arrow on slow */}
-      <polygon points="158,90 152,80 162,80" fill="#34C759"/>
+      <polygon points="158,90 152,80 162,80" fill="#1E8E3E"/>
       {/* Labels */}
       <text x="110" y="120" textAnchor="middle" fontSize="8" fill="var(--label-secondary)">Sirkuit AVNRT</text>
-      <rect x="2" y="60" width="50" height="14" rx="4" fill="#FF3B30" opacity={0.12}/>
-      <text x="27" y="70" textAnchor="middle" fontSize="7" fill="#FF3B30" fontWeight="600">Blok unidireksional</text>
+      <rect x="2" y="60" width="50" height="14" rx="4" fill="#BA1A1A" opacity={0.12}/>
+      <text x="27" y="70" textAnchor="middle" fontSize="7" fill="#BA1A1A" fontWeight="600">Blok unidireksional</text>
       {/* Excitable gap annotation */}
       <text x="110" y="133" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">
         Reentry = blok unidireksional + konduksi lambat + excitable gap
@@ -835,16 +835,16 @@ function AutomaticitySVG() {
       <text x="228" y="41" fontSize="7" fill="var(--label-tertiary)">ambang</text>
       {/* Normal SA — gentle slope */}
       <path d="M22,83 C50,80 78,70 98,38 C104,22 110,16 118,16 C128,18 134,35 140,55 C148,72 160,83 185,83 C208,80 225,76 238,70"
-        fill="none" stroke="#30B0C7" strokeWidth="2" strokeLinecap="round"/>
-      <text x="46" y="105" fontSize="7.5" fill="#30B0C7" fontWeight="600">SA normal (60/mnt)</text>
+        fill="none" stroke="#00838F" strokeWidth="2" strokeLinecap="round"/>
+      <text x="46" y="105" fontSize="7.5" fill="#00838F" fontWeight="600">SA normal (60/mnt)</text>
       {/* Enhanced automaticity — steeper slope */}
       <path d="M22,83 C35,78 52,55 62,38 C68,22 74,16 82,16 C92,18 98,35 104,55 C110,72 120,83 145,83"
-        fill="none" stroke="#FF9500" strokeWidth="2" strokeLinecap="round"/>
-      <text x="100" y="105" fontSize="7.5" fill="#FF9500" fontWeight="600">Ektopik (automatisitas ↑)</text>
+        fill="none" stroke="#FFA000" strokeWidth="2" strokeLinecap="round"/>
+      <text x="100" y="105" fontSize="7.5" fill="#FFA000" fontWeight="600">Ektopik (automatisitas ↑)</text>
       {/* Arrows showing slope */}
-      <path d="M34,74 L55,44" fill="none" stroke="#30B0C7" strokeWidth="1" strokeDasharray="3 2" markerEnd="url(#arr)"/>
-      <path d="M28,78 L44,44" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3 2"/>
-      <text x="112" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FF9500">Slope ↑ → laju ↑</text>
+      <path d="M34,74 L55,44" fill="none" stroke="#00838F" strokeWidth="1" strokeDasharray="3 2" markerEnd="url(#arr)"/>
+      <path d="M28,78 L44,44" fill="none" stroke="#FFA000" strokeWidth="1" strokeDasharray="3 2"/>
+      <text x="112" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFA000">Slope ↑ → laju ↑</text>
     </svg>
   );
 }
@@ -863,17 +863,17 @@ function TriggeredSVG() {
       <text x="93" y="10" fontSize="7.5" fill="var(--label-quaternary)">Normal AP</text>
       {/* EAD — hump on phase 2 */}
       <path d="M18,88 L38,88 C40,88 42,82 44,16 C46,8 50,8 54,14 L58,28 C62,28 70,22 78,18 C84,14 88,20 90,28 L120,28 C130,28 138,68 142,85 C144,88 148,88"
-        fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round"/>
+        fill="none" stroke="#BA1A1A" strokeWidth="2" strokeLinecap="round"/>
       {/* EAD label */}
-      <text x="78" y="10" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#FF3B30">EAD</text>
-      <line x1="78" y1="12" x2="78" y2="20" stroke="#FF3B30" strokeWidth="1" strokeDasharray="2 1"/>
-      <text x="8" y="45" fontSize="7" fill="#FF3B30" transform="rotate(-90,8,45)">Fase 2/3</text>
+      <text x="78" y="10" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#BA1A1A">EAD</text>
+      <line x1="78" y1="12" x2="78" y2="20" stroke="#BA1A1A" strokeWidth="1" strokeDasharray="2 1"/>
+      <text x="8" y="45" fontSize="7" fill="#BA1A1A" transform="rotate(-90,8,45)">Fase 2/3</text>
       {/* DAD — small depol after resting */}
       <path d="M160,88 C170,88 178,82 182,78 C186,74 188,80 190,88 L230,88"
-        fill="none" stroke="#AF52DE" strokeWidth="2" strokeLinecap="round"/>
-      <text x="185" y="70" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#AF52DE">DAD</text>
-      <text x="175" y="110" textAnchor="middle" fontSize="7" fill="#AF52DE">Fase 4 (Ca²⁺ overload)</text>
-      <text x="68" y="110" textAnchor="middle" fontSize="7" fill="#FF3B30">EAD → QT panjang → TdP</text>
+        fill="none" stroke="#9333EA" strokeWidth="2" strokeLinecap="round"/>
+      <text x="185" y="70" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#9333EA">DAD</text>
+      <text x="175" y="110" textAnchor="middle" fontSize="7" fill="#9333EA">Fase 4 (Ca²⁺ overload)</text>
+      <text x="68" y="110" textAnchor="middle" fontSize="7" fill="#BA1A1A">EAD → QT panjang → TdP</text>
     </svg>
   );
 }
@@ -881,9 +881,9 @@ function TriggeredSVG() {
 function ArrhythmiaMechanismTab() {
   const [mech, setMech] = useState<ArrMech>('reentry');
   const MECHS: Array<{ key: ArrMech; label: string; color: string; sub: string }> = [
-    { key: 'reentry',   label: 'Reentry',           color: '#FF3B30', sub: 'VT, AVNRT, AFL, AVRT' },
-    { key: 'auto',      label: 'Automatisitas ↑',   color: '#FF9500', sub: 'AIVR, JT, Fokal AT' },
-    { key: 'triggered', label: 'Triggered Activity', color: '#AF52DE', sub: 'TdP, Digitalis, CPVT' },
+    { key: 'reentry',   label: 'Reentry',           color: '#BA1A1A', sub: 'VT, AVNRT, AFL, AVRT' },
+    { key: 'auto',      label: 'Automatisitas ↑',   color: '#FFA000', sub: 'AIVR, JT, Fokal AT' },
+    { key: 'triggered', label: 'Triggered Activity', color: '#9333EA', sub: 'TdP, Digitalis, CPVT' },
   ];
   const detail: Record<ArrMech, React.ReactNode> = {
     reentry: (
@@ -904,7 +904,7 @@ function ArrhythmiaMechanismTab() {
             ['Excitable gap', 'Jaringan proksimal sudah pulih (tidak refrakter) saat impuls tiba dari jalur lambat.'],
           ].map(([t, d]) => (
             <div key={t} style={{ display: 'flex', gap: 10, marginTop: 10, alignItems: 'flex-start' }}>
-              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#FF3B30', flexShrink: 0, marginTop: 4 }}/>
+              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#BA1A1A', flexShrink: 0, marginTop: 4 }}/>
               <div>
                 <span className="t-callout" style={{ fontWeight: 700 }}>{t}</span>
                 <span className="t-footnote" style={{ color: 'var(--label-secondary)' }}> — {d}</span>
@@ -912,7 +912,7 @@ function ArrhythmiaMechanismTab() {
             </div>
           ))}
           <div style={{ marginTop: 12, background: 'var(--fill-quaternary)', borderRadius: 10, padding: '10px 12px' }}>
-            <div className="t-caption-2" style={{ fontWeight: 700, color: '#FF3B30', marginBottom: 6 }}>CONTOH KLINIS</div>
+            <div className="t-caption-2" style={{ fontWeight: 700, color: '#BA1A1A', marginBottom: 6 }}>CONTOH KLINIS</div>
             {[
               ['AVNRT', 'Reentry mikro di dual pathway AV node. HR 150–250/mnt, QRS sempit.'],
               ['AFL', 'Reentry makro di RA (cavotricuspid isthmus). Atrium 300×/mnt, AV 2:1 → HR ~150/mnt.'],
@@ -946,7 +946,7 @@ function ArrhythmiaMechanismTab() {
             ['Digitalis toksik', 'Inhibisi Na⁺/K⁺-ATPase → Ca²⁺ overload intrasel → automatisitas ↑ (AIVR, JT).'],
           ].map(([t, d]) => (
             <div key={t} style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#FF9500', flexShrink: 0, marginTop: 4 }}/>
+              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#FFA000', flexShrink: 0, marginTop: 4 }}/>
               <div>
                 <span className="t-callout" style={{ fontWeight: 700 }}>{t}</span>
                 <span className="t-footnote" style={{ color: 'var(--label-secondary)' }}> — {d}</span>
@@ -954,7 +954,7 @@ function ArrhythmiaMechanismTab() {
             </div>
           ))}
           <div style={{ marginTop: 12, background: 'var(--fill-quaternary)', borderRadius: 10, padding: '10px 12px' }}>
-            <div className="t-caption-2" style={{ fontWeight: 700, color: '#FF9500', marginBottom: 6 }}>CONTOH KLINIS</div>
+            <div className="t-caption-2" style={{ fontWeight: 700, color: '#FFA000', marginBottom: 6 }}>CONTOH KLINIS</div>
             {[
               ['AIVR', 'Accelerated Idioventricular Rhythm — otomatisitas ventrikel, 40–100/mnt. Sering pasca-reperfusi.'],
               ['JT', 'Junctional Tachycardia — fokus AV junction. Pasca-operasi jantung atau digitalis toksik.'],
@@ -983,8 +983,8 @@ function ArrhythmiaMechanismTab() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
             {[
-              { type: 'EAD', color: '#FF3B30', timing: 'Fase 2 atau 3', mechanism: 'QT panjang → plateau berkepanjangan → kanal Ca²⁺ re-aktivasi', example: 'Torsades de Pointes', drug: 'Amiodaron, Sotalol, QT-prolonging drugs' },
-              { type: 'DAD', color: '#AF52DE', timing: 'Fase 4', mechanism: 'Ca²⁺ overload SR → spontaneous Ca²⁺ release → NCX aktif → depolarisasi', example: 'CPVT, Digitalis toxicity', drug: 'Digoxin, Katekolamin' },
+              { type: 'EAD', color: '#BA1A1A', timing: 'Fase 2 atau 3', mechanism: 'QT panjang → plateau berkepanjangan → kanal Ca²⁺ re-aktivasi', example: 'Torsades de Pointes', drug: 'Amiodaron, Sotalol, QT-prolonging drugs' },
+              { type: 'DAD', color: '#9333EA', timing: 'Fase 4', mechanism: 'Ca²⁺ overload SR → spontaneous Ca²⁺ release → NCX aktif → depolarisasi', example: 'CPVT, Digitalis toxicity', drug: 'Digoxin, Katekolamin' },
             ].map(item => (
               <div key={item.type} style={{ background: 'var(--fill-quaternary)', borderRadius: 10, padding: '12px' }}>
                 <div className="t-subheadline" style={{ fontWeight: 800, color: item.color, marginBottom: 6 }}>{item.type}</div>
@@ -998,10 +998,10 @@ function ArrhythmiaMechanismTab() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, background: 'rgba(175,82,222,0.08)', borderRadius: 10, padding: '10px 12px',
-            boxShadow: '0 0 0 1px rgba(175,82,222,0.3)' }}>
+          <div style={{ marginTop: 10, background: 'color-mix(in srgb, var(--sys-purple) 8%, transparent)', borderRadius: 10, padding: '10px 12px',
+            boxShadow: '0 0 0 1px color-mix(in srgb, var(--sys-purple) 30%, transparent)' }}>
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.55 }}>
-              <span style={{ fontWeight: 700, color: '#AF52DE' }}>CPVT (Catecholaminergic Polymorphic VT)</span> — mutasi RyR2 atau CASQ2 menyebabkan Ca²⁺ leak dari SR saat stres → DAD → VT bidireksional/polimorfik. Risiko SCD pada anak/dewasa muda saat olahraga.<Cite n={5} href="https://doi.org/10.1093/eurheartj/ehv316"/>
+              <span style={{ fontWeight: 700, color: '#9333EA' }}>CPVT (Catecholaminergic Polymorphic VT)</span> — mutasi RyR2 atau CASQ2 menyebabkan Ca²⁺ leak dari SR saat stres → DAD → VT bidireksional/polimorfik. Risiko SCD pada anak/dewasa muda saat olahraga.<Cite n={5} href="https://doi.org/10.1093/eurheartj/ehv316"/>
             </div>
           </div>
         </div>
@@ -1048,7 +1048,7 @@ const VW_MAP: Record<VWClass, VWData> = {
            drugs:['Quinidine','Prokainamid','Disopiramid'],
            mechanism:'Memblok kanal Na⁺ (disasosiasi sedang) + kanal K⁺ → memperlambat konduksi + memperpanjang repolarisasi. QRS melebar + QT memanjang.',
            uses:['AF/AFL (konversi ritme)','SVT','VT (lini kedua)'], contra:'QT panjang, Blok AV, HF berat', acls:true },
-  IB:    { color:'#FF9500', label:'Kelas IB', channel:'Na⁺ (cepat, selektif iskemia)',
+  IB:    { color:'#FFA000', label:'Kelas IB', channel:'Na⁺ (cepat, selektif iskemia)',
            drugs:['Lidokain','Meksiletin','Fenitoin'],
            mechanism:'Blok kanal Na⁺ dengan disosiasi cepat — selektif untuk jaringan yang sering depolarisasi (jaringan iskemia, ventrikel). Tidak memperpanjang QT.',
            uses:['VT/VF (lini kedua pasca-amiodaron)','VT pasca-MI'], contra:'Bradikardi, Blok AV derajat tinggi', acls:true },
@@ -1056,19 +1056,19 @@ const VW_MAP: Record<VWClass, VWData> = {
            drugs:['Flekainid','Propafenon'],
            mechanism:'Blok kuat kanal Na⁺, disasosiasi sangat lambat → konduksi melambat signifikan di atrium dan ventrikel. QRS melebar. Proaritmia tinggi pada pasca-MI.',
            uses:['AF/AFL (Pill in the pocket)','SVT tanpa penyakit jantung struktural'], contra:'Penyakit jantung struktural, Post-MI, HF', acls:false },
-  II:    { color:'#34C759', label:'Kelas II', channel:'β1-adrenoreseptor',
+  II:    { color:'#1E8E3E', label:'Kelas II', channel:'β1-adrenoreseptor',
            drugs:['Metoprolol','Atenolol','Esmolol','Karvedilol'],
            mechanism:'Blok β1 → cAMP↓ → If↓, ICa↓ → menekan otomatisitas SA node + memperlambat konduksi AV. Efektif kontrol laju pada AF/AFL.',
            uses:['Kontrol laju AF/AFL','AVNRT','VT storm (storm katekholaminergik)','SVT'], contra:'Asma berat, Blok AV derajat 2–3, Bradikardi', acls:true },
-  III:   { color:'#007AFF', label:'Kelas III', channel:'K⁺ (repolarisasi)',
+  III:   { color:'#0056B3', label:'Kelas III', channel:'K⁺ (repolarisasi)',
            drugs:['Amiodaron','Sotalol','Ibutilid','Dronedarone'],
            mechanism:'Blok kanal K⁺ (IKr, IKs) → fase 3 memanjang → QT memanjang → periode refrakter ↑. Amiodaron juga memblok Na⁺, Ca²⁺, dan β-reseptor (kelas I–IV campuran).',
            uses:['VF/pVT (amiodaron — AHA 2020 lini pertama)','AF/AFL (konversi + pemeliharaan ritme)','VT'], contra:'QT panjang (kecuali amiodaron), Bradikardi, Hipertiroid (amiodaron)', acls:true },
-  IV:    { color:'#30B0C7', label:'Kelas IV', channel:'Ca²⁺ tipe-L',
+  IV:    { color:'#00838F', label:'Kelas IV', channel:'Ca²⁺ tipe-L',
            drugs:['Verapamil','Diltiazem'],
            mechanism:'Blok kanal Ca²⁺ tipe-L di SA node dan AV node → otomatisitas SA↓ + konduksi AV↓. Efektif untuk aritmia tergantung nodus (AVNRT, kontrol laju AF).',
            uses:['Kontrol laju AF/AFL','AVNRT','SVT stabil'], contra:'WPW + AF (risiko VF), HF berat, VT, Blok AV', acls:true },
-  other: { color:'#AF52DE', label:'Lainnya', channel:'Berbeda-beda',
+  other: { color:'#9333EA', label:'Lainnya', channel:'Berbeda-beda',
            drugs:['Adenosin','Digoksin','Magnesium','Atropin'],
            mechanism:'Di luar klasifikasi VW. Adenosin: agonis A1 → blok AV transien → terminasi AVNRT/AVRT. Magnesium: stabilisasi membran → efektif untuk TdP dan VT terkait hipomagnesemia.',
            uses:['Adenosin: AVNRT/AVRT (dosis 6–12 mg IV bolus cepat)','Magnesium: TdP, VF hipomagnesemia','Atropin: bradikardi simtomatik','Digoksin: kontrol laju AF/HF (lini ketiga)'], contra:'Adenosin: WPW. Digoksin: blok AV, WPW', acls:true },
@@ -1108,8 +1108,8 @@ function AntiarrhythmicPharmTab() {
               color: '#fff', fontSize: '0.8125rem', fontWeight: 700 }}>{d.label}</div>
             <div style={{ padding: '4px 10px', borderRadius: 20, background: 'var(--fill-quaternary)',
               color: 'var(--label-secondary)', fontSize: '0.75rem' }}>Target: {d.channel}</div>
-            {d.acls && <div style={{ padding: '4px 10px', borderRadius: 20, background: 'rgba(52,199,89,0.15)',
-              color: '#34C759', fontSize: '0.75rem', fontWeight: 600 }}>ACLS</div>}
+            {d.acls && <div style={{ padding: '4px 10px', borderRadius: 20, background: 'color-mix(in srgb, var(--success) 15%, transparent)',
+              color: '#1E8E3E', fontSize: '0.75rem', fontWeight: 600 }}>ACLS</div>}
           </div>
           <div className="t-callout" style={{ fontWeight: 700, marginBottom: 4 }}>Obat</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -1137,13 +1137,13 @@ function AntiarrhythmicPharmTab() {
         {/* Contra */}
         <div style={{ padding: '12px 16px' }}>
           <div className="t-caption-2" style={{ fontWeight: 700, color: 'var(--label-tertiary)', marginBottom: 6 }}>KONTRAINDIKASI</div>
-          <div className="t-caption-1" style={{ color: '#FF3B30', lineHeight: 1.5 }}>{d.contra}</div>
+          <div className="t-caption-1" style={{ color: '#BA1A1A', lineHeight: 1.5 }}>{d.contra}</div>
         </div>
       </div>
       {/* Amiodaron note for Class III */}
       {cls === 'III' && (
-        <div style={{ background: 'rgba(0,122,255,0.08)', borderRadius: 14, padding: '13px 16px',
-          boxShadow: '0 0 0 1px rgba(0,122,255,0.25)' }}>
+        <div style={{ background: 'color-mix(in srgb, var(--accent) 8%, transparent)', borderRadius: 14, padding: '13px 16px',
+          boxShadow: '0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent)' }}>
           <div className="t-caption-2" style={{ fontWeight: 700, color: 'var(--accent)', marginBottom: 6 }}>AMIODARON DI ACLS</div>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.6 }}>
             AHA 2020<Cite n={5} href="https://doi.org/10.1161/CIR.0000000000000916"/>: Amiodaron <strong>300 mg IV</strong> bolus untuk VF/pVT refrakter. Dosis kedua 150 mg jika diperlukan. Mekanisme multi-kelas (I–IV) menjadikannya paling efektif namun juga paling banyak efek samping jangka panjang (tiroid, paru, hati).<Cite n={4} href="https://doi.org/10.1080/07853890.2023.2173748"/>
@@ -1170,13 +1170,13 @@ function ACSPathophysTab() {
   const steps: ACSStep[] = [
     {
       title: '1. Disfungsi Endotel',
-      color: '#FF9500',
+      color: '#FFA000',
       svgContent: <TheoryImage name="acs-1-endotel" alt="Disfungsi Endotel" fallback={
         <svg viewBox="0 0 200 80" width="100%" style={{ display: 'block' }}>
-          <rect x="10" y="30" width="180" height="28" rx="14" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
-          <rect x="10" y="30" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
+          <rect x="10" y="30" width="180" height="28" rx="14" fill="none" stroke="#00838F" strokeWidth="1.5" opacity={0.7}/>
+          <rect x="10" y="30" width="180" height="7" rx="7" fill="#00838F" opacity={0.35}/>
           <text x="100" y="49" textAnchor="middle" fontSize="9" fill="var(--label-secondary)">Lumen arteri koroner</text>
-          <text x="100" y="25" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FF9500">Endotel Normal → Disfungsi</text>
+          <text x="100" y="25" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FFA000">Endotel Normal → Disfungsi</text>
           <text x="100" y="70" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">LDL oksidasi, hipertensi, merokok, DM → endotel rusak</text>
         </svg>
       }/>,
@@ -1188,15 +1188,15 @@ function ACSPathophysTab() {
     },
     {
       title: '2. Pembentukan Plak',
-      color: '#FF9500',
+      color: '#FFA000',
       svgContent: <TheoryImage name="acs-2-plak" alt="Pembentukan Plak Aterosklerosis" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
-          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
-          <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
-          <ellipse cx="100" cy="39" rx="38" ry="12" fill="#FF9500" opacity={0.75}/>
+          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#00838F" strokeWidth="1.5" opacity={0.7}/>
+          <rect x="10" y="32" width="180" height="7" rx="7" fill="#00838F" opacity={0.35}/>
+          <ellipse cx="100" cy="39" rx="38" ry="12" fill="#FFA000" opacity={0.75}/>
           <text x="100" y="43" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#fff">Plak (lipid core)</text>
           <text x="100" y="54" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Lumen menyempit</text>
-          <text x="100" y="75" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FF9500">Fibrous cap ← Stabilitas plak!</text>
+          <text x="100" y="75" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFA000">Fibrous cap ← Stabilitas plak!</text>
         </svg>
       }/>,
       desc: (
@@ -1210,11 +1210,11 @@ function ACSPathophysTab() {
       color: '#FF6B35',
       svgContent: <TheoryImage name="acs-3-ruptur" alt="Ruptur Plak" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
-          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
-          <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
-          <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FF9500" opacity={0.65}/>
-          <path d="M80,32 L88,26 L96,33" fill="none" stroke="#FF3B30" strokeWidth="2.5"/>
-          <text x="70" y="20" fontSize="8" fill="#FF3B30" fontWeight="700">Ruptur!</text>
+          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#00838F" strokeWidth="1.5" opacity={0.7}/>
+          <rect x="10" y="32" width="180" height="7" rx="7" fill="#00838F" opacity={0.35}/>
+          <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FFA000" opacity={0.65}/>
+          <path d="M80,32 L88,26 L96,33" fill="none" stroke="#BA1A1A" strokeWidth="2.5"/>
+          <text x="70" y="20" fontSize="8" fill="#BA1A1A" fontWeight="700">Ruptur!</text>
           <text x="100" y="54" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Lipid core terekspos</text>
           <text x="100" y="75" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Trigger: shear stress, spasme, inflamasi</text>
         </svg>
@@ -1227,13 +1227,13 @@ function ACSPathophysTab() {
     },
     {
       title: '4. Trombosis Akut',
-      color: '#FF3B30',
+      color: '#BA1A1A',
       svgContent: <TheoryImage name="acs-4-trombus" alt="Trombosis Koroner Akut" fallback={
         <svg viewBox="0 0 200 90" width="100%" style={{ display: 'block' }}>
-          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#30B0C7" strokeWidth="1.5" opacity={0.7}/>
-          <rect x="10" y="32" width="180" height="7" rx="7" fill="#30B0C7" opacity={0.35}/>
-          <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FF9500" opacity={0.5}/>
-          <ellipse cx="95" cy="37" rx="22" ry="10" fill="#FF3B30" opacity={0.8}/>
+          <rect x="10" y="32" width="180" height="30" rx="15" fill="none" stroke="#00838F" strokeWidth="1.5" opacity={0.7}/>
+          <rect x="10" y="32" width="180" height="7" rx="7" fill="#00838F" opacity={0.35}/>
+          <ellipse cx="100" cy="38" rx="38" ry="12" fill="#FFA000" opacity={0.5}/>
+          <ellipse cx="95" cy="37" rx="22" ry="10" fill="#BA1A1A" opacity={0.8}/>
           <text x="95" y="41" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#fff">Trombus</text>
           <text x="100" y="58" textAnchor="middle" fontSize="7.5" fill="var(--label-secondary)">Oklusi koroner akut</text>
           <text x="100" y="75" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Platelet + fibrin → trombus merah</text>
@@ -1247,16 +1247,16 @@ function ACSPathophysTab() {
     },
     {
       title: '5. Iskemia & Infark',
-      color: '#FF3B30',
+      color: '#BA1A1A',
       svgContent: <TheoryImage name="acs-5-iskemia" alt="Zona Iskemia Infark" fallback={
         <svg viewBox="0 0 200 95" width="100%" style={{ display: 'block' }}>
           <path d="M100,80 C70,60 30,40 30,20 C30,8 42,5 52,10 C62,15 72,25 100,50 C128,25 138,15 148,10 C158,5 170,8 170,20 C170,40 130,60 100,80Z"
             fill="none" stroke="var(--separator-opaque)" strokeWidth="1.5"/>
-          <circle cx="80" cy="38" r="12" fill="#FF3B30" opacity={0.9}/>
-          <circle cx="80" cy="38" r="18" fill="none" stroke="#FF9500" strokeWidth="2" opacity={0.7}/>
+          <circle cx="80" cy="38" r="12" fill="#BA1A1A" opacity={0.9}/>
+          <circle cx="80" cy="38" r="18" fill="none" stroke="#FFA000" strokeWidth="2" opacity={0.7}/>
           <circle cx="80" cy="38" r="24" fill="none" stroke="#FFCC00" strokeWidth="1.5" opacity={0.5}/>
           <text x="80" y="42" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#fff">Nekrosis</text>
-          <text x="108" y="28" fontSize="7" fill="#FF9500" fontWeight="600">Injury</text>
+          <text x="108" y="28" fontSize="7" fill="#FFA000" fontWeight="600">Injury</text>
           <text x="115" y="18" fontSize="7" fill="#FFCC00" fontWeight="600">Iskemia</text>
           <text x="100" y="88" textAnchor="middle" fontSize="7.5" fill="var(--label-tertiary)">Nekrosis → Injury → Iskemia (EKG)</text>
         </svg>
@@ -1309,8 +1309,8 @@ function ACSPathophysTab() {
       {/* STEMI vs NSTEMI comparison */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {[
-          { type: 'STEMI', color: '#FF3B30', kel: 'Oklusi total', ecg: 'ST elevasi ≥2mm (V1–V4), ≥1mm (II,III,aVF)', bio: 'Troponin ↑↑↑ (naik dalam 1–3 jam)', rx: 'PCI primer <90 menit / fibrinolisis <30 menit jika PCI tidak tersedia' },
-          { type: 'NSTEMI/UA', color: '#FF9500', kel: 'Oklusi parsial', ecg: 'ST depresi atau T inversi (atau normal)', bio: 'NSTEMI: Troponin ↑. UA: Troponin normal', rx: 'Antiplatelet + antikoagulan. PCI early (<24 jam) jika risiko tinggi' },
+          { type: 'STEMI', color: '#BA1A1A', kel: 'Oklusi total', ecg: 'ST elevasi ≥2mm (V1–V4), ≥1mm (II,III,aVF)', bio: 'Troponin ↑↑↑ (naik dalam 1–3 jam)', rx: 'PCI primer <90 menit / fibrinolisis <30 menit jika PCI tidak tersedia' },
+          { type: 'NSTEMI/UA', color: '#FFA000', kel: 'Oklusi parsial', ecg: 'ST depresi atau T inversi (atau normal)', bio: 'NSTEMI: Troponin ↑. UA: Troponin normal', rx: 'Antiplatelet + antikoagulan. PCI early (<24 jam) jika risiko tinggi' },
         ].map(item => (
           <div key={item.type} style={{ background: 'var(--bg-primary)', borderRadius: 14, padding: '12px',
             boxShadow: `0 0 0 1px ${item.color}40` }}>
@@ -1344,25 +1344,25 @@ interface ShockData {
   mechanism: string; examples: string[]; management: string[]; vasopressor: string;
 }
 const SHOCK_MAP: Record<ShockType, ShockData> = {
-  cardio:   { label:'Kardiogenik', color:'#FF3B30',
+  cardio:   { label:'Kardiogenik', color:'#BA1A1A',
     co:'↓', svr:'↑', pcwp:'↑',
     mechanism:'Gagal pompa (disfungsi sistolik/diastolik/mekanik) → CO↓ → kompensasi vasokonstriksi (SVR↑) → backward failure (PCWP↑) → edema paru.',
     examples:['MI luas (RV atau LV)','Gagal jantung akut dekompensata','Miokarditis fulminan','Tamponade jantung (overlap obstruktif)'],
     management:['Revaskularisasi segera (STEMI → PCI)','Dobutamin (inotropik, hindari jika MAP <65)','Norepinefrin jika hipotensi berat','IABP / Impella / VA-ECMO jika refrakter','Kurangi preload jika edema paru (furosemid hati-hati)'],
     vasopressor:'Dobutamin 2–20 mcg/kg/mnt ± Norepinefrin' },
-  distrib:  { label:'Distributif', color:'#FF9500',
+  distrib:  { label:'Distributif', color:'#FFA000',
     co:'↑', svr:'↓', pcwp:'↓',
     mechanism:'Vasodilatasi masif → SVR↓ → MAP↓ → kompensasi CO↑ (awal/hangat). Syok sepsis: sitokin (TNF-α, IL-1) → NO↑ → vasodilatasi. Terjadi maldistribusi aliran (shunting).',
     examples:['Sepsis (paling sering — Sepsis-3: 2021)','Syok anafilaksis (IgE → histamin, bradikinin)','Syok neurogenik (cedera medula spinalis)','Insufisiensi adrenal'],
     management:['Resusitasi cairan 30 mL/kg kristaloid (sepsis)','Norepinefrin lini pertama (MAP target ≥65)','Vasopressin 0.03 unit/mnt lini kedua','Kortikosteroid jika refrakter (hidrokortison 200 mg/hari)','Epinefrin (anafilaksis): 0.5 mg IM segera'],
     vasopressor:'Norepinefrin 0.01–3 mcg/kg/mnt (lini 1)' },
-  hypo:     { label:'Hipovolemik', color:'#30B0C7',
+  hypo:     { label:'Hipovolemik', color:'#00838F',
     co:'↓', svr:'↑', pcwp:'↓',
     mechanism:'Kehilangan volume intravaskular (perdarahan, dehidrasi, luka bakar) → preload↓ → CO↓ → kompensasi SVR↑ (vasokonstriksi simpatetik). PCWP rendah mencerminkan preload rendah.',
     examples:['Perdarahan akut (trauma, ruptur aorta, GI atas)','Dehidrasi berat (diare, muntah)','Luka bakar luas','Peritonitis (third spacing)'],
     management:['Hentikan perdarahan (source control)','Resusitasi kristaloid vs produk darah (PRBCs, FFP, platelets)','Damage control resuscitation: 1:1:1 ratio','Hindari vasopressor sebelum volume adekuat','Asam traneksamat <3 jam (perdarahan trauma)'],
     vasopressor:'Norepinefrin jika hipotensi refrakter post-resusitasi' },
-  obstruct: { label:'Obstruktif', color:'#AF52DE',
+  obstruct: { label:'Obstruktif', color:'#9333EA',
     co:'↓', svr:'↑', pcwp:'↔',
     mechanism:'Obstruksi mekanik pada aliran darah: PE masif → RV afterload↑ → RV failure → LV underfilling → CO↓. Tamponade: tekanan perikardial↑ → kompresi semua ruang → CO↓. Tension PTX: tekanan intrathoraks↑ → kink vena cava → preload↓.',
     examples:['PE masif (RV strain, syok)','Tamponade jantung (Beck triad: hipotensi, JVD, suara jantung menjauh)','Tension pneumotoraks','Sindrom kompartemen abdominal'],
@@ -1373,13 +1373,13 @@ const SHOCK_MAP: Record<ShockType, ShockData> = {
 function ShockTypesTab() {
   const [shk, setShk] = useState<ShockType>('cardio');
   const TYPES: Array<{ key: ShockType; label: string; color: string }> = [
-    { key:'cardio',   label:'Kardiogenik', color:'#FF3B30' },
-    { key:'distrib',  label:'Distributif', color:'#FF9500' },
-    { key:'hypo',     label:'Hipovolemik', color:'#30B0C7' },
-    { key:'obstruct', label:'Obstruktif',  color:'#AF52DE' },
+    { key:'cardio',   label:'Kardiogenik', color:'#BA1A1A' },
+    { key:'distrib',  label:'Distributif', color:'#FFA000' },
+    { key:'hypo',     label:'Hipovolemik', color:'#00838F' },
+    { key:'obstruct', label:'Obstruktif',  color:'#9333EA' },
   ];
   const d = SHOCK_MAP[shk];
-  const arrowColor = (a: '↑' | '↓' | '↔') => a === '↑' ? '#FF3B30' : a === '↓' ? '#30B0C7' : '#FF9500';
+  const arrowColor = (a: '↑' | '↓' | '↔') => a === '↑' ? '#BA1A1A' : a === '↓' ? '#00838F' : '#FFA000';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.55 }}>
@@ -1435,7 +1435,7 @@ function ShockTypesTab() {
           <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginBottom: 8 }}>TATA LAKSANA</div>
           {d.management.map((m, i) => (
             <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5 }}>
-              <div style={{ width: 5, height: 5, borderRadius: 2.5, background: '#34C759', flexShrink: 0, marginTop: 4 }}/>
+              <div style={{ width: 5, height: 5, borderRadius: 2.5, background: '#1E8E3E', flexShrink: 0, marginTop: 4 }}/>
               <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>{m}</div>
             </div>
           ))}
@@ -1449,18 +1449,18 @@ function ShockTypesTab() {
       </div>
       {/* Cross-shock comparison note */}
       {shk === 'cardio' && (
-        <div style={{ background: 'rgba(255,59,48,0.06)', borderRadius: 14, padding: '12px 16px',
-          boxShadow: '0 0 0 1px rgba(255,59,48,0.2)' }}>
+        <div style={{ background: 'color-mix(in srgb, var(--danger) 6%, transparent)', borderRadius: 14, padding: '12px 16px',
+          boxShadow: '0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)' }}>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.6 }}>
-            <span style={{ fontWeight: 700, color: '#FF3B30' }}>Syok kardiogenik</span> memiliki mortalitas 40–50% jika tidak ditangani.<Cite n={3} href="https://doi.org/10.1161/JAHA.119.011991"/> Identifikasi penyebab (MI akut vs HF dekompensata vs mekanik) menentukan strategi: revaskularisasi untuk MI, MCS (mechanical circulatory support) untuk refrakter.
+            <span style={{ fontWeight: 700, color: '#BA1A1A' }}>Syok kardiogenik</span> memiliki mortalitas 40–50% jika tidak ditangani.<Cite n={3} href="https://doi.org/10.1161/JAHA.119.011991"/> Identifikasi penyebab (MI akut vs HF dekompensata vs mekanik) menentukan strategi: revaskularisasi untuk MI, MCS (mechanical circulatory support) untuk refrakter.
           </div>
         </div>
       )}
       {shk === 'distrib' && (
-        <div style={{ background: 'rgba(255,149,0,0.06)', borderRadius: 14, padding: '12px 16px',
-          boxShadow: '0 0 0 1px rgba(255,149,0,0.2)' }}>
+        <div style={{ background: 'color-mix(in srgb, var(--warning) 6%, transparent)', borderRadius: 14, padding: '12px 16px',
+          boxShadow: '0 0 0 1px color-mix(in srgb, var(--warning) 20%, transparent)' }}>
           <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.6 }}>
-            <span style={{ fontWeight: 700, color: '#FF9500' }}>Sepsis</span> (Sepsis-3, 2016): disfungsi organ yang mengancam jiwa akibat respons host yang disregulasi terhadap infeksi. <em>Septic shock</em> = sepsis + vasopressor untuk MAP ≥65 + laktat &gt;2 mmol/L. Bundle Sepsis-1 jam: kultur, lakteat, antibiotik, 30 mL/kg kristaloid.<Cite n={5} href="https://doi.org/10.1007/s00134-021-06506-y"/>
+            <span style={{ fontWeight: 700, color: '#FFA000' }}>Sepsis</span> (Sepsis-3, 2016): disfungsi organ yang mengancam jiwa akibat respons host yang disregulasi terhadap infeksi. <em>Septic shock</em> = sepsis + vasopressor untuk MAP ≥65 + laktat &gt;2 mmol/L. Bundle Sepsis-1 jam: kultur, lakteat, antibiotik, 30 mL/kg kristaloid.<Cite n={5} href="https://doi.org/10.1007/s00134-021-06506-y"/>
           </div>
         </div>
       )}
@@ -1481,123 +1481,123 @@ const EC_REFS = [
 const EC_STEPS = [
   {
     title: 'Depolarisasi & Masuknya Ca²⁺',
-    color: '#007AFF',
+    color: '#0056B3',
     content: 'Aksi potensial menyebar dari sel ke sel via gap junction. Depolarisasi membran aktivasi kanal L-type Ca²⁺ (DHPR) di membran T-tubulus. Masuknya sejumlah kecil Ca²⁺ ekstraseluler (trigger Ca²⁺) — cukup untuk mengaktifkan mekanisme amplifikasi.',
     clinical: 'Verapamil/diltiazem memblok L-type Ca²⁺ → kronotropik negatif, inotropik negatif.',
     svgContent: (
       <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
         <rect x="0" y="0" width="260" height="120" fill="none"/>
         {/* T-tubule */}
-        <rect x="110" y="10" width="16" height="80" rx="4" fill="#007AFF22" stroke="#007AFF" strokeWidth="1.5"/>
-        <text x="118" y="7" textAnchor="middle" fontSize="9" fill="#007AFF" fontWeight="700">T-tubulus</text>
+        <rect x="110" y="10" width="16" height="80" rx="4" fill="#0056B322" stroke="#0056B3" strokeWidth="1.5"/>
+        <text x="118" y="7" textAnchor="middle" fontSize="9" fill="#0056B3" fontWeight="700">T-tubulus</text>
         {/* DHPR channel */}
-        <rect x="113" y="30" width="10" height="20" rx="3" fill="#007AFF" opacity="0.9"/>
-        <text x="118" y="24" textAnchor="middle" fontSize="8" fill="#007AFF">DHPR</text>
+        <rect x="113" y="30" width="10" height="20" rx="3" fill="#0056B3" opacity="0.9"/>
+        <text x="118" y="24" textAnchor="middle" fontSize="8" fill="#0056B3">DHPR</text>
         {/* Ca arrow in */}
-        <path d="M60,42 L110,42" stroke="#FF9500" strokeWidth="2" markerEnd="url(#arr)" fill="none"/>
-        <text x="82" y="38" textAnchor="middle" fontSize="9" fill="#FF9500">Ca²⁺ in</text>
-        <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FF9500"/></marker></defs>
+        <path d="M60,42 L110,42" stroke="#FFA000" strokeWidth="2" markerEnd="url(#arr)" fill="none"/>
+        <text x="82" y="38" textAnchor="middle" fontSize="9" fill="#FFA000">Ca²⁺ in</text>
+        <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FFA000"/></marker></defs>
         {/* SR */}
-        <ellipse cx="180" cy="55" rx="55" ry="35" fill="#34C75918" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,3"/>
-        <text x="180" y="50" textAnchor="middle" fontSize="9" fill="#34C759" fontWeight="700">SR</text>
-        <text x="180" y="63" textAnchor="middle" fontSize="8" fill="#34C759">Ca²⁺ store</text>
+        <ellipse cx="180" cy="55" rx="55" ry="35" fill="#1E8E3E18" stroke="#1E8E3E" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="180" y="50" textAnchor="middle" fontSize="9" fill="#1E8E3E" fontWeight="700">SR</text>
+        <text x="180" y="63" textAnchor="middle" fontSize="8" fill="#1E8E3E">Ca²⁺ store</text>
         {/* Trigger arrow to RyR */}
-        <path d="M125,45 L148,50" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2" fill="none"/>
-        <text x="136" y="43" textAnchor="middle" fontSize="8" fill="#FF9500">trigger</text>
+        <path d="M125,45 L148,50" stroke="#FFA000" strokeWidth="1.5" strokeDasharray="3,2" fill="none"/>
+        <text x="136" y="43" textAnchor="middle" fontSize="8" fill="#FFA000">trigger</text>
       </svg>
     ),
   },
   {
     title: 'CICR — Ca²⁺-Induced Ca²⁺ Release',
-    color: '#FF9500',
+    color: '#FFA000',
     content: 'Trigger Ca²⁺ mengaktifkan reseptor ryanodine (RyR2) di membran SR. RyR2 terbuka → Ca²⁺ di dalam SR terlepas dalam jumlah besar (CICR = Ca²⁺-Induced Ca²⁺ Release). Konsentrasi Ca²⁺ sitosolik naik dari ~100 nM → ~1 µM (10× lipat) dalam milidetik.',
     clinical: 'Digoksin: inhibisi Na⁺/K⁺-ATPase → Na⁺ intraseluler↑ → NCX terbalik → Ca²⁺ intraseluler↑ → inotropik positif. Overdosis: Ca²⁺ overload → aritmia (DAD → VT).',
     svgContent: (
       <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
-        <ellipse cx="140" cy="55" rx="70" ry="38" fill="#FF950015" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,3"/>
-        <text x="140" y="35" textAnchor="middle" fontSize="9" fill="#FF9500" fontWeight="700">SR</text>
+        <ellipse cx="140" cy="55" rx="70" ry="38" fill="#FFA00015" stroke="#FFA000" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="140" y="35" textAnchor="middle" fontSize="9" fill="#FFA000" fontWeight="700">SR</text>
         {/* RyR channel */}
-        <rect x="108" y="64" width="12" height="14" rx="3" fill="#FF9500" opacity="0.85"/>
-        <text x="114" y="61" textAnchor="middle" fontSize="8" fill="#FF9500">RyR2</text>
+        <rect x="108" y="64" width="12" height="14" rx="3" fill="#FFA000" opacity="0.85"/>
+        <text x="114" y="61" textAnchor="middle" fontSize="8" fill="#FFA000">RyR2</text>
         {/* Ca sparks out */}
         {[0,1,2,3,4].map(i => (
-          <circle key={i} cx={95 + i*18} cy={92 + (i%2)*10} r="4" fill="#FF9500" opacity="0.6 "/>
+          <circle key={i} cx={95 + i*18} cy={92 + (i%2)*10} r="4" fill="#FFA000" opacity="0.6 "/>
         ))}
-        <text x="140" y="118" textAnchor="middle" fontSize="9" fill="#FF9500">Ca²⁺ sparks → cytosol↑</text>
+        <text x="140" y="118" textAnchor="middle" fontSize="9" fill="#FFA000">Ca²⁺ sparks → cytosol↑</text>
         {/* Troponin */}
-        <rect x="192" y="44" width="52" height="24" rx="8" fill="#34C75918" stroke="#34C759" strokeWidth="1"/>
-        <text x="218" y="54" textAnchor="middle" fontSize="8" fill="#34C759" fontWeight="700">Troponin C</text>
-        <text x="218" y="64" textAnchor="middle" fontSize="7" fill="#34C759">↑ Ca²⁺ binding</text>
-        <path d="M163,80 L192,56" stroke="#FF9500" strokeWidth="1.5" fill="none" markerEnd="url(#arr2)"/>
-        <defs><marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FF9500"/></marker></defs>
+        <rect x="192" y="44" width="52" height="24" rx="8" fill="#1E8E3E18" stroke="#1E8E3E" strokeWidth="1"/>
+        <text x="218" y="54" textAnchor="middle" fontSize="8" fill="#1E8E3E" fontWeight="700">Troponin C</text>
+        <text x="218" y="64" textAnchor="middle" fontSize="7" fill="#1E8E3E">↑ Ca²⁺ binding</text>
+        <path d="M163,80 L192,56" stroke="#FFA000" strokeWidth="1.5" fill="none" markerEnd="url(#arr2)"/>
+        <defs><marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#FFA000"/></marker></defs>
       </svg>
     ),
   },
   {
     title: 'Kontraksi — Aktomiosin Cross-Bridge',
-    color: '#FF3B30',
+    color: '#BA1A1A',
     content: 'Ca²⁺ berikatan dengan troponin C → perubahan konformasi troponin I → tropomiosin bergeser → situs aktif aktin terbuka. Kepala miosin berikatan dengan aktin → power stroke (menggunakan ATP) → sarkomer memendek. Siklus cross-bridge berulang selama Ca²⁺ tersedia.',
     clinical: 'Dobutamin (β1): ↑ cAMP → PKA aktivasi → fosforilasi kanal Ca²⁺ & troponin I → kontraksi lebih kuat dan relaksasi lebih cepat (lusitropi positif).',
     svgContent: (
       <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
         {/* Actin filaments */}
-        <line x1="20" y1="40" x2="240" y2="40" stroke="#007AFF" strokeWidth="5" strokeLinecap="round"/>
-        <line x1="20" y1="80" x2="240" y2="80" stroke="#007AFF" strokeWidth="5" strokeLinecap="round"/>
-        <text x="14" y="38" textAnchor="end" fontSize="9" fill="#007AFF">Aktin</text>
+        <line x1="20" y1="40" x2="240" y2="40" stroke="#0056B3" strokeWidth="5" strokeLinecap="round"/>
+        <line x1="20" y1="80" x2="240" y2="80" stroke="#0056B3" strokeWidth="5" strokeLinecap="round"/>
+        <text x="14" y="38" textAnchor="end" fontSize="9" fill="#0056B3">Aktin</text>
         {/* Myosin */}
-        <line x1="40" y1="55" x2="220" y2="55" stroke="#FF3B30" strokeWidth="4" strokeLinecap="round"/>
-        <line x1="40" y1="65" x2="220" y2="65" stroke="#FF3B30" strokeWidth="4" strokeLinecap="round"/>
-        <text x="246" y="63" textAnchor="start" fontSize="9" fill="#FF3B30">Miosin</text>
+        <line x1="40" y1="55" x2="220" y2="55" stroke="#BA1A1A" strokeWidth="4" strokeLinecap="round"/>
+        <line x1="40" y1="65" x2="220" y2="65" stroke="#BA1A1A" strokeWidth="4" strokeLinecap="round"/>
+        <text x="246" y="63" textAnchor="start" fontSize="9" fill="#BA1A1A">Miosin</text>
         {/* Cross bridges */}
         {[70,110,150,190].map(x => (
           <g key={x}>
-            <line x1={x} y1="55" x2={x-10} y2="43" stroke="#FF3B30" strokeWidth="2"/>
-            <circle cx={x-10} cy="43" r="4" fill="#FF3B30"/>
-            <line x1={x} y1="65" x2={x+10} y2="78" stroke="#FF3B30" strokeWidth="2"/>
-            <circle cx={x+10} cy="78" r="4" fill="#FF3B30"/>
+            <line x1={x} y1="55" x2={x-10} y2="43" stroke="#BA1A1A" strokeWidth="2"/>
+            <circle cx={x-10} cy="43" r="4" fill="#BA1A1A"/>
+            <line x1={x} y1="65" x2={x+10} y2="78" stroke="#BA1A1A" strokeWidth="2"/>
+            <circle cx={x+10} cy="78" r="4" fill="#BA1A1A"/>
           </g>
         ))}
         {/* Arrows showing shortening */}
-        <path d="M30,100 L80,100" stroke="#FF3B30" strokeWidth="2" markerEnd="url(#arrR)"/>
-        <path d="M230,100 L180,100" stroke="#FF3B30" strokeWidth="2" markerEnd="url(#arrL)"/>
-        <text x="130" y="113" textAnchor="middle" fontSize="9" fill="#FF3B30">Sarkomer memendek</text>
+        <path d="M30,100 L80,100" stroke="#BA1A1A" strokeWidth="2" markerEnd="url(#arrR)"/>
+        <path d="M230,100 L180,100" stroke="#BA1A1A" strokeWidth="2" markerEnd="url(#arrL)"/>
+        <text x="130" y="113" textAnchor="middle" fontSize="9" fill="#BA1A1A">Sarkomer memendek</text>
         <defs>
-          <marker id="arrR" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#FF3B30"/></marker>
-          <marker id="arrL" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M5,0 L0,2.5 L5,5 Z" fill="#FF3B30"/></marker>
+          <marker id="arrR" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#BA1A1A"/></marker>
+          <marker id="arrL" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M5,0 L0,2.5 L5,5 Z" fill="#BA1A1A"/></marker>
         </defs>
       </svg>
     ),
   },
   {
     title: 'Relaksasi — SERCA & NCX',
-    color: '#34C759',
+    color: '#1E8E3E',
     content: 'Repolarisasi → Ca²⁺ tidak lagi masuk. SERCA2a (SR Ca²⁺-ATPase) memompa Ca²⁺ kembali ke SR — dikontrol oleh phospholamban (PLB). NCX (Na⁺/Ca²⁺ exchanger) mengekstrusi Ca²⁺ ke ekstraseluler. Ca²⁺ sitosolik turun → troponin C melepas Ca²⁺ → kontraksi berhenti → relaksasi aktif (lusitropi).',
     clinical: 'Phospholamban yang terfosforilasi (via PKA → β1 stimulasi) → SERCA2a lebih aktif → relaksasi lebih cepat → pengisian diastolik lebih baik. Disfungsi SERCA2a berkontribusi pada gagal jantung.',
     svgContent: (
       <svg viewBox="0 0 260 120" style={{ width:'100%', maxHeight:120 }}>
         {/* SR */}
-        <ellipse cx="80" cy="55" rx="60" ry="38" fill="#34C75912" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,3"/>
-        <text x="80" y="52" textAnchor="middle" fontSize="9" fill="#34C759" fontWeight="700">SR</text>
+        <ellipse cx="80" cy="55" rx="60" ry="38" fill="#1E8E3E12" stroke="#1E8E3E" strokeWidth="1.5" strokeDasharray="4,3"/>
+        <text x="80" y="52" textAnchor="middle" fontSize="9" fill="#1E8E3E" fontWeight="700">SR</text>
         {/* SERCA pump */}
-        <rect x="48" y="82" width="12" height="16" rx="3" fill="#34C759"/>
-        <text x="54" y="78" textAnchor="middle" fontSize="7.5" fill="#34C759" fontWeight="700">SERCA2a</text>
+        <rect x="48" y="82" width="12" height="16" rx="3" fill="#1E8E3E"/>
+        <text x="54" y="78" textAnchor="middle" fontSize="7.5" fill="#1E8E3E" fontWeight="700">SERCA2a</text>
         {/* PLB */}
-        <rect x="65" y="84" width="28" height="12" rx="4" fill="#34C75930" stroke="#34C759" strokeWidth="0.8"/>
-        <text x="79" y="92" textAnchor="middle" fontSize="7" fill="#34C759">PLB (−inh)</text>
+        <rect x="65" y="84" width="28" height="12" rx="4" fill="#1E8E3E30" stroke="#1E8E3E" strokeWidth="0.8"/>
+        <text x="79" y="92" textAnchor="middle" fontSize="7" fill="#1E8E3E">PLB (−inh)</text>
         {/* Ca arrow into SR */}
-        <path d="M54,82 L62,64" stroke="#34C759" strokeWidth="1.5" fill="none" markerEnd="url(#arrG)"/>
-        <text x="48" y="73" textAnchor="middle" fontSize="8" fill="#34C759">Ca²⁺↑</text>
+        <path d="M54,82 L62,64" stroke="#1E8E3E" strokeWidth="1.5" fill="none" markerEnd="url(#arrG)"/>
+        <text x="48" y="73" textAnchor="middle" fontSize="8" fill="#1E8E3E">Ca²⁺↑</text>
         {/* NCX */}
-        <rect x="170" y="38" width="14" height="32" rx="4" fill="#007AFF" opacity="0.8"/>
-        <text x="177" y="35" textAnchor="middle" fontSize="8" fill="#007AFF" fontWeight="700">NCX</text>
-        <path d="M163,60 L170,55" stroke="#007AFF" strokeWidth="1.5" fill="none"/>
-        <path d="M184,55 L220,55" stroke="#007AFF" strokeWidth="1.5" fill="none" markerEnd="url(#arrB)"/>
-        <text x="220" y="50" textAnchor="start" fontSize="8" fill="#007AFF">Ca²⁺ out</text>
+        <rect x="170" y="38" width="14" height="32" rx="4" fill="#0056B3" opacity="0.8"/>
+        <text x="177" y="35" textAnchor="middle" fontSize="8" fill="#0056B3" fontWeight="700">NCX</text>
+        <path d="M163,60 L170,55" stroke="#0056B3" strokeWidth="1.5" fill="none"/>
+        <path d="M184,55 L220,55" stroke="#0056B3" strokeWidth="1.5" fill="none" markerEnd="url(#arrB)"/>
+        <text x="220" y="50" textAnchor="start" fontSize="8" fill="#0056B3">Ca²⁺ out</text>
         {/* cytosol Ca drops */}
         <text x="130" y="100" textAnchor="middle" fontSize="9" fill="var(--label-secondary)">[Ca²⁺]i ↓ → relaksasi</text>
         <defs>
-          <marker id="arrG" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#34C759"/></marker>
-          <marker id="arrB" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#007AFF"/></marker>
+          <marker id="arrG" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#1E8E3E"/></marker>
+          <marker id="arrB" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#0056B3"/></marker>
         </defs>
       </svg>
     ),
@@ -1690,18 +1690,18 @@ const ANS_REFS = [
 type ANSMode = 'sns' | 'pns';
 
 const ANS_EFFECTS: Record<string, { sns: string; snsColor: string; pns: string; pnsColor: string; label: string }> = {
-  hr:        { label:'Laju Jantung (HR)',      sns:'↑ (takikardia)',        snsColor:'#FF3B30', pns:'↓ (bradikardia)',       pnsColor:'#34C759' },
-  av:        { label:'Konduksi AV',            sns:'↑ dromotropy',          snsColor:'#FF3B30', pns:'↓ (AV delay↑)',         pnsColor:'#34C759' },
-  inotropy:  { label:'Kontraktilitas',         sns:'↑ (inotropi +)',        snsColor:'#FF3B30', pns:'↓ (atrium saja)',       pnsColor:'#007AFF' },
-  lusitropy: { label:'Relaksasi Diastolik',    sns:'↑ (lusitropi +)',       snsColor:'#FF3B30', pns:'Minimal efek',          pnsColor:'var(--label-tertiary)' },
-  vessels:   { label:'Pembuluh Darah',         sns:'Vasokonstriksi (α1)',   snsColor:'#FF9500', pns:'Vasodilatasi (lokal)',  pnsColor:'#34C759' },
-  nt:        { label:'Neurotransmiter',        sns:'Norepinefrin (NE)',      snsColor:'#FF3B30', pns:'Asetilkolin (ACh)',     pnsColor:'#34C759' },
+  hr:        { label:'Laju Jantung (HR)',      sns:'↑ (takikardia)',        snsColor:'#BA1A1A', pns:'↓ (bradikardia)',       pnsColor:'#1E8E3E' },
+  av:        { label:'Konduksi AV',            sns:'↑ dromotropy',          snsColor:'#BA1A1A', pns:'↓ (AV delay↑)',         pnsColor:'#1E8E3E' },
+  inotropy:  { label:'Kontraktilitas',         sns:'↑ (inotropi +)',        snsColor:'#BA1A1A', pns:'↓ (atrium saja)',       pnsColor:'#0056B3' },
+  lusitropy: { label:'Relaksasi Diastolik',    sns:'↑ (lusitropi +)',       snsColor:'#BA1A1A', pns:'Minimal efek',          pnsColor:'var(--label-tertiary)' },
+  vessels:   { label:'Pembuluh Darah',         sns:'Vasokonstriksi (α1)',   snsColor:'#FFA000', pns:'Vasodilatasi (lokal)',  pnsColor:'#1E8E3E' },
+  nt:        { label:'Neurotransmiter',        sns:'Norepinefrin (NE)',      snsColor:'#BA1A1A', pns:'Asetilkolin (ACh)',     pnsColor:'#1E8E3E' },
 };
 
 function ANSTab() {
   const [mode, setMode] = useState<ANSMode>('sns');
   const isSns = mode === 'sns';
-  const color = isSns ? '#FF3B30' : '#34C759';
+  const color = isSns ? '#BA1A1A' : '#1E8E3E';
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
       <div className="t-footnote" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
@@ -1712,7 +1712,7 @@ function ANSTab() {
         {(['sns','pns'] as ANSMode[]).map(m => (
           <button key={m} onClick={() => setMode(m)} style={{
             flex:1, padding:'10px', borderRadius:11, border:'none', cursor:'pointer',
-            background: mode===m ? (m==='sns' ? '#FF3B30' : '#34C759') : 'transparent',
+            background: mode===m ? (m==='sns' ? '#BA1A1A' : '#1E8E3E') : 'transparent',
             color: mode===m ? '#fff' : 'var(--label-secondary)',
             fontWeight: mode===m ? 700 : 400, fontSize:'0.9rem', transition:'all 150ms ease',
           }}>
@@ -1745,13 +1745,13 @@ function ANSTab() {
               {/* Labels */}
               {isSns ? (
                 <>
-                  <text x="30" y="80" textAnchor="middle" fontSize="8" fill="#FF9500">α1: vasokonstriksi</text>
-                  <text x="30" y="91" textAnchor="middle" fontSize="8" fill="#FF3B30">β1: HR↑ / inotropy↑</text>
+                  <text x="30" y="80" textAnchor="middle" fontSize="8" fill="#FFA000">α1: vasokonstriksi</text>
+                  <text x="30" y="91" textAnchor="middle" fontSize="8" fill="#BA1A1A">β1: HR↑ / inotropy↑</text>
                 </>
               ) : (
                 <>
-                  <text x="242" y="80" textAnchor="middle" fontSize="8" fill="#34C759">M2: HR↓</text>
-                  <text x="242" y="91" textAnchor="middle" fontSize="8" fill="#34C759">AV delay↑</text>
+                  <text x="242" y="80" textAnchor="middle" fontSize="8" fill="#1E8E3E">M2: HR↓</text>
+                  <text x="242" y="91" textAnchor="middle" fontSize="8" fill="#1E8E3E">AV delay↑</text>
                 </>
               )}
             </svg>
@@ -1792,7 +1792,7 @@ function ANSTab() {
             { name:'Adenosin', detail:'A1 receptor AV node → hiperpolarisasi → konduksi blok sementara' },
           ].map(m => (
             <div key={m.name} style={{ background:'var(--fill-quaternary)', borderRadius:10, padding:'10px 10px' }}>
-              <div className="t-caption-2" style={{ fontWeight:700, color:'#34C759', marginBottom:4 }}>{m.name}</div>
+              <div className="t-caption-2" style={{ fontWeight:700, color:'#1E8E3E', marginBottom:4 }}>{m.name}</div>
               <div className="t-caption-2" style={{ color:'var(--label-secondary)', lineHeight:1.4 }}>{m.detail}</div>
             </div>
           ))}
@@ -1804,10 +1804,10 @@ function ANSTab() {
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>BARORECEPTOR REFLEX</div>
         <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
           {[
-            { step:'①', text:'Tekanan darah naik → dinding aorta/arteri karotis meregang', color:'#007AFF' },
-            { step:'②', text:'Baroreseptor (n.IX & n.X) → sinyal ke NTS di medulla oblongata', color:'#007AFF' },
-            { step:'③', text:'NTS → aktivasi nukleus vagal → PNS↑, inhibisi RVLM → SNS↓', color:'#34C759' },
-            { step:'④', text:'Hasil: HR↓, AV konduksi↓, vasodilatasi → TD turun kembali', color:'#34C759' },
+            { step:'①', text:'Tekanan darah naik → dinding aorta/arteri karotis meregang', color:'#0056B3' },
+            { step:'②', text:'Baroreseptor (n.IX & n.X) → sinyal ke NTS di medulla oblongata', color:'#0056B3' },
+            { step:'③', text:'NTS → aktivasi nukleus vagal → PNS↑, inhibisi RVLM → SNS↓', color:'#1E8E3E' },
+            { step:'④', text:'Hasil: HR↓, AV konduksi↓, vasodilatasi → TD turun kembali', color:'#1E8E3E' },
           ].map(r => (
             <div key={r.step} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
               <div style={{ width:22, height:22, borderRadius:'50%', background:r.color+'20', border:`1.5px solid ${r.color}`,
@@ -1846,7 +1846,7 @@ interface VasoDrug {
 }
 
 const VASO_MAP: Record<VasoKey, VasoDrug> = {
-  epi:  { name:'Epinefrin', fullName:'Epinephrine', color:'#FF3B30',
+  epi:  { name:'Epinefrin', fullName:'Epinephrine', color:'#BA1A1A',
     alpha1:3, beta1:3, beta2:2, da:0, v1:0,
     indication:'Henti jantung (VF/pVT/PEA/Asistol), anafilaksis berat, syok refrakter',
     dose:'Henti jantung: 1 mg IV tiap 3–5 mnt\nAnafilaksis: 0.3–0.5 mg IM\nSyok: 0.01–0.5 mcg/kg/mnt infus',
@@ -1862,7 +1862,7 @@ const VASO_MAP: Record<VasoKey, VasoDrug> = {
            'Tidak ada efek β2 → tidak menyebabkan vasodilatasi perifer',
            'Lini pertama syok septik (kelas I, SSC 2021)'],
     warning:'Hindari sebagai vasopresor tunggal pada syok kardiogenik dengan CO sangat rendah' },
-  dopa: { name:'Dopamin', fullName:'Dopamine', color:'#FF9500',
+  dopa: { name:'Dopamin', fullName:'Dopamine', color:'#FFA000',
     alpha1:2, beta1:3, beta2:1, da:3, v1:0,
     indication:'Syok kardiogenik dengan bradikardia; backup vasopresor jika NE tidak tersedia',
     dose:'Low (renal): 1–5 mcg/kg/mnt\nCardiac: 5–10 mcg/kg/mnt\nVasopressor: >10 mcg/kg/mnt',
@@ -1870,7 +1870,7 @@ const VASO_MAP: Record<VasoKey, VasoDrug> = {
            'β1 dosis menengah: CO↑',
            'α1 dosis tinggi: vasokonstriksi'],
     warning:'Lebih banyak aritmia vs norepinefrin (De Backer NEJM 2010) — bukan lini pertama sepsis' },
-  dobu: { name:'Dobutamin', fullName:'Dobutamine', color:'#34C759',
+  dobu: { name:'Dobutamin', fullName:'Dobutamine', color:'#1E8E3E',
     alpha1:1, beta1:3, beta2:2, da:0, v1:0,
     indication:'Syok kardiogenik dengan CO rendah; dekompensasi HF akut',
     dose:'2.5–20 mcg/kg/mnt infus IV (titrasi ke CO/SvO₂)',
@@ -1878,7 +1878,7 @@ const VASO_MAP: Record<VasoKey, VasoDrug> = {
            'Vasodilatasi perifer ringan (β2) → afterload↓',
            'Tidak meningkatkan MAP secara langsung — kombinasi dengan NE jika hipotensi'],
     warning:'Dapat menyebabkan takikardia dan aritmia; hindari pada kardiomiopati obstruktif' },
-  vaso: { name:'Vasopressin', fullName:'Vasopressin (ADH)', color:'#5856D6',
+  vaso: { name:'Vasopressin', fullName:'Vasopressin (ADH)', color:'#003F87',
     alpha1:0, beta1:0, beta2:0, da:0, v1:3,
     indication:'Syok septik refrakter sebagai tambahan NE; syok kardiogenik refrakter',
     dose:'0.03–0.04 unit/mnt infus IV (fixed dose — tidak dititrasi)',
@@ -1886,7 +1886,7 @@ const VASO_MAP: Record<VasoKey, VasoDrug> = {
            'Vasokonstriksi kuat tanpa efek jantung langsung',
            'Efektif pada vasodilatory shock refrakter terhadap katekolamin'],
     warning:'Dapat menyebabkan iskemia splanknik, digital, dan koroner pada dosis tinggi' },
-  phe:  { name:'Fenilefrin', fullName:'Phenylephrine', color:'#007AFF',
+  phe:  { name:'Fenilefrin', fullName:'Phenylephrine', color:'#0056B3',
     alpha1:3, beta1:0, beta2:0, da:0, v1:0,
     indication:'Syok vasodilatasi tanpa disfungsi jantung; hipotensi ringan perioperatif',
     dose:'50–200 mcg bolus IV atau 0.5–6 mcg/kg/mnt infus',
@@ -1914,12 +1914,12 @@ function VasopressorPharmTab() {
   const [drug, setDrug] = useState<VasoKey>('epi');
   const d = VASO_MAP[drug];
   const DRUGS: Array<{ key:VasoKey; name:string; color:string }> = [
-    { key:'epi',  name:'Epinefrin',    color:'#FF3B30' },
+    { key:'epi',  name:'Epinefrin',    color:'#BA1A1A' },
     { key:'ne',   name:'Norepinefrin', color:'#FF6B35' },
-    { key:'dopa', name:'Dopamin',      color:'#FF9500' },
-    { key:'dobu', name:'Dobutamin',    color:'#34C759' },
-    { key:'vaso', name:'Vasopressin',  color:'#5856D6' },
-    { key:'phe',  name:'Fenilefrin',   color:'#007AFF' },
+    { key:'dopa', name:'Dopamin',      color:'#FFA000' },
+    { key:'dobu', name:'Dobutamin',    color:'#1E8E3E' },
+    { key:'vaso', name:'Vasopressin',  color:'#003F87' },
+    { key:'phe',  name:'Fenilefrin',   color:'#0056B3' },
   ];
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
@@ -1932,11 +1932,11 @@ function VasopressorPharmTab() {
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:6 }}>SUBTIPE RESEPTOR</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
           {[
-            { r:'α1', loc:'Arteriol → vasokonstriksi', c:'#FF3B30' },
-            { r:'β1', loc:'Jantung → HR↑, inotropy↑', c:'#FF9500' },
-            { r:'β2', loc:'Bronkus/arteriol → bronkodilasi/vasodilatasi', c:'#34C759' },
-            { r:'DA1', loc:'Renal/splanknik → vasodilatasi', c:'#007AFF' },
-            { r:'V1', loc:'VSMC → vasokonstriksi (non-adrenergik)', c:'#5856D6' },
+            { r:'α1', loc:'Arteriol → vasokonstriksi', c:'#BA1A1A' },
+            { r:'β1', loc:'Jantung → HR↑, inotropy↑', c:'#FFA000' },
+            { r:'β2', loc:'Bronkus/arteriol → bronkodilasi/vasodilatasi', c:'#1E8E3E' },
+            { r:'DA1', loc:'Renal/splanknik → vasodilatasi', c:'#0056B3' },
+            { r:'V1', loc:'VSMC → vasokonstriksi (non-adrenergik)', c:'#003F87' },
           ].map(r => (
             <div key={r.r} style={{ display:'flex', gap:6, alignItems:'center' }}>
               <div style={{ width:26, height:18, borderRadius:5, background:r.c+'20', border:`1px solid ${r.c}`,
@@ -1981,11 +1981,11 @@ function VasopressorPharmTab() {
         {/* Receptor bars */}
         <div style={{ marginBottom:12 }}>
           <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PROFIL RESEPTOR</div>
-          <ReceptorBar label="α1" value={d.alpha1} color="#FF3B30"/>
-          <ReceptorBar label="β1" value={d.beta1} color="#FF9500"/>
-          <ReceptorBar label="β2" value={d.beta2} color="#34C759"/>
-          <ReceptorBar label="DA1" value={d.da} color="#007AFF"/>
-          <ReceptorBar label="V1" value={d.v1} color="#5856D6"/>
+          <ReceptorBar label="α1" value={d.alpha1} color="#BA1A1A"/>
+          <ReceptorBar label="β1" value={d.beta1} color="#FFA000"/>
+          <ReceptorBar label="β2" value={d.beta2} color="#1E8E3E"/>
+          <ReceptorBar label="DA1" value={d.da} color="#0056B3"/>
+          <ReceptorBar label="V1" value={d.v1} color="#003F87"/>
         </div>
         {/* Indication */}
         <div style={{ marginBottom:10 }}>
@@ -2008,9 +2008,9 @@ function VasopressorPharmTab() {
           ))}
         </div>
         {d.warning && (
-          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'10px 12px',
-            boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
-            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700, marginBottom:3 }}>⚠ PERHATIAN</div>
+          <div style={{ background:'color-mix(in srgb, var(--danger) 8%, transparent)', borderRadius:10, padding:'10px 12px',
+            boxShadow:'0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)' }}>
+            <div className="t-caption-2" style={{ color:'#BA1A1A', fontWeight:700, marginBottom:3 }}>⚠ PERHATIAN</div>
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{d.warning}</div>
           </div>
         )}
@@ -2020,9 +2020,9 @@ function VasopressorPharmTab() {
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>PILIHAN VASOPRESOR PER JENIS SYOK</div>
         {[
-          { shock:'Septik / Distributif', first:'Norepinefrin', second:'+ Vasopressin 0.03 U/mnt jika refrakter', color:'#FF9500' },
-          { shock:'Kardiogenik (CO rendah)', first:'Dobutamin ± NE (jika hipotensi)', second:'Epinefrin dosis rendah sebagai alternatif', color:'#FF3B30' },
-          { shock:'Henti Jantung', first:'Epinefrin 1 mg tiap 3–5 mnt', second:'Vasopressin 40 U (alternatif dosis 1/2)', color:'#FF3B30' },
+          { shock:'Septik / Distributif', first:'Norepinefrin', second:'+ Vasopressin 0.03 U/mnt jika refrakter', color:'#FFA000' },
+          { shock:'Kardiogenik (CO rendah)', first:'Dobutamin ± NE (jika hipotensi)', second:'Epinefrin dosis rendah sebagai alternatif', color:'#BA1A1A' },
+          { shock:'Henti Jantung', first:'Epinefrin 1 mg tiap 3–5 mnt', second:'Vasopressin 40 U (alternatif dosis 1/2)', color:'#BA1A1A' },
           { shock:'Anafilaksis', first:'Epinefrin 0.5 mg IM (paha lateral)', second:'Infus Epinefrin jika refrakter', color:'#FF6B35' },
         ].map(r => (
           <div key={r.shock} style={{ marginBottom:10 }}>
@@ -2054,7 +2054,7 @@ const PA_TIMELINE = [
   {
     time: '0–20 mnt',
     title: 'ROSC & Stabilisasi Awal',
-    color: '#FF3B30',
+    color: '#BA1A1A',
     tasks: [
       'Konfirmasi ROSC: SpO₂, ETCO₂, tekanan darah (arterial line)',
       'Airway: ETT placement — cegah hyperventilasi (ETCO₂ 35–45 mmHg)',
@@ -2067,7 +2067,7 @@ const PA_TIMELINE = [
   {
     time: '20–60 mnt',
     title: 'Evaluasi Etiologi & TTM Initiation',
-    color: '#FF9500',
+    color: '#FFA000',
     tasks: [
       'Angiografi koroner: STEMI → segera; non-STEMI tanpa STEMI → stratifikasi',
       'CT kepala: singkirkan perdarahan intrakranial sebagai penyebab arrest',
@@ -2080,7 +2080,7 @@ const PA_TIMELINE = [
   {
     time: '1–6 jam',
     title: 'TTM & Monitoring ICU',
-    color: '#5856D6',
+    color: '#003F87',
     tasks: [
       'Pertahankan suhu target (32–36°C) selama 24 jam — hindari demam',
       'Monitoring hemodinamik: arterial line + CVP + ScvO₂ atau PAC/echo serial',
@@ -2093,7 +2093,7 @@ const PA_TIMELINE = [
   {
     time: '6–24 jam',
     title: 'Rewarming & Kontrol Demam',
-    color: '#34C759',
+    color: '#1E8E3E',
     tasks: [
       'Rewarming bertahap: 0.25°C/jam hingga normotermia (36–37°C)',
       'Hindari rebound hipertermia — demam pasca-TTM memperburuk outcome neurologis',
@@ -2105,7 +2105,7 @@ const PA_TIMELINE = [
   {
     time: '24–72 jam',
     title: 'Neuroprognostikasi',
-    color: '#007AFF',
+    color: '#0056B3',
     tasks: [
       'Waktu minimal neuroprognostikasi: ≥72 jam post-ROSC (atau ≥72 jam post-TTM)',
       'Pemeriksaan neurologis: pupil, corneal reflex, motor response (GCS-M)',
@@ -2133,10 +2133,10 @@ function PostArrestTab() {
           fallback={
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
               {[
-                { d:'Cedera Otak', c:'#FF3B30', txt:'Anoxia, excitotoxicity, edema, apoptosis — paling menentukan outcome' },
-                { d:'Disfungsi Miokard', c:'#FF9500', txt:'Stunning pasca-arrest — reversibel dalam 48–72 jam dengan dukungan inotropik' },
-                { d:'Respons I/R Sistemik', c:'#5856D6', txt:'ROS burst, Ca²⁺ overload, inflamasi, koagulopati — mirip sepsis' },
-                { d:'Penyebab Primer', c:'#007AFF', txt:'ACS, PE, hipoksia, elektrolit — koreksi penyebab memperbaiki outcome' },
+                { d:'Cedera Otak', c:'#BA1A1A', txt:'Anoxia, excitotoxicity, edema, apoptosis — paling menentukan outcome' },
+                { d:'Disfungsi Miokard', c:'#FFA000', txt:'Stunning pasca-arrest — reversibel dalam 48–72 jam dengan dukungan inotropik' },
+                { d:'Respons I/R Sistemik', c:'#003F87', txt:'ROS burst, Ca²⁺ overload, inflamasi, koagulopati — mirip sepsis' },
+                { d:'Penyebab Primer', c:'#0056B3', txt:'ACS, PE, hipoksia, elektrolit — koreksi penyebab memperbaiki outcome' },
               ].map(r => (
                 <div key={r.d} style={{ background:r.c+'10', borderRadius:10, padding:'10px 10px',
                   boxShadow:`0 0 0 1px ${r.c}30` }}>
@@ -2156,10 +2156,10 @@ function PostArrestTab() {
           fallback={
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
               {[
-                { mech:'Metabolisme serebri↓', detail:'Setiap 1°C ↓ → CMR O₂ ↓ ~6–7% → kebutuhan oksigen berkurang', c:'#5856D6' },
-                { mech:'Excitotoxicity↓', detail:'Glutamat release↓, NMDA activation↓ → Ca²⁺ influx minimal', c:'#007AFF' },
-                { mech:'ROS burst↓', detail:'Reactive oxygen species produksi↓ → kerusakan membran sel berkurang', c:'#34C759' },
-                { mech:'Apoptosis↓', detail:'Caspase activation↓ → sel yang terancam dapat bertahan', c:'#FF9500' },
+                { mech:'Metabolisme serebri↓', detail:'Setiap 1°C ↓ → CMR O₂ ↓ ~6–7% → kebutuhan oksigen berkurang', c:'#003F87' },
+                { mech:'Excitotoxicity↓', detail:'Glutamat release↓, NMDA activation↓ → Ca²⁺ influx minimal', c:'#0056B3' },
+                { mech:'ROS burst↓', detail:'Reactive oxygen species produksi↓ → kerusakan membran sel berkurang', c:'#1E8E3E' },
+                { mech:'Apoptosis↓', detail:'Caspase activation↓ → sel yang terancam dapat bertahan', c:'#FFA000' },
               ].map(r => (
                 <div key={r.mech} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                   <div style={{ width:8, height:8, borderRadius:2, background:r.c, flexShrink:0, marginTop:3 }}/>
@@ -2221,13 +2221,13 @@ function PostArrestTab() {
               <text x="12" y="65" textAnchor="middle" fontSize="9" fill="var(--label-secondary)" transform="rotate(-90,12,65)">CBF</text>
               {/* Autoregulation curve */}
               <path d="M30,100 L70,100 Q85,100 90,60 L160,60 Q165,60 170,100 L260,100"
-                stroke="#007AFF" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                stroke="#0056B3" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
               {/* Plateau zone */}
-              <rect x="90" y="55" width="70" height="10" fill="#34C75930" rx="3"/>
-              <text x="125" y="48" textAnchor="middle" fontSize="8" fill="#34C759" fontWeight="700">Plateau (autoregulasi)</text>
+              <rect x="90" y="55" width="70" height="10" fill="#1E8E3E30" rx="3"/>
+              <text x="125" y="48" textAnchor="middle" fontSize="8" fill="#1E8E3E" fontWeight="700">Plateau (autoregulasi)</text>
               {/* MAP target line */}
-              <line x1="110" y1="10" x2="110" y2="110" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,3"/>
-              <text x="112" y="20" textAnchor="start" fontSize="8" fill="#FF9500">MAP 65–70</text>
+              <line x1="110" y1="10" x2="110" y2="110" stroke="#FFA000" strokeWidth="1.5" strokeDasharray="4,3"/>
+              <text x="112" y="20" textAnchor="start" fontSize="8" fill="#FFA000">MAP 65–70</text>
               {/* Labels */}
               <text x="70" y="108" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">50</text>
               <text x="125" y="108" textAnchor="middle" fontSize="7" fill="var(--label-tertiary)">100</text>
@@ -2244,11 +2244,11 @@ function PostArrestTab() {
         boxShadow:'0 0 0 0.5px var(--separator-opaque)' }}>
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>NEUROPROGNOSTIKASI — MODALITAS (≥72 JAM)</div>
         {[
-          { mod:'Pemeriksaan Neurologis', detail:'GCS-M ≤2 bilateral (tidak ada gerakan bertujuan), pupil fixed', bad:'Bilateral absent pupillary reflex', c:'#FF3B30' },
-          { mod:'EEG', detail:'Burst-suppression, status epileptikus, reaktivitas EEG (ada/tidak ada)', bad:'Non-reaktif, burst-suppression persisten', c:'#FF9500' },
-          { mod:'SSEP', detail:'N20 bilateral — diukur setelah ≥24 jam', bad:'N20 bilateral absent = prognosis sangat buruk (spesifisitas >99%)', c:'#5856D6' },
-          { mod:'CT / MRI Kepala', detail:'Rasio gray-white matter (GWR) pada CT; DWI ADC pada MRI', bad:'GWR <1.2 atau difus ADC rendah', c:'#007AFF' },
-          { mod:'Biomarker NSE', detail:'Neuron-specific enolase (NSE) pada 48–72 jam', bad:'NSE >60 µg/L berkorelasi dengan outcome buruk', c:'#34C759' },
+          { mod:'Pemeriksaan Neurologis', detail:'GCS-M ≤2 bilateral (tidak ada gerakan bertujuan), pupil fixed', bad:'Bilateral absent pupillary reflex', c:'#BA1A1A' },
+          { mod:'EEG', detail:'Burst-suppression, status epileptikus, reaktivitas EEG (ada/tidak ada)', bad:'Non-reaktif, burst-suppression persisten', c:'#FFA000' },
+          { mod:'SSEP', detail:'N20 bilateral — diukur setelah ≥24 jam', bad:'N20 bilateral absent = prognosis sangat buruk (spesifisitas >99%)', c:'#003F87' },
+          { mod:'CT / MRI Kepala', detail:'Rasio gray-white matter (GWR) pada CT; DWI ADC pada MRI', bad:'GWR <1.2 atau difus ADC rendah', c:'#0056B3' },
+          { mod:'Biomarker NSE', detail:'Neuron-specific enolase (NSE) pada 48–72 jam', bad:'NSE >60 µg/L berkorelasi dengan outcome buruk', c:'#1E8E3E' },
         ].map(r => (
           <div key={r.mod} style={{ marginBottom:10, padding:'10px 12px', background:'var(--fill-quaternary)', borderRadius:10 }}>
             <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:4 }}>
@@ -2286,27 +2286,27 @@ interface ElecDisorder {
 }
 
 const ELEC_MAP: Record<ElecKey, ElecDisorder> = {
-  hyperk: { name:'Hiperkalemia', range:'K⁺ >5.5 mEq/L', color:'#FF3B30',
+  hyperk: { name:'Hiperkalemia', range:'K⁺ >5.5 mEq/L', color:'#BA1A1A',
     ekg:['T tinggi & runcing (peaked, K⁺ 5.5–6.5)','PR memanjang, P mendatar/hilang (6.5–7.5)','QRS melebar (>7.5)','Pola sine-wave → VF/asistol (terminal)'],
     mechanism:'K⁺ ekstraseluler↑ → potensial membran istirahat kurang negatif → inaktivasi kanal Na⁺ → konduksi melambat & eksitabilitas menurun progresif. Repolarisasi lebih cepat → T peaked.',
     management:['Kalsium glukonat 10% 10–30 mL IV (stabilisasi membran — bekerja <3 mnt)','Insulin 10 U + D40% 25 g IV (shift intraseluler)','Salbutamol nebul 10–20 mg (shift)','Natrium bikarbonat (jika asidosis)','Eliminasi: furosemid, resin (patiromer), dialisis'],
     pearl:'Kalsium TIDAK menurunkan K⁺ — hanya menstabilkan membran. Tetap perlu terapi shift + eliminasi. Pada henti jantung curiga hiperkalemia: CaCl₂ + bikarbonat empiris.' },
-  hypok:  { name:'Hipokalemia', range:'K⁺ <3.5 mEq/L', color:'#FF9500',
+  hypok:  { name:'Hipokalemia', range:'K⁺ <3.5 mEq/L', color:'#FFA000',
     ekg:['T mendatar / inversi','Gelombang U menonjol (setelah T)','ST depresi','QT (sebenarnya QU) memanjang → risiko TdP'],
     mechanism:'K⁺ ekstraseluler↓ → hiperpolarisasi & repolarisasi memanjang → afterdepolarization → aritmia. Memperberat toksisitas digoksin.',
     management:['KCl IV 10–20 mEq/jam via vena sentral (perifer maks 10 mEq/jam)','Koreksi Mg²⁺ bersamaan (hipoMg menghambat koreksi K⁺)','Target K⁺ ≥4.0 pada pasien jantung','Monitoring EKG kontinyu saat koreksi cepat'],
     pearl:'Hipokalemia refrakter sering disebabkan hipomagnesemia — selalu koreksi Mg²⁺ bersamaan.' },
-  hyperca: { name:'Hiperkalsemia', range:'Ca²⁺ >10.5 mg/dL', color:'#5856D6',
+  hyperca: { name:'Hiperkalsemia', range:'Ca²⁺ >10.5 mg/dL', color:'#003F87',
     ekg:['QT memendek (ST segment pendek/hilang)','Gelombang Osborn (J wave) pada kasus berat','Bradikardia, AV block (berat)'],
     mechanism:'Ca²⁺↑ → fase 2 (plateau) lebih cepat → repolarisasi lebih cepat → QT pendek. Penyebab: hiperparatiroid, keganasan.',
     management:['Hidrasi NaCl 0.9% agresif (200–300 mL/jam)','Kalsitonin 4 U/kg (cepat tapi tachyphylaxis)','Bifosfonat (asam zoledronat) — onset 2–4 hari','Dialisis jika berat/gagal ginjal'],
     pearl:'QT pendek dengan ST segment yang nyaris hilang adalah petunjuk klasik hiperkalsemia.' },
-  hypoca:  { name:'Hipokalsemia', range:'Ca²⁺ <8.5 mg/dL', color:'#30B0C7',
+  hypoca:  { name:'Hipokalsemia', range:'Ca²⁺ <8.5 mg/dL', color:'#00838F',
     ekg:['QT memanjang (ST segment memanjang)','T relatif normal (beda dari hipoK)','Risiko TdP'],
     mechanism:'Ca²⁺↓ → fase 2 plateau memanjang → repolarisasi lambat → QT panjang. Penyebab: hipoparatiroid, transfusi masif (sitrat), pankreatitis.',
     management:['Kalsium glukonat 10% 10–20 mL IV lambat (simptomatik)','Kalsium klorida bila akses sentral','Koreksi Mg²⁺ jika rendah','Cari penyebab (PTH, vitamin D)'],
     pearl:'Transfusi masif → sitrat mengikat Ca²⁺ → hipokalsemia + koagulopati. Pertimbangkan kalsium empiris.' },
-  hypomg:  { name:'Hipomagnesemia', range:'Mg²⁺ <1.5 mg/dL', color:'#34C759',
+  hypomg:  { name:'Hipomagnesemia', range:'Mg²⁺ <1.5 mg/dL', color:'#1E8E3E',
     ekg:['QT memanjang','Pelebaran QRS & PR (berat)','Predisposisi TdP & aritmia atrial/ventrikel'],
     mechanism:'Mg²⁺ adalah kofaktor Na⁺/K⁺-ATPase. Defisit → hipokalemia & hipokalsemia refrakter → instabilitas listrik & TdP.',
     management:['MgSO₄ 1–2 g IV selama 15 mnt (TdP / aritmia)','MgSO₄ 2 g IV bolus pada TdP (lini pertama, walau Mg normal)','Koreksi K⁺ dan Ca²⁺ bersamaan','Infus lambat jika asimptomatik'],
@@ -2317,11 +2317,11 @@ function ElectrolyteTab() {
   const [el, setEl] = useState<ElecKey>('hyperk');
   const d = ELEC_MAP[el];
   const TYPES: Array<{ key: ElecKey; label: string; color: string }> = [
-    { key:'hyperk',  label:'Hiper-K⁺',  color:'#FF3B30' },
-    { key:'hypok',   label:'Hipo-K⁺',   color:'#FF9500' },
-    { key:'hyperca', label:'Hiper-Ca²⁺', color:'#5856D6' },
-    { key:'hypoca',  label:'Hipo-Ca²⁺',  color:'#30B0C7' },
-    { key:'hypomg',  label:'Hipo-Mg²⁺',  color:'#34C759' },
+    { key:'hyperk',  label:'Hiper-K⁺',  color:'#BA1A1A' },
+    { key:'hypok',   label:'Hipo-K⁺',   color:'#FFA000' },
+    { key:'hyperca', label:'Hiper-Ca²⁺', color:'#003F87' },
+    { key:'hypoca',  label:'Hipo-Ca²⁺',  color:'#00838F' },
+    { key:'hypomg',  label:'Hipo-Mg²⁺',  color:'#1E8E3E' },
   ];
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
@@ -2390,8 +2390,8 @@ function ElectrolyteTab() {
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>TATA LAKSANA</div>
         {d.management.map((m, i) => (
           <div key={i} style={{ display:'flex', gap:7, marginBottom:5 }}>
-            <div style={{ width:18, height:18, borderRadius:'50%', background:'#34C75915', border:'1px solid #34C75940',
-              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:'0.6rem', fontWeight:700, color:'#34C759' }}>{i+1}</div>
+            <div style={{ width:18, height:18, borderRadius:'50%', background:'#1E8E3E15', border:'1px solid #1E8E3E40',
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:'0.6rem', fontWeight:700, color:'#1E8E3E' }}>{i+1}</div>
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45, paddingTop:1 }}>{m}</div>
           </div>
         ))}
@@ -2402,9 +2402,9 @@ function ElectrolyteTab() {
         <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.pearl}</div>
       </div>
       {el==='hyperk' && (
-        <div style={{ background:'rgba(255,59,48,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
+        <div style={{ background:'color-mix(in srgb, var(--danger) 6%, transparent)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)' }}>
           <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6 }}>
-            Hiperkalemia adalah salah satu dari <span style={{ fontWeight:700, color:'#FF3B30' }}>Hs &amp; Ts</span> (penyebab reversibel henti jantung). Pertimbangkan pada gagal ginjal, asidosis, rabdomiolisis, atau EKG dengan QRS lebar progresif.<Cite n={1} href="https://doi.org/10.1053/ajem.2000.7344"/>
+            Hiperkalemia adalah salah satu dari <span style={{ fontWeight:700, color:'#BA1A1A' }}>Hs &amp; Ts</span> (penyebab reversibel henti jantung). Pertimbangkan pada gagal ginjal, asidosis, rabdomiolisis, atau EKG dengan QRS lebar progresif.<Cite n={1} href="https://doi.org/10.1053/ajem.2000.7344"/>
           </div>
         </div>
       )}
@@ -2430,17 +2430,17 @@ interface Territory {
 }
 
 const TERR_MAP: Record<TerrKey, Territory> = {
-  septal:   { name:'Septal', color:'#FF9500', leads:'V1–V2', artery:'LAD (cabang septal)',
+  septal:   { name:'Septal', color:'#FFA000', leads:'V1–V2', artery:'LAD (cabang septal)',
     reciprocal:'—', notes:'Sering bergabung dengan anterior (antero-septal). Q di V1–V2.' },
-  anterior: { name:'Anterior', color:'#FF3B30', leads:'V3–V4', artery:'LAD (left anterior descending)',
+  anterior: { name:'Anterior', color:'#BA1A1A', leads:'V3–V4', artery:'LAD (left anterior descending)',
     reciprocal:'Inferior (II, III, aVF)', notes:'STEMI anterior luas (V1–V6) → oklusi LAD proksimal, prognosis buruk, risiko syok kardiogenik.' },
-  lateral:  { name:'Lateral', color:'#34C759', leads:'I, aVL, V5–V6', artery:'LCx atau diagonal LAD',
+  lateral:  { name:'Lateral', color:'#1E8E3E', leads:'I, aVL, V5–V6', artery:'LCx atau diagonal LAD',
     reciprocal:'Inferior (II, III, aVF)', notes:'High lateral (I, aVL) → diagonal/LCx. Resiprokal inferior membantu konfirmasi.' },
-  inferior: { name:'Inferior', color:'#007AFF', leads:'II, III, aVF', artery:'RCA (80%) atau LCx (20%)',
+  inferior: { name:'Inferior', color:'#0056B3', leads:'II, III, aVF', artery:'RCA (80%) atau LCx (20%)',
     reciprocal:'I, aVL', notes:'STEMI inferior → selalu cek lead kanan (V4R) untuk infark RV. Hati-hati nitrat & bradikardia.' },
-  posterior:{ name:'Posterior', color:'#5856D6', leads:'V7–V9 (ST elevasi)', artery:'LCx atau RCA',
+  posterior:{ name:'Posterior', color:'#003F87', leads:'V7–V9 (ST elevasi)', artery:'LCx atau RCA',
     reciprocal:'V1–V3 (ST depresi + R tinggi)', notes:'Tampak sebagai ST depresi V1–V3 dengan R dominan — "STEMI ekuivalen". Rekam V7–V9.' },
-  rv:       { name:'Ventrikel Kanan', color:'#30B0C7', leads:'V4R (ST elevasi)', artery:'RCA proksimal',
+  rv:       { name:'Ventrikel Kanan', color:'#00838F', leads:'V4R (ST elevasi)', artery:'RCA proksimal',
     reciprocal:'—', notes:'Menyertai 30–50% STEMI inferior. Hipotensi sensitif terhadap preload — hindari nitrat, beri cairan.' },
 };
 
@@ -2526,7 +2526,7 @@ function Ekg12LeadTab() {
           'LBBB baru / Sgarbossa positif = STEMI ekuivalen',
         ].map((c, i) => (
           <div key={i} style={{ display:'flex', gap:7, marginBottom:5 }}>
-            <div style={{ width:5, height:5, borderRadius:2.5, background:'#FF3B30', flexShrink:0, marginTop:4 }}/>
+            <div style={{ width:5, height:5, borderRadius:2.5, background:'#BA1A1A', flexShrink:0, marginTop:4 }}/>
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.45 }}>{c}</div>
           </div>
         ))}
@@ -2564,14 +2564,14 @@ interface PocusSection {
 }
 
 const POCUS_MAP: Record<PocusKey, PocusSection> = {
-  pump: { name:'Pump (Jantung)', color:'#FF3B30', subtitle:'Evaluasi fungsi & cairan perikardial',
+  pump: { name:'Pump (Jantung)', color:'#BA1A1A', subtitle:'Evaluasi fungsi & cairan perikardial',
     views:[
       { view:'Subxiphoid 4-chamber', finding:'Efusi perikardial / tamponade (kolaps RA/RV diastolik)' },
       { view:'Parasternal long-axis', finding:'Kontraktilitas LV (global), efusi, ukuran ruang' },
       { view:'Apical 4-chamber', finding:'Rasio RV:LV (>1 → strain RV / PE), fungsi global' },
     ],
     pearl:'Pada henti jantung: cardiac standstill (tidak ada gerakan dinding) berkorelasi dengan prognosis sangat buruk. Tamponade → perikardiosentesis segera.' },
-  tank: { name:'Tank (Volume)', color:'#007AFF', subtitle:'Status volume & kebocoran',
+  tank: { name:'Tank (Volume)', color:'#0056B3', subtitle:'Status volume & kebocoran',
     views:[
       { view:'IVC (subxiphoid)', finding:'Diameter & kolapsibilitas → status preload/volume responsiveness' },
       { view:'FAST (Morrison, splenorenal, pelvis)', finding:'Cairan bebas intraabdomen (perdarahan)' },
@@ -2579,13 +2579,13 @@ const POCUS_MAP: Record<PocusKey, PocusSection> = {
       { view:'Pleura', finding:'Efusi pleura, pneumotoraks (hilangnya lung sliding)' },
     ],
     pearl:'IVC kecil & kolaps total → hipovolemia / volume responsive. IVC plethoric (besar, tidak kolaps) → tamponade, PE, atau gagal jantung kanan.' },
-  pipes: { name:'Pipes (Pembuluh)', color:'#34C759', subtitle:'Arteri & vena',
+  pipes: { name:'Pipes (Pembuluh)', color:'#1E8E3E', subtitle:'Arteri & vena',
     views:[
       { view:'Aorta (suprasternal–bifurkasio)', finding:'Aneurisma aorta abdominal (AAA >3 cm), diseksi' },
       { view:'Vena femoralis/poplitea', finding:'DVT (vena tidak kompresibel) → sumber PE' },
     ],
     pearl:'AAA yang ruptur dapat menyebabkan syok hipovolemik. DVT + RV strain mendukung diagnosis PE pada syok obstruktif.' },
-  arrest: { name:'Henti Jantung', color:'#5856D6', subtitle:'Protokol FEEL / SHoC — sebab reversibel',
+  arrest: { name:'Henti Jantung', color:'#003F87', subtitle:'Protokol FEEL / SHoC — sebab reversibel',
     views:[
       { view:'Cardiac standstill', finding:'Tidak ada aktivitas → prognosis buruk; bantu keputusan terminasi' },
       { view:'Tamponade', finding:'Efusi besar + kolaps ruang → perikardiosentesis' },
@@ -2614,9 +2614,9 @@ function PocusTab() {
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', marginBottom:8 }}>KERANGKA RUSH</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
           {[
-            { n:'Pump', d:'Jantung', c:'#FF3B30' },
-            { n:'Tank', d:'Volume', c:'#007AFF' },
-            { n:'Pipes', d:'Pembuluh', c:'#34C759' },
+            { n:'Pump', d:'Jantung', c:'#BA1A1A' },
+            { n:'Tank', d:'Volume', c:'#0056B3' },
+            { n:'Pipes', d:'Pembuluh', c:'#1E8E3E' },
           ].map(r => (
             <div key={r.n} style={{ textAlign:'center', background:r.c+'12', borderRadius:10, padding:'10px 6px', boxShadow:`0 0 0 1px ${r.c}30` }}>
               <div className="t-caption-1" style={{ fontWeight:700, color:r.c }}>{r.n}</div>
@@ -2697,9 +2697,9 @@ function PocusTab() {
         <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>{d.pearl}</div>
       </div>
       {sec==='arrest' && (
-        <div style={{ background:'rgba(88,86,214,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(88,86,214,0.2)' }}>
+        <div style={{ background:'color-mix(in srgb, var(--sys-indigo) 6%, transparent)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--sys-indigo) 20%, transparent)' }}>
           <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.6 }}>
-            Protokol <span style={{ fontWeight:700, color:'#5856D6' }}>FEEL</span> mengintegrasikan ekokardiografi terfokus ke dalam ALS untuk mendeteksi penyebab reversibel (tamponade, PE, hipovolemia) tanpa mengganggu kompresi dada.<Cite n={3} href="https://doi.org/10.1016/j.resuscitation.2010.06.012"/> Konsensus SHoC merekomendasikan pencitraan jantung, paru, dan IVC selama resusitasi.<Cite n={2} href="https://doi.org/10.1017/cem.2016.394"/>
+            Protokol <span style={{ fontWeight:700, color:'#003F87' }}>FEEL</span> mengintegrasikan ekokardiografi terfokus ke dalam ALS untuk mendeteksi penyebab reversibel (tamponade, PE, hipovolemia) tanpa mengganggu kompresi dada.<Cite n={3} href="https://doi.org/10.1016/j.resuscitation.2010.06.012"/> Konsensus SHoC merekomendasikan pencitraan jantung, paru, dan IVC selama resusitasi.<Cite n={2} href="https://doi.org/10.1017/cem.2016.394"/>
           </div>
         </div>
       )}
@@ -2717,28 +2717,28 @@ const VENT_MODE_DATA: Record<VentMode, {
   settings: string[]; pros: string; cons: string;
 }> = {
   vc: {
-    name:'VCV', full:'Volume Control Ventilation', tint:'#007AFF',
+    name:'VCV', full:'Volume Control Ventilation', tint:'#0056B3',
     desc:'Volume tidal tetap diberikan tiap siklus — pressure berubah menyesuaikan compliance paru.',
     settings:['Vt 6–8 mL/kg IBW','RR 12–20 /min','PEEP 5 cmH₂O','FiO₂ titrasi SpO₂ ≥94%','I:E 1:2'],
     pros:'Volume tidal terjamin → PaCO₂ prediktabel.',
     cons:'Pressure bisa tak terbatas → barotrauma jika compliance buruk.'
   },
   pc: {
-    name:'PCV', full:'Pressure Control Ventilation', tint:'#FF9500',
+    name:'PCV', full:'Pressure Control Ventilation', tint:'#FFA000',
     desc:'Pressure inspirasi tetap — volume tidal berubah sesuai compliance & resistensi.',
     settings:['PC 15–20 cmH₂O (di atas PEEP)','RR 12–20 /min','PEEP 5 cmH₂O','FiO₂ titrasi','Ti 0.8–1.2 s'],
     pros:'Pressure terbatas → safer pada paru kaku.',
     cons:'Volume tidal tidak terjamin → hipoventilasi jika compliance berubah.'
   },
   simv: {
-    name:'SIMV', full:'Synchronized IMV', tint:'#34C759',
+    name:'SIMV', full:'Synchronized IMV', tint:'#1E8E3E',
     desc:'Ventilator memberi napas wajib tersinkron; pasien bisa bernafas spontan di antaranya.',
     settings:['RR mandatory 8–14/min','Vt mandatory 6–8 mL/kg','PS support napas spontan','PEEP 5 cmH₂O'],
     pros:'Latihan otot napas; WOB bertahap diturunkan.',
     cons:'Auto-PEEP, patient-ventilator dyssynchrony lebih sering.'
   },
   ps: {
-    name:'PSV', full:'Pressure Support Ventilation', tint:'#AF52DE',
+    name:'PSV', full:'Pressure Support Ventilation', tint:'#9333EA',
     desc:'Setiap napas pasien mendapat dorongan pressure; pasien kendalikan RR & Ti.',
     settings:['PS 5–15 cmH₂O','PEEP 5 cmH₂O','Apnea backup diperlukan'],
     pros:'Nyaman, otot napas aktif, ideal untuk weaning.',
@@ -2793,19 +2793,19 @@ function VentMekTab() {
           </div>
         ))}
         <div style={{ marginTop:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-          <div style={{ background:'rgba(52,199,89,0.08)', borderRadius:10, padding:'8px 10px' }}>
-            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700 }}>✓ KELEBIHAN</div>
+          <div style={{ background:'color-mix(in srgb, var(--success) 8%, transparent)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#1E8E3E', fontWeight:700 }}>✓ KELEBIHAN</div>
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:3, lineHeight:1.4 }}>{d.pros}</div>
           </div>
-          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'8px 10px' }}>
-            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700 }}>✗ KETERBATASAN</div>
+          <div style={{ background:'color-mix(in srgb, var(--danger) 8%, transparent)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#BA1A1A', fontWeight:700 }}>✗ KETERBATASAN</div>
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', marginTop:3, lineHeight:1.4 }}>{d.cons}</div>
           </div>
         </div>
       </div>
       {/* ARDSNet targets */}
-      <div style={{ background:'rgba(0,122,255,0.06)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px rgba(0,122,255,0.2)' }}>
-        <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700, marginBottom:8 }}>TARGET LUNG-PROTECTIVE (ARDSNet)<Cite n={2} href="https://doi.org/10.1056/NEJM200005043421801"/></div>
+      <div style={{ background:'color-mix(in srgb, var(--accent) 6%, transparent)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent)' }}>
+        <div className="t-caption-2" style={{ color:'#0056B3', fontWeight:700, marginBottom:8 }}>TARGET LUNG-PROTECTIVE (ARDSNet)<Cite n={2} href="https://doi.org/10.1056/NEJM200005043421801"/></div>
         {[
           ['Vt','4–6 mL/kg IBW'],['Pplat','≤ 30 cmH₂O'],['Driving pressure','≤ 15 cmH₂O'],
           ['SpO₂','88–95% (toleransi hipoksemia relatif)'],['pH','7.30–7.45'],
@@ -2825,7 +2825,7 @@ function VentMekTab() {
         {RSBI_TIPS.map((r,i) => (
           <div key={i} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
             <div style={{ width:10, height:10, borderRadius:5, flexShrink:0,
-              background: r.ok === true ? '#34C759' : r.ok === false ? '#FF3B30' : '#FF9500' }}/>
+              background: r.ok === true ? '#1E8E3E' : r.ok === false ? '#BA1A1A' : '#FFA000' }}/>
             <div>
               <span className="t-caption-1" style={{ fontWeight:700, color:'var(--label-primary)' }}>{r.label}</span>
               <span className="t-caption-1" style={{ color:'var(--label-secondary)' }}> — {r.text}</span>
@@ -2847,33 +2847,33 @@ const SEDASI_DRUGS: Record<SedasiGroup, Array<{
   duration: string; note: string; tint: string;
 }>> = {
   analgesik: [
-    { name:'Fentanyl', class:'Opioid', dose:'0.5–1.5 mcg/kg IV bolus; 25–200 mcg/h infus', onset:'1–2 min', duration:'30–60 min', note:'Pilihan utama ICU; histamine release minimal.', tint:'#007AFF' },
-    { name:'Morfin', class:'Opioid', dose:'2–4 mg IV q2–4h', onset:'5–10 min', duration:'3–5 h', note:'Histamine release → hindari pada bronkospasme.', tint:'#5856D6' },
-    { name:'Remifentanil', class:'Opioid', dose:'0.05–0.2 mcg/kg/min', onset:'<1 min', duration:'3–5 min', note:'Metabolisme ester plasma → titrasi presisi.', tint:'#30B0C7' },
+    { name:'Fentanyl', class:'Opioid', dose:'0.5–1.5 mcg/kg IV bolus; 25–200 mcg/h infus', onset:'1–2 min', duration:'30–60 min', note:'Pilihan utama ICU; histamine release minimal.', tint:'#0056B3' },
+    { name:'Morfin', class:'Opioid', dose:'2–4 mg IV q2–4h', onset:'5–10 min', duration:'3–5 h', note:'Histamine release → hindari pada bronkospasme.', tint:'#003F87' },
+    { name:'Remifentanil', class:'Opioid', dose:'0.05–0.2 mcg/kg/min', onset:'<1 min', duration:'3–5 min', note:'Metabolisme ester plasma → titrasi presisi.', tint:'#00838F' },
   ],
   sedatif: [
-    { name:'Propofol', class:'Alkylphenol', dose:'5–50 mcg/kg/min', onset:'1–2 min', duration:'5–10 min', note:'Cepat bangun, ideal neurologi; awasi PRIS (>4 mg/kg/h >48h).', tint:'#FF9500' },
-    { name:'Dexmedetomidine', class:'α2-agonis', dose:'0.2–1.5 mcg/kg/h', onset:'5–10 min', duration:'1–2 h', note:'Sedasi "kooperatif", analgetik ringan, tidak depresi napas.', tint:'#34C759' },
-    { name:'Midazolam', class:'Benzodiazepin', dose:'0.02–0.1 mg/kg/h', onset:'2–5 min', duration:'2–6 h', note:'Metabolit aktif → akumulasi di ginjal/hati. Hindari jangka panjang.', tint:'#FF3B30' },
-    { name:'Ketamin', class:'NMDA antagonis', dose:'0.1–0.5 mg/kg/h analgesia; 1–2 mg/kg induksi', onset:'1–2 min', duration:'15–30 min', note:'Bronkodilatasi, bronkospasme, tidak depresi napas. Ideal pada asma.', tint:'#AF52DE' },
+    { name:'Propofol', class:'Alkylphenol', dose:'5–50 mcg/kg/min', onset:'1–2 min', duration:'5–10 min', note:'Cepat bangun, ideal neurologi; awasi PRIS (>4 mg/kg/h >48h).', tint:'#FFA000' },
+    { name:'Dexmedetomidine', class:'α2-agonis', dose:'0.2–1.5 mcg/kg/h', onset:'5–10 min', duration:'1–2 h', note:'Sedasi "kooperatif", analgetik ringan, tidak depresi napas.', tint:'#1E8E3E' },
+    { name:'Midazolam', class:'Benzodiazepin', dose:'0.02–0.1 mg/kg/h', onset:'2–5 min', duration:'2–6 h', note:'Metabolit aktif → akumulasi di ginjal/hati. Hindari jangka panjang.', tint:'#BA1A1A' },
+    { name:'Ketamin', class:'NMDA antagonis', dose:'0.1–0.5 mg/kg/h analgesia; 1–2 mg/kg induksi', onset:'1–2 min', duration:'15–30 min', note:'Bronkodilatasi, bronkospasme, tidak depresi napas. Ideal pada asma.', tint:'#9333EA' },
   ],
   nmba: [
-    { name:'Cisatracurium', class:'Non-depolarisasi', dose:'0.15–0.2 mg/kg bolus; 1–3 mcg/kg/min', onset:'2–3 min', duration:'40–60 min', note:'Eliminasi Hofmann → aman gagal organ. Pilihan ARDS berat.', tint:'#FF2D55' },
+    { name:'Cisatracurium', class:'Non-depolarisasi', dose:'0.15–0.2 mg/kg bolus; 1–3 mcg/kg/min', onset:'2–3 min', duration:'40–60 min', note:'Eliminasi Hofmann → aman gagal organ. Pilihan ARDS berat.', tint:'#B6171E' },
     { name:'Rokuronum', class:'Non-depolarisasi', dose:'1.2 mg/kg RSI; 0.6 mg/kg maintenance', onset:'60 s', duration:'30–60 min', note:'Reversibel dengan Sugammadex (16 mg/kg emergensi).', tint:'#FF6B35' },
-    { name:'Suksinilkolin', class:'Depolarisasi', dose:'1.5 mg/kg RSI', onset:'45–60 s', duration:'10–12 min', note:'Kontraindikasi: hiperkalemia, denervasi, luka bakar >24h.', tint:'#FF9500' },
+    { name:'Suksinilkolin', class:'Depolarisasi', dose:'1.5 mg/kg RSI', onset:'45–60 s', duration:'10–12 min', note:'Kontraindikasi: hiperkalemia, denervasi, luka bakar >24h.', tint:'#FFA000' },
   ],
 };
 
 const RASS_SCALE = [
-  { score:+4, label:'Combative', desc:'Agresif, bahaya langsung ke staf', color:'#FF2D55' },
-  { score:+3, label:'Very Agitated', desc:'Menarik atau mencabut tube/kateter, agresif', color:'#FF3B30' },
+  { score:+4, label:'Combative', desc:'Agresif, bahaya langsung ke staf', color:'#B6171E' },
+  { score:+3, label:'Very Agitated', desc:'Menarik atau mencabut tube/kateter, agresif', color:'#BA1A1A' },
   { score:+2, label:'Agitated', desc:'Gerakan sering tanpa tujuan, melawan ventilator', color:'#FF6B35' },
-  { score:+1, label:'Restless', desc:'Gelisah tapi gerakan tidak agresif', color:'#FF9500' },
-  { score:0,  label:'Alert & Calm', desc:'Sadar dan tenang', color:'#34C759' },
-  { score:-1, label:'Drowsy', desc:'Tidak sepenuhnya waspada, ada eye contact >10s', color:'#30B0C7' },
-  { score:-2, label:'Light Sedation', desc:'Eye contact <10s terhadap suara', color:'#007AFF' },
-  { score:-3, label:'Moderate Sedation', desc:'Gerakan atau buka mata tapi tidak eye contact', color:'#5856D6' },
-  { score:-4, label:'Deep Sedation', desc:'Tidak respons suara, respons stimulasi fisik', color:'#AF52DE' },
+  { score:+1, label:'Restless', desc:'Gelisah tapi gerakan tidak agresif', color:'#FFA000' },
+  { score:0,  label:'Alert & Calm', desc:'Sadar dan tenang', color:'#1E8E3E' },
+  { score:-1, label:'Drowsy', desc:'Tidak sepenuhnya waspada, ada eye contact >10s', color:'#00838F' },
+  { score:-2, label:'Light Sedation', desc:'Eye contact <10s terhadap suara', color:'#0056B3' },
+  { score:-3, label:'Moderate Sedation', desc:'Gerakan atau buka mata tapi tidak eye contact', color:'#003F87' },
+  { score:-4, label:'Deep Sedation', desc:'Tidak respons suara, respons stimulasi fisik', color:'#9333EA' },
   { score:-5, label:'Unarousable', desc:'Tidak respons suara maupun stimulasi fisik', color:'#8E8E93' },
 ];
 
@@ -2891,7 +2891,7 @@ function SedasiTab() {
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
       {/* Group selector */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
-        {([['analgesik','Analgesik','#007AFF'],['sedatif','Sedatif','#34C759'],['nmba','NMBA','#FF2D55']] as const).map(([k,lbl,c]) => (
+        {([['analgesik','Analgesik','#0056B3'],['sedatif','Sedatif','#1E8E3E'],['nmba','NMBA','#B6171E']] as const).map(([k,lbl,c]) => (
           <button key={k} onClick={() => { setGroup(k as SedasiGroup); setDrugIdx(0); }} style={{
             border:'none', cursor:'pointer', borderRadius:12, padding:'10px 8px',
             background: group===k ? c+'18' : 'var(--fill-tertiary)',
@@ -2932,7 +2932,7 @@ function SedasiTab() {
       {/* RASS Scale */}
       <div style={{ background:'var(--fill-tertiary)', borderRadius:14, padding:'14px 16px' }}>
         <div className="t-caption-2" style={{ color:'var(--label-tertiary)', fontWeight:700, marginBottom:10 }}>RASS — Richmond Agitation-Sedation Scale<Cite n={1} href="https://doi.org/10.1097/CCM.0000000000003299"/></div>
-        <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginBottom:8 }}>Target ICU umum: <strong style={{color:'#30B0C7'}}>RASS -1 hingga 0</strong> (kecuali indikasi NMBA: -3 s/d -5)</div>
+        <div className="t-caption-2" style={{ color:'var(--label-secondary)', marginBottom:8 }}>Target ICU umum: <strong style={{color:'#00838F'}}>RASS -1 hingga 0</strong> (kecuali indikasi NMBA: -3 s/d -5)</div>
         {RASS_SCALE.map(r => (
           <div key={r.score} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:6 }}>
             <div style={{ width:28, height:28, borderRadius:8, background:r.color+'20', flexShrink:0,
@@ -2963,7 +2963,7 @@ const TOKSIKO_DATA: Record<ToksikoKey, {
   treatment: string[]; antidote?: string;
 }> = {
   bb: {
-    name:'Beta-Blocker', tint:'#007AFF',
+    name:'Beta-Blocker', tint:'#0056B3',
     ekgPattern:'Bradikardi sinus, PR memanjang, AV blok derajat tinggi',
     mechanism:'Blokade reseptor β₁ → ↓ cAMP → ↓ HR, ↓ kontraktilitas, konduksi AV melambat.',
     manifestations:['Bradikardi berat','Hipotensi','Bronkospasme (non-kardioselektif)','Hipoglikemia (pediatrik)'],
@@ -2971,7 +2971,7 @@ const TOKSIKO_DATA: Record<ToksikoKey, {
     antidote:'Glucagon (bypass adenilat siklase langsung)'
   },
   ccb: {
-    name:'Ca Channel Blocker', tint:'#FF9500',
+    name:'Ca Channel Blocker', tint:'#FFA000',
     ekgPattern:'Bradikardi, PR memanjang, AV blok, QRS lebar (dihidropiridin: takikardi refleks)',
     mechanism:'Blokade L-type Ca²⁺ → ↓ HR (SA/AV node), ↓ kontraktilitas, vasodilatasi.',
     manifestations:['Bradikardi & AV blok (non-DHP)','Hipotensi','Hiperglikemia (blokir sekresi insulin)','Edema paru'],
@@ -2979,7 +2979,7 @@ const TOKSIKO_DATA: Record<ToksikoKey, {
     antidote:'Kalsium IV (kompetisi langsung di kanal L-type)'
   },
   dig: {
-    name:'Digoksin', tint:'#34C759',
+    name:'Digoksin', tint:'#1E8E3E',
     ekgPattern:'Bidirectional VT, downsloping ST (digitalis effect), AV blok, bradikardi, takiaritmia',
     mechanism:'Inhibisi Na⁺/K⁺-ATPase → ↑ Ca²⁺ intrasel → inotropik +; pada toksisitas: afterdepolarization, triggered activity.',
     manifestations:['Mual/muntah (GI awal)','Bidirectional VT (patognomonik)','AV blok + irama junctional','Hiperkalemia (marker severity)'],
@@ -2987,7 +2987,7 @@ const TOKSIKO_DATA: Record<ToksikoKey, {
     antidote:'DigiFab — Fab antibodi spesifik digoksin'
   },
   tca: {
-    name:'Antidepresan Trisiklik', tint:'#AF52DE',
+    name:'Antidepresan Trisiklik', tint:'#9333EA',
     ekgPattern:'QRS lebar >100 ms, R wave tinggi di aVR, RBBB-like, QTc panjang, sinus takikardi',
     mechanism:'Blokade fast Na⁺ (QRS ↑), blokade K⁺ (QT ↑), blokade α1 (hipotensi), antikolinergik, blokade H1.',
     manifestations:['Takikardi & hipotensi','QRS ≥120 ms → seizure/aritmia','Antikolinergik: delirium, retensi urin, midriasis','Status epileptikus'],
@@ -2995,7 +2995,7 @@ const TOKSIKO_DATA: Record<ToksikoKey, {
     antidote:'Natrium Bikarbonat (alkalinisasi serum)'
   },
   cocaine: {
-    name:'Kokain / Stimulan', tint:'#FF2D55',
+    name:'Kokain / Stimulan', tint:'#B6171E',
     ekgPattern:'ST elevasi (vasospasme), sinus takikardi, QRS/QTc normal atau sedikit memanjang',
     mechanism:'Blokade reuptake NE/DA → simpatomimetik; blokade Na⁺ channel → efek membran lokal.',
     manifestations:['Vasospasme koroner → STEMI tanpa plak','Hipertensi krisis','Aortic dissection','Kardiomiopati'],
@@ -3051,17 +3051,17 @@ function ToksikoTab() {
         ))}
       </div>
       {/* Treatment */}
-      <div style={{ background:'rgba(52,199,89,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(52,199,89,0.2)' }}>
-        <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700, marginBottom:6 }}>TATALAKSANA</div>
+      <div style={{ background:'color-mix(in srgb, var(--success) 6%, transparent)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--success) 20%, transparent)' }}>
+        <div className="t-caption-2" style={{ color:'#1E8E3E', fontWeight:700, marginBottom:6 }}>TATALAKSANA</div>
         {d.treatment.map((t,i) => (
           <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:5 }}>
-            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700, flexShrink:0, width:16 }}>{i+1}.</div>
+            <div className="t-caption-2" style={{ color:'#1E8E3E', fontWeight:700, flexShrink:0, width:16 }}>{i+1}.</div>
             <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{t}</div>
           </div>
         ))}
         {d.antidote && (
-          <div style={{ background:'rgba(52,199,89,0.12)', borderRadius:10, padding:'8px 10px', marginTop:8 }}>
-            <div className="t-caption-2" style={{ color:'#34C759', fontWeight:700 }}>ANTIDOT SPESIFIK</div>
+          <div style={{ background:'color-mix(in srgb, var(--success) 12%, transparent)', borderRadius:10, padding:'8px 10px', marginTop:8 }}>
+            <div className="t-caption-2" style={{ color:'#1E8E3E', fontWeight:700 }}>ANTIDOT SPESIFIK</div>
             <div className="t-caption-1" style={{ color:'var(--label-primary)', marginTop:2 }}>{d.antidote}</div>
           </div>
         )}
@@ -3075,10 +3075,10 @@ function ToksikoTab() {
    Tab: Koagulasi & Antikoagulan
    ============================================================ */
 const CASCADE_STEPS = [
-  { label:'Jalur Ekstrinsik', items:['TF + VIIa → Xa + IXa'], color:'#FF9500' },
-  { label:'Jalur Intrinsik', items:['XII → XI → IX → IXa'], color:'#007AFF' },
-  { label:'Jalur Bersama', items:['Xa + Va → Protrombin → Trombin'], color:'#AF52DE' },
-  { label:'Fibrin', items:['Trombin: Fibrinogen → Fibrin','XIII → Fibrin cross-linked (clot)'], color:'#34C759' },
+  { label:'Jalur Ekstrinsik', items:['TF + VIIa → Xa + IXa'], color:'#FFA000' },
+  { label:'Jalur Intrinsik', items:['XII → XI → IX → IXa'], color:'#0056B3' },
+  { label:'Jalur Bersama', items:['Xa + Va → Protrombin → Trombin'], color:'#9333EA' },
+  { label:'Fibrin', items:['Trombin: Fibrinogen → Fibrin','XIII → Fibrin cross-linked (clot)'], color:'#1E8E3E' },
 ];
 
 type AKKey = 'heparin'|'lmwh'|'warfarin'|'noac';
@@ -3087,7 +3087,7 @@ const ANTICOAG_DATA: Record<AKKey, {
   monitor: string; onset: string; reversal: string; indication: string;
 }> = {
   heparin: {
-    name:'Heparin UFH', tint:'#007AFF',
+    name:'Heparin UFH', tint:'#0056B3',
     target:'AT-III → inhibisi trombin (IIa) + Xa',
     monitor:'aPTT 60–100 s (1.5–2.5× normal)',
     onset:'Immediat IV',
@@ -3095,7 +3095,7 @@ const ANTICOAG_DATA: Record<AKKey, {
     indication:'ACS, PE/DVT akut, bypass, ECMO'
   },
   lmwh: {
-    name:'LMWH (Enoxaparin)', tint:'#34C759',
+    name:'LMWH (Enoxaparin)', tint:'#1E8E3E',
     target:'AT-III → inhibisi Xa > IIa',
     monitor:'Anti-Xa (jika perlu: obesitas, gagal ginjal)',
     onset:'1–2 jam SC',
@@ -3103,7 +3103,7 @@ const ANTICOAG_DATA: Record<AKKey, {
     indication:'ACS, tromboprofilaksis, DVT/PE'
   },
   warfarin: {
-    name:'Warfarin', tint:'#FF9500',
+    name:'Warfarin', tint:'#FFA000',
     target:'Inhibisi vitamin K epoksida reduktase → ↓ II, VII, IX, X',
     monitor:'INR (target 2–3; 2.5–3.5 katup prostetik)',
     onset:'2–5 hari',
@@ -3111,7 +3111,7 @@ const ANTICOAG_DATA: Record<AKKey, {
     indication:'AF, tromboprofilaksis jangka panjang, katup mekanik'
   },
   noac: {
-    name:'NOAC (Rivaroxaban / Apixaban / Dabigatran)', tint:'#AF52DE',
+    name:'NOAC (Rivaroxaban / Apixaban / Dabigatran)', tint:'#9333EA',
     target:'Direct Xa inhibitor (Rivaroxaban, Apixaban) atau Direct trombin inhibitor (Dabigatran)',
     monitor:'Tidak rutin (PT/aPTT tidak reliabel)',
     onset:'1–4 jam',
@@ -3147,9 +3147,9 @@ function KoagulasiTab() {
             </div>
           ))}
         </div>
-        <div style={{ marginTop:10, background:'rgba(52,199,89,0.06)', borderRadius:10, padding:'8px 12px' }}>
+        <div style={{ marginTop:10, background:'color-mix(in srgb, var(--success) 6%, transparent)', borderRadius:10, padding:'8px 12px' }}>
           <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>
-            <strong style={{color:'#34C759'}}>Lab:</strong> PT/INR (ekstrinsik + bersama), aPTT (intrinsik + bersama), TT (fibrin step), fibrinogen (Clauss).
+            <strong style={{color:'#1E8E3E'}}>Lab:</strong> PT/INR (ekstrinsik + bersama), aPTT (intrinsik + bersama), TT (fibrin step), fibrinogen (Clauss).
           </div>
         </div>
       </div>
@@ -3178,14 +3178,14 @@ function KoagulasiTab() {
             <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.5 }}>{v}</div>
           </div>
         ))}
-        <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'10px 12px', marginTop:4, boxShadow:'0 0 0 1px rgba(255,59,48,0.2)' }}>
-          <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700, marginBottom:3 }}>REVERSAL / ANTIDOT</div>
+        <div style={{ background:'color-mix(in srgb, var(--danger) 8%, transparent)', borderRadius:10, padding:'10px 12px', marginTop:4, boxShadow:'0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)' }}>
+          <div className="t-caption-2" style={{ color:'#BA1A1A', fontWeight:700, marginBottom:3 }}>REVERSAL / ANTIDOT</div>
           <div className="t-caption-1" style={{ color:'var(--label-primary)', lineHeight:1.5 }}>{d.reversal}</div>
         </div>
       </div>
       {/* DIC quick note */}
-      <div style={{ background:'rgba(255,45,85,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(255,45,85,0.2)' }}>
-        <div className="t-caption-2" style={{ color:'#FF2D55', fontWeight:700, marginBottom:4 }}>DIC — Disseminated Intravascular Coagulation</div>
+      <div style={{ background:'color-mix(in srgb, var(--sys-pink) 6%, transparent)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--sys-pink) 20%, transparent)' }}>
+        <div className="t-caption-2" style={{ color:'#B6171E', fontWeight:700, marginBottom:4 }}>DIC — Disseminated Intravascular Coagulation</div>
         <div className="t-caption-1" style={{ color:'var(--label-secondary)', lineHeight:1.55 }}>
           Aktivasi koagulasi sistemik (sepsis, trauma, obstetri) → konsumsi faktor → perdarahan + trombosis mikrovaskular.
           Lab: ↓ fibrinogen, ↓ platelet, ↑ PT/aPTT, ↑ D-dimer.
@@ -3204,19 +3204,19 @@ const HYPOXIA_TYPES: Array<{
   key: string; name: string; tint: string;
   mechanism: string; pao2: string; sao2: string; cao2: string; example: string;
 }> = [
-  { key:'hypoxic', name:'Hipoksik', tint:'#FF3B30',
+  { key:'hypoxic', name:'Hipoksik', tint:'#BA1A1A',
     mechanism:'↓ PaO₂ — pengiriman O₂ ke alveolus tidak cukup atau V/Q mismatch',
     pao2:'↓', sao2:'↓', cao2:'↓',
     example:'Pneumonia, PE, ARDS, dataran tinggi, hipoventilasi' },
-  { key:'anemic', name:'Anemik', tint:'#FF9500',
+  { key:'anemic', name:'Anemik', tint:'#FFA000',
     mechanism:'↓ [Hb] — pembawa O₂ kurang meski PaO₂ normal',
     pao2:'N', sao2:'N', cao2:'↓',
     example:'Anemia berat, perdarahan akut, CO poisoning' },
-  { key:'circulatory', name:'Sirkulasi', tint:'#AF52DE',
+  { key:'circulatory', name:'Sirkulasi', tint:'#9333EA',
     mechanism:'↓ CO — DO₂ turun meski CaO₂ normal (demand > supply)',
     pao2:'N', sao2:'N', cao2:'N',
     example:'Syok kardiogenik, PEA, gagal jantung berat' },
-  { key:'histotoxic', name:'Histotoksik', tint:'#34C759',
+  { key:'histotoxic', name:'Histotoksik', tint:'#1E8E3E',
     mechanism:'Sel tidak mampu menggunakan O₂ — mitokondria dihambat',
     pao2:'N', sao2:'N', cao2:'N',
     example:'Sianida, keracunan CO₂ tinggi, sepsis berat' },
@@ -3244,8 +3244,8 @@ function RespirasiTab() {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
       {/* DO2 equation */}
-      <div style={{ background:'rgba(0,122,255,0.06)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px rgba(0,122,255,0.2)' }}>
-        <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700, marginBottom:6 }}>PERSAMAAN DO₂ (Oxygen Delivery)<Cite n={1} href="https://doi.org/10.1097/00005373-197405000-00008"/></div>
+      <div style={{ background:'color-mix(in srgb, var(--accent) 6%, transparent)', borderRadius:14, padding:'14px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent)' }}>
+        <div className="t-caption-2" style={{ color:'#0056B3', fontWeight:700, marginBottom:6 }}>PERSAMAAN DO₂ (Oxygen Delivery)<Cite n={1} href="https://doi.org/10.1097/00005373-197405000-00008"/></div>
         <div style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--label-primary)', marginBottom:8, lineHeight:1.7 }}>
           DO₂ = CO × CaO₂ × 10<br/>
           CaO₂ = (Hb × 1.34 × SaO₂) + (PaO₂ × 0.0031)
@@ -3271,24 +3271,24 @@ function RespirasiTab() {
             <line key={p} x1={toX(p)} x2={toX(p)} y1={PAD} y2={H-PAD} stroke="var(--separator)" strokeWidth="0.5"/>
           ))}
           {/* Curve */}
-          <path d={pathD} fill="none" stroke="#007AFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d={pathD} fill="none" stroke="#0056B3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           {/* P50 marker */}
-          <circle cx={toX(27)} cy={toY(50)} r={4} fill="#FF9500"/>
-          <text x={toX(27)+6} y={toY(50)-5} fontSize="9" fill="#FF9500" fontWeight="bold">P50=27</text>
+          <circle cx={toX(27)} cy={toY(50)} r={4} fill="#FFA000"/>
+          <text x={toX(27)+6} y={toY(50)-5} fontSize="9" fill="#FFA000" fontWeight="bold">P50=27</text>
           {/* SpO2 90% marker */}
-          <circle cx={toX(60)} cy={toY(90)} r={3} fill="#34C759"/>
-          <text x={toX(60)+5} y={toY(90)-4} fontSize="8" fill="#34C759">SpO₂90%@PO₂60</text>
+          <circle cx={toX(60)} cy={toY(90)} r={3} fill="#1E8E3E"/>
+          <text x={toX(60)+5} y={toY(90)-4} fontSize="8" fill="#1E8E3E">SpO₂90%@PO₂60</text>
           {/* Axes labels */}
           <text x={W/2} y={H-2} fontSize="9" fill="var(--label-tertiary)" textAnchor="middle">PaO₂ (mmHg)</text>
           <text x={8} y={H/2} fontSize="9" fill="var(--label-tertiary)" textAnchor="middle" transform={`rotate(-90,8,${H/2})`}>SaO₂ (%)</text>
         </svg>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginTop:8 }}>
-          <div style={{ background:'rgba(255,59,48,0.08)', borderRadius:10, padding:'8px 10px' }}>
-            <div className="t-caption-2" style={{ color:'#FF3B30', fontWeight:700 }}>Kurva KANAN (↓ afinitas)</div>
+          <div style={{ background:'color-mix(in srgb, var(--danger) 8%, transparent)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#BA1A1A', fontWeight:700 }}>Kurva KANAN (↓ afinitas)</div>
             <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>↑ Temp, ↑ CO₂, ↑ 2,3-DPG, ↓ pH → O₂ mudah lepas ke jaringan</div>
           </div>
-          <div style={{ background:'rgba(0,122,255,0.08)', borderRadius:10, padding:'8px 10px' }}>
-            <div className="t-caption-2" style={{ color:'#007AFF', fontWeight:700 }}>Kurva KIRI (↑ afinitas)</div>
+          <div style={{ background:'color-mix(in srgb, var(--accent) 8%, transparent)', borderRadius:10, padding:'8px 10px' }}>
+            <div className="t-caption-2" style={{ color:'#0056B3', fontWeight:700 }}>Kurva KIRI (↑ afinitas)</div>
             <div className="t-caption-2" style={{ color:'var(--label-secondary)' }}>↓ Temp, ↓ CO₂, ↓ 2,3-DPG, ↑ pH, CO poisoning → O₂ terikat kuat</div>
           </div>
         </div>
@@ -3316,7 +3316,7 @@ function RespirasiTab() {
             {[['PaO₂',ht.pao2],['SaO₂',ht.sao2],['CaO₂',ht.cao2]].map(([k,v]) => (
               <div key={k} style={{ flex:1, background:'var(--fill-tertiary)', borderRadius:8, padding:'6px 8px', textAlign:'center' }}>
                 <div className="t-caption-2" style={{ color:'var(--label-tertiary)' }}>{k}</div>
-                <div className="t-callout" style={{ fontWeight:800, color: v==='↓' ? '#FF3B30' : v==='↑' ? '#34C759' : 'var(--label-secondary)' }}>{v}</div>
+                <div className="t-callout" style={{ fontWeight:800, color: v==='↓' ? '#BA1A1A' : v==='↑' ? '#1E8E3E' : 'var(--label-secondary)' }}>{v}</div>
               </div>
             ))}
           </div>
@@ -3324,8 +3324,8 @@ function RespirasiTab() {
         </div>
       </div>
       {/* A-a gradient */}
-      <div style={{ background:'rgba(48,176,199,0.06)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px rgba(48,176,199,0.2)' }}>
-        <div className="t-caption-2" style={{ color:'#30B0C7', fontWeight:700, marginBottom:4 }}>A-a GRADIENT</div>
+      <div style={{ background:'color-mix(in srgb, var(--sys-teal) 6%, transparent)', borderRadius:14, padding:'12px 16px', boxShadow:'0 0 0 1px color-mix(in srgb, var(--sys-teal) 20%, transparent)' }}>
+        <div className="t-caption-2" style={{ color:'#00838F', fontWeight:700, marginBottom:4 }}>A-a GRADIENT</div>
         <div style={{ fontFamily:'var(--font-mono)', fontSize:12, color:'var(--label-primary)', marginBottom:6 }}>
           PAO₂ = FiO₂×(Patm−PH₂O) − PaCO₂/RQ<br/>
           A-a = PAO₂ − PaO₂ (normal &lt;15 mmHg)
@@ -3344,25 +3344,25 @@ function RespirasiTab() {
    Theory Screen — shared mobile + desktop layout
    ============================================================ */
 const THEORY_TABS = [
-  { key:'cycle',      label:'Siklus Jantung',    sub:'Sistol, diastol, tekanan',          tint:'#FF3B30' },
-  { key:'ap',         label:'Aksi Potensial',    sub:'Fase 0–4, ion channel',             tint:'#FF9500' },
+  { key:'cycle',      label:'Siklus Jantung',    sub:'Sistol, diastol, tekanan',          tint:'#BA1A1A' },
+  { key:'ap',         label:'Aksi Potensial',    sub:'Fase 0–4, ion channel',             tint:'#FFA000' },
   { key:'ec',         label:'E-C Coupling',      sub:'Kalsium, troponin, cross-bridge',   tint:'#FF6B35' },
-  { key:'hemo',       label:'Hemodinamik',       sub:'CO, SVR, preload, afterload',       tint:'#007AFF' },
-  { key:'ans',        label:'Otonom',            sub:'SNS/PNS, baroreflex, vagal',        tint:'#34C759' },
-  { key:'vasopress',  label:'Vasopressor',       sub:'Reseptor α/β, profil obat',         tint:'#30B0C7' },
-  { key:'arrhythmia', label:'Mekanisme Aritmia', sub:'Reentry, ektopik, otomatisitas',    tint:'#AF52DE' },
-  { key:'pharm',      label:'Farmakologi',       sub:'Antiaritmia kelas I–IV',            tint:'#5856D6' },
-  { key:'acs',        label:'Patofisiologi ACS', sub:'Plak, trombosis, STEMI vs NSTEMI',  tint:'#FF2D55' },
-  { key:'shock',      label:'Jenis Syok',        sub:'Distributif, kardiogenik, obstruktif', tint:'#FF3B30' },
-  { key:'electrolyte',label:'Elektrolit & EKG',  sub:'K⁺, Ca²⁺, Mg²⁺, Na⁺',            tint:'#00C7BE' },
-  { key:'ekg12',      label:'EKG 12-Sadapan',   sub:'Sadapan, aksis, morfologi',         tint:'#34C759' },
-  { key:'pocus',      label:'POCUS',             sub:'Eko bedside, 4 views',             tint:'#007AFF' },
-  { key:'postarrest', label:'Post-Arrest',       sub:'PCAS, TTM, neuroproteksi',          tint:'#FF9500' },
-  { key:'ventmek',   label:'Ventilasi Mekanik', sub:'Mode, setting, weaning',             tint:'#5856D6' },
-  { key:'sedasi',    label:'Sedasi & Analgesia', sub:'RASS, propofol, dexmed, NMBA',      tint:'#AF52DE' },
-  { key:'toksiko',   label:'Toksikologi Kardio', sub:'BB/CCB/digoksin overdosis',         tint:'#FF2D55' },
-  { key:'koagulasi', label:'Koagulasi & Antikoagulan', sub:'Heparin, warfarin, NOAC, reversal', tint:'#FF9500' },
-  { key:'respirasi', label:'Respirasi & Oksigenasi', sub:'DO₂, hipoksia, kurva disosiasi Hb', tint:'#30B0C7' },
+  { key:'hemo',       label:'Hemodinamik',       sub:'CO, SVR, preload, afterload',       tint:'#0056B3' },
+  { key:'ans',        label:'Otonom',            sub:'SNS/PNS, baroreflex, vagal',        tint:'#1E8E3E' },
+  { key:'vasopress',  label:'Vasopressor',       sub:'Reseptor α/β, profil obat',         tint:'#00838F' },
+  { key:'arrhythmia', label:'Mekanisme Aritmia', sub:'Reentry, ektopik, otomatisitas',    tint:'#9333EA' },
+  { key:'pharm',      label:'Farmakologi',       sub:'Antiaritmia kelas I–IV',            tint:'#003F87' },
+  { key:'acs',        label:'Patofisiologi ACS', sub:'Plak, trombosis, STEMI vs NSTEMI',  tint:'#B6171E' },
+  { key:'shock',      label:'Jenis Syok',        sub:'Distributif, kardiogenik, obstruktif', tint:'#BA1A1A' },
+  { key:'electrolyte',label:'Elektrolit & EKG',  sub:'K⁺, Ca²⁺, Mg²⁺, Na⁺',            tint:'#00BFA5' },
+  { key:'ekg12',      label:'EKG 12-Sadapan',   sub:'Sadapan, aksis, morfologi',         tint:'#1E8E3E' },
+  { key:'pocus',      label:'POCUS',             sub:'Eko bedside, 4 views',             tint:'#0056B3' },
+  { key:'postarrest', label:'Post-Arrest',       sub:'PCAS, TTM, neuroproteksi',          tint:'#FFA000' },
+  { key:'ventmek',   label:'Ventilasi Mekanik', sub:'Mode, setting, weaning',             tint:'#003F87' },
+  { key:'sedasi',    label:'Sedasi & Analgesia', sub:'RASS, propofol, dexmed, NMBA',      tint:'#9333EA' },
+  { key:'toksiko',   label:'Toksikologi Kardio', sub:'BB/CCB/digoksin overdosis',         tint:'#B6171E' },
+  { key:'koagulasi', label:'Koagulasi & Antikoagulan', sub:'Heparin, warfarin, NOAC, reversal', tint:'#FFA000' },
+  { key:'respirasi', label:'Respirasi & Oksigenasi', sub:'DO₂, hipoksia, kurva disosiasi Hb', tint:'#00838F' },
 ];
 
 interface TheoryScreenProps { nav?: Nav; isMobile?: boolean; }
