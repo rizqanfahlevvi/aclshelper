@@ -102,6 +102,8 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'theory': return { tab: 'home',  frame: { screen: 'theory' },                                      deskScreen: 'theory',    deskId: null        };
     case 'about':  return { tab: 'home',  frame: { screen: 'about'  },                                      deskScreen: 'about',     deskId: null        };
     case 'settings': return { tab: 'home', frame: { screen: 'settings' },                                    deskScreen: 'settings',  deskId: null        };
+    case 'defib':  return { tab: 'home',  frame: { screen: 'defib'  },                                      deskScreen: 'defib',     deskId: null        };
+    case 'peds':   return { tab: 'home',  frame: { screen: 'peds'   },                                      deskScreen: 'peds',      deskId: null        };
     default:       return { tab: 'home',  frame: { screen: 'home' },                                        deskScreen: 'dashboard', deskId: null };
   }
 }

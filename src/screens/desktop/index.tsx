@@ -26,6 +26,8 @@ const SIDEBAR_NAV = [
   { key: "theory",    label: "Teori",       desc: "Sistem konduksi jantung",      icon: Icons.activity },
   { key: "hsts",      label: "Hs & Ts",     desc: "10 penyebab reversibel",       icon: Icons.clipboard },
   { key: "calc",      label: "Kalkulator",  desc: "11 kalkulator + vasopressor",  icon: Icons.calculator },
+  { key: "defib",     label: "Defibrilasi", desc: "Panduan energi & kardioversi", icon: Icons.bolt },
+  { key: "peds",      label: "Pediatrik",   desc: "Referensi PALS & Broselow",    icon: Icons.heart },
   { key: "about",     label: "Tentang",     desc: "Versi & changelog",            icon: Icons.info },
   { key: "settings",  label: "Pengaturan",  desc: "Tampilan, font & cache",       icon: Icons.settings },
 ];
