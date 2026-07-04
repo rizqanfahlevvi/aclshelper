@@ -711,20 +711,23 @@ export const CALCULATORS: Calculator[] = [
         (v.dm_htn ? 1 : 0) + (v.sbpLow ? 3 : 0) + (v.hrHigh ? 2 : 0) +
         (v.killip ? 2 : 0) + (v.weightLow ? 1 : 0) + (v.anterior ? 1 : 0) + (v.timeDelay ? 1 : 0);
 
-      // Approximate 30-day mortality from InTIME II
-      const mortalityMap: Array<[number, string, string, string]> = [
-        [1,  '0.8%',  'Risiko Rendah',    '#1E8E3E'],
-        [2,  '1.6%',  'Risiko Rendah',    '#1E8E3E'],
-        [3,  '2.2%',  'Risiko Rendah',    '#1E8E3E'],
-        [4,  '4.4%',  'Risiko Menengah',  '#FFA000'],
-        [5,  '7.3%',  'Risiko Menengah',  '#FFA000'],
-        [6,  '10.6%', 'Risiko Tinggi',    '#BA1A1A'],
-        [7,  '12.9%', 'Risiko Tinggi',    '#BA1A1A'],
-        [8,  '17.4%', 'Risiko Tinggi',    '#BA1A1A'],
-        [Infinity, '22–35%+', 'Risiko Sangat Tinggi', '#BA1A1A'],
-      ];
-      const row = mortalityMap.find(([max]) => score <= max) || mortalityMap[mortalityMap.length - 1];
-      const [, pct, label, color] = row;
+      // 30-day mortality per skor (Morrow et al. Circulation 2000, InTIME II).
+      // Pemetaan per-skor eksak — jangan pakai "score <= max" karena skor 0
+      // dan 1 punya mortalitas berbeda (0.8% vs 1.6%).
+      const mortalityByScore: Record<number, [string, string, string]> = {
+        0: ['0.8%',  'Risiko Rendah',    '#1E8E3E'],
+        1: ['1.6%',  'Risiko Rendah',    '#1E8E3E'],
+        2: ['2.2%',  'Risiko Rendah',    '#1E8E3E'],
+        3: ['4.4%',  'Risiko Menengah',  '#FFA000'],
+        4: ['7.3%',  'Risiko Menengah',  '#FFA000'],
+        5: ['12.4%', 'Risiko Tinggi',    '#BA1A1A'],
+        6: ['16.1%', 'Risiko Tinggi',    '#BA1A1A'],
+        7: ['23.4%', 'Risiko Tinggi',    '#BA1A1A'],
+        8: ['26.8%', 'Risiko Sangat Tinggi', '#BA1A1A'],
+      };
+      const [pct, label, color] = score >= 9
+        ? ['35.9%', 'Risiko Sangat Tinggi', '#BA1A1A']
+        : mortalityByScore[score];
 
       return {
         score,
