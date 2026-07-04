@@ -1077,4 +1077,242 @@ export const CALCULATORS: Calculator[] = [
       };
     },
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 18. QTc — Koreksi Interval QT                                       */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'qtc',
+    kind: 'calculator',
+    name: 'QTc — Koreksi Interval QT',
+    short: 'QTc',
+    category: 'Aritmia',
+    tint: C.purple,
+    description: 'QT terkoreksi (Bazett & Fridericia) — risiko Torsades',
+    source: 'Bazett 1920; Fridericia 1920; AHA/ACC/HRS',
+    fields: [
+      { key: 'qt', label: 'Interval QT terukur', type: 'number', unit: 'ms', min: 200, max: 800, step: 5, defaultValue: 400 },
+      { key: 'hr', label: 'Laju Jantung', type: 'number', unit: 'bpm', min: 30, max: 250, step: 1, defaultValue: 60 },
+      { key: 'female', label: 'Jenis Kelamin Perempuan', type: 'checkbox' },
+    ],
+    compute: (v) => {
+      const qt = Number(v.qt) || 400;
+      const hr = Math.max(20, Number(v.hr) || 60);
+      const rr = 60 / hr; // detik
+      const qtSec = qt / 1000;
+      const bazett = Math.round((qtSec / Math.sqrt(rr)) * 1000);
+      const frid = Math.round((qtSec / Math.cbrt(rr)) * 1000);
+      const female = Boolean(v.female);
+      const prolongThresh = female ? 470 : 450;
+
+      let label: string, color: string, risk: string;
+      if (bazett >= 500)              { label = 'QTc Sangat Panjang'; color = C.red;   risk = 'Risiko tinggi Torsades de Pointes — hentikan obat pemanjang QT, koreksi K⁺/Mg²⁺'; }
+      else if (bazett >= prolongThresh) { label = 'QTc Memanjang';    color = C.amber; risk = `Di atas batas (${prolongThresh} ms untuk ${female ? 'perempuan' : 'laki-laki'}) — waspadai obat & elektrolit`; }
+      else                            { label = 'QTc Normal';        color = C.green; risk = 'Dalam batas normal'; }
+
+      return {
+        score: `${bazett} ms`,
+        label,
+        risk,
+        color,
+        detail: `Bazett (paling umum): QTc = QT/√RR = ${bazett} ms\nFridericia (lebih baik pada takikardi): QTc = QT/∛RR = ${frid} ms\nRR = 60/${hr} = ${rr.toFixed(2)} s\n\nAmbang memanjang: >450 ms (L) / >470 ms (P). >500 ms → risiko Torsades bermakna\nBazett cenderung over-koreksi saat takikardi & under-koreksi saat bradikardi`,
+      };
+    },
+    notes: [
+      'Bazett paling banyak dipakai klinis tetapi kurang akurat pada HR ekstrem — Fridericia lebih stabil pada takikardi',
+      'QTc >500 ms atau kenaikan >60 ms dari baseline: risiko Torsades bermakna',
+      'Koreksi hipokalemia, hipomagnesemia, hipokalsemia; tinjau ulang obat pemanjang QT (antiaritmia, antiemetik, makrolida, antipsikotik)',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 19. Koreksi Elektrolit                                              */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'lyte-correct',
+    kind: 'calculator',
+    name: 'Koreksi Elektrolit',
+    short: 'Koreksi Lyte',
+    category: 'Elektrolit',
+    tint: C.teal,
+    description: 'Kalsium (albumin), Natrium (glukosa), Kalium (pH)',
+    source: 'Payne 1973; Katz 1973; Adrogué-Madias',
+    fields: [
+      { key: 'mode', label: 'Mode', type: 'select', defaultValue: 'calcium',
+        options: [
+          { label: 'Kalsium terkoreksi albumin', value: 'calcium' },
+          { label: 'Natrium terkoreksi hiperglikemia', value: 'sodium' },
+          { label: 'Kalium — perkiraan efek pH', value: 'potassium' },
+        ] },
+      { key: 'ca', label: 'Kalsium total (mode Kalsium)', type: 'number', unit: 'mg/dL', min: 4, max: 16, step: 0.1, defaultValue: 8.5 },
+      { key: 'albumin', label: 'Albumin (mode Kalsium)', type: 'number', unit: 'g/dL', min: 1, max: 6, step: 0.1, defaultValue: 4.0 },
+      { key: 'na', label: 'Natrium terukur (mode Natrium)', type: 'number', unit: 'mEq/L', min: 100, max: 180, step: 1, defaultValue: 130 },
+      { key: 'glucose', label: 'Glukosa (mode Natrium)', type: 'number', unit: 'mg/dL', min: 70, max: 1500, step: 10, defaultValue: 400 },
+      { key: 'k', label: 'Kalium terukur (mode Kalium)', type: 'number', unit: 'mEq/L', min: 1, max: 9, step: 0.1, defaultValue: 4.0 },
+      { key: 'ph', label: 'pH (mode Kalium)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40 },
+    ],
+    compute: (v) => {
+      const mode = String(v.mode || 'calcium');
+
+      if (mode === 'calcium') {
+        const ca = Number(v.ca) || 8.5;
+        const alb = Number(v.albumin) || 4.0;
+        const corr = ca + 0.8 * (4.0 - alb);
+        const label = corr < 8.5 ? 'Hipokalsemia (terkoreksi)' : corr > 10.5 ? 'Hiperkalsemia (terkoreksi)' : 'Kalsium Normal (terkoreksi)';
+        const color = corr < 8.5 || corr > 10.5 ? C.amber : C.green;
+        return { score: `${corr.toFixed(1)} mg/dL`, label, color,
+          detail: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${corr.toFixed(1)} mg/dL\n\nPada hipoalbuminemia, Ca total rendah palsu; Ca terionisasi lebih akurat bila tersedia` };
+      }
+
+      if (mode === 'sodium') {
+        const na = Number(v.na) || 130;
+        const glu = Number(v.glucose) || 400;
+        // Katz 1.6 per 100 mg/dL di atas 100; faktor 2.4 lebih akurat bila glukosa sangat tinggi
+        const factor = glu > 400 ? 2.4 : 1.6;
+        const corr = na + factor * ((glu - 100) / 100);
+        return { score: `${corr.toFixed(1)} mEq/L`, label: 'Natrium Terkoreksi', color: C.teal,
+          detail: `Na terkoreksi = Na + ${factor} × ((glukosa − 100)/100)\n= ${na} + ${factor} × ((${glu} − 100)/100) = ${corr.toFixed(1)} mEq/L\n\nHiperglikemia menarik air → hiponatremia dilusional palsu. Faktor 1.6 (Katz); 2.4 lebih tepat bila glukosa >400 mg/dL` };
+      }
+
+      // potassium — perkiraan efek pH (~0.6 mEq/L per 0.1 unit pH, arah berlawanan)
+      const k = Number(v.k) || 4.0;
+      const ph = Number(v.ph) || 7.40;
+      const kAt74 = k + 0.6 * ((ph - 7.40) / 0.1);
+      return { score: `${kAt74.toFixed(1)} mEq/L`, label: 'Perkiraan K⁺ pada pH 7.40', color: C.amber,
+        detail: `Perkiraan K⁺ "sebenarnya" ≈ K + 0.6 × ((pH − 7.40)/0.1)\n= ${k} + 0.6 × ((${ph} − 7.40)/0.1) = ${kAt74.toFixed(1)} mEq/L\n\nAsidemia menggeser K⁺ keluar sel (K serum tampak tinggi); alkalemia sebaliknya. Aturan kasar — total K tubuh bisa berbeda. Selalu korelasikan klinis` };
+    },
+    notes: [
+      'Kalsium: koreksi Payne hanya perkiraan — Ca terionisasi adalah baku emas, terutama pada sakit kritis',
+      'Natrium: hiperglikemia menyebabkan pseudohiponatremia; koreksi dulu sebelum menilai gangguan Na sesungguhnya',
+      'Kalium & pH: aturan 0.6 mEq/L per 0.1 pH bersifat kasar dan bervariasi — jangan menunda tata laksana hiperkalemia bermakna',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 20. VIS — Vasoactive-Inotropic Score                                */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'vis',
+    kind: 'calculator',
+    name: 'VIS — Vasoactive-Inotropic Score',
+    short: 'VIS',
+    category: 'Hemodinamik',
+    tint: C.red,
+    description: 'Beban dukungan vasoaktif kumulatif (keparahan syok)',
+    source: 'Gaies et al. Pediatr Crit Care Med 2010',
+    fields: [
+      { key: 'dopamine', label: 'Dopamin', type: 'number', unit: 'mcg/kg/min', min: 0, max: 50, step: 0.5, defaultValue: 0 },
+      { key: 'dobutamine', label: 'Dobutamin', type: 'number', unit: 'mcg/kg/min', min: 0, max: 50, step: 0.5, defaultValue: 0 },
+      { key: 'epinephrine', label: 'Epinefrin', type: 'number', unit: 'mcg/kg/min', min: 0, max: 5, step: 0.01, defaultValue: 0 },
+      { key: 'norepinephrine', label: 'Norepinefrin', type: 'number', unit: 'mcg/kg/min', min: 0, max: 5, step: 0.01, defaultValue: 0 },
+      { key: 'milrinone', label: 'Milrinon', type: 'number', unit: 'mcg/kg/min', min: 0, max: 2, step: 0.05, defaultValue: 0 },
+      { key: 'vasopressin', label: 'Vasopressin', type: 'number', unit: 'U/kg/min', min: 0, max: 0.01, step: 0.0001, defaultValue: 0 },
+    ],
+    compute: (v) => {
+      const dop = Number(v.dopamine) || 0;
+      const dob = Number(v.dobutamine) || 0;
+      const epi = Number(v.epinephrine) || 0;
+      const ne = Number(v.norepinephrine) || 0;
+      const mil = Number(v.milrinone) || 0;
+      const vaso = Number(v.vasopressin) || 0;
+      const vis = dop + dob + 100 * epi + 100 * ne + 10 * mil + 10000 * vaso;
+      const visR = Math.round(vis * 10) / 10;
+
+      let label: string, color: string, risk: string;
+      if (vis >= 20)       { label = 'VIS Tinggi'; color = C.red;   risk = 'Dukungan vasoaktif berat — konsisten dengan luaran lebih buruk; re-evaluasi sumber syok'; }
+      else if (vis >= 10)  { label = 'VIS Sedang'; color = C.amber; risk = 'Dukungan sedang — pantau tren; VIS puncak 24–48 jam paling prognostik'; }
+      else if (vis > 0)    { label = 'VIS Rendah'; color = C.green; risk = 'Dukungan vasoaktif ringan'; }
+      else                 { label = 'Tanpa Vasoaktif'; color = C.green; risk = 'Tidak ada obat vasoaktif aktif'; }
+
+      return {
+        score: `${visR}`,
+        label,
+        risk,
+        color,
+        detail: `VIS = dopamin + dobutamin + 100×epi + 100×norepi + 10×milrinon + 10000×vasopressin\n= ${dop} + ${dob} + 100×${epi} + 100×${ne} + 10×${mil} + 10000×${vaso}\n= ${visR}\n\nAmbang kasar: <10 rendah, 10–20 sedang, >20 tinggi. Nilai PUNCAK dalam 24–48 jam paling berkorelasi dengan luaran`,
+      };
+    },
+    notes: [
+      'VIS awalnya divalidasi pada bedah jantung anak; dipakai luas sebagai penanda keparahan syok di ICU',
+      'Semua dosis dalam mcg/kg/min kecuali vasopressin (U/kg/min) — pastikan satuan benar sebelum menghitung',
+      'Untuk dewasa, "Norepinephrine Equivalent" adalah alternatif; VIS tetap berguna sebagai tren beban vasoaktif',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 21. Konverter Laju Infus (dosis ↔ mL/jam)                           */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'infusion',
+    kind: 'calculator',
+    name: 'Konverter Laju Infus',
+    short: 'Infus',
+    category: 'Hemodinamik',
+    tint: C.blue,
+    description: 'Dosis berbasis BB → mL/jam untuk konsentrasi apa pun',
+    source: 'Perhitungan farmakologi standar',
+    fields: [
+      { key: 'dose', label: 'Dosis', type: 'number', unit: 'mcg/kg/min', min: 0, max: 100, step: 0.01, defaultValue: 0.1 },
+      { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 1, max: 250, step: 1, defaultValue: 70 },
+      { key: 'amount', label: 'Jumlah Obat dilarutkan', type: 'number', unit: 'mg', min: 0.1, max: 5000, step: 0.1, defaultValue: 4 },
+      { key: 'volume', label: 'Volume Pelarut Total', type: 'number', unit: 'mL', min: 1, max: 1000, step: 1, defaultValue: 50 },
+    ],
+    compute: (v) => {
+      const dose = Number(v.dose) || 0;
+      const wt = Number(v.weight) || 70;
+      const amount = Number(v.amount) || 1;   // mg
+      const volume = Number(v.volume) || 1;   // mL
+      const concMcgMl = (amount * 1000) / volume; // mcg/mL
+      const rateMlHr = concMcgMl > 0 ? (dose * wt * 60) / concMcgMl : 0;
+
+      return {
+        score: `${rateMlHr.toFixed(1)} mL/jam`,
+        label: 'Laju Pompa Infus',
+        color: C.blue,
+        detail: `Konsentrasi = ${amount} mg / ${volume} mL = ${concMcgMl.toFixed(1)} mcg/mL\nLaju dosis = ${dose} mcg/kg/min × ${wt} kg = ${(dose * wt).toFixed(2)} mcg/min\nmL/jam = (dosis × BB × 60) / konsentrasi = ${rateMlHr.toFixed(1)} mL/jam\n\nUntuk obat non-preset. Selalu verifikasi konsentrasi & satuan sesuai protokol RS`,
+      };
+    },
+    notes: [
+      'Rumus: mL/jam = (mcg/kg/min × kg × 60) / (mcg/mL)',
+      'Untuk obat dosis mcg/min (bukan per-kg), abaikan berat badan (anggap BB = 1) atau gunakan modul vasopressor',
+      'Konsentrasi berbeda antar RS — konfirmasi sediaan dengan apoteker/protokol setempat',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 22. Ukuran ETT & Kedalaman Pediatrik (berbasis usia)                */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'ett-peds',
+    kind: 'calculator',
+    name: 'ETT Pediatrik (berbasis usia)',
+    short: 'ETT Anak',
+    category: 'Pediatrik',
+    tint: C.teal,
+    description: 'Ukuran & kedalaman ETT, perkiraan BB (usia ≥ 1 tahun)',
+    source: 'APLS / PALS; Cole formula',
+    fields: [
+      { key: 'age', label: 'Usia', type: 'number', unit: 'tahun', min: 1, max: 14, step: 1, defaultValue: 4 },
+    ],
+    compute: (v) => {
+      const age = Math.max(1, Math.min(14, Number(v.age) || 4));
+      const uncuffed = age / 4 + 4;          // Cole
+      const cuffed = age / 4 + 3.5;
+      const depth = age / 2 + 12;             // cm di bibir
+      // perkiraan BB (APLS): 1-5 th (2×usia+8) atau (usia+4)×2; 6-12 th (3×usia+7)
+      const weight = age <= 5 ? (age + 4) * 2 : 3 * age + 7;
+
+      return {
+        score: `${uncuffed.toFixed(1)} mm`,
+        label: `ETT tanpa balon ${uncuffed.toFixed(1)} / dengan balon ${cuffed.toFixed(1)}`,
+        color: C.teal,
+        detail: `Usia ${age} th\nETT tanpa balon (ID) = usia/4 + 4 = ${uncuffed.toFixed(1)} mm\nETT dengan balon (ID) = usia/4 + 3.5 = ${cuffed.toFixed(1)} mm\nKedalaman di bibir = usia/2 + 12 = ${depth.toFixed(1)} cm (≈ ID × 3)\nPerkiraan BB = ${weight} kg\n\nSiapkan juga ukuran ±0.5 mm. Konfirmasi posisi dengan auskultasi, EtCO₂, dan foto toraks`,
+      };
+    },
+    notes: [
+      'Formula usia untuk ≥ 1 tahun. Neonatus/bayi: gunakan berat & panjang (pita Broselow di menu Pediatrik)',
+      'ETT dengan balon kini rutin dipakai pada anak (kecuali neonatus) — pantau tekanan cuff < 20–25 cmH₂O',
+      'Kedalaman bibir ≈ ukuran ETT (ID) × 3 sebagai cek silang cepat',
+    ],
+  },
 ];

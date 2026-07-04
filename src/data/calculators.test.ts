@@ -272,3 +272,88 @@ describe('CPP', () => {
     expect(f({ sbp: 80, dbp: 50, icp: 25 }).label).toMatch(/Kritis/);
   });
 });
+
+describe('QTc', () => {
+  const f = calc('qtc');
+  it('QT400 HR60 → Bazett 400ms (RR=1) normal', () => {
+    const r = f({ qt: 400, hr: 60, female: false });
+    expect(r.score).toBe('400 ms');
+    expect(r.label).toMatch(/Normal/);
+  });
+  it('QT480 HR75 → memanjang', () => {
+    // RR=0.8, Bazett=480/√0.8≈537 → sangat panjang
+    expect(f({ qt: 480, hr: 75 }).label).toMatch(/Panjang|Memanjang/);
+  });
+  it('QTc ≥500 → risiko Torsades', () => {
+    expect(f({ qt: 520, hr: 60 }).risk).toMatch(/Torsades/);
+  });
+  it('ambang perempuan lebih tinggi (470 vs 450)', () => {
+    // QT426 HR70 → Bazett≈460: memanjang utk L (>450), normal utk P (<470)
+    const male = f({ qt: 426, hr: 70, female: false });
+    const female = f({ qt: 426, hr: 70, female: true });
+    expect(male.label).toMatch(/Memanjang/);
+    expect(female.label).toMatch(/Normal/);
+  });
+});
+
+describe('Koreksi Elektrolit', () => {
+  const f = calc('lyte-correct');
+  it('Ca 7.0 albumin 2.0 → terkoreksi 8.6', () => {
+    // 7.0 + 0.8×(4-2) = 8.6
+    expect(f({ mode: 'calcium', ca: 7.0, albumin: 2.0 }).score).toBe('8.6 mg/dL');
+  });
+  it('Na 130 glukosa 400 → terkoreksi ~134.8 (faktor 1.6)', () => {
+    // 130 + 1.6×3 = 134.8
+    expect(f({ mode: 'sodium', na: 130, glucose: 400 }).score).toBe('134.8 mEq/L');
+  });
+  it('Na glukosa >400 pakai faktor 2.4', () => {
+    // 130 + 2.4×((500-100)/100)=130+9.6=139.6
+    expect(f({ mode: 'sodium', na: 130, glucose: 500 }).score).toBe('139.6 mEq/L');
+  });
+  it('K 6.0 pH 7.20 → estimasi K pada 7.40 lebih rendah', () => {
+    // 6.0 + 0.6×((7.20-7.40)/0.1)=6.0-1.2=4.8
+    expect(f({ mode: 'potassium', k: 6.0, ph: 7.20 }).score).toBe('4.8 mEq/L');
+  });
+});
+
+describe('VIS', () => {
+  const f = calc('vis');
+  it('tanpa obat → 0', () => {
+    expect(f({}).score).toBe('0');
+    expect(f({}).label).toMatch(/Tanpa Vasoaktif/);
+  });
+  it('norepi 0.1 → VIS 10 (sedang)', () => {
+    const r = f({ norepinephrine: 0.1 });
+    expect(r.score).toBe('10');
+    expect(r.label).toMatch(/Sedang/);
+  });
+  it('epi 0.15 + dopamin 5 → VIS 20 (tinggi)', () => {
+    // 100×0.15 + 5 = 20
+    const r = f({ epinephrine: 0.15, dopamine: 5 });
+    expect(r.score).toBe('20');
+    expect(r.label).toMatch(/Tinggi/);
+  });
+});
+
+describe('Konverter Infus', () => {
+  const f = calc('infusion');
+  it('norepi 0.1 mcg/kg/min, 70kg, 4mg/50mL → ~5.25 mL/jam', () => {
+    // conc = 4000/50 = 80 mcg/mL; rate = 0.1×70×60/80 = 5.25
+    expect(f({ dose: 0.1, weight: 70, amount: 4, volume: 50 }).score).toBe('5.3 mL/jam');
+  });
+});
+
+describe('ETT Pediatrik', () => {
+  const f = calc('ett-peds');
+  it('usia 4 → ETT tanpa balon 5.0 mm', () => {
+    // 4/4 + 4 = 5.0
+    expect(f({ age: 4 }).score).toBe('5.0 mm');
+    expect(f({ age: 4 }).detail).toMatch(/5\.0 mm/);
+  });
+  it('usia 8 → kedalaman 16 cm, ETT 6.0', () => {
+    // 8/4+4=6.0 ; 8/2+12=16
+    const r = f({ age: 8 });
+    expect(r.score).toBe('6.0 mm');
+    expect(r.detail).toMatch(/16\.0 cm/);
+  });
+});

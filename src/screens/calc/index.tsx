@@ -189,7 +189,7 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
           <div className="t-caption-1" style={{
             color: 'rgba(255,255,255,0.8)',
             borderTop: '0.5px solid rgba(255,255,255,0.3)',
-            paddingTop: 8, marginTop: 4,
+            paddingTop: 8, marginTop: 4, whiteSpace: 'pre-line', lineHeight: 1.5,
           }}>{result.detail}</div>
         )}
       </div>
