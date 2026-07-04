@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BottomNav, CPRTimer } from './components/acls';
 import { Icons } from './components/base';
 import type { Tab, DeskScreen, NavFrame, DeskView, NavStack, CprRhythm } from './types';
@@ -24,17 +24,30 @@ import {
 } from './screens/desktop';
 import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
-import { TheoryScreen, DesktopTheory } from './screens/theory';
 import { AboutScreen } from './screens/about';
-import { SettingsScreen } from './screens/settings';
 import { SearchModal } from './screens/search';
+
+/* Layar berat / jarang dibutuhkan di first-load → lazy-load agar keluar
+   dari chunk utama (theory = 3567 baris; admin & settings jarang dibuka). */
+const TheoryScreen = lazy(() => import('./screens/theory').then(m => ({ default: m.TheoryScreen })));
+const DesktopTheory = lazy(() => import('./screens/theory').then(m => ({ default: m.DesktopTheory })));
+const SettingsScreen = lazy(() => import('./screens/settings').then(m => ({ default: m.SettingsScreen })));
+
+/* Fallback saat chunk lazy sedang diunduh (PWA: hampir instan bila sudah
+   di-precache; muncul singkat hanya saat first-load online). */
+const ScreenFallback = (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 40 }}>
+    <div style={{ width: 26, height: 26, borderRadius: '50%', border: '2.5px solid var(--fill-secondary)',
+      borderTopColor: 'var(--accent)', animation: 'acls-spin 0.7s linear infinite' }}/>
+  </div>
+);
 import { useSettings, setSetting } from './lib/settings';
 import { loadFont, fontFamilyStack } from './lib/fontLoader';
 import { useAuth } from './context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { ProfilePopup } from './auth/ProfilePopup';
-import { AdminPage } from './auth/AdminPage';
+const AdminPage = lazy(() => import('./auth/AdminPage').then(m => ({ default: m.AdminPage })));
 
 const FEEDBACK_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbWDxYKapZO4KXt1ovfT_neb3_R5UenGySUnOZ5UYbCAjGEkX3kdwWrltogq44522a/exec';
 
@@ -1207,7 +1220,7 @@ export default function App() {
   const screenKey = tab + '-' + topFrame.screen + '-' + (('id' in topFrame ? topFrame.id : '') || '');
 
   if (adminOpen) {
-    return <AdminPage onBack={() => setAdminOpen(false)}/>;
+    return <Suspense fallback={ScreenFallback}><AdminPage onBack={() => setAdminOpen(false)}/></Suspense>;
   }
 
   /* isAuthorized (from AuthContext) only checks subscriptionExpiredAt, so an
@@ -1307,7 +1320,7 @@ export default function App() {
         <div className={readingActiveMobile ? 'acls-mobile-content reading-mode' : 'acls-mobile-content'} key={screenKey}
           style={subBanner ? { top: 'calc(52px + env(safe-area-inset-top) + 44px)' } : undefined}>
           {lockedOverlay}
-          {renderMobile()}
+          <Suspense fallback={ScreenFallback}>{renderMobile()}</Suspense>
         </div>
 
         {cprOpen && (
@@ -1409,7 +1422,7 @@ export default function App() {
           {/* Content area — CPR panel renders here (absolute) so sidebar stays visible */}
           <div style={{ flex: 1, overflow: 'hidden', background: 'var(--bg-secondary)', position: 'relative' }}>
             {lockedOverlay}
-            {renderDesktop()}
+            <Suspense fallback={ScreenFallback}>{renderDesktop()}</Suspense>
 
             {cprOpen && (
               <>

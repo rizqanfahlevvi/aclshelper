@@ -3,6 +3,19 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        /* Pisah vendor besar ke chunk sendiri: Firebase & React jarang
+           berubah dibanding kode app, jadi cache-nya bertahan lintas rilis
+           dan first-load bisa mengunduh paralel. */
+        manualChunks: {
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          react: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
@@ -12,8 +25,8 @@ export default defineConfig({
         name: 'ACLS Helper',
         short_name: 'ACLS Helper',
         description: 'Alat bantu kognitif bedside BHJL/BHJD — PERKI 2025 + AHA 2025',
-        theme_color: '#FF3B30',
-        background_color: '#F2F2F7',
+        theme_color: '#BA1A1A',
+        background_color: '#F3F3F8',
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
         orientation: 'portrait',
