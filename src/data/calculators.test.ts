@@ -37,6 +37,16 @@ describe('CHA₂DS₂-VASc', () => {
   it('laki-laki skor 1 → risiko sedang', () => {
     expect(f({ chf: true }).label).toMatch(/Sedang/);
   });
+  it('perempuan skor 2 (1 dari gender) → risiko sedang, bukan tinggi', () => {
+    const r = f({ female: true, chf: true });
+    expect(r.score).toBe(2);
+    expect(r.label).toMatch(/Sedang/); // setara laki-laki skor 1
+  });
+  it('perempuan skor 3 (2 nyata + gender) → risiko tinggi', () => {
+    const r = f({ female: true, chf: true, hypertension: true });
+    expect(r.score).toBe(3);
+    expect(r.label).toMatch(/Tinggi/);
+  });
   it('CHF+HTN+usia≥75 (skor 4) → risiko tinggi', () => {
     const r = f({ chf: true, hypertension: true, age75: true });
     expect(r.score).toBe(4);
@@ -112,6 +122,11 @@ describe('CrCl Cockcroft-Gault', () => {
     const male = parseInt(String(f({ age: 65, weight: 70, creatinine: 1.0 }).score));
     const female = parseInt(String(f({ age: 65, weight: 70, creatinine: 1.0, female: true }).score));
     expect(female).toBeLessThan(male);
+  });
+  it('basis IBW pada obesitas < basis aktual', () => {
+    const actual = parseInt(String(f({ age: 65, weight: 120, height: 165, creatinine: 1.0, weightBasis: 'actual' }).score));
+    const ideal = parseInt(String(f({ age: 65, weight: 120, height: 165, creatinine: 1.0, weightBasis: 'ideal' }).score));
+    expect(ideal).toBeLessThan(actual);
   });
 });
 

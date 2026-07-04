@@ -87,10 +87,14 @@ export const CALCULATORS: Calculator[] = [
       if (vals.vascular)     score += 1;
       if (vals.age6574)      score += 1;
       if (vals.female)       score += 1;
-      const femaleOnly = vals.female && score === 1;
-      if (femaleOnly || score === 0) return { score, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: C.green };
-      if (score === 1)               return { score, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: C.amber };
-      return                                { score, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: C.red };
+      // Klasifikasi berbasis skor non-gender: jenis kelamin perempuan hanya
+      // menaikkan ambang, bukan risiko itu sendiri. Laki-laki skor 1 dan
+      // perempuan skor 2 (1 dari gender) sama-sama "pertimbangkan"; laki-laki
+      // ≥2 / perempuan ≥3 baru "direkomendasikan" (AHA/ACC/HRS).
+      const nonSexScore = score - (vals.female ? 1 : 0);
+      if (nonSexScore <= 0) return { score, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: C.green };
+      if (nonSexScore === 1) return { score, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: C.amber };
+      return                        { score, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: C.red };
     },
     notes: [
       'Skor hanya berlaku untuk pasien dengan fibrilasi atrium non-valvular',
@@ -377,23 +381,53 @@ export const CALCULATORS: Calculator[] = [
     source: 'AHA/ACC Guidelines 2022-2025',
     fields: [
       { key: 'age',        label: 'Usia',              type: 'number',  unit: 'tahun',  min: 18,  max: 110,  defaultValue: 65  },
-      { key: 'weight',     label: 'Berat Badan',       type: 'number',  unit: 'kg',     min: 20,  max: 300,  defaultValue: 70  },
+      { key: 'weight',     label: 'Berat Badan Aktual', type: 'number', unit: 'kg',     min: 20,  max: 300,  defaultValue: 70  },
+      { key: 'height',     label: 'Tinggi Badan',       type: 'number', unit: 'cm',     min: 120, max: 220,  defaultValue: 170,
+        description: 'Untuk hitung berat ideal (IBW) — pakai bila memilih basis Ideal/Adjusted' },
       { key: 'creatinine', label: 'Kreatinin Serum',   type: 'number',  unit: 'mg/dL',  min: 0.1, max: 20,   step: 0.1, defaultValue: 1.0 },
+      { key: 'weightBasis', label: 'Basis Berat', type: 'select', defaultValue: 'actual',
+        description: 'Berat aktual meng-overestimasi klirens pada obesitas — gunakan IBW/Adjusted bila BB ≫ ideal',
+        options: [
+          { label: 'Aktual', value: 'actual' },
+          { label: 'Ideal (IBW)', value: 'ideal' },
+          { label: 'Adjusted (obesitas)', value: 'adjusted' },
+        ] },
       { key: 'female',     label: 'Jenis Kelamin Perempuan', type: 'checkbox' },
     ],
     compute: (vals) => {
       const age = Number(vals.age)        || 0;
-      const wt  = Number(vals.weight)     || 0;
+      const actualWt = Number(vals.weight) || 0;
+      const height = Number(vals.height)  || 170;
       const cr  = Number(vals.creatinine) || 1;
+      const basis = String(vals.weightBasis || 'actual');
       const sex = vals.female ? 0.85 : 1;
-      const crcl = ((140 - age) * wt) / (72 * cr) * sex;
+
+      // Ideal Body Weight (Devine); Adjusted = IBW + 0.4×(aktual − IBW)
+      const ibw = (vals.female ? 45.5 : 50) + 0.91 * (height - 152.4);
+      const adjBw = ibw + 0.4 * (actualWt - ibw);
+      const wt = basis === 'ideal' ? ibw
+        : basis === 'adjusted' ? adjBw
+        : actualWt;
+      const wtUsed = Math.max(0, wt);
+
+      const crcl = ((140 - age) * wtUsed) / (72 * cr) * sex;
       const score = Math.round(crcl) + ' mL/min';
-      if      (crcl < 15)  return { score, label: 'Gagal Ginjal Berat',           risk: 'Pertimbangkan HD — sesuaikan dosis semua obat ginjal',     color: C.red };
-      else if (crcl < 30)  return { score, label: 'Gagal Ginjal Sedang-Berat',    risk: 'Penyesuaian dosis signifikan diperlukan',                  color: C.red };
-      else if (crcl < 60)  return { score, label: 'Gagal Ginjal Sedang',          risk: 'Sesuaikan dosis — kontraindikasi beberapa obat',           color: C.amber };
-      else if (crcl < 90)  return { score, label: 'Gagal Ginjal Ringan',          risk: 'Pantau fungsi ginjal',                                     color: C.amber };
-      else                 return { score, label: 'Normal / Sedikit Menurun',     risk: 'Dosis standar umumnya aman',                              color: C.green };
+      const basisNote = basis === 'actual' ? `Berat dipakai: aktual ${Math.round(actualWt)} kg`
+        : basis === 'ideal' ? `Berat dipakai: IBW ${Math.round(ibw)} kg (dari tinggi ${height} cm)`
+        : `Berat dipakai: AdjBW ${Math.round(adjBw)} kg (IBW ${Math.round(ibw)} + 0.4×selisih)`;
+      const detail = `${basisNote}\nCockcroft-Gault: (140−usia)×BB / (72×Cr)${vals.female ? ' × 0.85' : ''}`;
+
+      if      (crcl < 15)  return { score, label: 'Gagal Ginjal Berat',           risk: 'Pertimbangkan HD — sesuaikan dosis semua obat ginjal',     color: C.red, detail };
+      else if (crcl < 30)  return { score, label: 'Gagal Ginjal Sedang-Berat',    risk: 'Penyesuaian dosis signifikan diperlukan',                  color: C.red, detail };
+      else if (crcl < 60)  return { score, label: 'Gagal Ginjal Sedang',          risk: 'Sesuaikan dosis — kontraindikasi beberapa obat',           color: C.amber, detail };
+      else if (crcl < 90)  return { score, label: 'Gagal Ginjal Ringan',          risk: 'Pantau fungsi ginjal',                                     color: C.amber, detail };
+      else                 return { score, label: 'Normal / Sedikit Menurun',     risk: 'Dosis standar umumnya aman',                              color: C.green, detail };
     },
+    notes: [
+      'Berat aktual meng-overestimasi klirens pada obesitas — gunakan IBW (bila BB < ideal, pakai berat aktual) atau AdjBW',
+      'AdjBW = IBW + 0.4 × (berat aktual − IBW), dipakai bila berat aktual > 120–130% IBW',
+      'Cockcroft-Gault memperkirakan CrCl, bukan eGFR — untuk dosing obat, banyak label memakai CrCl C-G',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
@@ -496,9 +530,11 @@ export const CALCULATORS: Calculator[] = [
         else if (pco2 < 35 && hco3 > 26)     { primary = 'Alkalosis Campuran (Respiratorik + Metabolik)'; primaryCode = 'mixed-alk'; }
         else                                  { primary = 'Alkalosis Respiratorik'; primaryCode = 'resp-alk'; }
       } else {
-        // pH normal — could still have compensated or mixed disorder
-        if (pco2 > 45 && hco3 > 26)          { primary = 'Gangguan Campuran Terkompensasi (Resp. Asidosis + Met. Alkalosis)'; primaryCode = 'comp'; }
-        else if (pco2 < 35 && hco3 < 22)     { primary = 'Gangguan Campuran Terkompensasi (Resp. Alkalosis + Met. Asidosis)'; primaryCode = 'comp'; }
+        // pH normal — bisa (a) gangguan kronik terkompensasi penuh, atau
+        // (b) gangguan campuran yang saling meniadakan. Keduanya
+        // menghasilkan pola sama; korelasikan dengan klinis.
+        if (pco2 > 45 && hco3 > 26)          { primary = 'Resp. Asidosis kronik terkompensasi ATAU campuran (Resp. Asidosis + Met. Alkalosis)'; primaryCode = 'comp'; }
+        else if (pco2 < 35 && hco3 < 22)     { primary = 'Resp. Alkalosis kronik terkompensasi ATAU campuran (Resp. Alkalosis + Met. Asidosis)'; primaryCode = 'comp'; }
         else                                  { primary = 'Normal'; primaryCode = 'normal'; }
       }
 
