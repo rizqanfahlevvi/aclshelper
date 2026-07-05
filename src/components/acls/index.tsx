@@ -8,7 +8,7 @@ import type { FlowStep as FlowStepType, CprRhythm, LogEntry, Rhythm } from '../.
 /* ============================================================
    RhythmStrip — inline SVG ECG waveform
    ============================================================ */
-export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = "var(--label-primary)", grid = true }) {
+export const RhythmStrip = React.memo(function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = "var(--label-primary)", grid = true }: { kind?: string; width?: number; height?: number; color?: string; grid?: boolean }) {
   const segments = useMemo(() => {
     const out = [];
     const w = width;
@@ -222,7 +222,7 @@ export function RhythmStrip({ kind = "sinus", width = 260, height = 56, color = 
       {segments.map((d, i) => <path key={i} d={d} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />)}
     </svg>
   );
-}
+});
 
 /* ============================================================
    ConductionDiagram — cardiac conduction system schematic
@@ -311,7 +311,7 @@ const S1_INTERNODAL_B = 'M93.21939,227.49466c-.56305-.059-1.16315-.052-1.71875-.
 const S1_INTERNODAL_A = 'M142.15689,192.30716a20.84071,20.84071,0,0,1,1.03125,2.09375,18.72829,18.72829,0,0,1,.34375,2.125c1.82349.8396,3.38178,1.70654,5.40625,2.53125-1.67932.036-3.28674.32287-4.9375.46875.005.16967.0625.32959.0625.5a18.101,18.101,0,0,1-.6875,4.34375,76.101,76.101,0,0,1,9.375-.5,272.92955,272.92955,0,0,1,40.3125,2.96875c11.78192,1.65942,21.0907,8.79235,27.5625,20.90625,5.974,11.61584,8.9353,25.22558,8.4375,41.15625,0,1.09021-1.06146,16.67175-2.3125,35.3125.58063-.14283,1.22-.39295,1.78125-.5.76141-.14515,1.40265-.10938,2.125-.1875.10968-4.83252.3515-9.64966.90625-14.53125a124.12023,124.12023,0,0,0,4.03125,14.625,13.61973,13.61973,0,0,1,2.71875.5,9.28664,9.28664,0,0,1,1.25.84375c-4.18689-10.38208-6.07013-21.93628-5.5-34.90625.99567-16.76026-1.98944-31.51563-9.125-44.625-7.30145-13.77344-17.77734-21.73719-31.21875-23.5625a261.40151,261.40151,0,0,0-34.34375-2.8125A99.86286,99.86286,0,0,1,142.15689,192.30716Z';
 const S1_BACHMANN     = 'M359.46939,115.58841q-17.46679-1.01514-58.875,15.75-55.0101,22.40222-70.1875,27.5625c-9.61631,3.46819-14.89589,5.12381-15.82665,5.56528a1.70393,1.70393,0,0,1-.23208.09655c-24.5115,7.44419-46.70469,11.57232-66.25377,12.40067-5.84235.16689-11.17523.45063-16.21317.802a1.36275,1.36275,0,0,0-.63058,2.51047v0a27.47776,27.47776,0,0,1,2.65106,2.04213,1.35015,1.35015,0,0,0,.93979.3c4.32518-.26976,8.60875-.54294,13.40915-.6546,21.40662-.82959,47.14209-6.3053,77.34375-16.59375,16.09644-5.64222,33.34-12.44324,51.59375-20.90632q72.43415-33.35457,90.625-22.59375a46.22027,46.22027,0,0,1,7.78125,6.00007,39.47573,39.47573,0,0,1,6.15625,6.96868c1.65943,2.48908,1.82758,8.11121.5,16.90632a141.52738,141.52738,0,0,1-7.3125,26.90625c-3.31891,9.29284-4.47412,14.09375-3.3125,14.09375.99567.16577,2.64337-2.81922,4.46875-9.125,1.0487-3.23347,2.10192-6.28479,3.17914-9.0792a1.35326,1.35326,0,0,1,2.6114.56876c-.14724,2.68449-.31434,5.63111-.478,8.82294-.4978,6.4718-.15192,10.12695.84375,10.625.82971.66357,1.471-2.82361,1.96875-10.125.33191-7.46741.5-13.26966.5-17.75-.15734-4.407.29889-13.43566,1.62056-27.23883a1.356,1.356,0,0,1,2.10585-.99991c2.81453,1.89442,5.90523,3.80493,9.55484,5.83242,5.97562,3.31891,10.96838,6.15522,15.28125,8.31257a18.81094,18.81094,0,0,1,9.28125,9.9375c2.15726,4.48034,2.49567,9.96777,1.5,16.9375-.99567,6.63769-.99567,8.63354,0,5.8125,1.32755-3.153,1.82437-6.81055,2.15625-11.125a51.79716,51.79716,0,0,0-.90318-10.8809,1.35659,1.35659,0,0,1,2.249-1.23241c4.68444,4.29382,7.14038,8.9113,7.2792,13.76956q0,13.19256,1.5,0c1.16159-8.79505-5.98108-17.08545-20.75-24.71875q-22.4023-11.45015-28.375-17.4375c-3.98266-3.98273-10.28693-9.10041-18.75-15.40625C366.35361,116.70968,363.35092,115.814,359.46939,115.58841Z';
 
-export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.ReactElement | null {
+export const ConductionDiagram = React.memo(function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.ReactElement | null {
   const state = CONDUCTION_MAP[rhythmKey];
   if (!state) return null;
   const c = (s: NodeState) => CD_COLORS[s];
@@ -434,7 +434,7 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
       )}
     </div>
   );
-}
+});
 
 /* ============================================================
    FlowStep
@@ -442,7 +442,7 @@ export function ConductionDiagram({ rhythmKey }: { rhythmKey: string }): React.R
 /* ============================================================
    EkgImage — real photo strip with RhythmStrip SVG fallback
    ============================================================ */
-export function EkgImage({ rhythm, style = {} }: { rhythm: Rhythm; style?: React.CSSProperties }) {
+export const EkgImage = React.memo(function EkgImage({ rhythm, style = {} }: { rhythm: Rhythm; style?: React.CSSProperties }) {
   const [status, setStatus] = React.useState('loading'); // loading | loaded | error
 
   if (!rhythm.imageFile) {
@@ -490,9 +490,9 @@ export function EkgImage({ rhythm, style = {} }: { rhythm: Rhythm; style?: React
       )}
     </div>
   );
-}
+});
 
-export function FlowStep({ step, index, total, onAction, expandable = true }: { step: FlowStepType; index: number; total: number; onAction?: (result: string) => void; expandable?: boolean }) {
+export const FlowStep = React.memo(function FlowStep({ step, index, total, onAction, expandable = true }: { step: FlowStepType; index: number; total: number; onAction?: (result: string) => void; expandable?: boolean }) {
   const [open, setOpen] = useState(false);
 
   const tone = ({
@@ -591,18 +591,18 @@ export function FlowStep({ step, index, total, onAction, expandable = true }: { 
       )}
     </div>
   );
-}
+});
 
 /* ============================================================
    FlowConnector
    ============================================================ */
-export function FlowConnector({ tone = "var(--label-tertiary)" }) {
+export const FlowConnector = React.memo(function FlowConnector({ tone = "var(--label-tertiary)" }: { tone?: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "2px 0", color: tone }}>
       <Icons.flowArrow size={18} stroke={2} />
     </div>
   );
-}
+});
 
 /* ============================================================
    BottomNav with center FAB
