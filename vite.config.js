@@ -6,12 +6,17 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        /* Pisah vendor besar ke chunk sendiri: Firebase & React jarang
-           berubah dibanding kode app, jadi cache-nya bertahan lintas rilis
-           dan first-load bisa mengunduh paralel. */
-        manualChunks: {
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          react: ['react', 'react-dom'],
+        /* Pisah bagian yang jarang berubah ke chunk sendiri agar cache
+           bertahan lintas rilis & first-load paralel:
+           - firebase & react: vendor besar
+           - data: konten klinis statis (algoritma/obat/EKG/kalkulator ~2273
+             baris) yang jarang berubah dibanding logika UI. TIDAK di-lazy
+             karena home-search butuh semua data serentak — cukup dipisah
+             chunk untuk granularitas cache. */
+        manualChunks(id) {
+          if (id.includes('/firebase/')) return 'firebase';
+          if (id.includes('/react-dom/') || id.includes('/node_modules/react/')) return 'react';
+          if (id.includes('/src/data/')) return 'data';
         },
       },
     },
