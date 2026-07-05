@@ -6,7 +6,7 @@ import {
   SectionHeader, SectionFooter, List, Row, Pill, Alert,
 } from '../../components/base';
 import { RhythmStrip, FlowStep, FlowConnector, BottomSheet, EkgImage } from '../../components/acls';
-import { EkgConductionPanel } from '../theory';
+import { EkgConductionPanel } from '../../components/conduction';
 import {
   ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, ACLS_HS_TS,
   ACLS_QUICK_ACTIONS, ACLS_FLOW_ARREST, ACLS_FLOW_BRADY,

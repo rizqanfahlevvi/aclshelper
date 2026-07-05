@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Icons } from '../../components/base';
 import { RhythmStrip, EkgImage } from '../../components/acls';
-import { EkgConductionPanel } from '../theory';
+import { EkgConductionPanel } from '../../components/conduction';
 import { PalsScreen, RoscScreen } from '../tools';
 import type { Algorithm, Drug, Rhythm } from '../../types';
 import { useFavorites } from '../../utils/favorites';
