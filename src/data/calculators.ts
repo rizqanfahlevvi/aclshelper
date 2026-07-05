@@ -1315,4 +1315,73 @@ export const CALCULATORS: Calculator[] = [
       'Kedalaman bibir ≈ ukuran ETT (ID) × 3 sebagai cek silang cepat',
     ],
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 23. Rate Koreksi Natrium (hiponatremia — hindari ODS)               */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'na-correction',
+    kind: 'calculator',
+    name: 'Koreksi Natrium (Hiponatremia)',
+    short: 'Koreksi Na',
+    category: 'Elektrolit',
+    tint: C.blue,
+    description: 'Laju aman NaCl 3% (Adrogué-Madias) + batas hindari ODS',
+    source: 'Adrogué & Madias NEJM 2000; SSC/ERBP Hiponatremia',
+    fields: [
+      { key: 'currentNa', label: 'Natrium saat ini', type: 'number', unit: 'mEq/L', min: 100, max: 135, step: 1, defaultValue: 118 },
+      { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 20, max: 200, step: 1, defaultValue: 70 },
+      { key: 'sex', label: 'Jenis Kelamin', type: 'select', defaultValue: 'male',
+        options: [{ label: 'Laki-laki', value: 'male' }, { label: 'Perempuan', value: 'female' }] },
+      { key: 'targetRise', label: 'Target kenaikan / 24 jam', type: 'number', unit: 'mEq/L', min: 1, max: 12, step: 1, defaultValue: 6,
+        description: 'Biasanya 4–6 mEq/L/24 jam; JANGAN lampaui batas aman di bawah' },
+      { key: 'highRisk', label: 'Risiko tinggi ODS', type: 'checkbox',
+        description: 'Na <105, kronik/durasi tak jelas, alkoholisme, malnutrisi, hipokalemia, sirosis, pasca-transplan hati' },
+    ],
+    compute: (v) => {
+      const na = Number(v.currentNa) || 118;
+      const wt = Number(v.weight) || 70;
+      const female = String(v.sex || 'male') === 'female';
+      const highRisk = Boolean(v.highRisk);
+      const rawTarget = Number(v.targetRise) || 6;
+
+      // Total Body Water (Watson sederhana): 0.6 L/kg (L), 0.5 (P)
+      const tbw = wt * (female ? 0.5 : 0.6);
+
+      // Batas aman per 24 jam untuk hindari Osmotic Demyelination Syndrome
+      const limit24 = highRisk ? 6 : 8;   // mEq/L / 24 jam
+      const target = Math.min(rawTarget, limit24);
+      const capped = rawTarget > limit24;
+
+      // Adrogué-Madias: ΔNa serum per 1 L infusat = (Na_infusat − Na_serum) / (TBW + 1)
+      const NA3 = 513;   // NaCl 3% (513 mEq/L)
+      const NA09 = 154;  // NaCl 0.9%
+      const dPer1L_3 = (NA3 - na) / (tbw + 1);
+      const dPer1L_09 = (NA09 - na) / (tbw + 1);
+
+      // Volume NaCl 3% untuk mencapai target dalam 24 jam, lalu laju mL/jam
+      const volL_3 = dPer1L_3 > 0 ? target / dPer1L_3 : 0;
+      const rateMlHr = (volL_3 * 1000) / 24;
+
+      const color = na < 120 ? C.red : na < 130 ? C.amber : C.green;
+      const detail = [
+        `Batas aman: ≤ ${limit24} mEq/L / 24 jam${highRisk ? ' (risiko tinggi ODS)' : ''}; ≤ 18 mEq/L / 48 jam`,
+        capped ? `⚠️ Target diminta ${rawTarget} → dibatasi ke ${target} mEq/L (batas aman)` : `Target: ${target} mEq/L / 24 jam`,
+        `TBW = ${tbw.toFixed(1)} L (${female ? 'P 0.5' : 'L 0.6'} ×BB)`,
+        `Adrogué-Madias: 1 L NaCl 3% menaikkan Na ≈ ${dPer1L_3.toFixed(1)} mEq/L`,
+        `(1 L NaCl 0.9% ≈ ${dPer1L_09 >= 0 ? '+' : ''}${dPer1L_09.toFixed(1)} mEq/L)`,
+        `NaCl 3% ≈ ${Math.round(volL_3 * 1000)} mL / 24 jam → ${rateMlHr.toFixed(0)} mL/jam`,
+        `\nHentikan & cek Na tiap 2–4 jam. Jika overcorrection: D5W ± desmopresin`,
+      ].join('\n');
+
+      return { score: `${rateMlHr.toFixed(0)} mL/jam`, label: 'Laju NaCl 3%', color, detail };
+    },
+    notes: [
+      'Batas aman koreksi: ≤ 8 mEq/L/24 jam (≤ 6 pada risiko tinggi ODS) dan ≤ 18 mEq/L/48 jam',
+      'Hiponatremia berat SIMPTOMATIK (kejang/koma): bolus NaCl 3% 100–150 mL dalam 10 menit, boleh diulang hingga 2–3×, target kenaikan cepat 4–6 mEq/L lalu STOP',
+      'Adrogué-Madias hanya estimasi — Na aktual bisa naik lebih cepat (mis. diuresis air bebas pada SIADH teratasi); ukur Na serial tiap 2–4 jam',
+      'Overcorrection → risiko ODS (mielinolisis pontin). Bila melampaui batas: berikan air bebas (D5W) ± desmopresin untuk menurunkan kembali',
+      'Koreksi hipokalemia bersamaan juga menaikkan Na — perhitungkan',
+    ],
+  },
 ];

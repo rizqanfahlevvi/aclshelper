@@ -343,6 +343,27 @@ describe('Konverter Infus', () => {
   });
 });
 
+describe('Koreksi Natrium (hiponatremia)', () => {
+  const f = calc('na-correction');
+  it('Na118 70kg L target6 → laju NaCl 3% ~27 mL/jam', () => {
+    // TBW=42, ΔNa/L=(513-118)/43=9.19; V=6/9.19=0.653L; rate=653/24≈27
+    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 6, highRisk: false });
+    expect(r.score).toBe('27 mL/jam');
+    expect(r.detail).toMatch(/≤ 8 mEq\/L/);
+  });
+  it('risiko tinggi → batas 6 mEq/L', () => {
+    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 6, highRisk: true });
+    expect(r.detail).toMatch(/≤ 6 mEq\/L/);
+  });
+  it('target melebihi batas aman → dibatasi + peringatan', () => {
+    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 12, highRisk: false });
+    expect(r.detail).toMatch(/dibatasi ke 8/);
+  });
+  it('Na <120 → warna merah (berat)', () => {
+    expect(f({ currentNa: 115 }).color).toBe('#BA1A1A');
+  });
+});
+
 describe('ETT Pediatrik', () => {
   const f = calc('ett-peds');
   it('usia 4 → ETT tanpa balon 5.0 mm', () => {
