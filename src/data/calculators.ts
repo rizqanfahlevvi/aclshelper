@@ -348,11 +348,21 @@ export const CALCULATORS: Calculator[] = [
       const dbp = Number(vals.dbp) || 0;
       const map = dbp + (sbp - dbp) / 3;
       const score = map.toFixed(1);
-      if      (map < 60)  return { score, label: 'Hipoperfusi',  risk: 'Perfusi organ terancam — tangani penyebab',                   color: C.red };
-      else if (map < 70)  return { score, label: 'Borderline',   risk: 'Pertahankan MAP ≥65 mmHg pada syok',                          color: C.amber };
-      else if (map <= 100) return { score, label: 'Normal',       risk: 'Target MAP tercapai',                                         color: C.green };
-      else                return { score, label: 'Hipertensi',   risk: 'Pertimbangkan titrasi antihipertensi',                        color: C.amber };
+      const detail = [
+        `MAP = DBP + (SBP − DBP)/3`,
+        `= ${dbp} + (${sbp} − ${dbp})/3 = ${score} mmHg`,
+        `\nSetara diastol + ⅓ tekanan nadi (perkiraan; monitor arteri lebih akurat pada HR ekstrem/aritmia)`,
+      ].join('\n');
+      if      (map < 60)  return { score, detail, label: 'Hipoperfusi',  risk: 'Perfusi organ terancam — tangani penyebab',                   color: C.red };
+      else if (map < 70)  return { score, detail, label: 'Borderline',   risk: 'Pertahankan MAP ≥65 mmHg pada syok',                          color: C.amber };
+      else if (map <= 100) return { score, detail, label: 'Normal',       risk: 'Target MAP tercapai',                                         color: C.green };
+      else                return { score, detail, label: 'Hipertensi',   risk: 'Pertimbangkan titrasi antihipertensi',                        color: C.amber };
     },
+    notes: [
+      'MAP ≈ tekanan pendorong perfusi organ; target umum syok ≥ 65 mmHg (SSC 2021)',
+      'Rumus diastol + ⅓ tekanan nadi meng-underestimasi MAP pada takikardia berat — pengukuran arteri langsung lebih akurat',
+      'Target individual: pertimbangkan 80–85 mmHg pada hipertensi kronik / cedera ginjal akut',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
@@ -376,11 +386,22 @@ export const CALCULATORS: Calculator[] = [
       const sbp = Number(vals.sbp) || 1;
       const si  = hr / sbp;
       const score = si.toFixed(2);
-      if      (si < 0.6)  return { score, label: 'Normal',              risk: 'Risiko rendah',                             color: C.green };
-      else if (si < 1.0)  return { score, label: 'Normal-Tinggi',       risk: 'Awasi ketat',                               color: C.amber };
-      else if (si < 1.5)  return { score, label: 'Syok Ringan-Sedang',  risk: 'Resusitasi agresif diindikasikan',          color: C.amber };
-      else                return { score, label: 'Syok Berat',          risk: 'Resusitasi masif — perhatian khusus',       color: C.red };
+      const detail = [
+        `Shock Index = HR / SBP`,
+        `= ${hr} / ${sbp} = ${score}`,
+        `\nNormal 0.5–0.7. SI naik lebih dini daripada TD/HR tunggal pada perdarahan/sepsis`,
+      ].join('\n');
+      if      (si < 0.6)  return { score, detail, label: 'Normal',              risk: 'Risiko rendah',                             color: C.green };
+      else if (si < 1.0)  return { score, detail, label: 'Normal-Tinggi',       risk: 'Awasi ketat',                               color: C.amber };
+      else if (si < 1.5)  return { score, detail, label: 'Syok Ringan-Sedang',  risk: 'Resusitasi agresif diindikasikan',          color: C.amber };
+      else                return { score, detail, label: 'Syok Berat',          risk: 'Resusitasi masif — perhatian khusus',       color: C.red };
     },
+    notes: [
+      'Rentang normal 0.5–0.7; SI ≥ 0.9–1.0 berkaitan dengan kebutuhan transfusi masif & mortalitas lebih tinggi',
+      'Lebih sensitif dari HR atau TD sendiri untuk syok tersamar (pasien muda/kompensasi)',
+      'Kurang andal pada: pemakaian beta-blocker, pacu jantung, atau hipertensi kronik (SBP basal tinggi)',
+      'Shock Index Termodifikasi (MAP sebagai penyebut) & Age-SI dapat lebih spesifik pada populasi tertentu',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
