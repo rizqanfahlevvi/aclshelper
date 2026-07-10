@@ -8,6 +8,20 @@ const calc = (key: string) => {
   return c.compute;
 };
 
+describe('Kontribusi skor (breakdown)', () => {
+  const scoringKeys = ['chads2vasc', 'hasbled', 'heart', 'grace', 'timi-ua', 'timi-stemi', 'wells-pe'];
+  it('setiap skoring punya breakdown yang jumlahnya = skor total', () => {
+    for (const k of scoringKeys) {
+      const c = CALCULATORS.find(x => x.key === k)!;
+      // uji beberapa kombinasi input default + sebagian aktif
+      const r = c.compute({ chf: true, hypertension: true, stroke: true, dm_htn: true, sbpLow: true, dvtSigns: true, altDx: true, history: 2, ekg: 1, age: 65, hr: 90, sbp: 90, creatinine: 2, killip: 2, cardiacArrest: true });
+      expect(r.breakdown, `${k} harus punya breakdown`).toBeDefined();
+      const sum = r.breakdown!.reduce((s, it) => s + it.points, 0);
+      expect(sum, `${k}: Σ kontribusi harus = skor`).toBe(Number(r.score));
+    }
+  });
+});
+
 describe('Integritas daftar kalkulator', () => {
   it('setiap kalkulator punya key unik', () => {
     const keys = CALCULATORS.map(c => c.key);

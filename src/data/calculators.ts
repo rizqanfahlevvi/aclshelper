@@ -90,14 +90,24 @@ export const CALCULATORS: Calculator[] = [
       if (vals.vascular)     score += 1;
       if (vals.age6574)      score += 1;
       if (vals.female)       score += 1;
+      const breakdown = [
+        { label: 'Gagal jantung / disfungsi LV', points: vals.chf ? 1 : 0 },
+        { label: 'Hipertensi',                    points: vals.hypertension ? 1 : 0 },
+        { label: 'Usia ≥ 75 tahun',               points: vals.age75 ? 2 : 0 },
+        { label: 'Diabetes melitus',              points: vals.diabetes ? 1 : 0 },
+        { label: 'Stroke / TIA / TE',             points: vals.stroke ? 2 : 0 },
+        { label: 'Penyakit vaskular',             points: vals.vascular ? 1 : 0 },
+        { label: 'Usia 65–74 tahun',              points: vals.age6574 ? 1 : 0 },
+        { label: 'Jenis kelamin perempuan',       points: vals.female ? 1 : 0 },
+      ];
       // Klasifikasi berbasis skor non-gender: jenis kelamin perempuan hanya
       // menaikkan ambang, bukan risiko itu sendiri. Laki-laki skor 1 dan
       // perempuan skor 2 (1 dari gender) sama-sama "pertimbangkan"; laki-laki
       // ≥2 / perempuan ≥3 baru "direkomendasikan" (AHA/ACC/HRS).
       const nonSexScore = score - (vals.female ? 1 : 0);
-      if (nonSexScore <= 0) return { score, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: C.green };
-      if (nonSexScore === 1) return { score, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: C.amber };
-      return                        { score, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: C.red };
+      if (nonSexScore <= 0) return { score, breakdown, label: 'Risiko Rendah',  risk: 'Antikoagulan umumnya tidak direkomendasikan',                         color: C.green };
+      if (nonSexScore === 1) return { score, breakdown, label: 'Risiko Sedang',  risk: 'Pertimbangkan antikoagulan oral',                                     color: C.amber };
+      return                        { score, breakdown, label: 'Risiko Tinggi',  risk: 'Antikoagulan oral direkomendasikan (kecuali kontraindikasi)',          color: C.red };
     },
     notes: [
       'Skor hanya berlaku untuk pasien dengan fibrilasi atrium non-valvular',
@@ -135,9 +145,18 @@ export const CALCULATORS: Calculator[] = [
       if (vals.labileinr)    score += 1;
       if (vals.elderly)      score += 1;
       if (vals.drugs)        score += 1;
-      if (score <= 1) return { score, label: 'Risiko Rendah',  risk: 'Perdarahan mayor <1%/tahun',                                                        color: C.green };
-      if (score === 2) return { score, label: 'Risiko Sedang', risk: 'Perdarahan mayor ~1.9%/tahun',                                                       color: C.amber };
-      return                 { score, label: 'Risiko Tinggi',  risk: 'Perdarahan mayor ≥3%/tahun — koreksi faktor risiko yang dapat dimodifikasi',         color: C.red };
+      const breakdown = [
+        { label: 'Hipertensi tidak terkontrol',   points: vals.hypertension ? 1 : 0 },
+        { label: 'Gangguan ginjal / hati',        points: vals.renalLiver ? 1 : 0 },
+        { label: 'Riwayat stroke',                points: vals.stroke ? 1 : 0 },
+        { label: 'Riwayat / predisposisi perdarahan', points: vals.bleedHistory ? 1 : 0 },
+        { label: 'INR labil (TTR <60%)',          points: vals.labileinr ? 1 : 0 },
+        { label: 'Usia > 65 tahun',               points: vals.elderly ? 1 : 0 },
+        { label: 'Obat / alkohol',                points: vals.drugs ? 1 : 0 },
+      ];
+      if (score <= 1) return { score, breakdown, label: 'Risiko Rendah',  risk: 'Perdarahan mayor <1%/tahun',                                                        color: C.green };
+      if (score === 2) return { score, breakdown, label: 'Risiko Sedang', risk: 'Perdarahan mayor ~1.9%/tahun',                                                       color: C.amber };
+      return                 { score, breakdown, label: 'Risiko Tinggi',  risk: 'Perdarahan mayor ≥3%/tahun — koreksi faktor risiko yang dapat dimodifikasi',         color: C.red };
     },
     notes: [
       'Skor tinggi BUKAN kontraindikasi antikoagulan — gunakan untuk mengidentifikasi dan mengoreksi faktor risiko yang dapat dimodifikasi',
@@ -216,9 +235,16 @@ export const CALCULATORS: Calculator[] = [
     ],
     compute: (vals) => {
       const score = (Number(vals.history) || 0) + (Number(vals.ekg) || 0) + (Number(vals.age) || 0) + (Number(vals.riskfactors) || 0) + (Number(vals.troponin) || 0);
-      if (score <= 3) return { score, label: 'Risiko Rendah',  risk: 'MACE <2% — pertimbangkan early discharge',               color: C.green };
-      if (score <= 6) return { score, label: 'Risiko Sedang',  risk: 'MACE ~12-17% — observasi & pemeriksaan lanjutan',        color: C.amber };
-      return               { score, label: 'Risiko Tinggi',  risk: 'MACE ~50-65% — evaluasi kardiak segera / invasif',       color: C.red };
+      const breakdown = [
+        { label: 'Riwayat',       points: Number(vals.history) || 0 },
+        { label: 'EKG',           points: Number(vals.ekg) || 0 },
+        { label: 'Usia',          points: Number(vals.age) || 0 },
+        { label: 'Faktor risiko', points: Number(vals.riskfactors) || 0 },
+        { label: 'Troponin',      points: Number(vals.troponin) || 0 },
+      ];
+      if (score <= 3) return { score, breakdown, label: 'Risiko Rendah',  risk: 'MACE <2% — pertimbangkan early discharge',               color: C.green };
+      if (score <= 6) return { score, breakdown, label: 'Risiko Sedang',  risk: 'MACE ~12-17% — observasi & pemeriksaan lanjutan',        color: C.amber };
+      return               { score, breakdown, label: 'Risiko Tinggi',  risk: 'MACE ~50-65% — evaluasi kardiak segera / invasif',       color: C.red };
     },
   },
 
@@ -256,56 +282,43 @@ export const CALCULATORS: Calculator[] = [
       { key: 'enzymes',       label: 'Peningkatan enzim jantung',    type: 'checkbox' },
     ],
     compute: (vals) => {
-      let score = 0;
       // Age
       const age = Number(vals.age) || 0;
-      if      (age < 30) score += 0;
-      else if (age < 40) score += 8;
-      else if (age < 50) score += 25;
-      else if (age < 60) score += 41;
-      else if (age < 70) score += 58;
-      else if (age < 80) score += 75;
-      else               score += 91;
+      const agePts = age < 30 ? 0 : age < 40 ? 8 : age < 50 ? 25 : age < 60 ? 41 : age < 70 ? 58 : age < 80 ? 75 : 91;
       // HR
       const hr = Number(vals.hr) || 0;
-      if      (hr < 50)  score += 0;
-      else if (hr < 70)  score += 3;
-      else if (hr < 90)  score += 9;
-      else if (hr < 110) score += 15;
-      else if (hr < 150) score += 24;
-      else if (hr < 200) score += 38;
-      else               score += 46;
+      const hrPts = hr < 50 ? 0 : hr < 70 ? 3 : hr < 90 ? 9 : hr < 110 ? 15 : hr < 150 ? 24 : hr < 200 ? 38 : 46;
       // SBP
       const sbp = Number(vals.sbp) || 0;
-      if      (sbp < 80)  score += 58;
-      else if (sbp < 100) score += 53;
-      else if (sbp < 120) score += 43;
-      else if (sbp < 140) score += 34;
-      else if (sbp < 160) score += 24;
-      else if (sbp < 200) score += 10;
-      else                score += 0;
+      const sbpPts = sbp < 80 ? 58 : sbp < 100 ? 53 : sbp < 120 ? 43 : sbp < 140 ? 34 : sbp < 160 ? 24 : sbp < 200 ? 10 : 0;
       // Creatinine
       const cr = Number(vals.creatinine) || 0;
-      if      (cr < 0.4) score += 1;
-      else if (cr < 0.8) score += 4;
-      else if (cr < 1.2) score += 7;
-      else if (cr < 1.6) score += 10;
-      else if (cr < 2.0) score += 13;
-      else if (cr < 4.0) score += 21;
-      else               score += 28;
+      const crPts = cr < 0.4 ? 1 : cr < 0.8 ? 4 : cr < 1.2 ? 7 : cr < 1.6 ? 10 : cr < 2.0 ? 13 : cr < 4.0 ? 21 : 28;
       // Killip
       const killip = Number(vals.killip) || 0;
-      score += ([0, 20, 39, 59][killip] || 0);
+      const killipPts = [0, 20, 39, 59][killip] || 0;
       // Checkboxes
-      if (vals.cardiacArrest) score += 39;
-      if (vals.stDeviation)   score += 28;
-      if (vals.enzymes)       score += 14;
+      const caPts = vals.cardiacArrest ? 39 : 0;
+      const stPts = vals.stDeviation ? 28 : 0;
+      const enzPts = vals.enzymes ? 14 : 0;
+
+      const score = agePts + hrPts + sbpPts + crPts + killipPts + caPts + stPts + enzPts;
+      const breakdown = [
+        { label: `Usia ${age} th`,           points: agePts },
+        { label: `Laju jantung ${hr} bpm`,   points: hrPts },
+        { label: `Sistolik ${sbp} mmHg`,     points: sbpPts },
+        { label: `Kreatinin ${cr} mg/dL`,    points: crPts },
+        { label: `Killip kelas ${killip + 1}`, points: killipPts },
+        { label: 'Henti jantung saat masuk', points: caPts },
+        { label: 'Deviasi segmen ST',        points: stPts },
+        { label: 'Peningkatan enzim jantung', points: enzPts },
+      ];
 
       let label: string, risk: string, color: string;
       if      (score <= 108) { label = 'Risiko Rendah'; risk = 'Mortalitas di RS <1% — pertimbangkan intervensi dini';            color = C.green; }
       else if (score <= 140) { label = 'Risiko Sedang'; risk = 'Mortalitas di RS 1-3% — revaskularisasi dini direkomendasikan';   color = C.amber; }
       else                   { label = 'Risiko Tinggi'; risk = 'Mortalitas di RS >3% — revaskularisasi segera';                   color = C.red; }
-      return { score, label, risk, color };
+      return { score, breakdown, label, risk, color };
     },
     notes: [
       'Berdasarkan GRACE 1.0 — registri multisenter 11.389 pasien ACS',
@@ -710,8 +723,18 @@ export const CALCULATORS: Calculator[] = [
         7: { pct: '41%', label: 'Risiko Sangat Tinggi',   color: C.red },
       };
       const r = riskMap[score] || riskMap[7];
+      const breakdown = [
+        { label: 'Usia ≥ 65 tahun',            points: v.age65 ? 1 : 0 },
+        { label: '≥ 3 faktor risiko KAD',      points: v.riskFactor ? 1 : 0 },
+        { label: 'Stenosis koroner ≥ 50%',     points: v.stenosis ? 1 : 0 },
+        { label: 'Deviasi ST ≥ 0.5 mm',        points: v.stChange ? 1 : 0 },
+        { label: '≥ 2 episode angina / 24 jam', points: v.angina2 ? 1 : 0 },
+        { label: 'Aspirin dalam 7 hari',       points: v.aspirin ? 1 : 0 },
+        { label: 'Marker jantung meningkat',   points: v.marker ? 1 : 0 },
+      ];
       return {
         score,
+        breakdown,
         label: r.label,
         risk: `Risiko MACE 14 hari: ${r.pct}`,
         color: r.color,
@@ -763,6 +786,16 @@ export const CALCULATORS: Calculator[] = [
       const score = agePts +
         (v.dm_htn ? 1 : 0) + (v.sbpLow ? 3 : 0) + (v.hrHigh ? 2 : 0) +
         (v.killip ? 2 : 0) + (v.weightLow ? 1 : 0) + (v.anterior ? 1 : 0) + (v.timeDelay ? 1 : 0);
+      const breakdown = [
+        { label: 'Usia (≥75: 3 · 65–74: 2)', points: agePts },
+        { label: 'DM / HTN / Angina',        points: v.dm_htn ? 1 : 0 },
+        { label: 'Sistolik < 100 mmHg',      points: v.sbpLow ? 3 : 0 },
+        { label: 'Laju jantung > 100 bpm',   points: v.hrHigh ? 2 : 0 },
+        { label: 'Killip kelas II–IV',       points: v.killip ? 2 : 0 },
+        { label: 'Berat badan < 67 kg',      points: v.weightLow ? 1 : 0 },
+        { label: 'ST anterior / LBBB',       points: v.anterior ? 1 : 0 },
+        { label: 'Waktu ke reperfusi > 4 jam', points: v.timeDelay ? 1 : 0 },
+      ];
 
       // 30-day mortality per skor (Morrow et al. Circulation 2000, InTIME II).
       // Pemetaan per-skor eksak — jangan pakai "score <= max" karena skor 0
@@ -784,6 +817,7 @@ export const CALCULATORS: Calculator[] = [
 
       return {
         score,
+        breakdown,
         label,
         risk: `Mortalitas 30 hari: ${pct}`,
         color,
@@ -828,11 +862,21 @@ export const CALCULATORS: Calculator[] = [
     compute: (v) => {
       const score = (v.dvtSigns ? 3 : 0) + (v.altDx ? 3 : 0) + (v.hrHigh ? 2 : 0) +
         (v.immobile ? 2 : 0) + (v.priorDvtPe ? 2 : 0) + (v.hemoptysis ? 1 : 0) + (v.malignancy ? 1 : 0);
+      const breakdown = [
+        { label: 'Tanda/gejala klinis DVT',        points: v.dvtSigns ? 3 : 0 },
+        { label: 'Dx alternatif kurang mungkin',   points: v.altDx ? 3 : 0 },
+        { label: 'Denyut jantung > 100 bpm',       points: v.hrHigh ? 2 : 0 },
+        { label: 'Imobilisasi / operasi ≤ 4 mgg',  points: v.immobile ? 2 : 0 },
+        { label: 'DVT / PE sebelumnya',            points: v.priorDvtPe ? 2 : 0 },
+        { label: 'Hemoptisis',                     points: v.hemoptysis ? 1 : 0 },
+        { label: 'Keganasan aktif',                points: v.malignancy ? 1 : 0 },
+      ];
 
       // Two-level Wells (most commonly used in ED)
       if (score > 4) {
         return {
           score,
+          breakdown,
           label: 'PE Likely — Lakukan CT-PA',
           risk: `Skor ${score} > 4 — probabilitas PE tinggi`,
           color: C.red,
@@ -841,6 +885,7 @@ export const CALCULATORS: Calculator[] = [
       }
       return {
         score,
+        breakdown,
         label: 'PE Unlikely — Periksa D-Dimer',
         risk: `Skor ${score} ≤ 4 — probabilitas PE rendah`,
         color: score <= 1 ? C.green : C.amber,
