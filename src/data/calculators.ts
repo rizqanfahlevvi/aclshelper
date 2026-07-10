@@ -246,6 +246,12 @@ export const CALCULATORS: Calculator[] = [
       if (score <= 6) return { score, breakdown, label: 'Risiko Sedang',  risk: 'MACE ~12-17% — observasi & pemeriksaan lanjutan',        color: C.amber };
       return               { score, breakdown, label: 'Risiko Tinggi',  risk: 'MACE ~50-65% — evaluasi kardiak segera / invasif',       color: C.red };
     },
+    notes: [
+      'Untuk nyeri dada akut tak terdiferensiasi di IGD — BUKAN untuk STEMI (yang butuh reperfusi langsung)',
+      'MACE = infark miokard, PCI/CABG, atau kematian dalam 6 minggu',
+      'Skor 0–3: risiko rendah, banyak protokol memulangkan setelah troponin serial negatif; 4–6: observasi/uji lanjutan; ≥7: strategi invasif',
+      'Gunakan troponin high-sensitivity serial sesuai protokol lokal; korelasikan dengan gambaran klinis',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
@@ -1111,6 +1117,12 @@ export const CALCULATORS: Calculator[] = [
         detail: `Per 24 jam: ${daily} mL\nFormula: 4 mL/kg untuk 10 kg pertama + 2 mL/kg untuk 10 kg berikutnya + 1 mL/kg untuk sisanya\nKoreksi berdasarkan kondisi klinis`,
       };
     },
+    notes: [
+      'Parkland: 4 mL × BB × %TBSA Ringer Laktat/24 jam, dihitung dari WAKTU CEDERA — setengah pertama dalam 8 jam. Titrasi ke urin output 0.5–1 mL/kg/jam (dewasa); rumus hanya titik awal',
+      'Sepsis: bolus 30 mL/kg kristaloid (SSC 2021) untuk hipotensi/laktat ≥4, lalu NILAI ULANG responsivitas cairan — hindari kelebihan cairan',
+      'Holliday-Segar (4-2-1) untuk MAINTENANCE rumatan anak, bukan resusitasi; tambahkan penggantian defisit & kehilangan berkelanjutan terpisah',
+      'Semua rumus adalah estimasi awal — sesuaikan dengan tanda perfusi, produksi urin, dan status volume aktual',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
@@ -1145,6 +1157,12 @@ export const CALCULATORS: Calculator[] = [
         detail: `MAP: ${Math.round(map)} mmHg\nICP: ${icp} mmHg\nCPP = MAP − ICP = ${Math.round(map)} − ${icp} = ${Math.round(cpp)} mmHg\n\nTarget CPP: 60–70 mmHg (TBI), >50 mmHg (minimum)\nJika CPP rendah: ↑ MAP (vasopresor) atau ↓ ICP (head elevation, osmotherapy, drainage)`,
       };
     },
+    notes: [
+      'CPP = MAP − ICP; target 60–70 mmHg pada cedera otak traumatik (BTF 2016). Hindari CPP <50 (iskemia) & upaya agresif >70 dengan cairan/pressor (risiko ARDS)',
+      'MAP harus di-zero pada level tragus/foramen Monro (bukan level jantung) agar CPP akurat pada pasien neurokritis',
+      'Target harus individual sesuai status autoregulasi (mis. indeks PRx) bila tersedia',
+      'CPP rendah: naikkan MAP (vasopresor) atau turunkan ICP (elevasi kepala 30°, osmoterapi, drainase LCS, sedasi)',
+    ],
   },
 
   /* ------------------------------------------------------------------ */
