@@ -1,6 +1,7 @@
 /* ============================================================
    ACLS Helper — Kalkulator & Skoring Kardiovaskular
    ============================================================ */
+import { infusionConc, infusionRateMlHr } from '../lib/doseMath';
 
 export type FieldType = 'number' | 'select' | 'checkbox';
 
@@ -1349,8 +1350,8 @@ export const CALCULATORS: Calculator[] = [
       const wt = Number(v.weight) || 70;
       const amount = Number(v.amount) || 1;   // mg
       const volume = Number(v.volume) || 1;   // mL
-      const concMcgMl = (amount * 1000) / volume; // mcg/mL
-      const rateMlHr = concMcgMl > 0 ? (dose * wt * 60) / concMcgMl : 0;
+      const concMcgMl = infusionConc(amount, volume, 'mg'); // mcg/mL
+      const rateMlHr = infusionRateMlHr(dose, wt, concMcgMl, true);
 
       return {
         score: `${rateMlHr.toFixed(1)} mL/jam`,

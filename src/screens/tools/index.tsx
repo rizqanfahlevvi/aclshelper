@@ -7,14 +7,11 @@ import {
 } from '../../data/tools';
 import type { PalsDrug, Vasopressor } from '../../data/tools';
 import { Disclaimer } from '../../components/clinical';
+import { palsDose, infusionConc, infusionRateMlHr } from '../../lib/doseMath';
 
 /* ── helpers ─────────────────────────────────────────────── */
 function calcPals(drug: PalsDrug, weight: number) {
-  const raw = drug.dosePerKg * weight;
-  const lo  = drug.min ?? -Infinity;
-  const hi  = drug.max ??  Infinity;
-  const clamped = Math.min(hi, Math.max(lo, raw));
-  return { raw, clamped, isClamped: Math.abs(clamped - raw) > 0.0001 };
+  return palsDose(drug.dosePerKg, weight, drug.min, drug.max);
 }
 
 function fmt(n: number, unit: string) {
@@ -262,13 +259,11 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
   const amountUnit = sel?.doseUnit === 'unit/min' ? 'unit' : 'mg';
 
   // Konsentrasi dasar dalam basis mcg/mL (atau unit/mL untuk vasopressin)
-  const concPerMl = amountUnit === 'mg'
-    ? (amount * 1000) / volumeMl   // mg → mcg
-    : amount / volumeMl;           // unit tetap unit
+  const concPerMl = infusionConc(amount, volumeMl, amountUnit);
 
-  // Laju dasar per menit, dalam basis yang sama dengan concPerMl (mcg/mnt atau unit/mnt)
+  // Laju dasar per menit & laju pompa (mL/jam)
   const rateBaseMin = needsWeight ? dose * weight : dose;
-  const mlPerHour = concPerMl > 0 ? (rateBaseMin / concPerMl) * 60 : 0;
+  const mlPerHour = infusionRateMlHr(dose, weight, concPerMl, needsWeight);
   const syringeVol = usingCustom ? customVolume! : volumeMl;
   const durationHr = mlPerHour > 0 ? syringeVol / mlPerHour : 0;
 

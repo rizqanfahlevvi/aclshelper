@@ -157,19 +157,60 @@ describe('Fibrinolisis STEMI', () => {
   });
 });
 
-describe('ABG interpreter', () => {
+describe('ABG interpreter — verifikasi rumus kompensasi (Pemeriksaan 2)', () => {
   const f = calc('abg');
-  it('normal', () => expect(f({ ph: 7.40, pco2: 40, hco3: 24 }).label).toMatch(/Normal/));
-  it('asidosis metabolik (DKA)', () => {
-    const r = f({ ph: 7.20, pco2: 25, hco3: 10 });
+  it('normal (7.40/40/24)', () => expect(f({ ph: 7.40, pco2: 40, hco3: 24 }).label).toMatch(/Normal/));
+
+  it('DKA: HAGMA, Winter adekuat, delta ratio ~1.3 (murni)', () => {
+    // AG = 140-(100+10)=30; Winter exp pCO2 = 1.5×10+8 = 23 ±2 → 25 adekuat
+    // Δratio = (30-12)/(24-10)=18/14=1.29 → HAGMA murni
+    const r = f({ ph: 7.20, pco2: 25, hco3: 10, na: 140, cl: 100 });
     expect(r.label).toMatch(/Asidosis Metabolik/);
-    expect(r.detail).toMatch(/Winter/);
+    expect(r.detail).toMatch(/AG = .*30/);
+    expect(r.detail).toMatch(/ADEKUAT/);
+    expect(r.detail).toMatch(/High AG Metabolic Acidosis murni/);
   });
-  it('asidosis respiratorik', () => {
-    expect(f({ ph: 7.28, pco2: 60, hco3: 26 }).label).toMatch(/Asidosis Respiratorik/);
+
+  it('asidosis metabolik dgn kompensasi KURANG → mixed resp acidosis', () => {
+    // hco3 10 → Winter exp 21-25; pco2 35 > 25 → kompensasi kurang
+    const r = f({ ph: 7.10, pco2: 35, hco3: 10 });
+    expect(r.detail).toMatch(/KURANG|Mixed Respiratory Acidosis/);
   });
-  it('anion gap dihitung', () => {
-    expect(f({ ph: 7.20, pco2: 25, hco3: 10, na: 140, cl: 100 }).detail).toMatch(/AG =/);
+
+  it('asidosis respiratorik AKUT (7.28/60/26)', () => {
+    // exp HCO3 akut = 24+(60-40)/10 = 26 → cocok akut
+    const r = f({ ph: 7.28, pco2: 60, hco3: 26 });
+    expect(r.label).toMatch(/Asidosis Respiratorik/);
+    expect(r.detail).toMatch(/AKUT/);
+  });
+
+  it('asidosis respiratorik KRONIK (7.34/60/31)', () => {
+    // exp HCO3 kronik = 24+3.5×2 = 31 → cocok kronik
+    expect(f({ ph: 7.34, pco2: 60, hco3: 31 }).detail).toMatch(/KRONIK/);
+  });
+
+  it('alkalosis metabolik (7.50/45/34) kompensasi adekuat', () => {
+    // exp pCO2 = 0.7×(34-24)+40 = 47 ±5 → 45 adekuat
+    const r = f({ ph: 7.50, pco2: 45, hco3: 34 });
+    expect(r.label).toMatch(/Alkalosis Metabolik/);
+    expect(r.detail).toMatch(/ADEKUAT/);
+  });
+
+  it('alkalosis respiratorik AKUT (7.50/28/22)', () => {
+    // exp HCO3 akut = 24-(40-28)/5 = 21.6 → ~22 cocok akut
+    const r = f({ ph: 7.50, pco2: 28, hco3: 22 });
+    expect(r.label).toMatch(/Alkalosis Respiratorik/);
+    expect(r.detail).toMatch(/AKUT/);
+  });
+
+  it('anion gap normal (8-12) tidak ditandai tinggi', () => {
+    // Na 140, Cl 108, HCO3 20 → AG = 12 (normal)
+    expect(f({ ph: 7.30, pco2: 30, hco3: 20, na: 140, cl: 108 }).detail).toMatch(/Normal 8/);
+  });
+
+  it('delta-delta hanya muncul saat AG tinggi', () => {
+    const lowAG = f({ ph: 7.30, pco2: 30, hco3: 20, na: 140, cl: 108 });
+    expect(lowAG.detail).not.toMatch(/Delta ratio/);
   });
 });
 
