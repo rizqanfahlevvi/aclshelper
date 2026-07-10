@@ -24,6 +24,9 @@ export interface CalcResult {
   risk?: string;
   color: string;
   detail?: string;
+  /* Kontribusi per-parameter untuk skoring (input → poin). Ditampilkan
+     via ScoreBreakdown agar dokter melihat asal skor, bukan hanya total. */
+  breakdown?: { label: string; points: number }[];
 }
 
 export interface Calculator {

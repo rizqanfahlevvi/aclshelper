@@ -6,6 +6,7 @@ import {
   PALS_REFERENCES, VASOPRESSOR_REFERENCES, ROSC_REFERENCES,
 } from '../../data/tools';
 import type { PalsDrug, Vasopressor } from '../../data/tools';
+import { Disclaimer } from '../../components/clinical';
 
 /* ── helpers ─────────────────────────────────────────────── */
 function calcPals(drug: PalsDrug, weight: number) {
@@ -206,6 +207,7 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                 </div>
               );
             })}
+            <Disclaimer/>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -401,6 +403,7 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
           </div>
         )}
       </div>
+      <Disclaimer/>
     </div>
   );
 }

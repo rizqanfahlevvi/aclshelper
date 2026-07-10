@@ -3,6 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
+import { Disclaimer, CalcSteps, ScoreBreakdown } from '../../components/clinical';
 import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
@@ -168,12 +169,12 @@ function CalcFieldInput({ field, value, onChange }: {
 function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>; tint: string }) {
   return (
     <div style={{
-      borderRadius: 16, marginBottom: 16,
+      borderRadius: 16,
       background: result.color,
       overflow: 'hidden',
     }}>
       <div style={{ padding: '20px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
             fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
             color: '#fff', lineHeight: 1, flexShrink: 0,
@@ -185,14 +186,29 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
             )}
           </div>
         </div>
-        {result.detail && (
-          <div className="t-caption-1" style={{
-            color: 'rgba(255,255,255,0.8)',
-            borderTop: '0.5px solid rgba(255,255,255,0.3)',
-            paddingTop: 8, marginTop: 4, whiteSpace: 'pre-line', lineHeight: 1.5,
-          }}>{result.detail}</div>
-        )}
       </div>
+    </div>
+  );
+}
+
+/* Tampilan hasil terpadu — dipakai mobile & desktop agar konsisten:
+   kartu jawaban + kontribusi skor (bila skoring) + rincian langkah +
+   disclaimer. ABG/RSI/vent/heparin memakai kartu kustomnya sendiri. */
+function CalcResultView({ calc, result, values }: {
+  calc: Calculator; result: ReturnType<Calculator['compute']>;
+  values: Record<string, number | string | boolean>;
+}) {
+  if (calc.key === 'abg') return <><AbgResultCard result={result} values={values}/><Disclaimer/></>;
+  if (calc.key === 'rsi') return <><RsiResultCard values={values}/><Disclaimer/></>;
+  if (calc.key === 'vent' || calc.key === 'heparin') return <><StructuredResultCard result={result}/><Disclaimer/></>;
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <CalcResultBadge result={result} tint={calc.tint}/>
+      {result.breakdown && result.breakdown.length > 0 && (
+        <ScoreBreakdown items={result.breakdown} total={Number(result.score)} tint={calc.tint}/>
+      )}
+      {result.detail && <CalcSteps detail={result.detail} tint={calc.tint}/>}
+      <Disclaimer/>
     </div>
   );
 }
@@ -638,9 +654,6 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
   if (!calc) return <div style={{ padding: 24 }}>Kalkulator tidak ditemukan</div>;
 
   const isFibrinolytic = calc.key === 'fibrinolytic';
-  const isAbg = calc.key === 'abg';
-  const isRsi = calc.key === 'rsi';
-  const isStructured = calc.key === 'vent' || calc.key === 'heparin';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -681,16 +694,8 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 40px' }}>
-        {/* Result / custom cards */}
-        {isAbg && result ? (
-          <AbgResultCard result={result} values={values}/>
-        ) : isRsi ? (
-          <RsiResultCard values={values}/>
-        ) : isStructured && result ? (
-          <StructuredResultCard result={result}/>
-        ) : (
-          result && <CalcResultBadge result={result} tint={calc.tint}/>
-        )}
+        {/* Result — tampilan terpadu (jawaban + kontribusi/langkah + disclaimer) */}
+        {result && <CalcResultView calc={calc} result={result} values={values}/>}
 
         {/* Fields */}
         {isFibrinolytic ? (
@@ -792,9 +797,6 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
 
   const result = useMemo(() => calc.compute(values), [calc, values]);
   const isFibrinolytic = calc.key === 'fibrinolytic';
-  const isAbg = calc.key === 'abg';
-  const isRsi = calc.key === 'rsi';
-  const isStructured = calc.key === 'vent' || calc.key === 'heparin';
   const { isFav: dIsFav, toggle: dToggle } = useFavorites();
 
   return (
@@ -937,15 +939,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             </button>
           </div>
 
-          {isAbg ? (
-            <AbgResultCard result={result} values={values}/>
-          ) : isRsi ? (
-            <RsiResultCard values={values}/>
-          ) : isStructured ? (
-            <StructuredResultCard result={result}/>
-          ) : (
-            <CalcResultBadge result={result} tint={calc.tint}/>
-          )}
+          <CalcResultView calc={calc} result={result} values={values}/>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             {isFibrinolytic ? (
