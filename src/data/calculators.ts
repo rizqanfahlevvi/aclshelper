@@ -1295,9 +1295,25 @@ export const CALCULATORS: Calculator[] = [
 
         return {
           score: `${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`,
-          label: 'Hipokalemia — Defisit (estimasi)',
+          label: k < 2.5 ? 'Hipokalemia Berat' : 'Hipokalemia',
           risk: 'Vena perifer ≤10 mEq/jam · vena sentral ≤20 mEq/jam',
           color: k < 2.5 ? C.red : C.amber,
+          targetInfo: {
+            title: 'Batas Laju Aman Infus KCl',
+            bullets: [
+              'Vena perifer: maksimal 10 mEq/jam.',
+              'Vena sentral: maksimal 20 mEq/jam.',
+              'Berikan bertahap (~40% dari estimasi dulu), evaluasi ulang sebelum melanjutkan.',
+            ],
+          },
+          doseRange: {
+            title: 'Estimasi Defisit Kalium Total (Kasar)',
+            rangeLabel: `${defLo.toFixed(0)} – ${defHi.toFixed(0)} mEq`,
+            methods: [
+              { label: 'Estimasi Defisit', value: `${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`, rate: `≈${hrsLo.toFixed(1)}–${hrsHi.toFixed(1)} jam pada laju perifer maks`, note: 'linear kasar — hubungan sebenarnya non-linear (Cohn 2000)' },
+            ],
+            footer: 'Cek K ulang: <2.5 tiap 1–2 jam, 2.5–3.0 tiap 2–4 jam.',
+          },
           steps,
           stepsFooter: 'Distribusi K butuh 4–6 jam — jangan berikan seluruh estimasi defisit sekaligus. Bila hipokalemia refrakter meski dikoreksi, periksa Mg (hipomagnesemia menyebabkan kebocoran K ginjal): MgSO4 2 g IV dalam 100 mL NS (20–30 menit).',
         };
@@ -1411,8 +1427,18 @@ export const CALCULATORS: Calculator[] = [
           label: 'Hipokalsemia (terkoreksi)',
           risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
           color: corr < 7.0 ? C.red : C.amber,
+          targetInfo: {
+            title: 'Pilihan Koreksi Hipokalsemia',
+            bullets: [
+              'Ca Glukonat 10% (perifer/sentral): 1 ampul (10 mL) = 4.65 mEq.',
+              'Emergensi (kejang/tetani): 1–2 ampul IV lambat 5–10 menit + monitor EKG.',
+              'Sedang: 1 ampul dalam 100 mL NS/D5W → infus 30–60 menit.',
+              'Ca Klorida 10% (HANYA via CVC): 1 ampul = 13.6 mEq (3× lebih poten); indikasi syok/henti jantung/transfusi masif.',
+              '⚠️ Jangan campur dengan NaHCO₃/fosfat; hati-hati pada pasien digitalis (risiko toksisitas meningkat).',
+            ],
+          },
           steps,
-          stepsFooter: 'Ca Glukonat 10% (perifer/sentral): 1 amp (10 mL) = 4.65 mEq. Emergensi (kejang/tetani): 1–2 amp IV lambat 5–10 menit + monitor EKG. Sedang: 1 amp dalam 100 mL NS/D5W → infus 30–60 menit. Ca Klorida 10% (HANYA via CVC): 1 amp = 13.6 mEq (3× lebih poten); indikasi syok/henti jantung/transfusi masif. Jangan campur dengan NaHCO₃/fosfat; hati-hati pada pasien digitalis (risiko toksisitas meningkat).',
+          stepsFooter: 'Ca ionized terukur langsung adalah baku emas bila tersedia — estimasi di atas hanya perkiraan awal.',
         };
       }
       if (corr > 10.5) {
@@ -1421,8 +1447,18 @@ export const CALCULATORS: Calculator[] = [
           label: 'Hiperkalsemia (terkoreksi)',
           risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
           color: corr > 14 ? C.red : C.amber,
+          targetInfo: {
+            title: 'Protokol Hiperkalsemia (>10.5 mg/dL)',
+            bullets: [
+              'Hidrasi: NaCl 0.9% 200–500 mL/jam (target urin 100–150 mL/jam).',
+              'Furosemide 20–40 mg IV — HANYA setelah euvolemia tercapai.',
+              'Kalsitonin 4–8 IU/kg SC/IM tiap 12 jam (onset cepat).',
+              'Zoledronat 4 mg IV dalam 15 menit (onset lambat ~48 jam).',
+              'Denosumab 120 mg SC bila gagal ginjal (bifosfonat kontraindikasi relatif).',
+            ],
+          },
           steps,
-          stepsFooter: 'Protokol (>10.5 mg/dL): 1) Hidrasi NaCl 0.9% 200–500 mL/jam (target urin 100–150 mL/jam). 2) Furosemide 20–40 mg IV HANYA setelah euvolemia tercapai. 3) Kalsitonin 4–8 IU/kg SC/IM tiap 12 jam (onset cepat). 4) Zoledronat 4 mg IV dalam 15 menit (onset lambat ~48 jam). 5) Denosumab 120 mg SC bila gagal ginjal (bifosfonat kontraindikasi relatif).',
+          stepsFooter: 'Hiperkalsemia berat/simtomatik: pertimbangkan dialisis bila gagal ginjal berat atau gagal terapi medis.',
         };
       }
       return { score: `${corr.toFixed(1)} mg/dL`, label: 'Kalsium Normal (terkoreksi)', risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`, color: C.green, steps };
@@ -1487,6 +1523,14 @@ export const CALCULATORS: Calculator[] = [
           label: symptomatic ? 'Hipomagnesemia — Gejala Berat' : 'Hipomagnesemia',
           risk: renalCaution ? `${doseDetail} · eGFR <30, pantau ketat` : doseDetail,
           color: symptomatic ? C.red : C.amber,
+          targetInfo: {
+            title: 'Panduan Dosis & Pemantauan Toksisitas',
+            bullets: [
+              'Asimtomatik/ringan-sedang: 1–2 g IV dalam 50–100 mL NS/D5W selama 1 jam.',
+              'Gejala berat (aritmia/Torsades/kejang): 2 g IV bolus lambat 5–10 menit.',
+              'Toksisitas bertahap: hiporefleksia (>4 mg/dL) → depresi napas (>5 mg/dL) → henti jantung (>10 mg/dL).',
+            ],
+          },
           steps,
           stepsFooter: 'Hipomagnesemia sering menyertai hipokalemia refrakter (kebocoran K ginjal) — koreksi Mg dapat memperbaiki K tanpa infus K berlebih.',
         };

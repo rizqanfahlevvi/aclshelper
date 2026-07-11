@@ -229,7 +229,10 @@ function CalcResultView({ calc, result, values }: {
           <DoseRangeCard tint={calc.tint} {...result.doseRange}/>
         </div>
       ) : (
-        <CalcResultBadge result={result} tint={calc.tint}/>
+        <>
+          <CalcResultBadge result={result} tint={calc.tint}/>
+          {result.targetInfo && <InfoBullets tint={calc.tint} {...result.targetInfo}/>}
+        </>
       )}
       {result.breakdown && result.breakdown.length > 0 && (
         <ScoreBreakdown items={result.breakdown} total={Number(result.score)} tint={calc.tint}/>

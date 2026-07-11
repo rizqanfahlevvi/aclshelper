@@ -439,7 +439,7 @@ describe('Koreksi Kalsium (albumin, ionized, protokol)', () => {
   it('hiperkalsemia (Ca12.0,alb4.0) → label & protokol', () => {
     const r = f({ ca: 12.0, albumin: 4.0 });
     expect(r.label).toBe('Hiperkalsemia (terkoreksi)');
-    expect(r.stepsFooter).toMatch(/Kalsitonin/);
+    expect(r.targetInfo?.bullets.join(' ')).toMatch(/Kalsitonin/);
   });
 
   it('hiperkalsemia berat (Ca15.0) → merah', () => {
