@@ -902,6 +902,7 @@ export default function App() {
     root.style.setProperty('--font-scale', String(fontScale));
     root.style.fontSize = fontScale === 1 ? '' : `calc(clamp(13px, 1.5vw, 15px) * ${fontScale})`;
     root.style.setProperty('--fw-base', String(400 + settings.fontWeight));
+    root.style.setProperty('--fw-offset', String(settings.fontWeight));
 
     loadFont(settings.fontFamily);
     root.style.setProperty('--font-sans', fontFamilyStack(settings.fontFamily));

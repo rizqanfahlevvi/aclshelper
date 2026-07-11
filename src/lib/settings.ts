@@ -116,3 +116,18 @@ export function haptic(ms = 30): void {
     try { navigator.vibrate(ms); } catch { /* diabaikan */ }
   }
 }
+
+/**
+ * Font-weight yang ikut setting Ketebalan Font pengguna.
+ * Sebagian besar teks di app menset fontWeight literalnya sendiri untuk
+ * hierarki visual (badge/heading lebih tebal dari body) — itu HARUS tetap
+ * ada, tapi tanpa ini nilainya statis dan tidak pernah merespons slider
+ * ketebalan di Pengaturan (hanya `body` yang mewarisi --fw-base). fw(700)
+ * menggeser 700 dengan offset yang sama seperti body, tetap clamp ke
+ * rentang font-weight valid (100–900), sehingga hierarki relatif terjaga.
+ * --fw-offset di-set oleh efek global di App.tsx (nilai fontWeight mentah,
+ * berbeda dari --fw-base yang sudah +400 untuk body).
+ */
+export function fw(weight: number): string {
+  return `clamp(100, calc(${weight} + var(--fw-offset, 0)), 900)`;
+}

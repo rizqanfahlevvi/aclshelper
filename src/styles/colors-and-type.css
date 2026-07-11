@@ -175,6 +175,7 @@ html { font-size: clamp(14px, 1.6vw, 16px); }
   /* --- Setting pengguna (di-set runtime oleh store settings) - */
   --font-scale: 1;   /* skala font global */
   --fw-base: 400;    /* base weight body (offset ketebalan font) */
+  --fw-offset: 0;    /* offset mentah — dipakai fw() utk fontWeight literal ikut setting */
 }
 
 /* ============================================================

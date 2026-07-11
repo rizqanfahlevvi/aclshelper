@@ -4,6 +4,7 @@ import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
 import { Disclaimer, CalcSteps, ScoreBreakdown, InfoBullets, DoseRangeCard } from '../../components/clinical';
+import { fw } from '../../lib/settings';
 import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
@@ -29,7 +30,7 @@ function CalcNumberField({ field, num, step, onChange }: {
 
   const btnStyle: React.CSSProperties = {
     width: 30, height: 30, borderRadius: 8, background: 'var(--fill-secondary)',
-    border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: 300,
+    border: 'none', cursor: 'pointer', fontSize: '1.125rem', fontWeight: fw(300),
     color: 'var(--label-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
   };
 
@@ -37,7 +38,7 @@ function CalcNumberField({ field, num, step, onChange }: {
     <div style={{ padding: '12px 16px', borderRadius: 12, background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div className="t-callout" style={{ fontWeight: 500 }}>{field.label}</div>
+          <div className="t-callout" style={{ fontWeight: fw(500) }}>{field.label}</div>
           {field.unit && <div className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{field.unit}</div>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -53,7 +54,7 @@ function CalcNumberField({ field, num, step, onChange }: {
               onKeyDown={e => { if (e.key === 'Enter') commit((e.target as HTMLInputElement).value); if (e.key === 'Escape') { setEditing(false); setRaw(''); } }}
               style={{
                 width: 72, textAlign: 'center', background: 'var(--bg-primary)', border: 'none',
-                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
+                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: fw(600),
                 color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
                 outline: '2px solid var(--accent)',
               }}
@@ -64,7 +65,7 @@ function CalcNumberField({ field, num, step, onChange }: {
               title="Ketuk untuk edit"
               style={{
                 width: 72, textAlign: 'center', background: 'var(--bg-primary)',
-                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: 600,
+                borderRadius: 8, padding: '6px 4px', fontSize: '1rem', fontWeight: fw(600),
                 color: 'var(--label-primary)', fontFamily: 'var(--font-mono)',
                 boxShadow: 'inset 0 0 0 0.5px var(--separator)', cursor: 'text',
               }}
@@ -100,7 +101,7 @@ function CalcFieldInput({ field, value, onChange }: {
         onClick={() => onChange(!value)}
       >
         <div style={{ flex: 1, marginRight: 12 }}>
-          <div className="t-callout" style={{ fontWeight: 500 }}>{field.label}</div>
+          <div className="t-callout" style={{ fontWeight: fw(500) }}>{field.label}</div>
           {field.description && (
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{field.description}</div>
           )}
@@ -138,23 +139,32 @@ function CalcFieldInput({ field, value, onChange }: {
         background: 'var(--fill-quaternary)',
         boxShadow: 'inset 0 0 0 0.5px var(--separator)',
       }}>
-        <div className="t-callout" style={{ fontWeight: 500, marginBottom: 8 }}>{field.label}</div>
+        <div className="t-callout" style={{ fontWeight: fw(500), marginBottom: 8 }}>{field.label}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {(field.options || []).map(opt => (
-            <button
-              key={String(opt.value)}
-              onClick={() => onChange(opt.value)}
-              style={{
-                textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: 'none',
-                cursor: 'pointer', transition: 'all 150ms',
-                background: value === opt.value ? 'var(--accent-tint)' : 'var(--fill-secondary)',
-                boxShadow: value === opt.value ? 'inset 0 0 0 1px var(--accent)' : 'none',
-                color: value === opt.value ? 'var(--accent)' : 'var(--label-primary)',
-              }}
-            >
-              <span className="t-footnote" style={{ fontWeight: value === opt.value ? 600 : 400 }}>{opt.label}</span>
-            </button>
-          ))}
+          {(field.options || []).map(opt => {
+            const selected = value === opt.value;
+            return (
+              <button
+                key={String(opt.value)}
+                onClick={() => onChange(opt.value)}
+                style={{
+                  textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: 'none',
+                  cursor: 'pointer', transition: 'all 150ms',
+                  background: selected ? 'var(--accent-tint)' : 'var(--fill-secondary)',
+                  boxShadow: selected ? 'inset 0 0 0 1px var(--accent)' : 'none',
+                  color: selected ? 'var(--accent)' : 'var(--label-primary)',
+                }}
+              >
+                <span className="t-footnote" style={{ fontWeight: selected ? fw(600) : fw(400) }}>{opt.label}</span>
+                {opt.description && (
+                  <div className="t-caption-2" style={{
+                    marginTop: 2, color: selected ? 'var(--accent)' : 'var(--label-tertiary)',
+                    opacity: selected ? 0.9 : 0.85, lineHeight: 1.35,
+                  }}>{opt.description}</div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -176,11 +186,11 @@ function CalcResultBadge({ result }: { result: ReturnType<Calculator['compute']>
       <div style={{ padding: '20px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
-            fontSize: '3rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+            fontSize: '3rem', fontWeight: fw(800), fontFamily: 'var(--font-mono)',
             color: '#fff', lineHeight: 1, flexShrink: 0,
           }}>{result.score}</div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: '1.0625rem', color: '#fff' }}>{result.label}</div>
+            <div style={{ fontWeight: fw(700), fontSize: '1.0625rem', color: '#fff' }}>{result.label}</div>
             {result.risk && (
               <div className="t-footnote" style={{ color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{result.risk}</div>
             )}
@@ -209,7 +219,7 @@ function CalcResultView({ calc, result, values }: {
           background: 'var(--bg-tertiary)',
           boxShadow: `inset 0 0 0 1px ${calc.tint}33, var(--shadow-1)`,
         }}>
-          <div className="t-caption-2" style={{ color: calc.tint, fontWeight: 700, letterSpacing: '0.04em' }}>
+          <div className="t-caption-2" style={{ color: calc.tint, fontWeight: fw(700), letterSpacing: '0.04em' }}>
             {result.label.toUpperCase()}
           </div>
           {result.risk && (
@@ -254,7 +264,7 @@ function FibrNolyticFields({ calc, values, setValues }: {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {sections.map(sec => (
         <div key={sec.title}>
-          <div className="t-caption-2" style={{ color: sec.accentColor, padding: '0 0 8px', fontWeight: 700 }}>
+          <div className="t-caption-2" style={{ color: sec.accentColor, padding: '0 0 8px', fontWeight: fw(700) }}>
             {sec.title}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -330,13 +340,13 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
           padding: '8px 14px', borderRadius: 10, background: 'rgba(0,0,0,0.12)' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: fw(800), fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>
             {ph.toFixed(2)}
           </div>
-          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: fw(700), color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 3 }}>pH</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', marginBottom: 3 }}>{phLabel}</div>
+          <div style={{ fontWeight: fw(700), fontSize: '1rem', color: '#fff', marginBottom: 3 }}>{phLabel}</div>
           <div className="t-caption-1" style={{ color: 'rgba(255,255,255,0.75)' }}>
             PaCO₂ {pco2} mmHg · HCO₃⁻ {hco3} mEq/L
           </div>
@@ -348,7 +358,7 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
           padding: '12px 14px', borderRadius: 12, marginBottom: 6,
           background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
         }}>
-          <div className="t-caption-2" style={{ color: s.accent, fontWeight: 700, marginBottom: 4 }}>{s.title}</div>
+          <div className="t-caption-2" style={{ color: s.accent, fontWeight: fw(700), marginBottom: 4 }}>{s.title}</div>
           <div className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{s.content}</div>
         </div>
       ))}
@@ -369,7 +379,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
 
   const tag = (text: string, color: string) => (
     <span style={{
-      fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.06em',
+      fontSize: '0.5625rem', fontWeight: fw(700), letterSpacing: '0.06em',
       background: color + '22', color, borderRadius: 4, padding: '2px 6px',
       marginLeft: 6, verticalAlign: 'middle',
     }}>{text}</span>
@@ -384,11 +394,11 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
         boxShadow: recommended ? `inset 0 0 0 1px ${accent}44` : 'inset 0 0 0 0.5px var(--separator)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="t-callout" style={{ fontWeight: 600, color: recommended ? accent : 'var(--label-primary)' }}>
+          <div className="t-callout" style={{ fontWeight: fw(600), color: recommended ? accent : 'var(--label-primary)' }}>
             {label}
             {recommended && tag('REKOMEN', accent)}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: recommended ? accent : 'var(--label-primary)' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: fw(700), color: recommended ? accent : 'var(--label-primary)' }}>
             {total} {unit === 'mg/1dp' ? 'mg' : unit}
           </div>
         </div>
@@ -401,14 +411,14 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
 
   const section = (title: string, accent: string, children: React.ReactNode) => (
     <div style={{ marginBottom: 12 }}>
-      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 6 }}>{title}</div>
       {children}
     </div>
   );
 
   const checkItem = (text: string) => (
     <div key={text} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 4 }}>
-      <span style={{ color: '#1E8E3E', fontWeight: 700, flexShrink: 0 }}>✓</span>
+      <span style={{ color: '#1E8E3E', fontWeight: fw(700), flexShrink: 0 }}>✓</span>
       <span className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.5 }}>{text}</span>
     </div>
   );
@@ -425,8 +435,8 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
       }}>
         <div style={{ textAlign: 'center', flexShrink: 0,
           padding: '8px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.12)' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>{wt}</div>
-          <div style={{ fontSize: '0.625rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: fw(800), fontFamily: 'var(--font-mono)', color: '#fff', lineHeight: 1 }}>{wt}</div>
+          <div style={{ fontSize: '0.625rem', fontWeight: fw(700), color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
         </div>
         <div className="t-footnote" style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
           Semua dosis dihitung otomatis berdasarkan berat badan. Sesuaikan dengan kondisi klinis.
@@ -465,7 +475,7 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
           <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.04)', boxShadow: 'inset 0 0 0 0.5px var(--separator)', marginTop: 4 }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 3 }}>REVERSAL ROKURONIL (emergensi)</div>
             <div className="t-footnote" style={{ color: 'var(--label-primary)' }}>
-              Sugammadex <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{Math.round(16 * wt)} mg</span> IV (16 mg/kg) — reversal dalam ~3 menit
+              Sugammadex <span style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(700) }}>{Math.round(16 * wt)} mg</span> IV (16 mg/kg) — reversal dalam ~3 menit
             </div>
           </div>
         </>
@@ -491,11 +501,11 @@ function StructuredResultCard({ result }: { result: ReturnType<Calculator['compu
         display: 'flex', alignItems: 'center', gap: 14,
       }}>
         <div style={{
-          fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+          fontSize: '1.6rem', fontWeight: fw(800), fontFamily: 'var(--font-mono)',
           color: '#fff', lineHeight: 1, flexShrink: 0,
         }}>{result.score}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>{result.label}</div>
+          <div style={{ fontWeight: fw(700), fontSize: '1rem', color: '#fff' }}>{result.label}</div>
           {result.risk && (
             <div className="t-caption-1" style={{ color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{result.risk}</div>
           )}
@@ -537,7 +547,7 @@ function CalcListItem({ name, description, tint, onClick }: {
         <Icons.calculator size={20} stroke={1.8} style={{ color: '#fff' }}/>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="t-callout" style={{ fontWeight: 600 }}>{name}</div>
+        <div className="t-callout" style={{ fontWeight: fw(600) }}>{name}</div>
         <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{description}</div>
       </div>
       <Icons.chevR size={16} stroke={2} style={{ color: 'var(--label-tertiary)', flexShrink: 0 }}/>
@@ -574,7 +584,7 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
         borderBottom: '0.5px solid var(--separator)',
         padding: '12px 16px 10px',
       }}>
-        <div className="t-title-2" style={{ fontWeight: 700, marginBottom: 8 }}>Kalkulator</div>
+        <div className="t-title-2" style={{ fontWeight: fw(700), marginBottom: 8 }}>Kalkulator</div>
         <div style={{
           display: 'grid', gridTemplateColumns: '1fr 1fr',
           background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3,
@@ -588,7 +598,7 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
               onClick={() => setActiveTab(tab.key)}
               style={{
                 height: 34, borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit',
-                fontSize: '0.875rem', fontWeight: 600, transition: 'all 150ms',
+                fontSize: '0.875rem', fontWeight: fw(600), transition: 'all 150ms',
                 background: activeTab === tab.key ? 'var(--bg-primary)' : 'transparent',
                 color: activeTab === tab.key ? 'var(--label-primary)' : 'var(--label-secondary)',
                 boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none',
@@ -596,7 +606,7 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
             >
               {tab.label}
               <span style={{
-                marginLeft: 5, fontSize: '0.6875rem', fontWeight: 600, verticalAlign: 'middle',
+                marginLeft: 5, fontSize: '0.6875rem', fontWeight: fw(600), verticalAlign: 'middle',
                 color: activeTab === tab.key ? 'var(--accent)' : 'var(--label-tertiary)',
               }}>{tab.count}</span>
             </button>
@@ -686,7 +696,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           }}
         >
           <Icons.chevL size={16} stroke={2.5}/>
-          <span className="t-callout" style={{ fontWeight: 500 }}>Kalkulator</span>
+          <span className="t-callout" style={{ fontWeight: fw(500) }}>Kalkulator</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
@@ -697,7 +707,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
             <Icons.calculator size={24} stroke={1.8} style={{ color: '#fff' }}/>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h2 className="t-title-2" style={{ margin: 0, fontWeight: 700 }}>{calc.name}</h2>
+            <h2 className="t-title-2" style={{ margin: 0, fontWeight: fw(700) }}>{calc.name}</h2>
             <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
           </div>
           <button onClick={() => mToggle('calc', calc.key)} style={{
@@ -743,7 +753,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           style={{
             marginTop: 16, width: '100%', padding: '12px', borderRadius: 12,
             background: 'var(--fill-quaternary)', border: 'none', cursor: 'pointer',
-            color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500,
+            color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: fw(500),
           }}
         >
           Reset
@@ -827,7 +837,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div className="acls-topbar">
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ color: 'var(--label-primary)', fontWeight: 600 }}>Kalkulator</span>
+          <span style={{ color: 'var(--label-primary)', fontWeight: fw(600) }}>Kalkulator</span>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', flex: 1, overflow: 'hidden' }}>
@@ -881,7 +891,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                             >
                               <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
                               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
+                                <div className="t-callout" style={{ fontWeight: fw(600) }}>{c.name}</div>
                                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
                               </div>
                             </button>
@@ -901,7 +911,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                             >
                               <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
                               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                <div className="t-callout" style={{ fontWeight: 600 }}>{c.name}</div>
+                                <div className="t-callout" style={{ fontWeight: fw(600) }}>{c.name}</div>
                                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
                               </div>
                             </button>
@@ -924,7 +934,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
                   >
                     <span style={{ width: 6, height: 30, borderRadius: 3, background: p.tint, flexShrink: 0 }}/>
                     <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                      <div className="t-callout" style={{ fontWeight: 600 }}>{p.name}</div>
+                      <div className="t-callout" style={{ fontWeight: fw(600) }}>{p.name}</div>
                       <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{p.desc}</div>
                     </div>
                   </button>
@@ -984,7 +994,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
             onClick={() => setValues(initValues)}
             style={{
               padding: '10px 20px', borderRadius: 10, background: 'var(--fill-quaternary)',
-              border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: 500,
+              border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', fontSize: '0.875rem', fontWeight: fw(500),
             }}
           >
             Reset

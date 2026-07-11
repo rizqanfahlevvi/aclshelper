@@ -15,7 +15,7 @@ export interface CalcField {
   max?: number;
   step?: number;
   defaultValue?: number | string | boolean;
-  options?: { label: string; value: string | number }[];
+  options?: { label: string; value: string | number; description?: string }[];
   points?: number;
   description?: string;
 }
@@ -1651,8 +1651,10 @@ export const CALCULATORS: Calculator[] = [
       { key: 'glucose', label: 'Glukosa (opsional)', type: 'number', unit: 'mg/dL', min: 0, max: 1500, step: 10, defaultValue: 0,
         description: 'Isi bila hiperglikemia — Na dikoreksi dulu (Katz) sebelum dievaluasi' },
       { key: 'onset', label: 'Onset (khusus hiponatremia)', type: 'select', defaultValue: 'kronik',
-        options: [{ label: 'Kronik / tidak diketahui', value: 'kronik' }, { label: 'Akut (< 48 jam)', value: 'akut' }],
-        description: 'Kronik: batas 6–8 mEq/L/24j. Akut: batas lebih longgar 10–12 (risiko ODS jauh lebih rendah)' },
+        options: [
+          { label: 'Kronik / tidak diketahui', value: 'kronik', description: 'Batas aman: 6–8 mEq/L / 24 jam' },
+          { label: 'Akut (< 48 jam)', value: 'akut', description: 'Batas aman: 10–12 mEq/L / 24 jam (risiko ODS jauh lebih rendah)' },
+        ] },
       { key: 'targetRise', label: 'Target kenaikan / 24 jam (hiponatremia)', type: 'number', unit: 'mEq/L', min: 1, max: 12, step: 1, defaultValue: 6,
         description: 'Akan dibatasi otomatis ke batas aman sesuai onset & risiko ODS di bawah' },
       { key: 'highRisk', label: 'Risiko tinggi ODS', type: 'checkbox',

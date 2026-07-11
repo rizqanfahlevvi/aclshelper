@@ -1,4 +1,5 @@
 import React from 'react';
+import { fw } from '../lib/settings';
 
 /* ============================================================
    Komponen klinis reusable — dipakai konsisten di semua fitur
@@ -16,7 +17,7 @@ export function InfoBullets({ title, intro, bullets, tint }: {
   const accent = tint || 'var(--accent)';
   return (
     <div style={{ marginTop: 10 }}>
-      <div className="t-callout" style={{ fontWeight: 700, color: accent, marginBottom: 4 }}>{title}</div>
+      <div className="t-callout" style={{ fontWeight: fw(700), color: accent, marginBottom: 4 }}>{title}</div>
       {intro && (
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 6, lineHeight: 1.45 }}>{intro}</div>
       )}
@@ -43,17 +44,17 @@ export function DoseRangeCard({ title, rangeLabel, methods, safetyNote, footer, 
       marginTop: 10, padding: '12px 14px', borderRadius: 12,
       background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
     }}>
-      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 6, letterSpacing: '0.04em' }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 6, letterSpacing: '0.04em' }}>
         {title}
       </div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.75rem', color: accent, lineHeight: 1.15, marginBottom: 10 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(800), fontSize: '1.75rem', color: accent, lineHeight: 1.15, marginBottom: 10 }}>
         {rangeLabel}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${methods.length}, 1fr)`, gap: 8, marginBottom: (safetyNote || footer) ? 10 : 0 }}>
         {methods.map((m, i) => (
           <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
-            <div className="t-caption-2" style={{ fontWeight: 700, color: 'var(--label-primary)' }}>{m.label}</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--label-primary)', marginTop: 3 }}>{m.value}</div>
+            <div className="t-caption-2" style={{ fontWeight: fw(700), color: 'var(--label-primary)' }}>{m.label}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(700), fontSize: '0.9375rem', color: 'var(--label-primary)', marginTop: 3 }}>{m.value}</div>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{m.rate}</div>
             <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontStyle: 'italic', marginTop: 2, lineHeight: 1.3 }}>{m.note}</div>
           </div>
@@ -119,14 +120,14 @@ export function CalcSteps({ detail, steps, footer, tint, title = 'RINCIAN PERHIT
       marginTop: 10, marginBottom: 4, padding: '12px 14px', borderRadius: 12,
       background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
     }}>
-      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 8, letterSpacing: '0.04em' }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 8, letterSpacing: '0.04em' }}>
         {title}
       </div>
       {steps ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {steps.map((s, i) => (
             <div key={i}>
-              <div className="t-caption-1" style={{ fontWeight: 700, color: 'var(--label-primary)', marginBottom: s.formula ? 3 : 0 }}>
+              <div className="t-caption-1" style={{ fontWeight: fw(700), color: 'var(--label-primary)', marginBottom: s.formula ? 3 : 0 }}>
                 {s.label}
               </div>
               {s.formula && (
@@ -166,7 +167,7 @@ export function CalcSteps({ detail, steps, footer, tint, title = 'RINCIAN PERHIT
                 <span style={{
                   fontFamily: isCalc && !isWarn ? 'var(--font-mono)' : 'inherit',
                   color: isWarn ? 'var(--warning)' : undefined,
-                  fontWeight: isWarn ? 600 : 400,
+                  fontWeight: isWarn ? fw(600) : fw(400),
                 }}>{ln}</span>
               </div>
             );
@@ -189,7 +190,7 @@ export function ScoreBreakdown({ items, total, tint, unit = 'poin' }: {
       marginTop: 10, marginBottom: 4, padding: '12px 14px', borderRadius: 12,
       background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
     }}>
-      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 8, letterSpacing: '0.04em' }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 8, letterSpacing: '0.04em' }}>
         KONTRIBUSI SKOR
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -202,7 +203,7 @@ export function ScoreBreakdown({ items, total, tint, unit = 'poin' }: {
             }}>
               <span className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>{it.label}</span>
               <span style={{
-                fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.8125rem', flexShrink: 0,
+                fontFamily: 'var(--font-mono)', fontWeight: fw(700), fontSize: '0.8125rem', flexShrink: 0,
                 color: on ? accent : 'var(--label-tertiary)',
               }}>{it.points > 0 ? `+${it.points}` : it.points}</span>
             </div>
@@ -213,8 +214,8 @@ export function ScoreBreakdown({ items, total, tint, unit = 'poin' }: {
         display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
         marginTop: 8, paddingTop: 8, borderTop: `0.5px solid ${accent}44`,
       }}>
-        <span className="t-footnote" style={{ fontWeight: 700, color: 'var(--label-primary)' }}>Total</span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '0.9375rem', color: accent }}>
+        <span className="t-footnote" style={{ fontWeight: fw(700), color: 'var(--label-primary)' }}>Total</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(800), fontSize: '0.9375rem', color: accent }}>
           {total} {unit}
         </span>
       </div>
