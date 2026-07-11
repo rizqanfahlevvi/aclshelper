@@ -2,6 +2,7 @@
    ACLS Helper — Kalkulator & Skoring Kardiovaskular
    ============================================================ */
 import { infusionConc, infusionRateMlHr } from '../lib/doseMath';
+import type { CalcStep } from '../components/clinical';
 
 export type FieldType = 'number' | 'select' | 'checkbox';
 
@@ -28,6 +29,10 @@ export interface CalcResult {
   /* Kontribusi per-parameter untuk skoring (input → poin). Ditampilkan
      via ScoreBreakdown agar dokter melihat asal skor, bukan hanya total. */
   breakdown?: { label: string; points: number }[];
+  /* Rincian langkah terstruktur (label + rumus tersubstitusi + catatan),
+     alternatif dari `detail` string untuk kalkulator kompleks (elektrolit). */
+  steps?: CalcStep[];
+  stepsFooter?: string;
 }
 
 export interface Calculator {
@@ -1214,65 +1219,273 @@ export const CALCULATORS: Calculator[] = [
   },
 
   /* ------------------------------------------------------------------ */
-  /* 19. Koreksi Elektrolit                                              */
+  /* 19a. Koreksi Kalium (defisit, batas laju, protokol hiperkalemia)    */
   /* ------------------------------------------------------------------ */
   {
-    key: 'lyte-correct',
+    key: 'k-correction',
     kind: 'calculator',
-    name: 'Koreksi Elektrolit',
-    short: 'Koreksi Lyte',
+    name: 'Koreksi Kalium',
+    short: 'Koreksi K',
     category: 'Elektrolit',
-    tint: C.teal,
-    description: 'Kalsium (albumin), Natrium (glukosa), Kalium (pH)',
-    source: 'Payne 1973; Katz 1973; Adrogué-Madias',
+    tint: C.amber,
+    description: 'Defisit K, batas laju KCl, dan protokol hiperkalemia',
+    source: 'Cohn JN et al. Arch Intern Med 2000;160:2429; Macdonald JE. Heart 2004;90:1098; UK Kidney Association Hyperkalaemia Guideline 2023',
     fields: [
-      { key: 'mode', label: 'Mode', type: 'select', defaultValue: 'calcium',
-        options: [
-          { label: 'Kalsium terkoreksi albumin', value: 'calcium' },
-          { label: 'Natrium terkoreksi hiperglikemia', value: 'sodium' },
-          { label: 'Kalium — perkiraan efek pH', value: 'potassium' },
-        ] },
-      { key: 'ca', label: 'Kalsium total (mode Kalsium)', type: 'number', unit: 'mg/dL', min: 4, max: 16, step: 0.1, defaultValue: 8.5 },
-      { key: 'albumin', label: 'Albumin (mode Kalsium)', type: 'number', unit: 'g/dL', min: 1, max: 6, step: 0.1, defaultValue: 4.0 },
-      { key: 'na', label: 'Natrium terukur (mode Natrium)', type: 'number', unit: 'mEq/L', min: 100, max: 180, step: 1, defaultValue: 130 },
-      { key: 'glucose', label: 'Glukosa (mode Natrium)', type: 'number', unit: 'mg/dL', min: 70, max: 1500, step: 10, defaultValue: 400 },
-      { key: 'k', label: 'Kalium terukur (mode Kalium)', type: 'number', unit: 'mEq/L', min: 1, max: 9, step: 0.1, defaultValue: 4.0 },
-      { key: 'ph', label: 'pH (mode Kalium)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40 },
+      { key: 'currentK', label: 'Kalium saat ini', type: 'number', unit: 'mEq/L', min: 1.5, max: 8, step: 0.1, defaultValue: 3.0 },
+      { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 20, max: 200, step: 1, defaultValue: 70 },
+      { key: 'ph', label: 'pH arteri (opsional)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40,
+        description: 'Biarkan 7.40 bila tidak ada data — tidak mengubah hasil' },
+      { key: 'gds', label: 'GDS pre-koreksi (opsional, khusus hiperkalemia)', type: 'number', unit: 'mg/dL', min: 0, max: 600, step: 1, defaultValue: 0,
+        description: 'Isi untuk panduan dosis insulin+dekstrosa spesifik' },
     ],
     compute: (v) => {
-      const mode = String(v.mode || 'calcium');
-
-      if (mode === 'calcium') {
-        const ca = Number(v.ca) || 8.5;
-        const alb = Number(v.albumin) || 4.0;
-        const corr = ca + 0.8 * (4.0 - alb);
-        const label = corr < 8.5 ? 'Hipokalsemia (terkoreksi)' : corr > 10.5 ? 'Hiperkalsemia (terkoreksi)' : 'Kalsium Normal (terkoreksi)';
-        const color = corr < 8.5 || corr > 10.5 ? C.amber : C.green;
-        return { score: `${corr.toFixed(1)} mg/dL`, label, color,
-          detail: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${corr.toFixed(1)} mg/dL\n\nPada hipoalbuminemia, Ca total rendah palsu; Ca terionisasi lebih akurat bila tersedia` };
-      }
-
-      if (mode === 'sodium') {
-        const na = Number(v.na) || 130;
-        const glu = Number(v.glucose) || 400;
-        // Katz 1.6 per 100 mg/dL di atas 100; faktor 2.4 lebih akurat bila glukosa sangat tinggi
-        const factor = glu > 400 ? 2.4 : 1.6;
-        const corr = na + factor * ((glu - 100) / 100);
-        return { score: `${corr.toFixed(1)} mEq/L`, label: 'Natrium Terkoreksi', color: C.teal,
-          detail: `Na terkoreksi = Na + ${factor} × ((glukosa − 100)/100)\n= ${na} + ${factor} × ((${glu} − 100)/100) = ${corr.toFixed(1)} mEq/L\n\nHiperglikemia menarik air → hiponatremia dilusional palsu. Faktor 1.6 (Katz); 2.4 lebih tepat bila glukosa >400 mg/dL` };
-      }
-
-      // potassium — perkiraan efek pH (~0.6 mEq/L per 0.1 unit pH, arah berlawanan)
-      const k = Number(v.k) || 4.0;
+      const k = Number(v.currentK) || 3.0;
+      const wt = Number(v.weight) || 70;
       const ph = Number(v.ph) || 7.40;
-      const kAt74 = k + 0.6 * ((ph - 7.40) / 0.1);
-      return { score: `${kAt74.toFixed(1)} mEq/L`, label: 'Perkiraan K⁺ pada pH 7.40', color: C.amber,
-        detail: `Perkiraan K⁺ "sebenarnya" ≈ K + 0.6 × ((pH − 7.40)/0.1)\n= ${k} + 0.6 × ((${ph} − 7.40)/0.1) = ${kAt74.toFixed(1)} mEq/L\n\nAsidemia menggeser K⁺ keluar sel (K serum tampak tinggi); alkalemia sebaliknya. Aturan kasar — total K tubuh bisa berbeda. Selalu korelasikan klinis` };
+      const gds = Number(v.gds) || 0;
+      const hasPh = Math.abs(ph - 7.40) > 0.001;
+      const isAcidosis = hasPh && ph < 7.35;
+
+      // pH-adjustment: asidemia menggeser K keluar sel → K serum tampak
+      // lebih tinggi dari status intrasel/total tubuh sesungguhnya.
+      const kCorr = k + 0.6 * ((ph - 7.40) / 0.1);
+      const phStep: CalcStep | null = hasPh ? {
+        label: 'Penyesuaian efek pH',
+        formula: `K "sebenarnya" pada pH 7.40 ≈ K + 0.6 × ((pH − 7.40)/0.1)\n= ${k} + 0.6 × ((${ph} − 7.40)/0.1) = ${kCorr.toFixed(2)} mEq/L`,
+        note: isAcidosis
+          ? 'PERINGATAN: asidosis menggeser K keluar sel — koreksi asidosis akan MENURUNKAN K serum. Koreksi K harus mendahului/bersamaan koreksi asidosis.'
+          : 'Aturan kasar (~0.6 mEq/L per 0.1 unit pH) — total K tubuh bisa berbeda dari estimasi ini; selalu korelasikan klinis.',
+      } : null;
+
+      if (k < 3.5) {
+        // ── HIPOKALEMIA ──
+        const scale = wt / 70;
+        const defLo = (3.5 - k) * 100 * scale;
+        const defHi = (3.5 - k) * 200 * scale;
+        const hrsLo = defLo / 10; // pada laju maksimal perifer 10 mEq/jam
+        const hrsHi = defHi / 10;
+
+        const steps: CalcStep[] = [
+          {
+            label: 'Langkah 1 — Estimasi defisit total tubuh (kasar)',
+            formula: `Defisit ≈ (3.5 − K) × 100–200 × (BB/70)\n= (3.5 − ${k}) × 100–200 × (${wt}/70) = ${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`,
+            note: 'ESTIMASI KASAR (Cohn et al. 2000) — hubungan K serum ↔ defisit total tubuh TIDAK linear (cadangan intrasel besar). Jangan berikan seluruh defisit sekaligus; nilai ulang K serial.',
+          },
+          {
+            label: 'Langkah 2 — Batas laju infus KCl',
+            formula: `Vena perifer: maks 10 mEq/jam\nVena sentral: maks 20 mEq/jam`,
+            note: `Pada laju maksimal perifer, ${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq membutuhkan ≈ ${hrsLo.toFixed(1)}–${hrsHi.toFixed(1)} jam. Berikan bertahap (~40% dulu), cek K ulang: <2.5 tiap 1–2j, 2.5–3.0 tiap 2–4j.`,
+          },
+          ...(phStep ? [phStep] : []),
+        ];
+
+        return {
+          score: `${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`,
+          label: 'Hipokalemia — Defisit (estimasi)',
+          risk: 'Vena perifer ≤10 mEq/jam · vena sentral ≤20 mEq/jam',
+          color: k < 2.5 ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Distribusi K butuh 4–6 jam — jangan berikan seluruh estimasi defisit sekaligus. Bila hipokalemia refrakter meski dikoreksi, periksa Mg (hipomagnesemia menyebabkan kebocoran K ginjal): MgSO4 2 g IV dalam 100 mL NS (20–30 menit).',
+        };
+      }
+
+      if (k > 5.0) {
+        // ── HIPERKALEMIA ──
+        const severe = k > 6.0;
+        const insulinStep: CalcStep = gds > 0
+          ? (gds >= 126
+            ? { label: 'Langkah 2A — Insulin + Dekstrosa (GDS pre-koreksi diketahui)',
+                formula: `GDS = ${gds} mg/dL (≥126)\nInsulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus`,
+                note: 'GDS sudah cukup tinggi — tidak perlu infus dekstrosa lanjutan. Monitor GDS tiap 30 menit.' }
+            : { label: 'Langkah 2A — Insulin + Dekstrosa (GDS pre-koreksi diketahui)',
+                formula: `GDS = ${gds} mg/dL (<126)\nInsulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus\n+ WAJIB Dekstrosa 10% 50 mL/jam selama 5 jam (total 25 g)`,
+                note: 'GDS belum cukup tinggi — risiko hipoglikemia lanjut TINGGI tanpa infus dekstrosa susulan. Monitor GDS tiap 30 menit.' })
+          : { label: 'Langkah 2A — Insulin + Dekstrosa',
+              formula: `Insulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus`,
+              note: 'Isi GDS pre-koreksi untuk panduan spesifik apakah perlu dekstrosa lanjutan (protokol UK Kidney Association 2023, diadaptasi — konfirmasi cutoff dgn protokol institusi Anda).' };
+
+        const steps: CalcStep[] = [
+          ...(phStep ? [phStep] : []),
+          { label: 'Langkah 1 — Stabilisasi membran (bila perubahan EKG)',
+            formula: 'Ca Glukonat 10% 10 mL IV (3–5 menit)',
+            note: 'Ulangi bila EKG belum membaik dalam 5–10 menit. Tidak menurunkan K — hanya menstabilkan membran sel jantung sementara.' },
+          insulinStep,
+          { label: 'Langkah 2B — Salbutamol nebulisasi',
+            formula: '10–20 mg (2.5–5 ampul @2.5 mg)',
+            note: 'Onset 15–30 menit, efek sinergis dengan insulin. Tidak efektif sebagai monoterapi pada ~40% pasien.' },
+          { label: 'Langkah 2C — Natrium Bikarbonat',
+            formula: 'NaHCO₃ 8.4% 50 mEq IV — HANYA bila asidosis metabolik pH < 7.2',
+            note: isAcidosis ? 'pH saat ini menunjukkan asidosis — NaHCO₃ dapat dipertimbangkan.' : 'Tidak efektif sebagai monoterapi pada pH normal — jangan berikan rutin.' },
+        ];
+
+        return {
+          score: `${k.toFixed(1)} mEq/L`,
+          label: `Hiperkalemia ${severe ? 'Berat' : 'Sedang'}`,
+          risk: severe ? 'K >6.0 — emergensi, tata laksana segera' : 'K 5.1–6.0 — tata laksana & monitoring ketat',
+          color: severe ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Alternatif ICU: infus insulin kontinu (Reguler 50 IU + NaCl0.9% 48mL = 1 IU/mL; laju 1.5–2 mL/jam × 6 jam; dampingi D10% 50–100 mL/jam bila puasa; STOP bila K<4.5 atau GDS<100).',
+        };
+      }
+
+      // ── NORMAL ──
+      return {
+        score: `${k.toFixed(1)} mEq/L`,
+        label: 'Kalium Normal',
+        color: C.green,
+        steps: phStep ? [phStep] : undefined,
+      };
     },
     notes: [
-      'Kalsium: koreksi Payne hanya perkiraan — Ca terionisasi adalah baku emas, terutama pada sakit kritis',
-      'Natrium: hiperglikemia menyebabkan pseudohiponatremia; koreksi dulu sebelum menilai gangguan Na sesungguhnya',
-      'Kalium & pH: aturan 0.6 mEq/L per 0.1 pH bersifat kasar dan bervariasi — jangan menunda tata laksana hiperkalemia bermakna',
+      'Defisit K adalah ESTIMASI KASAR (Cohn et al. Arch Intern Med 2000) — hubungan serum↔total tubuh tidak linear; jangan menunda tata laksana hiperkalemia bermakna menunggu perhitungan presisi',
+      'Batas laju KCl: vena perifer ≤10 mEq/jam, vena sentral ≤20 mEq/jam (nyeri/flebitis & risiko aritmia bila terlampaui)',
+      'Selalu nilai K bersama pH — asidemia menggeser K keluar sel, menciptakan hiperkalemia semu (Adrogué HJ, Madias NE)',
+      'Hipokalemia refrakter → cek Mg (hipomagnesemia menyebabkan kebocoran K ginjal, Huang CL & Kuo E. JASN 2007;18:2649)',
+      'Protokol insulin+dekstrosa hiperkalemia diadaptasi dari UK Kidney Association Guideline 2023 — konfirmasi cutoff GDS & regimen dekstrosa lanjutan dengan protokol institusi Anda',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 19b. Koreksi Kalsium (albumin, ionized, protokol hipo/hiperkalsemia) */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'ca-correction',
+    kind: 'calculator',
+    name: 'Koreksi Kalsium',
+    short: 'Koreksi Ca',
+    category: 'Elektrolit',
+    tint: C.teal,
+    description: 'Kalsium terkoreksi albumin, estimasi ionized, protokol tata laksana',
+    source: 'Payne RB. BMJ 1973;4:643; Cooper MS. BMJ 2003;326:1424; Bilezikian JP. NEJM 2022;386:1476',
+    fields: [
+      { key: 'ca', label: 'Kalsium total', type: 'number', unit: 'mg/dL', min: 4, max: 16, step: 0.1, defaultValue: 8.5 },
+      { key: 'albumin', label: 'Albumin', type: 'number', unit: 'g/dL', min: 1, max: 6, step: 0.1, defaultValue: 4.0 },
+      { key: 'ph', label: 'pH arteri (opsional)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40,
+        description: 'Biarkan 7.40 bila tidak ada data — tidak mengubah hasil' },
+    ],
+    compute: (v) => {
+      const ca = Number(v.ca) || 8.5;
+      const alb = Number(v.albumin) || 4.0;
+      const ph = Number(v.ph) || 7.40;
+      const hasPh = Math.abs(ph - 7.40) > 0.001;
+
+      const corr = ca + 0.8 * (4.0 - alb);
+      const ionizedBase = corr * 0.125;
+      const ionized = hasPh ? ionizedBase + (7.40 - ph) * 0.5 : ionizedBase;
+
+      const steps: CalcStep[] = [
+        {
+          label: 'Langkah 1 — Kalsium terkoreksi albumin (Payne 1973)',
+          formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${corr.toFixed(2)} mg/dL`,
+          note: 'Pada hipoalbuminemia, Ca total terukur rendah palsu (sebagian besar Ca terikat albumin) — koreksi ini memperkirakan Ca "seolah" albumin normal.',
+        },
+        {
+          label: 'Langkah 2 — Estimasi Ca ionized',
+          formula: `Ca ionized (mmol/L) ≈ Ca terkoreksi (mg/dL) × 0.125\n= ${corr.toFixed(2)} × 0.125 = ${ionizedBase.toFixed(3)} mmol/L`,
+          note: 'Faktor 0.125 ≈ konversi mg/dL→mmol/L (÷4.008) × fraksi ionized (~50%) dari Ca terkoreksi total. Estimasi kasar — pengukuran ionized langsung adalah baku emas, terutama pada sakit kritis.',
+        },
+        ...(hasPh ? [{
+          label: 'Langkah 2b — Penyesuaian efek pH pada ionized',
+          formula: `Ionized (pH-adjusted) = ${ionizedBase.toFixed(3)} + (7.40 − ${ph}) × 0.5\n= ${ionized.toFixed(3)} mmol/L`,
+          note: 'Asidosis mengurangi ikatan Ca-albumin → ionized naik. Koefisien 0.5 diadaptasi dari referensi klinis — belum diverifikasi independen ke sumber primer, gunakan sebagai perkiraan kasar.',
+        }] : []),
+      ];
+
+      if (corr < 8.5 || (hasPh && ionized < 1.12)) {
+        return {
+          score: `${corr.toFixed(1)} mg/dL`,
+          label: 'Hipokalsemia (terkoreksi)',
+          risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
+          color: corr < 7.0 ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Ca Glukonat 10% (perifer/sentral): 1 amp (10 mL) = 4.65 mEq. Emergensi (kejang/tetani): 1–2 amp IV lambat 5–10 menit + monitor EKG. Sedang: 1 amp dalam 100 mL NS/D5W → infus 30–60 menit. Ca Klorida 10% (HANYA via CVC): 1 amp = 13.6 mEq (3× lebih poten); indikasi syok/henti jantung/transfusi masif. Jangan campur dengan NaHCO₃/fosfat; hati-hati pada pasien digitalis (risiko toksisitas meningkat).',
+        };
+      }
+      if (corr > 10.5) {
+        return {
+          score: `${corr.toFixed(1)} mg/dL`,
+          label: 'Hiperkalsemia (terkoreksi)',
+          risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
+          color: corr > 14 ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Protokol (>10.5 mg/dL): 1) Hidrasi NaCl 0.9% 200–500 mL/jam (target urin 100–150 mL/jam). 2) Furosemide 20–40 mg IV HANYA setelah euvolemia tercapai. 3) Kalsitonin 4–8 IU/kg SC/IM tiap 12 jam (onset cepat). 4) Zoledronat 4 mg IV dalam 15 menit (onset lambat ~48 jam). 5) Denosumab 120 mg SC bila gagal ginjal (bifosfonat kontraindikasi relatif).',
+        };
+      }
+      return { score: `${corr.toFixed(1)} mg/dL`, label: 'Kalsium Normal (terkoreksi)', risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`, color: C.green, steps };
+    },
+    notes: [
+      'Koreksi Payne hanya perkiraan — Ca ionized terukur langsung adalah baku emas, terutama pada sakit kritis/asidosis-alkalosis',
+      'Estimasi ionized (×0.125) adalah pendekatan kasar, BUKAN pengganti pengukuran ionized langsung bila tersedia',
+      'Ca Klorida HANYA melalui akses vena sentral (sangat mengiritasi vena perifer)',
+      'Hati-hati pemberian Ca pada pasien digitalis — dapat mencetuskan toksisitas/aritmia',
+      'Hiperkalsemia berat/simtomatik: pertimbangkan dialisis bila gagal ginjal berat atau gagal terapi medis',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* 19c. Koreksi Magnesium (dosis tetap per keparahan)                  */
+  /* ------------------------------------------------------------------ */
+  {
+    key: 'mg-correction',
+    kind: 'calculator',
+    name: 'Koreksi Magnesium',
+    short: 'Koreksi Mg',
+    category: 'Elektrolit',
+    tint: C.green,
+    description: 'Dosis MgSO4 tetap per keparahan + penyesuaian gagal ginjal',
+    source: 'de Baaij JH et al. Physiol Rev 2015;95:1; Huang CL, Kuo E. JASN 2007;18:2649',
+    fields: [
+      { key: 'mg', label: 'Magnesium serum', type: 'number', unit: 'mg/dL', min: 0.5, max: 4, step: 0.1, defaultValue: 1.5 },
+      { key: 'symptomatic', label: 'Gejala berat (aritmia/Torsades/kejang)', type: 'checkbox' },
+      { key: 'egfr', label: 'eGFR/CrCl (opsional)', type: 'number', unit: 'mL/min', min: 0, max: 150, step: 1, defaultValue: 0,
+        description: 'Isi bila ada gangguan ginjal — memicu penyesuaian dosis' },
+    ],
+    compute: (v) => {
+      const mg = Number(v.mg) || 1.5;
+      const symptomatic = Boolean(v.symptomatic);
+      const egfr = Number(v.egfr) || 0;
+      const renalCaution = egfr > 0 && egfr < 30;
+
+      if (mg < 1.7) {
+        const doseAmount = symptomatic ? '2 g IV' : '1–2 g IV';
+        const doseDetail = symptomatic
+          ? 'Bolus lambat 5–10 menit (gejala berat)'
+          : 'Dalam 50–100 mL NS/D5W selama 1 jam';
+        const doseLabel = symptomatic
+          ? 'MgSO4 2 g IV bolus lambat (5–10 menit)'
+          : 'MgSO4 1–2 g IV dalam 50–100 mL NS/D5W selama 1 jam';
+
+        const steps: CalcStep[] = [
+          { label: 'Langkah 1 — Klasifikasi', formula: `Mg ${mg} mg/dL < 1.7 mg/dL → Hipomagnesemia`,
+            note: 'Rentang normal umum 1.7–2.2 mg/dL — bervariasi antar laboratorium/assay.' },
+          { label: `Langkah 2 — Dosis (${symptomatic ? 'gejala berat' : 'asimtomatik/ringan-sedang'})`,
+            formula: doseLabel,
+            note: 'Dosis TETAP berdasarkan keparahan klinis, bukan formula per berat badan — sesuai praktik replacement Mg standar (berbeda dari protokol eklampsia yang punya regimen tersendiri).' },
+          ...(renalCaution ? [{
+            label: 'Langkah 3 — Penyesuaian gagal ginjal',
+            formula: `eGFR ${egfr} mL/min < 30 → turunkan dosis ~50%`,
+            note: 'Pantau ketat: refleks patela tiap 1 jam (hilang bila Mg >4 mg/dL — tanda toksisitas dini), laju napas tiap 30 menit (depresi napas bila Mg >5 mg/dL). Hentikan infus bila salah satu muncul.',
+          }] : []),
+        ];
+
+        return {
+          score: doseAmount,
+          label: symptomatic ? 'Hipomagnesemia — Gejala Berat' : 'Hipomagnesemia',
+          risk: renalCaution ? `${doseDetail} · eGFR <30, pantau ketat` : doseDetail,
+          color: symptomatic ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Hipomagnesemia sering menyertai hipokalemia refrakter (kebocoran K ginjal) — koreksi Mg dapat memperbaiki K tanpa infus K berlebih.',
+        };
+      }
+
+      return { score: `${mg.toFixed(1)} mg/dL`, label: 'Magnesium Normal', color: C.green,
+        risk: 'Rentang umum 1.7–2.2 mg/dL (bervariasi antar lab)' };
+    },
+    notes: [
+      'Dosis MgSO4 di sini bersifat TETAP per keparahan (bukan per kg BB) — mengikuti pola replacement standar; BERBEDA dari protokol MgSO4 pre-eklampsia/eklampsia (loading + maintenance khusus, tidak dicakup kalkulator ini)',
+      'Toksisitas Mg: hiporefleksia (>4 mg/dL) → depresi napas (>5 mg/dL) → henti jantung (>10 mg/dL); pada gagal ginjal risiko akumulasi meningkat',
+      'Hipomagnesemia adalah penyebab tersering hipokalemia REFRAKTER — selalu periksa Mg bila K sulit dikoreksi',
+      'Kalsium Glukonat 10% harus tersedia sebagai antidot bila terjadi toksisitas Mg berat',
     ],
   },
 
@@ -1405,24 +1618,29 @@ export const CALCULATORS: Calculator[] = [
   },
 
   /* ------------------------------------------------------------------ */
-  /* 23. Rate Koreksi Natrium (hiponatremia — hindari ODS)               */
+  /* 23. Koreksi Natrium (hipo & hipernatremia — hindari ODS)            */
   /* ------------------------------------------------------------------ */
   {
     key: 'na-correction',
     kind: 'calculator',
-    name: 'Koreksi Natrium (Hiponatremia)',
+    name: 'Koreksi Natrium (Hipo/Hipernatremia)',
     short: 'Koreksi Na',
     category: 'Elektrolit',
     tint: C.blue,
-    description: 'Laju aman NaCl 3% (Adrogué-Madias) + batas hindari ODS',
-    source: 'Adrogué & Madias NEJM 2000; SSC/ERBP Hiponatremia',
+    description: 'Dua metode NaCl 3% (defisit & Adrogué-Madias) + defisit air bebas',
+    source: 'Adrogué & Madias NEJM 2000;342:1493 & 1581; Sterns RH NEJM 2015;372:55; Spasovski G. ERBP/ESE NDT 2014',
     fields: [
-      { key: 'currentNa', label: 'Natrium saat ini', type: 'number', unit: 'mEq/L', min: 100, max: 135, step: 1, defaultValue: 118 },
+      { key: 'currentNa', label: 'Natrium saat ini', type: 'number', unit: 'mEq/L', min: 100, max: 180, step: 1, defaultValue: 118 },
       { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 20, max: 200, step: 1, defaultValue: 70 },
       { key: 'sex', label: 'Jenis Kelamin', type: 'select', defaultValue: 'male',
         options: [{ label: 'Laki-laki', value: 'male' }, { label: 'Perempuan', value: 'female' }] },
-      { key: 'targetRise', label: 'Target kenaikan / 24 jam', type: 'number', unit: 'mEq/L', min: 1, max: 12, step: 1, defaultValue: 6,
-        description: 'Biasanya 4–6 mEq/L/24 jam; JANGAN lampaui batas aman di bawah' },
+      { key: 'glucose', label: 'Glukosa (opsional)', type: 'number', unit: 'mg/dL', min: 0, max: 1500, step: 10, defaultValue: 0,
+        description: 'Isi bila hiperglikemia — Na dikoreksi dulu (Katz) sebelum dievaluasi' },
+      { key: 'onset', label: 'Onset (khusus hiponatremia)', type: 'select', defaultValue: 'kronik',
+        options: [{ label: 'Kronik / tidak diketahui', value: 'kronik' }, { label: 'Akut (< 48 jam)', value: 'akut' }],
+        description: 'Kronik: batas 6–8 mEq/L/24j. Akut: batas lebih longgar 10–12 (risiko ODS jauh lebih rendah)' },
+      { key: 'targetRise', label: 'Target kenaikan / 24 jam (hiponatremia)', type: 'number', unit: 'mEq/L', min: 1, max: 12, step: 1, defaultValue: 6,
+        description: 'Akan dibatasi otomatis ke batas aman sesuai onset & risiko ODS di bawah' },
       { key: 'highRisk', label: 'Risiko tinggi ODS', type: 'checkbox',
         description: 'Na <105, kronik/durasi tak jelas, alkoholisme, malnutrisi, hipokalemia, sirosis, pasca-transplan hati' },
     ],
@@ -1431,45 +1649,143 @@ export const CALCULATORS: Calculator[] = [
       const wt = Number(v.weight) || 70;
       const female = String(v.sex || 'male') === 'female';
       const highRisk = Boolean(v.highRisk);
+      const onset = String(v.onset || 'kronik');
       const rawTarget = Number(v.targetRise) || 6;
+      const glucose = Number(v.glucose) || 0;
+
+      // Langkah 0 (opsional) — koreksi Na terhadap hiperglikemia (Katz 1973 /
+      // Hillier 1999): +1.6 mEq/L per 100 mg/dL glukosa di atas 100; faktor
+      // 2.4 lebih akurat bila glukosa sangat tinggi (>400 mg/dL).
+      const hasHyper = glucose > 100;
+      const glucoseFactor = glucose > 400 ? 2.4 : 1.6;
+      const calcN = hasHyper ? na + glucoseFactor * ((glucose - 100) / 100) : na;
 
       // Total Body Water (Watson sederhana): 0.6 L/kg (L), 0.5 (P)
-      const tbw = wt * (female ? 0.5 : 0.6);
+      const tbwFactor = female ? 0.5 : 0.6;
+      const tbw = wt * tbwFactor;
 
-      // Batas aman per 24 jam untuk hindari Osmotic Demyelination Syndrome
-      const limit24 = highRisk ? 6 : 8;   // mEq/L / 24 jam
-      const target = Math.min(rawTarget, limit24);
-      const capped = rawTarget > limit24;
+      const hyperStep: CalcStep | null = hasHyper ? {
+        label: 'Langkah 0 — Koreksi Na terhadap hiperglikemia (Katz/Hillier)',
+        formula: `Na terkoreksi = Na terukur + ${glucoseFactor} × (Glukosa − 100)/100\n= ${na} + ${glucoseFactor} × (${glucose} − 100)/100 = ${calcN.toFixed(1)} mEq/L`,
+        note: 'Hiperglikemia menarik air ke ekstrasel → hiponatremia dilusional palsu; evaluasi selanjutnya memakai Na terkoreksi ini.',
+      } : null;
+      const tbwStep: CalcStep = {
+        label: 'Langkah 1 — Total Body Water (TBW)',
+        formula: `TBW = ${tbwFactor} × BB = ${tbwFactor} × ${wt} kg = ${tbw.toFixed(1)} L`,
+        note: `Faktor ${tbwFactor} untuk ${female ? 'perempuan' : 'laki-laki'} dewasa (Watson). Estimasi kasar — dehidrasi/geriatri dapat menurunkan TBW aktual.`,
+      };
 
-      // Adrogué-Madias: ΔNa serum per 1 L infusat = (Na_infusat − Na_serum) / (TBW + 1)
-      const NA3 = 513;   // NaCl 3% (513 mEq/L)
-      const NA09 = 154;  // NaCl 0.9%
-      const dPer1L_3 = (NA3 - na) / (tbw + 1);
-      const dPer1L_09 = (NA09 - na) / (tbw + 1);
+      if (calcN < 135) {
+        // ── HIPONATREMIA ──
+        const limitBase = onset === 'akut' ? { lo: 10, hi: 12 } : { lo: 6, hi: 8 };
+        const limit24 = highRisk ? limitBase.lo : limitBase.hi;
+        const target = Math.min(rawTarget, limit24);
+        const capped = rawTarget > limit24;
+        const naT = 140;
+        const d = Math.max(0, Math.min(target, naT - calcN));
+        const isEmergensi = calcN < 120;
 
-      // Volume NaCl 3% untuk mencapai target dalam 24 jam, lalu laju mL/jam
-      const volL_3 = dPer1L_3 > 0 ? target / dPer1L_3 : 0;
-      const rateMlHr = (volL_3 * 1000) / 24;
+        // Metode 1 — Defisit: ΔNa × TBW ÷ 513 (NaCl 3% = 513 mEq/L)
+        const deficitMeq = d * tbw;
+        const volDeficit = (deficitMeq / 513) * 1000;
+        const rateDeficit = volDeficit / 24;
 
-      const color = na < 120 ? C.red : na < 130 ? C.amber : C.green;
-      const detail = [
-        `Batas aman: ≤ ${limit24} mEq/L / 24 jam${highRisk ? ' (risiko tinggi ODS)' : ''}; ≤ 18 mEq/L / 48 jam`,
-        capped ? `⚠️ Target diminta ${rawTarget} → dibatasi ke ${target} mEq/L (batas aman)` : `Target: ${target} mEq/L / 24 jam`,
-        `TBW = ${tbw.toFixed(1)} L (${female ? 'P 0.5' : 'L 0.6'} ×BB)`,
-        `Adrogué-Madias: 1 L NaCl 3% menaikkan Na ≈ ${dPer1L_3.toFixed(1)} mEq/L`,
-        `(1 L NaCl 0.9% ≈ ${dPer1L_09 >= 0 ? '+' : ''}${dPer1L_09.toFixed(1)} mEq/L)`,
-        `NaCl 3% ≈ ${Math.round(volL_3 * 1000)} mL / 24 jam → ${rateMlHr.toFixed(0)} mL/jam`,
-        `\nHentikan & cek Na tiap 2–4 jam. Jika overcorrection: D5W ± desmopresin`,
-      ].join('\n');
+        // Metode 2 — Adrogué-Madías: ΔNa per 1 L NaCl 3% = (513 − Na)/(TBW+1)
+        const amPerLiter = (513 - calcN) / (tbw + 1);
+        const volAM = amPerLiter > 0 ? (d / amPerLiter) * 1000 : 0;
+        const rateAM = volAM / 24;
 
-      return { score: `${rateMlHr.toFixed(0)} mL/jam`, label: 'Laju NaCl 3%', color, detail };
+        const volMin = Math.min(volDeficit, volAM);
+        const volMax = Math.max(volDeficit, volAM);
+        const rateMin = volMin / 24;
+        const rateMax = volMax / 24;
+        const rateSafetyCap = (0.5 * tbw * 1000) / 513; // setara laju kenaikan 0.5 mEq/L/jam
+
+        const steps: CalcStep[] = [
+          ...(hyperStep ? [hyperStep] : []),
+          tbwStep,
+          {
+            label: `Langkah 2 — Target kenaikan Na (${onset === 'akut' ? 'akut' : 'kronik'})`,
+            formula: `ΔNa = ${d.toFixed(1)} mEq/L (batas aman ${limitBase.lo}–${limitBase.hi} mEq/L/24j${highRisk ? ', risiko tinggi ODS → pakai batas bawah' : ''})\nTarget Na = ${calcN.toFixed(1)} + ${d.toFixed(1)} = ${(calcN + d).toFixed(1)} mEq/L`,
+            note: capped ? `Target diminta ${rawTarget} mEq/L → dibatasi ke ${target} mEq/L (batas aman).` : undefined,
+          },
+          {
+            label: 'Langkah 3 — Defisit natrium yang perlu diberikan',
+            formula: `Defisit Na = TBW × ΔNa = ${tbw.toFixed(1)} × ${d.toFixed(1)} = ${deficitMeq.toFixed(0)} mEq`,
+          },
+          {
+            label: 'Langkah 4a — Volume via Metode Defisit',
+            formula: `NaCl 3% = 513 mEq Na/L\nVolume = ${deficitMeq.toFixed(0)} ÷ 513 × 1000 = ${volDeficit.toFixed(0)} mL → ${rateDeficit.toFixed(1)} mL/jam`,
+          },
+          {
+            label: 'Langkah 4b — Volume via Adrogué-Madías',
+            formula: `Kenaikan Na per 1 L NaCl 3% = (513 − Na)/(TBW+1) = (513 − ${calcN.toFixed(1)})/(${tbw.toFixed(1)}+1) = ${amPerLiter.toFixed(2)} mEq/L\nVolume = ${d.toFixed(1)} ÷ ${amPerLiter.toFixed(2)} × 1000 = ${volAM.toFixed(0)} mL → ${rateAM.toFixed(1)} mL/jam`,
+            note: 'Metode ini memperhitungkan dilusi cairan yang ikut masuk, sehingga volumenya biasanya lebih tinggi dari metode defisit.',
+          },
+          {
+            label: 'Langkah 5 — Rentang laju infus (dua metode)',
+            formula: `${volMin.toFixed(0)}–${volMax.toFixed(0)} mL / 24 jam → ${rateMin.toFixed(1)}–${rateMax.toFixed(1)} mL/jam`,
+            note: `Batas laju absolut ≈ ${rateSafetyCap.toFixed(1)} mL/jam (setara 0.5 mEq/L/jam) — jangan dilampaui di luar kondisi emergensi bergejala. Mulai dari estimasi lebih rendah, titrasi berdasar Na serial. Cek Na tiap 4–6 jam.`,
+          },
+        ];
+
+        return {
+          score: `${rateMin.toFixed(1)}–${rateMax.toFixed(1)} mL/jam`,
+          label: isEmergensi ? 'Hiponatremia Berat — Laju NaCl 3% (rentang)' : 'Laju NaCl 3% (rentang 2 metode)',
+          risk: isEmergensi
+            ? 'Na <120 — nilai gejala (kejang/koma); jika bergejala berat, pertimbangkan bolus emergensi (lihat catatan)'
+            : `Target kenaikan ${d.toFixed(1)} mEq/L dalam 24 jam`,
+          color: isEmergensi ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Kedua rumus adalah estimasi awal — respons nyata dipengaruhi output urin & penyebab hiponatremia. Nilai ulang dengan Na serial tiap 4–6 jam.',
+        };
+      }
+
+      if (calcN > 145) {
+        // ── HIPERNATREMIA — Defisit Air Bebas (Free Water Deficit) ──
+        const naT = 140;
+        const fwd = tbw * (calcN / naT - 1);
+        const rate = (fwd * 1000) / 48; // dibagi 48 jam agar penurunan ≤10 mEq/L/24 jam
+
+        const steps: CalcStep[] = [
+          ...(hyperStep ? [hyperStep] : []),
+          tbwStep,
+          {
+            label: 'Langkah 2 — Defisit Air Bebas (Free Water Deficit)',
+            formula: `Defisit = TBW × (Na/140 − 1)\n= ${tbw.toFixed(1)} × (${calcN.toFixed(1)}/140 − 1) = ${fwd.toFixed(2)} L`,
+          },
+          {
+            label: 'Langkah 3 — Laju pemberian',
+            formula: `Laju = ${fwd.toFixed(2)} L × 1000 ÷ 48 jam = ${rate.toFixed(0)} mL/jam`,
+            note: 'Dibagi rata 48 jam agar penurunan Na ≤ 10 mEq/L per 24 jam (hindari edema serebri). Tambahkan Insensible Water Loss (~30–40 mL/jam) & ongoing loss pada laju TOTAL cairan — laju di atas hanya komponen air bebas.',
+          },
+        ];
+
+        return {
+          score: `${rate.toFixed(0)} mL/jam`,
+          label: 'Defisit Air Bebas (Hipernatremia)',
+          risk: `Defisit ${fwd.toFixed(2)} L, target penurunan ≤10 mEq/L/24 jam`,
+          color: calcN > 160 ? C.red : C.amber,
+          steps,
+          stepsFooter: 'Cairan: D5W atau air enteral (NGT) bila stabil; atasi hipovolemia berat dengan NaCl 0.9% dulu. Cek Na tiap 4–6 jam; rumus ini estimasi awal.',
+        };
+      }
+
+      // ── NORMAL ──
+      return {
+        score: `${calcN.toFixed(1)} mEq/L`,
+        label: 'Natrium Normal',
+        color: C.green,
+        steps: hyperStep ? [hyperStep] : undefined,
+      };
     },
     notes: [
-      'Batas aman koreksi: ≤ 8 mEq/L/24 jam (≤ 6 pada risiko tinggi ODS) dan ≤ 18 mEq/L/48 jam',
-      'Hiponatremia berat SIMPTOMATIK (kejang/koma): bolus NaCl 3% 100–150 mL dalam 10 menit, boleh diulang hingga 2–3×, target kenaikan cepat 4–6 mEq/L lalu STOP',
-      'Adrogué-Madias hanya estimasi — Na aktual bisa naik lebih cepat (mis. diuresis air bebas pada SIADH teratasi); ukur Na serial tiap 2–4 jam',
-      'Overcorrection → risiko ODS (mielinolisis pontin). Bila melampaui batas: berikan air bebas (D5W) ± desmopresin untuk menurunkan kembali',
-      'Koreksi hipokalemia bersamaan juga menaikkan Na — perhitungkan',
+      'Hiponatremia bergejala BERAT (kejang, penurunan kesadaran, koma): bolus NaCl 3% 100–150 mL IV dalam 10–20 menit, dapat diulang 2–3× (maksimal naik 4–6 mEq/L), lalu re-evaluasi — target awal menghentikan gejala, bukan menormalkan Na (Spasovski/ERBP-ESE 2014)',
+      'Hiponatremia KRONIK ASIMTOMATIK: lini pertama biasanya atasi penyebab (obat, SIADH, hipovolemia) + restriksi cairan — bukan NaCl 3% secara rutin',
+      'Overcorrection (>8–10 mEq/L/24j): STOP NaCl hipertonis, konsul ICU/nefrologi, pertimbangkan D5W ± desmopresin untuk menurunkan kembali Na (Verbalis JG. Am J Med 2013;126:S1)',
+      'Hipernatremia: bila ada hipovolemia berat/syok, atasi dulu dengan NaCl 0.9% isotonis hingga stabil, baru berikan defisit air bebas',
+      'Batas aman koreksi hiponatremia: ≤ 8 mEq/L/24 jam kronik (≤ 6 risiko tinggi ODS) atau ≤ 12 (≤10 risiko tinggi) akut; ≤ 18 mEq/L/48 jam',
+      'Koreksi hipokalemia bersamaan juga menaikkan Na — perhitungkan saat menilai laju kenaikan aktual',
     ],
   },
 ];

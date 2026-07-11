@@ -351,23 +351,131 @@ describe('QTc', () => {
   });
 });
 
-describe('Koreksi Elektrolit', () => {
-  const f = calc('lyte-correct');
-  it('Ca 7.0 albumin 2.0 → terkoreksi 8.6', () => {
+describe('Koreksi Kalium (defisit, batas laju, protokol hiperK)', () => {
+  const f = calc('k-correction');
+
+  it('K3.0 70kg → defisit 50–100 mEq (estimasi kasar)', () => {
+    // (3.5-3.0)×100–200×(70/70) = 50–100
+    const r = f({ currentK: 3.0, weight: 70 });
+    expect(r.score).toBe('50–100 mEq');
+    expect(r.risk).toMatch(/perifer ≤10.*sentral ≤20/);
+  });
+
+  it('defisit diskalakan oleh berat badan (140kg → 2×)', () => {
+    const r = f({ currentK: 3.0, weight: 140 });
+    expect(r.score).toBe('100–200 mEq');
+  });
+
+  it('K <2.5 → warna merah (berat)', () => {
+    const r = f({ currentK: 2.0, weight: 70 });
+    expect(r.score).toBe('150–300 mEq');
+    expect(r.color).toBe('#BA1A1A');
+  });
+
+  it('pH-adjustment: asidosis (pH7.20) menurunkan estimasi K sebenarnya', () => {
+    // 4.0 + 0.6×((7.20-7.40)/0.1) = 4.0 - 1.2 = 2.80
+    const r = f({ currentK: 4.0, ph: 7.20 });
+    const step = r.steps!.find(s => s.label.includes('Penyesuaian efek pH'))!;
+    expect(step.formula).toMatch(/2\.80/);
+    expect(step.note).toMatch(/PERINGATAN/);
+  });
+
+  it('hiperkalemia berat (K6.5) → label & warna merah', () => {
+    const r = f({ currentK: 6.5 });
+    expect(r.score).toBe('6.5 mEq/L');
+    expect(r.label).toBe('Hiperkalemia Berat');
+    expect(r.color).toBe('#BA1A1A');
+  });
+
+  it('hiperkalemia GDS≥126 → tanpa dekstrosa lanjutan', () => {
+    const r = f({ currentK: 5.5, gds: 150 });
+    const step = r.steps!.find(s => s.label.includes('Insulin'))!;
+    expect(step.formula).toMatch(/GDS = 150.*≥126/);
+    expect(step.formula).not.toMatch(/WAJIB Dekstrosa/);
+  });
+
+  it('hiperkalemia GDS<126 → WAJIB dekstrosa lanjutan (cegah hipoglikemia)', () => {
+    const r = f({ currentK: 5.5, gds: 90 });
+    const step = r.steps!.find(s => s.label.includes('Insulin'))!;
+    expect(step.formula).toMatch(/GDS = 90.*<126/);
+    expect(step.formula).toMatch(/WAJIB Dekstrosa 10%/);
+  });
+
+  it('K normal (4.0, tanpa pH) → label Normal', () => {
+    const r = f({ currentK: 4.0 });
+    expect(r.label).toBe('Kalium Normal');
+    expect(r.steps).toBeUndefined();
+  });
+});
+
+describe('Koreksi Kalsium (albumin, ionized, protokol)', () => {
+  const f = calc('ca-correction');
+
+  it('Ca7.0 albumin2.0 → terkoreksi 8.6 mg/dL (Payne)', () => {
     // 7.0 + 0.8×(4-2) = 8.6
-    expect(f({ mode: 'calcium', ca: 7.0, albumin: 2.0 }).score).toBe('8.6 mg/dL');
+    expect(f({ ca: 7.0, albumin: 2.0 }).score).toBe('8.6 mg/dL');
   });
-  it('Na 130 glukosa 400 → terkoreksi ~134.8 (faktor 1.6)', () => {
-    // 130 + 1.6×3 = 134.8
-    expect(f({ mode: 'sodium', na: 130, glucose: 400 }).score).toBe('134.8 mEq/L');
+
+  it('Ca8.0 albumin4.0 (hipo) → ionized ≈ 1.00 mmol/L (×0.125)', () => {
+    // corr=8.0 (tanpa perubahan albumin); ionized=8.0×0.125=1.0
+    const r = f({ ca: 8.0, albumin: 4.0 });
+    expect(r.label).toBe('Hipokalsemia (terkoreksi)');
+    expect(r.risk).toMatch(/1\.00 mmol\/L/);
   });
-  it('Na glukosa >400 pakai faktor 2.4', () => {
-    // 130 + 2.4×((500-100)/100)=130+9.6=139.6
-    expect(f({ mode: 'sodium', na: 130, glucose: 500 }).score).toBe('139.6 mEq/L');
+
+  it('penyesuaian pH pada ionized (asidosis menaikkan ionized)', () => {
+    // ionizedBase=1.0; pH7.20 → +（7.40-7.20)×0.5=+0.1 → 1.10
+    const r = f({ ca: 8.0, albumin: 4.0, ph: 7.20 });
+    const step = r.steps!.find(s => s.label.includes('Langkah 2b'))!;
+    expect(step.formula).toMatch(/1\.000/);
+    expect(step.formula).toMatch(/1\.100/);
+    expect(r.risk).toMatch(/1\.10 mmol\/L/);
   });
-  it('K 6.0 pH 7.20 → estimasi K pada 7.40 lebih rendah', () => {
-    // 6.0 + 0.6×((7.20-7.40)/0.1)=6.0-1.2=4.8
-    expect(f({ mode: 'potassium', k: 6.0, ph: 7.20 }).score).toBe('4.8 mEq/L');
+
+  it('hipokalsemia berat (Ca5.0,alb2.0, corr6.6) → merah', () => {
+    expect(f({ ca: 5.0, albumin: 2.0 }).color).toBe('#BA1A1A');
+  });
+
+  it('hiperkalsemia (Ca12.0,alb4.0) → label & protokol', () => {
+    const r = f({ ca: 12.0, albumin: 4.0 });
+    expect(r.label).toBe('Hiperkalsemia (terkoreksi)');
+    expect(r.stepsFooter).toMatch(/Kalsitonin/);
+  });
+
+  it('hiperkalsemia berat (Ca15.0) → merah', () => {
+    expect(f({ ca: 15.0, albumin: 4.0 }).color).toBe('#BA1A1A');
+  });
+});
+
+describe('Koreksi Magnesium (dosis tetap per keparahan)', () => {
+  const f = calc('mg-correction');
+
+  it('Mg1.5 asimtomatik → dosis 1–2 g (bukan formula per-kg)', () => {
+    const r = f({ mg: 1.5 });
+    expect(r.score).toBe('1–2 g IV');
+    expect(r.risk).toMatch(/50–100 mL/);
+    expect(r.label).toBe('Hipomagnesemia');
+    expect(r.color).toBe('#FFA000');
+  });
+
+  it('Mg1.2 simtomatik berat → dosis 2g bolus lambat, warna merah', () => {
+    const r = f({ mg: 1.2, symptomatic: true });
+    expect(r.score).toBe('2 g IV');
+    expect(r.risk).toMatch(/[Bb]olus lambat/);
+    expect(r.color).toBe('#BA1A1A');
+  });
+
+  it('eGFR <30 → penyesuaian dosis 50% + monitoring', () => {
+    const r = f({ mg: 1.5, egfr: 20 });
+    const step = r.steps!.find(s => s.label.includes('Langkah 3'))!;
+    expect(step.formula).toMatch(/turunkan dosis ~50%/);
+    expect(r.risk).toMatch(/eGFR <30/);
+  });
+
+  it('Mg normal (2.0) → label Normal', () => {
+    const r = f({ mg: 2.0 });
+    expect(r.label).toBe('Magnesium Normal');
+    expect(r.score).toBe('2.0 mg/dL');
   });
 });
 
@@ -398,24 +506,73 @@ describe('Konverter Infus', () => {
   });
 });
 
-describe('Koreksi Natrium (hiponatremia)', () => {
+describe('Koreksi Natrium (hipo & hipernatremia, dua metode)', () => {
   const f = calc('na-correction');
-  it('Na118 70kg L target6 → laju NaCl 3% ~27 mL/jam', () => {
-    // TBW=42, ΔNa/L=(513-118)/43=9.19; V=6/9.19=0.653L; rate=653/24≈27
+
+  it('Na118 70kg L target6 → rentang 20.5–27.2 mL/jam (defisit vs Adrogué-Madías)', () => {
+    // TBW=42; defisit: d=6, mEq=252, vol=252/513*1000=491.2mL, rate=20.5
+    // AM: perL=(513-118)/43=9.186, vol=(6/9.186)*1000=653.2mL, rate=27.2
     const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 6, highRisk: false });
-    expect(r.score).toBe('27 mL/jam');
-    expect(r.detail).toMatch(/≤ 8 mEq\/L/);
+    expect(r.score).toBe('20.5–27.2 mL/jam');
+    expect(r.steps).toBeDefined();
+    const laju = r.steps!.find(s => s.label.includes('Langkah 5'));
+    expect(laju!.formula).toMatch(/491.*653/);
   });
-  it('risiko tinggi → batas 6 mEq/L', () => {
-    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 6, highRisk: true });
-    expect(r.detail).toMatch(/≤ 6 mEq\/L/);
+
+  it('risiko tinggi ODS membatasi ke batas bawah (6, bukan 8)', () => {
+    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 8, highRisk: true });
+    const step2 = r.steps!.find(s => s.label.includes('Langkah 2'))!;
+    expect(step2.note).toMatch(/dibatasi ke 6 mEq\/L/);
   });
-  it('target melebihi batas aman → dibatasi + peringatan', () => {
+
+  it('target melebihi batas aman kronik (12) → dibatasi ke 8', () => {
     const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 12, highRisk: false });
-    expect(r.detail).toMatch(/dibatasi ke 8/);
+    const step2 = r.steps!.find(s => s.label.includes('Langkah 2'))!;
+    expect(step2.note).toMatch(/dibatasi ke 8 mEq\/L/);
   });
-  it('Na <120 → warna merah (berat)', () => {
-    expect(f({ currentNa: 115 }).color).toBe('#BA1A1A');
+
+  it('onset akut → batas lebih longgar (10–12 vs 6–8)', () => {
+    const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 12, onset: 'akut', highRisk: false });
+    const step2 = r.steps!.find(s => s.label.includes('Langkah 2'))!;
+    expect(step2.formula).toMatch(/10–12 mEq\/L/);
+  });
+
+  it('Na <120 → warna merah (berat) + label emergensi', () => {
+    const r = f({ currentNa: 115 });
+    expect(r.color).toBe('#BA1A1A');
+    expect(r.label).toMatch(/Berat/);
+  });
+
+  it('hipernatremia Na160 70kg L → defisit air bebas 6.0 L, laju 125 mL/jam', () => {
+    // TBW=42; FWD=42×(160/140−1)=6.0L; rate=6000/48=125
+    const r = f({ currentNa: 160, weight: 70, sex: 'male' });
+    expect(r.score).toBe('125 mL/jam');
+    expect(r.label).toMatch(/Hipernatremia|Defisit Air/);
+    const step = r.steps!.find(s => s.formula?.includes('Na/140'));
+    expect(step).toBeDefined();
+  });
+
+  it('hipernatremia berat (Na>160) → warna merah', () => {
+    expect(f({ currentNa: 165, weight: 70 }).color).toBe('#BA1A1A');
+  });
+
+  it('Na normal (138) → label Normal', () => {
+    const r = f({ currentNa: 138 });
+    expect(r.label).toBe('Natrium Normal');
+    expect(r.score).toBe('138.0 mEq/L');
+  });
+
+  it('hiperglikemia glukosa 500 (faktor 2.4) mengoreksi Na masuk rentang normal', () => {
+    // calcN = 130 + 2.4×(500-100)/100 = 130 + 9.6 = 139.6 → normal
+    const r = f({ currentNa: 130, glucose: 500 });
+    expect(r.label).toBe('Natrium Normal');
+    expect(r.steps![0].formula).toMatch(/2\.4/);
+    expect(r.steps![0].formula).toMatch(/139\.6/);
+  });
+
+  it('hiperglikemia glukosa 300 (faktor 1.6, ≤400)', () => {
+    const r = f({ currentNa: 125, glucose: 300 });
+    expect(r.steps![0].formula).toMatch(/\+ 1\.6 ×/);
   });
 });
 

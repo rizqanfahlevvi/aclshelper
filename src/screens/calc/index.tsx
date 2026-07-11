@@ -207,7 +207,9 @@ function CalcResultView({ calc, result, values }: {
       {result.breakdown && result.breakdown.length > 0 && (
         <ScoreBreakdown items={result.breakdown} total={Number(result.score)} tint={calc.tint}/>
       )}
-      {result.detail && <CalcSteps detail={result.detail} tint={calc.tint}/>}
+      {result.steps ? (
+        <CalcSteps steps={result.steps} footer={result.stepsFooter} tint={calc.tint}/>
+      ) : result.detail && <CalcSteps detail={result.detail} tint={calc.tint}/>}
       <Disclaimer/>
     </div>
   );

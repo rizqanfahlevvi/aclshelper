@@ -24,11 +24,33 @@ export function Disclaimer() {
   );
 }
 
-/* Rincian langkah perhitungan — merender string detail (\n-joined)
-   sebagai baris konsisten di kartu netral. Baris yang mengandung "="
-   di-mono-kan agar substitusi angka mudah dibaca. */
-export function CalcSteps({ detail, tint }: { detail: string; tint?: string }) {
-  const lines = detail.split('\n').map(l => l.trimEnd());
+export interface CalcStep {
+  /** Judul langkah, mis. "Langkah 1 — Total Body Water (TBW)" */
+  label: string;
+  /** Baris rumus + substitusi angka (monospace). Gunakan \n untuk baris baru. */
+  formula?: string;
+  /** Catatan kecil di bawah rumus (kenapa faktor ini, batas aman, dll.) */
+  note?: string;
+}
+
+interface CalcStepsProps {
+  /** Bentuk lama: string \n-joined (dipakai 21 kalkulator lain, dipertahankan). */
+  detail?: string;
+  /** Bentuk baru: tiap langkah = label + rumus tersubstitusi + catatan. */
+  steps?: CalcStep[];
+  /** Catatan penutup di bawah semua langkah (disclaimer estimasi awal, dll.) */
+  footer?: string;
+  title?: string;
+  tint?: string;
+}
+
+/* Rincian langkah perhitungan — dua mode:
+   - steps: array {label, formula, note} → tiap langkah dirender terpisah
+     dengan judul tebal + rumus mono + catatan kecil (dipakai kalkulator
+     elektrolit Na/K/Ca/Mg).
+   - detail: string \n-joined lama, tetap didukung agar 21 kalkulator lain
+     tidak perlu diubah. */
+export function CalcSteps({ detail, steps, footer, tint, title = 'RINCIAN PERHITUNGAN' }: CalcStepsProps) {
   const accent = tint || 'var(--accent)';
   return (
     <div style={{
@@ -36,29 +58,59 @@ export function CalcSteps({ detail, tint }: { detail: string; tint?: string }) {
       background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
     }}>
       <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 8, letterSpacing: '0.04em' }}>
-        RINCIAN PERHITUNGAN
+        {title}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-        {lines.map((ln, i) => {
-          if (ln === '') return <div key={i} style={{ height: 2 }}/>;
-          const isWarn = ln.startsWith('⚠️');
-          const isCalc = ln.includes('=') || ln.includes('→');
-          return (
-            <div key={i} style={{
-              display: 'flex', gap: 7, alignItems: 'baseline',
-              fontSize: '0.8125rem', lineHeight: 1.5,
-              color: isWarn ? 'var(--warning)' : 'var(--label-secondary)',
-            }}>
-              {!isWarn && <span style={{ color: accent, flexShrink: 0, fontSize: '0.625rem', marginTop: 1 }}>●</span>}
-              <span style={{
-                fontFamily: isCalc && !isWarn ? 'var(--font-mono)' : 'inherit',
-                color: isWarn ? 'var(--warning)' : undefined,
-                fontWeight: isWarn ? 600 : 400,
-              }}>{ln}</span>
+      {steps ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {steps.map((s, i) => (
+            <div key={i}>
+              <div className="t-caption-1" style={{ fontWeight: 700, color: 'var(--label-primary)', marginBottom: s.formula ? 3 : 0 }}>
+                {s.label}
+              </div>
+              {s.formula && (
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.75rem', lineHeight: 1.6,
+                  color: 'var(--label-secondary)', whiteSpace: 'pre-line',
+                  paddingLeft: 8, borderLeft: `2px solid ${accent}55`,
+                }}>{s.formula}</div>
+              )}
+              {s.note && (
+                <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontStyle: 'italic', marginTop: 3, lineHeight: 1.4 }}>
+                  {s.note}
+                </div>
+              )}
             </div>
-          );
-        })}
-      </div>
+          ))}
+          {footer && (
+            <div className="t-caption-2" style={{
+              color: 'var(--label-tertiary)', fontStyle: 'italic', lineHeight: 1.4,
+              borderTop: '0.5px solid var(--separator)', paddingTop: 8, marginTop: 2,
+            }}>{footer}</div>
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {(detail || '').split('\n').map(l => l.trimEnd()).map((ln, i) => {
+            if (ln === '') return <div key={i} style={{ height: 2 }}/>;
+            const isWarn = ln.startsWith('⚠️');
+            const isCalc = ln.includes('=') || ln.includes('→');
+            return (
+              <div key={i} style={{
+                display: 'flex', gap: 7, alignItems: 'baseline',
+                fontSize: '0.8125rem', lineHeight: 1.5,
+                color: isWarn ? 'var(--warning)' : 'var(--label-secondary)',
+              }}>
+                {!isWarn && <span style={{ color: accent, flexShrink: 0, fontSize: '0.625rem', marginTop: 1 }}>●</span>}
+                <span style={{
+                  fontFamily: isCalc && !isWarn ? 'var(--font-mono)' : 'inherit',
+                  color: isWarn ? 'var(--warning)' : undefined,
+                  fontWeight: isWarn ? 600 : 400,
+                }}>{ln}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
