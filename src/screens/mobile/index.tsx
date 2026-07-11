@@ -218,7 +218,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
     }
     if (f.type === 'calc') {
       const c = CALCULATORS.find(x => x.key === f.key);
-      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint } : null;
+      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint, kind: c.kind } : null;
     }
     return null;
   }).filter(Boolean), [favs]);
@@ -394,13 +394,13 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
             <>
               <SectionHeader>Favorit</SectionHeader>
               <List>
-                {favItems.map((f: { type: string; key: string; label: string; sub: string; tint: string }) => (
+                {favItems.map((f: { type: string; key: string; label: string; sub: string; tint: string; kind?: string }) => (
                   <Row
                     key={f.type + f.key}
                     glyph={
                       f.type === 'algo' ? <Icons.algo size={16} stroke={2.4}/> :
                       f.type === 'drug' ? <Icons.pill size={16} stroke={2.4}/> :
-                      f.type === 'calc' ? <Icons.calculator size={16} stroke={2.4}/> :
+                      f.type === 'calc' ? (f.kind === 'scoring' ? <Icons.trending size={16} stroke={2.4}/> : <Icons.calculator size={16} stroke={2.4}/>) :
                       <Icons.ekg size={16} stroke={2.4}/>
                     }
                     tint={f.tint}
@@ -411,7 +411,7 @@ export function MobileHome({ nav, openCPR }: { nav: Nav; openCPR: (rhythm?: CprR
                       if (f.type === 'algo') nav.push({ screen: 'algo', id: f.key });
                       else if (f.type === 'drug') nav.push({ screen: 'drug', id: f.key });
                       else if (f.type === 'ekg') nav.push({ screen: 'ekg', id: f.key });
-                      else if (f.type === 'calc') nav.push({ screen: 'calc', id: f.key });
+                      else if (f.type === 'calc') nav.push(f.kind === 'scoring' ? { screen: 'scoring', id: f.key } : { screen: 'calc', id: f.key });
                     }}
                   />
                 ))}

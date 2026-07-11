@@ -43,9 +43,10 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: 'ALAT',
     items: [
-      { key: 'calc',  label: 'Kalkulator',  desc: '25 kalkulator + vasopressor',   icon: Icons.calculator },
-      { key: 'defib', label: 'Defibrilasi', desc: 'Panduan energi & kardioversi',  icon: Icons.bolt },
-      { key: 'peds',  label: 'Pediatrik',   desc: 'Referensi PALS & Broselow',     icon: Icons.heart },
+      { key: 'scoring', label: 'Skoring',     desc: '7 skor risiko klinis',           icon: Icons.trending },
+      { key: 'calc',    label: 'Kalkulator',  desc: '18 kalkulator + vasopressor',     icon: Icons.calculator },
+      { key: 'defib',   label: 'Defibrilasi', desc: 'Panduan energi & kardioversi',    icon: Icons.bolt },
+      { key: 'peds',    label: 'Pediatrik',   desc: 'Referensi PALS & Broselow',       icon: Icons.heart },
     ],
   },
   {

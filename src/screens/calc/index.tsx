@@ -559,62 +559,32 @@ function CalcListItem({ name, description, tint, onClick }: {
 }
 
 /* ============================================================
-   MobileCalcList
+   MobileCalcList / MobileScoringList
    ============================================================ */
-export function MobileCalcList({ nav }: { nav: Nav }) {
-  const [activeTab, setActiveTab] = useState<'scoring' | 'calculator'>('scoring');
+function groupByCategory(kind: 'scoring' | 'calculator'): Record<string, typeof CALCULATORS> {
+  const g: Record<string, typeof CALCULATORS> = {};
+  for (const c of CALCULATORS) {
+    if (c.kind !== kind) continue;
+    if (!g[c.category]) g[c.category] = [];
+    g[c.category].push(c);
+  }
+  return g;
+}
 
-  const grouped = useMemo(() => {
-    const g: Record<'scoring' | 'calculator', Record<string, typeof CALCULATORS>> = {
-      scoring: {}, calculator: {},
-    };
-    for (const c of CALCULATORS) {
-      const kind = c.kind;
-      if (!g[kind][c.category]) g[kind][c.category] = [];
-      g[kind][c.category].push(c);
-    }
-    return g;
-  }, []);
-
-  const categories = grouped[activeTab];
+function MobileCalcKindList({ nav, kind, title, showPanduan }: { nav: Nav; kind: 'scoring' | 'calculator'; title: string; showPanduan?: boolean }) {
+  const categories = useMemo(() => groupByCategory(kind), [kind]);
+  const frameKey: 'calc' | 'scoring' = kind === 'scoring' ? 'scoring' : 'calc';
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      {/* Sticky header — title + segmented control */}
+      {/* Sticky header */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
         background: 'var(--bg-primary)',
         borderBottom: '0.5px solid var(--separator)',
         padding: '12px 16px 10px',
       }}>
-        <div className="t-title-2" style={{ fontWeight: fw(700), marginBottom: 8 }}>Kalkulator</div>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr',
-          background: 'var(--fill-tertiary)', borderRadius: 10, padding: 3,
-        }}>
-          {([
-            { key: 'scoring',    label: 'Skoring',    count: CALCULATORS.filter(c => c.kind === 'scoring').length },
-            { key: 'calculator', label: 'Kalkulator', count: CALCULATORS.filter(c => c.kind === 'calculator').length },
-          ] as const).map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              style={{
-                height: 34, borderRadius: 8, border: 0, cursor: 'pointer', fontFamily: 'inherit',
-                fontSize: '0.875rem', fontWeight: fw(600), transition: 'all 150ms',
-                background: activeTab === tab.key ? 'var(--bg-primary)' : 'transparent',
-                color: activeTab === tab.key ? 'var(--label-primary)' : 'var(--label-secondary)',
-                boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.10), 0 0 0 0.5px var(--separator)' : 'none',
-              }}
-            >
-              {tab.label}
-              <span style={{
-                marginLeft: 5, fontSize: '0.6875rem', fontWeight: fw(600), verticalAlign: 'middle',
-                color: activeTab === tab.key ? 'var(--accent)' : 'var(--label-tertiary)',
-              }}>{tab.count}</span>
-            </button>
-          ))}
-        </div>
+        <div className="t-title-2" style={{ fontWeight: fw(700) }}>{title}</div>
       </div>
 
       {/* List */}
@@ -631,15 +601,14 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
                   name={c.name}
                   description={c.description}
                   tint={c.tint}
-                  onClick={() => nav.push({ screen: 'calc', id: c.key })}
+                  onClick={() => nav.push({ screen: frameKey, id: c.key })}
                 />
               ))}
             </div>
           </div>
         ))}
 
-        {/* Panduan Klinis — only shown on Kalkulator tab */}
-        {activeTab === 'calculator' && (
+        {showPanduan && (
           <div style={{ marginBottom: 20 }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '0 16px 8px' }}>
               PANDUAN KLINIS
@@ -655,6 +624,14 @@ export function MobileCalcList({ nav }: { nav: Nav }) {
       </div>
     </div>
   );
+}
+
+export function MobileCalcList({ nav }: { nav: Nav }) {
+  return <MobileCalcKindList nav={nav} kind="calculator" title="Kalkulator" showPanduan/>;
+}
+
+export function MobileScoringList({ nav }: { nav: Nav }) {
+  return <MobileCalcKindList nav={nav} kind="scoring" title="Skoring"/>;
 }
 
 /* ============================================================
@@ -699,7 +676,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           }}
         >
           <Icons.chevL size={16} stroke={2.5}/>
-          <span className="t-callout" style={{ fontWeight: fw(500) }}>Kalkulator</span>
+          <span className="t-callout" style={{ fontWeight: fw(500) }}>{calc.kind === 'scoring' ? 'Skoring' : 'Kalkulator'}</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
@@ -707,7 +684,9 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: `0 6px 16px ${calc.tint}44`,
           }}>
-            <Icons.calculator size={24} stroke={1.8} style={{ color: '#fff' }}/>
+            {calc.kind === 'scoring'
+              ? <Icons.trending size={24} stroke={1.8} style={{ color: '#fff' }}/>
+              : <Icons.calculator size={24} stroke={1.8} style={{ color: '#fff' }}/>}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h2 className="t-title-2" style={{ margin: 0, fontWeight: fw(700) }}>{calc.name}</h2>
@@ -789,31 +768,34 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 /* ============================================================
    DesktopCalc
    ============================================================ */
-export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
-  const [selectedKey, setSelectedKey] = useState(initialId || CALCULATORS[0].key);
+function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | 'calculator'; initialId?: string; onPick: (type: string, id: string) => void }) {
+  const kindItems = useMemo(() => CALCULATORS.filter(c => c.kind === kind), [kind]);
+  const frameKey: 'calc' | 'scoring' = kind === 'scoring' ? 'scoring' : 'calc';
+  const kindLabel = kind === 'scoring' ? 'Skoring' : 'Kalkulator';
+  const [selectedKey, setSelectedKey] = useState(initialId || kindItems[0].key);
   const [calcQ, setCalcQ] = useState('');
-  const isVaso   = selectedKey === 'vaso';
-  const isDefib  = selectedKey === 'defib';
-  const isRoscD  = selectedKey === 'rosc-tool';
-  const isPedsD  = selectedKey === 'peds-tool';
+  const isVaso   = kind === 'calculator' && selectedKey === 'vaso';
+  const isDefib  = kind === 'calculator' && selectedKey === 'defib';
+  const isRoscD  = kind === 'calculator' && selectedKey === 'rosc-tool';
+  const isPedsD  = kind === 'calculator' && selectedKey === 'peds-tool';
   const isToolPanel = isVaso || isDefib || isRoscD || isPedsD;
-  const calc = CALCULATORS.find(c => c.key === selectedKey) || CALCULATORS[0];
+  const calc = CALCULATORS.find(c => c.key === selectedKey) || kindItems[0];
 
-  const PANDUAN_ITEMS = [
+  const PANDUAN_ITEMS = kind === 'calculator' ? [
     { key: 'vaso',      name: 'Vasopressor',         desc: 'Panduan & kalkulator vasopressor',          tint: '#1E8E3E' },
     { key: 'defib',     name: 'Panduan Defibrilasi',  desc: 'Energi defib & kardioversi per ritme',      tint: '#BA1A1A' },
     { key: 'rosc-tool', name: 'Post-ROSC Care',       desc: 'Checklist pasca Return of Spontaneous Circulation', tint: '#FFA000' },
     { key: 'peds-tool', name: 'Referensi Pediatrik',  desc: 'Dosis PALS berbasis berat badan',           tint: '#00838F' },
-  ];
+  ] : [];
   const filteredPanduan = calcQ.trim()
     ? PANDUAN_ITEMS.filter(p => p.name.toLowerCase().includes(calcQ.toLowerCase()) || p.desc.toLowerCase().includes(calcQ.toLowerCase()))
     : PANDUAN_ITEMS;
   const filtered = calcQ.trim()
-    ? CALCULATORS.filter(c =>
+    ? kindItems.filter(c =>
         c.name.toLowerCase().includes(calcQ.toLowerCase()) ||
         c.description.toLowerCase().includes(calcQ.toLowerCase())
       )
-    : CALCULATORS;
+    : kindItems;
 
   const initValues = useMemo(() => {
     const v: Record<string, number | string | boolean> = {};
@@ -840,7 +822,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div className="acls-topbar">
         <div className="t-footnote" style={{ color: 'var(--label-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ color: 'var(--label-primary)', fontWeight: fw(600) }}>Kalkulator</span>
+          <span style={{ color: 'var(--label-primary)', fontWeight: fw(600) }}>{kindLabel}</span>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', flex: 1, overflow: 'hidden' }}>
@@ -852,7 +834,7 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
               <input
                 value={calcQ}
                 onChange={e => setCalcQ(e.target.value)}
-                placeholder="Cari kalkulator…"
+                placeholder={kind === 'scoring' ? 'Cari skor…' : 'Cari kalkulator…'}
                 style={{
                   flex: 1, background: 'none', border: 0, outline: 'none',
                   color: 'var(--label-primary)', fontSize: '0.8125rem', fontFamily: 'inherit',
@@ -876,54 +858,26 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
           <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px 16px' }}>
             {filtered.length === 0 && filteredPanduan.length === 0
               ? <div style={{ padding: '8px 6px', color: 'var(--label-tertiary)', fontSize: '0.8125rem' }}>Tidak ditemukan</div>
-              : (() => {
-                  const scoring = filtered.filter(c => c.kind === 'scoring');
-                  const calculator = filtered.filter(c => c.kind === 'calculator');
-                  return (
-                    <>
-                      {scoring.length > 0 && (
-                        <>
-                          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '8px 6px 6px' }}>
-                            SKORING · {scoring.length}
-                          </div>
-                          {scoring.map(c => (
-                            <button
-                              key={c.key}
-                              onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                              className={'acls-list-item ' + (!isToolPanel && selectedKey === c.key ? 'active' : '')}
-                            >
-                              <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
-                              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                <div className="t-callout" style={{ fontWeight: fw(600) }}>{c.name}</div>
-                                <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
-                              </div>
-                            </button>
-                          ))}
-                        </>
-                      )}
-                      {calculator.length > 0 && (
-                        <>
-                          <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: scoring.length > 0 ? '12px 6px 6px' : '8px 6px 6px' }}>
-                            KALKULATOR · {calculator.length}
-                          </div>
-                          {calculator.map(c => (
-                            <button
-                              key={c.key}
-                              onClick={() => { setSelectedKey(c.key); onPick('calc', c.key); }}
-                              className={'acls-list-item ' + (!isToolPanel && selectedKey === c.key ? 'active' : '')}
-                            >
-                              <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
-                              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                <div className="t-callout" style={{ fontWeight: fw(600) }}>{c.name}</div>
-                                <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
-                              </div>
-                            </button>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  );
-                })()
+              : filtered.length > 0 && (
+                  <>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', padding: '8px 6px 6px' }}>
+                      {kindLabel.toUpperCase()} · {filtered.length}
+                    </div>
+                    {filtered.map(c => (
+                      <button
+                        key={c.key}
+                        onClick={() => { setSelectedKey(c.key); onPick(frameKey, c.key); }}
+                        className={'acls-list-item ' + (!isToolPanel && selectedKey === c.key ? 'active' : '')}
+                      >
+                        <span style={{ width: 6, height: 30, borderRadius: 3, background: c.tint, flexShrink: 0 }}/>
+                        <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                          <div className="t-callout" style={{ fontWeight: fw(600) }}>{c.name}</div>
+                          <div className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{c.description}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </>
+                )
             }
             {filteredPanduan.length > 0 && (
               <>
@@ -959,10 +913,12 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: `0 6px 18px ${calc.tint}44`,
             }}>
-              <Icons.calculator size={26} stroke={1.8} style={{ color: '#fff' }}/>
+              {kind === 'scoring'
+                ? <Icons.trending size={26} stroke={1.8} style={{ color: '#fff' }}/>
+                : <Icons.calculator size={26} stroke={1.8} style={{ color: '#fff' }}/>}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>KALKULATOR KLINIS</div>
+              <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>{kind === 'scoring' ? 'SKORING KLINIS' : 'KALKULATOR KLINIS'}</div>
               <h2 className="t-title-1" style={{ margin: '2px 0 2px' }}>{calc.name}</h2>
               <div className="t-callout" style={{ color: 'var(--label-secondary)' }}>{calc.description}</div>
             </div>
@@ -1023,4 +979,12 @@ export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick:
       </div>
     </div>
   );
+}
+
+export function DesktopCalc({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
+  return <DesktopCalcKindPanel kind="calculator" initialId={initialId} onPick={onPick}/>;
+}
+
+export function DesktopScoring({ initialId, onPick }: { initialId?: string; onPick: (type: string, id: string) => void }) {
+  return <DesktopCalcKindPanel kind="scoring" initialId={initialId} onPick={onPick}/>;
 }

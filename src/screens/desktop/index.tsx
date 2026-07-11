@@ -36,7 +36,7 @@ function resolveFav(f: { type: string; key: string }) {
   }
   if (f.type === 'calc') {
     const c = CALCULATORS.find(x => x.key === f.key);
-    return c ? { label: c.name, tint: c.tint, screen: 'calc' } : null;
+    return c ? { label: c.name, tint: c.tint, screen: c.kind === 'scoring' ? 'scoring' : 'calc' } : null;
   }
   return null;
 }
@@ -424,15 +424,15 @@ function DesktopFavSection({ onPick }: { onPick: (type: string, id?: string) => 
     }
     if (f.type === 'calc') {
       const c = CALCULATORS.find(x => x.key === f.key);
-      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint } : null;
+      return c ? { ...f, label: c.name, sub: c.category, tint: c.tint, kind: c.kind } : null;
     }
     return null;
   }).filter(Boolean), [favs]);
 
-  const typeLabel = (type: string) =>
-    type === 'algo' ? 'Algoritma' : type === 'drug' ? 'Obat' : type === 'ekg' ? 'EKG' : 'Kalkulator';
-  const typeTarget = (type: string) =>
-    type === 'algo' ? 'algo' : type === 'drug' ? 'drugs' : type === 'ekg' ? 'ekg' : 'calc';
+  const typeLabel = (f: { type: string; kind?: string }) =>
+    f.type === 'algo' ? 'Algoritma' : f.type === 'drug' ? 'Obat' : f.type === 'ekg' ? 'EKG' : f.kind === 'scoring' ? 'Skoring' : 'Kalkulator';
+  const typeTarget = (f: { type: string; kind?: string }) =>
+    f.type === 'algo' ? 'algo' : f.type === 'drug' ? 'drugs' : f.type === 'ekg' ? 'ekg' : f.kind === 'scoring' ? 'scoring' : 'calc';
 
   return (
     <div style={{ marginTop: 20 }} className="acls-card-lg">
@@ -452,15 +452,15 @@ function DesktopFavSection({ onPick }: { onPick: (type: string, id?: string) => 
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-          {(favItems as Array<{ type: string; key: string; label: string; sub: string; tint: string }>).map(f => (
+          {(favItems as Array<{ type: string; key: string; label: string; sub: string; tint: string; kind?: string }>).map(f => (
             <button key={f.type + f.key}
-              onClick={() => onPick(typeTarget(f.type), f.key)}
+              onClick={() => onPick(typeTarget(f), f.key)}
               className="acls-list-item"
               style={{ borderRadius: 10, padding: "10px 10px", border: "0.5px solid var(--separator)" }}
             >
               <span style={{ width: 6, height: 32, borderRadius: 3, background: f.tint, flexShrink: 0 }}/>
               <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                <div className="t-caption-2" style={{ color: "var(--label-tertiary)", marginBottom: 1 }}>{typeLabel(f.type).toUpperCase()}</div>
+                <div className="t-caption-2" style={{ color: "var(--label-tertiary)", marginBottom: 1 }}>{typeLabel(f).toUpperCase()}</div>
                 <div className="t-callout" style={{ fontWeight: 600 }}>{f.label}</div>
                 <div className="t-caption-1" style={{ color: "var(--label-secondary)" }}>{f.sub}</div>
               </div>

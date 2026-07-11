@@ -22,7 +22,7 @@ import {
   DesktopSidebar, DesktopDashboard,
   DesktopAlgorithm, DesktopDrugs, DesktopEkg, DesktopHsTs,
 } from './screens/desktop';
-import { MobileCalcList, MobileCalcDetail, DesktopCalc } from './screens/calc';
+import { MobileCalcList, MobileScoringList, MobileCalcDetail, DesktopCalc, DesktopScoring } from './screens/calc';
 import { PalsScreen, VasoScreen, RoscScreen, DefibScreen, PedsScreen, DesktopDefib, DesktopPeds } from './screens/tools';
 import { AboutScreen } from './screens/about';
 import { SearchModal } from './screens/search';
@@ -92,6 +92,8 @@ function stateToHash(bp: string, tab: Tab, stack: NavStack, deskView: DeskView):
   if (screen === 'hsts')     return '/hsts';
   if (screen === 'calcList') return '/calc';
   if (screen === 'calc')     return `/calc/${id}`;
+  if (screen === 'scoringList') return '/scoring';
+  if (screen === 'scoring')     return `/scoring/${id}`;
   if (screen === 'pals')     return '/pals';
   if (screen === 'vaso')     return '/vaso';
   if (screen === 'rosc')     return '/rosc';
@@ -110,6 +112,7 @@ function hashToNav(hash: string): { tab: Tab; frame: NavFrame; deskScreen: DeskS
     case 'ekg':   return { tab: 'tools', frame: id ? { screen: 'ekg',  id }  : { screen: 'ekgList'  }, deskScreen: 'ekg',       deskId: id  };
     case 'hsts':  return { tab: 'home',  frame: { screen: 'hsts' },                                        deskScreen: 'hsts',      deskId: null };
     case 'calc':  return { tab: 'home',  frame: id ? { screen: 'calc', id }  : { screen: 'calcList' },   deskScreen: 'calc',      deskId: id          };
+    case 'scoring': return { tab: 'home', frame: id ? { screen: 'scoring', id } : { screen: 'scoringList' }, deskScreen: 'scoring', deskId: id          };
     case 'pals':   return { tab: 'algo',  frame: { screen: 'pals' },                                        deskScreen: 'algo',      deskId: 'pals'      };
     case 'vaso':   return { tab: 'home',  frame: { screen: 'vaso' },                                        deskScreen: 'calc',      deskId: 'vaso'      };
     case 'rosc':   return { tab: 'algo',  frame: { screen: 'rosc' },                                        deskScreen: 'algo',      deskId: 'rosc-care' };
@@ -657,7 +660,7 @@ function resolveFavMobile(f: { type: string; key: string }): { label: string; ti
   if (f.type === 'algo') { const x = ACLS_ALGORITHMS.find(a => a.key === f.key); return x ? { label: x.label, tint: x.tint, screen: 'algo' } : null; }
   if (f.type === 'drug') { const x = ACLS_DRUGS.find(d => d.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'drug' } : null; }
   if (f.type === 'ekg')  { const x = ACLS_RHYTHMS.find(r => r.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'ekg' } : null; }
-  if (f.type === 'calc') { const x = CALCULATORS.find(c => c.key === f.key); return x ? { label: x.name, tint: x.tint, screen: 'calc' } : null; }
+  if (f.type === 'calc') { const x = CALCULATORS.find(c => c.key === f.key); return x ? { label: x.name, tint: x.tint, screen: x.kind === 'scoring' ? 'scoring' : 'calc' } : null; }
   return null;
 }
 
@@ -997,6 +1000,10 @@ export default function App() {
       window.history.pushState(null, '', '#/calc');
       setTab('home');
       setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calcList' }] }));
+    } else if (key === 'scoring') {
+      window.history.pushState(null, '', '#/scoring');
+      setTab('home');
+      setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'scoringList' }] }));
     } else if (key === 'theory') {
       window.history.pushState(null, '', '#/theory');
       setTab('home');
@@ -1104,11 +1111,12 @@ export default function App() {
 
   const handleSearchNavigate = (type: string, id: string) => {
     setSearchOpen(false);
+    const isScoring = type === 'calc' && CALCULATORS.find(c => c.key === id)?.kind === 'scoring';
     if (bp === 'desktop') {
       if (type === 'algo')  desktopPick('algo', id);
       if (type === 'drug')  desktopPick('drugs', id);
       if (type === 'ekg')   desktopPick('ekg', id);
-      if (type === 'calc')  desktopPick('calc', id);
+      if (type === 'calc')  desktopPick(isScoring ? 'scoring' : 'calc', id);
     } else {
       if (type === 'algo') {
         setTab('algo');
@@ -1121,7 +1129,7 @@ export default function App() {
         setStack(s => ({ ...s, tools: [{ screen: 'ekgList' }, { screen: 'ekg', id }] }));
       } else if (type === 'calc') {
         setTab('home');
-        setStack(s => ({ ...s, home: [{ screen: 'home' }, { screen: 'calc', id }] }));
+        setStack(s => ({ ...s, home: [{ screen: 'home' }, isScoring ? { screen: 'scoring', id } : { screen: 'calc', id }] }));
       }
     }
   };
@@ -1143,6 +1151,7 @@ export default function App() {
       if (f.screen === 'drug' && 'id' in f) return `Obat — ${f.id}`;
       if (f.screen === 'ekg' && 'id' in f) return `EKG — ${f.id}`;
       if (f.screen === 'calc' && 'id' in f) return `Kalkulator — ${f.id}`;
+      if (f.screen === 'scoring' && 'id' in f) return `Skoring — ${f.id}`;
       if (f.screen === 'theory') return 'Teori';
       if (f.screen === 'hsts') return 'Hs & Ts';
       return 'Beranda';
@@ -1152,6 +1161,7 @@ export default function App() {
       if (v.screen === 'drugs') return v.id ? `Obat — ${v.id}` : 'Obat';
       if (v.screen === 'ekg') return v.id ? `EKG — ${v.id}` : 'EKG';
       if (v.screen === 'calc') return v.id ? `Kalkulator — ${v.id}` : 'Kalkulator';
+      if (v.screen === 'scoring') return v.id ? `Skoring — ${v.id}` : 'Skoring';
       if (v.screen === 'theory') return 'Teori';
       if (v.screen === 'hsts') return 'Hs & Ts';
       return 'Dashboard';
@@ -1173,6 +1183,8 @@ export default function App() {
       if (f.screen === 'hsts') return <MobileHsTs nav={nav}/>;
       if (f.screen === 'calcList') return <MobileCalcList nav={nav}/>;
       if (f.screen === 'calc') return <MobileCalcDetail nav={nav} id={f.id}/>;
+      if (f.screen === 'scoringList') return <MobileScoringList nav={nav}/>;
+      if (f.screen === 'scoring') return <MobileCalcDetail nav={nav} id={f.id}/>;
       if (f.screen === 'vaso') return <VasoScreen nav={nav} isMobile/>;
       if (f.screen === 'rosc') return <RoscScreen nav={nav} isMobile/>;
       if (f.screen === 'defib') return <DefibScreen nav={nav} isMobile/>;
@@ -1210,6 +1222,7 @@ export default function App() {
     if (v.screen === 'ekg')   return <DesktopEkg initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'hsts')   return <DesktopHsTs onPick={desktopPick}/>;
     if (v.screen === 'calc')   return <DesktopCalc initialId={v.id} onPick={desktopPick}/>;
+    if (v.screen === 'scoring') return <DesktopScoring initialId={v.id} onPick={desktopPick}/>;
     if (v.screen === 'theory') return <DesktopTheory/>;
     if (v.screen === 'defib')  return <DesktopDefib/>;
     if (v.screen === 'peds')   return <DesktopPeds/>;
@@ -1376,7 +1389,7 @@ export default function App() {
             <div className="acls-mobile-bottomnav">
               <BottomNav
                 active={tab}
-                moreActive={mobileSidebarOpen || tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','vaso','rosc','defib','peds','theory'] as string[]).includes(topFrame.screen))}
+                moreActive={mobileSidebarOpen || tab === 'tools' || (tab === 'home' && (['hsts','calcList','calc','scoringList','scoring','vaso','rosc','defib','peds','theory'] as string[]).includes(topFrame.screen))}
                 onChange={(k) => {
                   setFabOpen(false);
                   setMobileSidebarOpen(false);

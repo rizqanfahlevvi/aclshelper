@@ -1,6 +1,6 @@
 // Navigation
 export type Tab = 'home' | 'algo' | 'drugs' | 'tools';
-export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc' | 'theory' | 'defib' | 'peds' | 'about' | 'settings';
+export type DeskScreen = 'dashboard' | 'algo' | 'drugs' | 'ekg' | 'hsts' | 'calc' | 'scoring' | 'theory' | 'defib' | 'peds' | 'about' | 'settings';
 export type NavFrame =
   | { screen: 'home' }
   | { screen: 'algoList' }
@@ -12,6 +12,8 @@ export type NavFrame =
   | { screen: 'hsts' }
   | { screen: 'calcList' }
   | { screen: 'calc'; id: string }
+  | { screen: 'scoringList' }
+  | { screen: 'scoring'; id: string }
   | { screen: 'pals' }
   | { screen: 'vaso' }
   | { screen: 'rosc' }
