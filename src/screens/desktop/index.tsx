@@ -940,7 +940,7 @@ export function DesktopEkg({ initialId, onPick }: { initialId?: string; onPick: 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
                 {D_MORPH_FIELDS.filter(f => r.morphology?.[f.key]).map((f, i) => (
                   <div key={f.key} style={{ padding: "9px 14px", borderTop: i >= 2 ? "0.5px solid var(--separator)" : "none", borderRight: i % 2 === 0 ? "0.5px solid var(--separator)" : "none" }}>
-                    <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 3 }}>{f.label}</div>
+                    <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginBottom: 3, textTransform: 'uppercase' }}>{f.label}</div>
                     <div className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.4 }}>{r.morphology[f.key]}</div>
                   </div>
                 ))}

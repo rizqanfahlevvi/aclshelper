@@ -39,7 +39,7 @@ function CalcNumberField({ field, num, step, onChange }: {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div className="t-callout" style={{ fontWeight: fw(500) }}>{field.label}</div>
-          {field.unit && <div className="t-caption-2" style={{ color: 'var(--label-tertiary)' }}>{field.unit}</div>}
+          {field.unit && <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', textTransform: 'uppercase' }}>{field.unit}</div>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <button style={btnStyle} onClick={() => onChange(clamp(num - step))}>−</button>

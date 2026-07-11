@@ -363,5 +363,5 @@ body {
 .t-subheadline { font: var(--type-subheadline); font-family: var(--font-sans); letter-spacing: -0.011em; }
 .t-footnote    { font: var(--type-footnote);    font-family: var(--font-sans); }
 .t-caption-1   { font: var(--type-caption-1);   font-family: var(--font-sans); }
-.t-caption-2   { font: var(--type-caption-2);   font-family: var(--font-sans); letter-spacing: 0.005em; text-transform: uppercase; }
+.t-caption-2   { font: var(--type-caption-2);   font-family: var(--font-sans); letter-spacing: 0.005em; }
 .t-mono        { font-family: var(--font-mono); font-feature-settings: "tnum"; }

@@ -451,7 +451,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                 <div style={{ padding: '10px 14px' }}>
                   <div className="t-footnote" style={{ lineHeight: 1.5, marginBottom: 8 }}>{v.indication}</div>
                   <div style={{ padding: '6px 10px', borderRadius: 8, background: 'var(--fill-quaternary)', marginBottom: 8 }}>
-                    <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>Titrasi: </span>
+                    <span className="t-caption-2" style={{ color: 'var(--label-secondary)', textTransform: 'uppercase' }}>Titrasi: </span>
                     <span className="t-caption-1">{v.titration}</span>
                   </div>
                   {v.pearls.map((p, i) => (
@@ -461,7 +461,7 @@ export function VasoScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                     </div>
                   ))}
                   <div style={{ marginTop: 6, padding: '6px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--warning) 8%, transparent)' }}>
-                    <span className="t-caption-2" style={{ color: 'var(--warning)' }}>Efek samping: </span>
+                    <span className="t-caption-2" style={{ color: 'var(--warning)', textTransform: 'uppercase' }}>Efek samping: </span>
                     <span className="t-caption-1" style={{ color: 'var(--label-secondary)' }}>{v.sideEffects}</span>
                   </div>
                 </div>
@@ -557,7 +557,7 @@ export function RoscScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
             style={{ padding: '8px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
               background: roscTime ? 'color-mix(in srgb, var(--danger) 10%, transparent)' : 'color-mix(in srgb, var(--success) 10%, transparent)',
               color: roscTime ? 'var(--danger)' : '#1E8E3E' }}>
-            <div className="t-caption-2" style={{ fontWeight: 700 }}>{roscTime ? 'ROSC' : 'Catat'}</div>
+            <div className="t-caption-2" style={{ fontWeight: 700, textTransform: 'uppercase' }}>{roscTime ? 'ROSC' : 'Catat'}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 800, marginTop: 2 }}>
               {roscTime ? fmtElapsed(elapsed) : 'ROSC'}
             </div>

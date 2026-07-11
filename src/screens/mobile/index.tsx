@@ -815,9 +815,9 @@ export function MobileDrugDetail({ nav, id }: { nav: Nav; id: string }) {
       <SectionHeader>Dosis</SectionHeader>
       <div style={{ padding: "0 16px" }}>
         <div style={{ padding: "14px 16px", borderRadius: 14, background: "linear-gradient(180deg, " + d.tint + "14, " + d.tint + "06)", boxShadow: "inset 0 0 0 0.5px " + d.tint + "33" }}>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>Dosis awal</div>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)", textTransform: 'uppercase' }}>Dosis awal</div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.125rem', fontWeight: 700, color: d.tint, marginTop: 2 }}>{d.dose}</div>
-          <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 12 }}>Pengulangan</div>
+          <div className="t-caption-2" style={{ color: "var(--label-secondary)", marginTop: 12, textTransform: 'uppercase' }}>Pengulangan</div>
           <div className="t-callout" style={{ marginTop: 2 }}>{d.repeat}</div>
         </div>
       </div>
@@ -1013,7 +1013,7 @@ export function MobileEkgDetail({ nav, id }: { nav: Nav; id: string }) {
             <div style={{ background: "var(--bg-tertiary)", borderRadius: 12, boxShadow: "var(--shadow-1)", overflow: "hidden" }}>
               {MORPH_FIELDS.filter(f => r.morphology[f.key]).map((f, i) => (
                 <div key={f.key} style={{ display: "flex", gap: 10, padding: "9px 14px", borderTop: i > 0 ? "0.5px solid var(--separator)" : "none", alignItems: "flex-start" }}>
-                  <span className="t-caption-2" style={{ color: "var(--label-secondary)", minWidth: 88, flexShrink: 0, paddingTop: 1, fontWeight: 600 }}>{f.label}</span>
+                  <span className="t-caption-2" style={{ color: "var(--label-secondary)", minWidth: 88, flexShrink: 0, paddingTop: 1, fontWeight: 600, textTransform: 'uppercase' }}>{f.label}</span>
                   <span className="t-footnote" style={{ color: "var(--label-primary)", lineHeight: 1.45 }}>{r.morphology[f.key]}</span>
                 </div>
               ))}

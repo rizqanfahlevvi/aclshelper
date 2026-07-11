@@ -44,7 +44,7 @@ export function DoseRangeCard({ title, rangeLabel, methods, safetyNote, footer, 
       marginTop: 10, padding: '12px 14px', borderRadius: 12,
       background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
     }}>
-      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 6, letterSpacing: '0.04em' }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: fw(700), marginBottom: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
         {title}
       </div>
       <div style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(800), fontSize: '1.75rem', color: accent, lineHeight: 1.15, marginBottom: 10 }}>
@@ -53,7 +53,7 @@ export function DoseRangeCard({ title, rangeLabel, methods, safetyNote, footer, 
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${methods.length}, 1fr)`, gap: 8, marginBottom: (safetyNote || footer) ? 10 : 0 }}>
         {methods.map((m, i) => (
           <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
-            <div className="t-caption-2" style={{ fontWeight: fw(700), color: 'var(--label-primary)' }}>{m.label}</div>
+            <div className="t-caption-2" style={{ fontWeight: fw(700), color: 'var(--label-primary)', textTransform: 'uppercase' }}>{m.label}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(700), fontSize: '0.9375rem', color: 'var(--label-primary)', marginTop: 3 }}>{m.value}</div>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{m.rate}</div>
             <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontStyle: 'italic', marginTop: 2, lineHeight: 1.3 }}>{m.note}</div>

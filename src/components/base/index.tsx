@@ -369,7 +369,7 @@ export const Alert = ({ kind = "info", title, children, icon }: { kind?: string;
 
 export const ResultTile = ({ label, value, sub, tint = "var(--tint-fluid)" }: { label?: React.ReactNode; value?: React.ReactNode; sub?: React.ReactNode; tint?: string }) => (
   <div style={{ background: "var(--bg-tertiary)", borderRadius: "var(--r-card)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 2, boxShadow: "var(--shadow-1)" }}>
-    <div className="t-caption-2" style={{ color: "var(--label-secondary)" }}>{label}</div>
+    <div className="t-caption-2" style={{ color: "var(--label-secondary)", textTransform: 'uppercase' }}>{label}</div>
     <div style={{ fontFamily: "var(--font-mono)", fontSize: '1.5rem', fontWeight: 700, color: tint, fontFeatureSettings: '"tnum"' }}>{value}</div>
     {sub && <div className="t-caption-1" style={{ color: "var(--label-tertiary)" }}>{sub}</div>}
   </div>
