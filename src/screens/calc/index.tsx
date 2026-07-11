@@ -713,10 +713,8 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 40px' }}>
-        {/* Result — tampilan terpadu (jawaban + kontribusi/langkah + disclaimer) */}
-        {result && <CalcResultView calc={calc} result={result} values={values}/>}
-
-        {/* Fields */}
+        {/* Fields — diisi dulu sebelum melihat hasil (alur baca alami:
+            atas-ke-bawah, hasil menyusul di bawah setelah input) */}
         {isFibrinolytic ? (
           <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
         ) : (
@@ -729,6 +727,13 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
                 onChange={val => setValues(v => ({ ...v, [f.key]: val }))}
               />
             ))}
+          </div>
+        )}
+
+        {/* Result — tampilan terpadu (jawaban + kontribusi/langkah + disclaimer) */}
+        {result && (
+          <div style={{ marginTop: 16 }}>
+            <CalcResultView calc={calc} result={result} values={values}/>
           </div>
         )}
 
