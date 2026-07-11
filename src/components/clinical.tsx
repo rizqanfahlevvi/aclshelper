@@ -7,6 +7,68 @@ import React from 'react';
    Semua warna via token (tidak ada hex hardcoded).
    ============================================================ */
 
+/* Blok "target koreksi aman" — judul + intro opsional + daftar poin.
+   Tampil di atas kartu dosis untuk kalkulator dgn batas keamanan eksplisit
+   (mis. koreksi Na: batas kenaikan/24 jam sebelum menentukan resep). */
+export function InfoBullets({ title, intro, bullets, tint }: {
+  title: string; intro?: string; bullets: string[]; tint?: string;
+}) {
+  const accent = tint || 'var(--accent)';
+  return (
+    <div style={{ marginTop: 10 }}>
+      <div className="t-callout" style={{ fontWeight: 700, color: accent, marginBottom: 4 }}>{title}</div>
+      {intro && (
+        <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginBottom: 6, lineHeight: 1.45 }}>{intro}</div>
+      )}
+      <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {bullets.map((b, i) => (
+          <li key={i} className="t-footnote" style={{ color: 'var(--label-primary)', lineHeight: 1.45 }}>{b}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* Kartu highlight dosis/volume dengan 1+ metode berdampingan — angka besar
+   mono di atas, lalu grid kartu per metode (nilai + laju + catatan), lalu
+   catatan batas laju & footer. Dipakai kalkulator kompleks (koreksi Na). */
+export function DoseRangeCard({ title, rangeLabel, methods, safetyNote, footer, tint }: {
+  title: string; rangeLabel: string;
+  methods: { label: string; value: string; rate: string; note: string }[];
+  safetyNote?: string; footer?: string; tint?: string;
+}) {
+  const accent = tint || 'var(--accent)';
+  return (
+    <div style={{
+      marginTop: 10, padding: '12px 14px', borderRadius: 12,
+      background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
+    }}>
+      <div className="t-caption-2" style={{ color: accent, fontWeight: 700, marginBottom: 6, letterSpacing: '0.04em' }}>
+        {title}
+      </div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.75rem', color: accent, lineHeight: 1.15, marginBottom: 10 }}>
+        {rangeLabel}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${methods.length}, 1fr)`, gap: 8, marginBottom: (safetyNote || footer) ? 10 : 0 }}>
+        {methods.map((m, i) => (
+          <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'var(--bg-primary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+            <div className="t-caption-2" style={{ fontWeight: 700, color: 'var(--label-primary)' }}>{m.label}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--label-primary)', marginTop: 3 }}>{m.value}</div>
+            <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>{m.rate}</div>
+            <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontStyle: 'italic', marginTop: 2, lineHeight: 1.3 }}>{m.note}</div>
+          </div>
+        ))}
+      </div>
+      {safetyNote && (
+        <div className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4, marginBottom: footer ? 6 : 0 }}>{safetyNote}</div>
+      )}
+      {footer && (
+        <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', fontStyle: 'italic', lineHeight: 1.4 }}>{footer}</div>
+      )}
+    </div>
+  );
+}
+
 /* Disclaimer ringkas di titik-pakai — WAJIB pada fitur penghasil dosis. */
 export function Disclaimer() {
   return (

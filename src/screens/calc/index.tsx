@@ -3,7 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
-import { Disclaimer, CalcSteps, ScoreBreakdown } from '../../components/clinical';
+import { Disclaimer, CalcSteps, ScoreBreakdown, InfoBullets, DoseRangeCard } from '../../components/clinical';
 import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
 
@@ -203,7 +203,24 @@ function CalcResultView({ calc, result, values }: {
   if (calc.key === 'vent' || calc.key === 'heparin') return <><StructuredResultCard result={result}/><Disclaimer/></>;
   return (
     <div style={{ marginBottom: 16 }}>
-      <CalcResultBadge result={result} tint={calc.tint}/>
+      {result.doseRange ? (
+        <div style={{
+          borderRadius: 16, padding: '16px', marginBottom: 4,
+          background: 'var(--bg-tertiary)',
+          boxShadow: `inset 0 0 0 1px ${calc.tint}33, var(--shadow-1)`,
+        }}>
+          <div className="t-caption-2" style={{ color: calc.tint, fontWeight: 700, letterSpacing: '0.04em' }}>
+            {result.label.toUpperCase()}
+          </div>
+          {result.risk && (
+            <div className="t-footnote" style={{ color: 'var(--label-secondary)', marginTop: 3 }}>{result.risk}</div>
+          )}
+          {result.targetInfo && <InfoBullets tint={calc.tint} {...result.targetInfo}/>}
+          <DoseRangeCard tint={calc.tint} {...result.doseRange}/>
+        </div>
+      ) : (
+        <CalcResultBadge result={result} tint={calc.tint}/>
+      )}
       {result.breakdown && result.breakdown.length > 0 && (
         <ScoreBreakdown items={result.breakdown} total={Number(result.score)} tint={calc.tint}/>
       )}

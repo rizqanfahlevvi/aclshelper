@@ -33,6 +33,20 @@ export interface CalcResult {
      alternatif dari `detail` string untuk kalkulator kompleks (elektrolit). */
   steps?: CalcStep[];
   stepsFooter?: string;
+  /* Blok "target koreksi aman" (judul + intro + bullet) yang tampil
+     sebelum kartu dosis — dipakai kalkulator dgn batas keamanan eksplisit
+     (mis. koreksi Na). */
+  targetInfo?: { title: string; intro?: string; bullets: string[] };
+  /* Kartu highlight dosis/volume, opsional dengan >1 metode berdampingan
+     (mis. rentang dua metode koreksi Na). Menggantikan badge skor generik
+     saat ada — dipakai untuk kalkulator dgn resep obat yang kompleks. */
+  doseRange?: {
+    title: string;
+    rangeLabel: string;
+    methods: { label: string; value: string; rate: string; note: string }[];
+    safetyNote?: string;
+    footer?: string;
+  };
 }
 
 export interface Calculator {
@@ -1731,11 +1745,29 @@ export const CALCULATORS: Calculator[] = [
 
         return {
           score: `${rateMin.toFixed(1)}–${rateMax.toFixed(1)} mL/jam`,
-          label: isEmergensi ? 'Hiponatremia Berat — Laju NaCl 3% (rentang)' : 'Laju NaCl 3% (rentang 2 metode)',
+          label: isEmergensi ? `Hiponatremia Berat ${onset === 'akut' ? 'Akut' : 'Kronik'}` : `Koreksi Hiponatremia ${onset === 'akut' ? 'Akut' : 'Kronik'}`,
           risk: isEmergensi
             ? 'Na <120 — nilai gejala (kejang/koma); jika bergejala berat, pertimbangkan bolus emergensi (lihat catatan)'
             : `Target kenaikan ${d.toFixed(1)} mEq/L dalam 24 jam`,
           color: isEmergensi ? C.red : C.amber,
+          targetInfo: {
+            title: 'Target Koreksi Aman (Batas 24 Jam)',
+            intro: 'Peningkatan maksimal yang direkomendasikan untuk mencegah Osmotic Demyelination Syndrome (ODS):',
+            bullets: [
+              `Target Kenaikan Maksimal: ${limitBase.lo}–${limitBase.hi} mEq/L dalam 24 jam${highRisk ? ' (risiko tinggi ODS → pakai batas bawah)' : ''}.`,
+              `Target Na Sementara: ~${(calcN + d).toFixed(1)} mEq/L (dari ${calcN.toFixed(1)} mEq/L).`,
+            ],
+          },
+          doseRange: {
+            title: 'Resep NaCl 3% — Estimasi Kebutuhan Volume (Rentang 2 Metode)',
+            rangeLabel: `${volMin.toFixed(0)} – ${volMax.toFixed(0)} mL`,
+            methods: [
+              { label: 'Metode Defisit', value: `${volDeficit.toFixed(0)} mL`, rate: `Laju ${rateDeficit.toFixed(1)} mL/jam · 24 jam`, note: 'konservatif (batas bawah)' },
+              { label: 'Adrogué–Madías', value: `${volAM.toFixed(0)} mL`, rate: `Laju ${rateAM.toFixed(1)} mL/jam · 24 jam`, note: 'memperhitungkan dilusi (batas atas)' },
+            ],
+            safetyNote: `Batas atas laju absolut: ${rateSafetyCap.toFixed(1)} mL/jam (setara kecepatan koreksi 0.5 mEq/L/jam) — jangan dilampaui di luar kondisi emergensi bergejala.`,
+            footer: 'Mulai dari estimasi lebih rendah, titrasi berdasarkan Na serial. Gunakan vena sentral jika memungkinkan. Periksa Na tiap 4–6 jam.',
+          },
           steps,
           stepsFooter: 'Kedua rumus adalah estimasi awal — respons nyata dipengaruhi output urin & penyebab hiponatremia. Nilai ulang dengan Na serial tiap 4–6 jam.',
         };
@@ -1766,6 +1798,22 @@ export const CALCULATORS: Calculator[] = [
           label: 'Defisit Air Bebas (Hipernatremia)',
           risk: `Defisit ${fwd.toFixed(2)} L, target penurunan ≤10 mEq/L/24 jam`,
           color: calcN > 160 ? C.red : C.amber,
+          targetInfo: {
+            title: 'Pilihan Cairan & Kecepatan Koreksi',
+            bullets: [
+              'Pilihan utama: D5W (Dekstrosa 5%) atau air enteral (NGT) bila stabil.',
+              'Hipovolemia berat/syok: atasi dulu dengan NaCl 0.9% isotonis hingga hemodinamik stabil, baru berikan defisit air bebas.',
+              'Target penurunan Na maksimal: 10 mEq/L dalam 24 jam — defisit diberikan bertahap selama 48 jam.',
+            ],
+          },
+          doseRange: {
+            title: 'Defisit Air Bebas (Free Water Deficit)',
+            rangeLabel: `${fwd.toFixed(2)} L`,
+            methods: [
+              { label: 'Laju Infus (48 jam)', value: `${rate.toFixed(0)} mL/jam`, rate: `Total ${(fwd * 1000).toFixed(0)} mL / 48 jam`, note: 'tambahkan IWL ~30–40 mL/jam pada laju total cairan' },
+            ],
+            footer: 'Cek Na tiap 4–6 jam; rumus ini estimasi awal.',
+          },
           steps,
           stepsFooter: 'Cairan: D5W atau air enteral (NGT) bila stabil; atasi hipovolemia berat dengan NaCl 0.9% dulu. Cek Na tiap 4–6 jam; rumus ini estimasi awal.',
         };
