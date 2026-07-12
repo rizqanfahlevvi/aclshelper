@@ -509,17 +509,17 @@ describe('Konverter Infus', () => {
 describe('Koreksi Natrium (hipo & hipernatremia, dua metode)', () => {
   const f = calc('na-correction');
 
-  it('Na118 70kg L target6 → rentang 20.5–27.2 mL/jam (defisit vs Adrogué-Madías)', () => {
+  it('Na118 70kg L target6, tanpa gejala → koreksi lanjutan tetap dihitung (491–653 mL)', () => {
     // TBW=42; defisit: d=6, mEq=252, vol=252/513*1000=491.2mL, rate=20.5
     // AM: perL=(513-118)/43=9.186, vol=(6/9.186)*1000=653.2mL, rate=27.2
     const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 6, highRisk: false });
-    expect(r.score).toBe('20.5–27.2 mL/jam');
+    expect(r.doseRange!.rangeLabel).toBe('491 – 653 mL');
     expect(r.steps).toBeDefined();
     const laju = r.steps!.find(s => s.label.includes('Langkah 5'));
     expect(laju!.formula).toMatch(/491.*653/);
   });
 
-  it('risiko tinggi ODS membatasi ke batas bawah (6, bukan 8)', () => {
+  it('risiko tinggi ODS (manual) membatasi ke batas bawah (6, bukan 8)', () => {
     const r = f({ currentNa: 118, weight: 70, sex: 'male', targetRise: 8, highRisk: true });
     const step2 = r.steps!.find(s => s.label.includes('Langkah 2'))!;
     expect(step2.note).toMatch(/dibatasi ke 6 mEq\/L/);
@@ -537,10 +537,60 @@ describe('Koreksi Natrium (hipo & hipernatremia, dua metode)', () => {
     expect(step2.formula).toMatch(/10–12 mEq\/L/);
   });
 
-  it('Na <120 → warna merah (berat) + label emergensi', () => {
+  it('Na<120 TANPA gejala → TIDAK lagi otomatis merah/berat (indikasi ikuti gejala, bukan angka)', () => {
     const r = f({ currentNa: 115 });
+    expect(r.color).toBe('#1E8E3E');
+    expect(r.naHypoCard!.severity).toBe('ringan');
+    expect(r.naHypoCard!.primary.title).toMatch(/TIDAK Rutin Diindikasikan/);
+    expect(r.label).not.toMatch(/Berat/);
+  });
+
+  it('Na115 + gejala BERAT (kejang) → bolus 150mL/20menit, merah', () => {
+    const r = f({ currentNa: 115, sxSeizure: true });
     expect(r.color).toBe('#BA1A1A');
-    expect(r.label).toMatch(/Berat/);
+    expect(r.naHypoCard!.severity).toBe('berat');
+    expect(r.naHypoCard!.primary.title).toMatch(/Bolus/);
+    expect(r.score).toBe('150 mL / 20 menit (≈450 mL/jam)');
+  });
+
+  it('Na115 + gejala SEDANG (mual) tanpa gejala berat → infus tunggal, amber', () => {
+    const r = f({ currentNa: 115, sxNausea: true });
+    expect(r.color).toBe('#FFA000');
+    expect(r.naHypoCard!.severity).toBe('sedang');
+    expect(r.naHypoCard!.primary.title).toMatch(/Infus Tunggal/);
+  });
+
+  it('gejala berat mengalahkan gejala sedang yang juga tercentang (severity live, bukan dibekukan)', () => {
+    const r = f({ currentNa: 115, sxNausea: true, sxComaGcs8: true });
+    expect(r.naHypoCard!.severity).toBe('berat');
+  });
+
+  it('Na≤105 tanpa gejala → autoHighRisk otomatis, plafon batas bawah', () => {
+    const r = f({ currentNa: 104, weight: 70, sex: 'male', targetRise: 8 });
+    expect(r.naHypoCard!.autoHighRisk).toBe(true);
+    expect(r.naHypoCard!.highRiskFinal).toBe(true);
+    expect(r.targetInfo!.bullets.some(b => b.includes('OTOMATIS'))).toBe(true);
+    const step2 = r.steps!.find(s => s.label.includes('Langkah 2'))!;
+    expect(step2.note).toMatch(/dibatasi ke 6 mEq\/L/);
+  });
+
+  it('Na>105 tanpa faktor manual → autoHighRisk false', () => {
+    const r = f({ currentNa: 118, weight: 70, sex: 'male' });
+    expect(r.naHypoCard!.autoHighRisk).toBe(false);
+    expect(r.naHypoCard!.highRiskFinal).toBe(false);
+  });
+
+  it('gejala ringan + penurunan akut >10 terdokumentasi → pengecualian infus tunggal', () => {
+    const r = f({ currentNa: 115, acuteDrop10: true });
+    expect(r.naHypoCard!.severity).toBe('ringan');
+    expect(r.naHypoCard!.acuteExceptionApplied).toBe(true);
+    expect(r.naHypoCard!.primary.title).toMatch(/Pengecualian/);
+    expect(r.naHypoCard!.collapseSlowCorrection).toBe(false);
+  });
+
+  it('ringan tanpa pengecualian → koreksi lanjutan di-collapse', () => {
+    const r = f({ currentNa: 115 });
+    expect(r.naHypoCard!.collapseSlowCorrection).toBe(true);
   });
 
   it('hipernatremia Na160 70kg L → defisit air bebas 6.0 L, laju 125 mL/jam', () => {

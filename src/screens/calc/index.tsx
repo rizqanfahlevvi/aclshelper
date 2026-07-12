@@ -3,7 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import { CALCULATORS } from '../../data/calculators';
 import type { Calculator, CalcField } from '../../data/calculators';
-import { Disclaimer, CalcSteps, ScoreBreakdown, InfoBullets, DoseRangeCard } from '../../components/clinical';
+import { Disclaimer, CalcSteps, ScoreBreakdown, InfoBullets, DoseRangeCard, Accordion } from '../../components/clinical';
 import { fw } from '../../lib/settings';
 import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
@@ -211,6 +211,7 @@ function CalcResultView({ calc, result, values }: {
   if (calc.key === 'abg') return <><AbgResultCard result={result} values={values}/><Disclaimer/></>;
   if (calc.key === 'rsi') return <><RsiResultCard values={values}/><Disclaimer/></>;
   if (calc.key === 'vent' || calc.key === 'heparin') return <><StructuredResultCard result={result}/><Disclaimer/></>;
+  if (calc.key === 'na-correction' && result.naHypoCard) return <><NaHypoResultCard calc={calc} result={result}/><Disclaimer/></>;
   return (
     <div style={{ marginBottom: 16 }}>
       {result.doseRange ? (
@@ -241,6 +242,78 @@ function CalcResultView({ calc, result, values }: {
         <CalcSteps steps={result.steps} footer={result.stepsFooter} tint={calc.tint}/>
       ) : result.detail && <CalcSteps detail={result.detail} tint={calc.tint}/>}
       <Disclaimer/>
+    </div>
+  );
+}
+
+/* ============================================================
+   NaHypoResultCard — koreksi hiponatremia tergated-gejala
+   (Spasovski 2014; Verbalis 2013): kartu utama ditentukan
+   keparahan gejala (berat/sedang/ringan), bukan angka Na. Koreksi
+   lanjutan (2 metode) & teori dikemas dalam accordion agar tidak
+   bersaing secara visual dengan keputusan gejala yang lebih penting.
+   ============================================================ */
+function NaHypoResultCard({ calc, result }: { calc: Calculator; result: ReturnType<Calculator['compute']> }) {
+  const card = result.naHypoCard!;
+  const { primary } = card;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {/* Kartu utama — tergated gejala LIVE */}
+      <div style={{
+        borderRadius: 16, padding: '16px', marginBottom: 10,
+        background: primary.color, boxShadow: 'var(--shadow-1)',
+      }}>
+        <div className="t-caption-2" style={{ color: 'rgba(255,255,255,0.85)', fontWeight: fw(700), letterSpacing: '0.04em' }}>
+          {card.severity === 'berat' ? 'GEJALA BERAT' : card.severity === 'sedang' ? 'GEJALA SEDANG' : 'GEJALA RINGAN / TIDAK ADA'}
+        </div>
+        <div className="t-title-3" style={{ color: '#fff', fontWeight: fw(700), marginTop: 3 }}>{primary.title}</div>
+        {primary.rateLabel && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(800), fontSize: '1.375rem', color: '#fff', marginTop: 8 }}>
+            {primary.rateLabel}
+          </div>
+        )}
+        <ul style={{ margin: '10px 0 0', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {primary.bullets.map((b, i) => (
+            <li key={i} className="t-footnote" style={{ color: 'rgba(255,255,255,0.95)', lineHeight: 1.45 }}>{b}</li>
+          ))}
+        </ul>
+      </div>
+
+      {result.targetInfo && <InfoBullets tint={calc.tint} {...result.targetInfo}/>}
+
+      {result.doseRange && (
+        <Accordion
+          title="Koreksi Lanjutan (Dua Metode)"
+          subtitle={card.severity === 'berat' ? 'Setelah gejala mereda — lanjutkan sesuai plafon 24 jam' : 'Estimasi kebutuhan volume NaCl 3% dalam 24 jam'}
+          tint={calc.tint}
+          defaultOpen={!card.collapseSlowCorrection}
+        >
+          <DoseRangeCard tint={calc.tint} {...result.doseRange}/>
+          {result.steps && <CalcSteps steps={result.steps} footer={result.stepsFooter} tint={calc.tint}/>}
+        </Accordion>
+      )}
+
+      <Accordion title="Teori & Referensi" tint={calc.tint} defaultOpen={false}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <p className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: 'var(--label-primary)' }}>1. Dua sumbu keparahan.</strong> Biokimia (ringan 130–135, sedang 125–129, berat/profound &lt;125 mEq/L) dan gejala klinis adalah dua sumbu yang BERBEDA dan bisa tidak sejalan — indikasi NaCl 3% mengikuti gejala, bukan angka biokimia (Spasovski 2014).
+          </p>
+          <p className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: 'var(--label-primary)' }}>2. Risiko ODS.</strong> Otak beradaptasi terhadap hiponatremia kronik dengan mengeluarkan osmolit — koreksi cepat pada otak yang sudah beradaptasi (kronik) menarik air keluar sel oligodendrosit → demielinisasi. Onset akut (&lt;48 jam) belum sempat beradaptasi penuh sehingga risiko ODS jauh lebih rendah pada kecepatan koreksi yang sama.
+          </p>
+          <p className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: 'var(--label-primary)' }}>3. Terapi berbasis gejala.</strong> Berat → bolus 3% (hentikan krisis serebral, +4–6 mEq/L jam pertama). Sedang → infus tunggal 3%. Ringan/asimtomatik → cari & atasi penyebab (status volume), 3% BUKAN rutin.
+          </p>
+          <p className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: 'var(--label-primary)' }}>4. Plafon & rescue.</strong> Plafon ≤10 mEq/L/24 jam (≤8 risiko tinggi ODS) berlaku di semua mode terapi. Bila terlampaui: STOP NaCl hipertonis, D5W ± desmopresin (DDAVP) untuk re-lowering terkontrol (Verbalis 2013).
+          </p>
+          <p className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: 'var(--label-primary)' }}>5. Dua rumus & keterbatasan.</strong> Defisit (ΔNa×TBW÷513) dan Adrogué–Madías ((513−Na)/(TBW+1)) sering meleset dari respons aktual (dipengaruhi output urin & penyebab) — selalu ukur Na serial tiap 4–6 jam, jangan andalkan satu perhitungan awal (Adrogué &amp; Madias 2000; Sterns 2015; Adrogué/Tucker/Madias JAMA 2022).
+          </p>
+          <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginTop: 4 }}>{calc.source}</div>
+        </div>
+      </Accordion>
     </div>
   );
 }
@@ -304,6 +377,93 @@ function FibrNolyticFields({ calc, values, setValues }: {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ============================================================
+   NaCorrectionFields — chip gejala (Berat/Sedang) + field standar.
+   Keparahan dihitung LIVE oleh compute() setiap gejala di-toggle —
+   komponen ini hanya menyediakan input, bukan menentukan keparahan.
+   ============================================================ */
+function NaCorrectionFields({ calc, values, setValues }: {
+  calc: Calculator;
+  values: Record<string, number | string | boolean>;
+  setValues: React.Dispatch<React.SetStateAction<Record<string, number | string | boolean>>>;
+}) {
+  const onChange = (k: string, val: number | string | boolean) => setValues(v => ({ ...v, [k]: val }));
+  const SEVERE_KEYS = ['sxVomiting', 'sxCardioResp', 'sxSeizure', 'sxSomnolence', 'sxComaGcs8'];
+  const MODERATE_KEYS = ['sxNausea', 'sxConfusion', 'sxHeadache'];
+  const topKeys = ['currentNa', 'weight', 'sex', 'glucose'];
+  const bottomKeys = ['onset', 'targetRise', 'highRisk'];
+  const byKey = (k: string) => calc.fields.find(f => f.key === k);
+
+  const chipGroups: Array<{ title: string; keys: string[]; accentColor: string }> = [
+    { title: '🔴 Berat', keys: SEVERE_KEYS, accentColor: '#BA1A1A' },
+    { title: '🟠 Sedang', keys: MODERATE_KEYS, accentColor: '#FFA000' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {topKeys.map(k => {
+        const f = byKey(k);
+        if (!f) return null;
+        return (
+          <CalcFieldInput key={k} field={f} value={values[k] ?? (f.type === 'checkbox' ? false : f.defaultValue ?? 0)} onChange={val => onChange(k, val)}/>
+        );
+      })}
+
+      <div>
+        <div className="t-callout" style={{ fontWeight: fw(600), marginBottom: 2 }}>Gejala Hiponatremia</div>
+        <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>
+          Tidak ada yang dicentang = ringan/asimtomatik. Keparahan mengikuti gejala TERBERAT yang tercentang.
+        </div>
+        {chipGroups.map(g => (
+          <div key={g.title} style={{ marginBottom: 8 }}>
+            <div className="t-caption-2" style={{ color: g.accentColor, fontWeight: fw(700), marginBottom: 6 }}>{g.title}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {g.keys.map(k => {
+                const f = byKey(k);
+                if (!f) return null;
+                const checked = Boolean(values[k]);
+                return (
+                  <button
+                    key={k}
+                    onClick={() => setValues(v => ({ ...v, [k]: !v[k] }))}
+                    style={{
+                      padding: '7px 12px', borderRadius: 999, border: 0, cursor: 'pointer',
+                      fontSize: '0.8125rem', fontFamily: 'inherit', fontWeight: fw(checked ? 600 : 400),
+                      background: checked ? g.accentColor : 'var(--fill-quaternary)',
+                      color: checked ? '#fff' : 'var(--label-primary)',
+                      boxShadow: checked ? 'none' : 'inset 0 0 0 0.5px var(--separator)',
+                      transition: 'all 150ms',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {byKey('acuteDrop10') && (
+        <CalcFieldInput field={byKey('acuteDrop10')!} value={values.acuteDrop10 ?? false} onChange={val => onChange('acuteDrop10', val)}/>
+      )}
+
+      <div style={{ borderTop: '0.5px solid var(--separator)', paddingTop: 4 }}>
+        <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 8 }}>KOREKSI LANJUTAN — PENGATURAN</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {bottomKeys.map(k => {
+            const f = byKey(k);
+            if (!f) return null;
+            return (
+              <CalcFieldInput key={k} field={f} value={values[k] ?? (f.type === 'checkbox' ? false : f.defaultValue ?? 0)} onChange={val => onChange(k, val)}/>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -663,6 +823,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
   if (!calc) return <div style={{ padding: 24 }}>Kalkulator tidak ditemukan</div>;
 
   const isFibrinolytic = calc.key === 'fibrinolytic';
+  const isNaCorrection = calc.key === 'na-correction';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -709,6 +870,8 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
             atas-ke-bawah, hasil menyusul di bawah setelah input) */}
         {isFibrinolytic ? (
           <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
+        ) : isNaCorrection ? (
+          <NaCorrectionFields calc={calc} values={values} setValues={setValues}/>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {calc.fields.map(f => (
@@ -816,6 +979,7 @@ function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | '
 
   const result = useMemo(() => calc.compute(values), [calc, values]);
   const isFibrinolytic = calc.key === 'fibrinolytic';
+  const isNaCorrection = calc.key === 'na-correction';
   const { isFav: dIsFav, toggle: dToggle } = useFavorites();
 
   return (
@@ -937,6 +1101,8 @@ function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | '
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             {isFibrinolytic ? (
               <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
+            ) : isNaCorrection ? (
+              <NaCorrectionFields calc={calc} values={values} setValues={setValues}/>
             ) : (
               calc.fields.map(f => (
                 <CalcFieldInput

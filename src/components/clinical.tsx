@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { fw } from '../lib/settings';
 
 /* ============================================================
@@ -219,6 +219,44 @@ export function ScoreBreakdown({ items, total, tint, unit = 'poin' }: {
           {total} {unit}
         </span>
       </div>
+    </div>
+  );
+}
+
+/* Blok collapsible generik — dipakai untuk mengecilkan bagian sekunder
+   (resep/rincian koreksi lambat saat gejala ringan, blok "Teori &
+   Referensi") tanpa menyembunyikannya sepenuhnya. */
+export function Accordion({ title, subtitle, tint, defaultOpen = false, children }: {
+  title: string; subtitle?: string; tint?: string; defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const accent = tint || 'var(--accent)';
+  return (
+    <div style={{
+      marginTop: 10, borderRadius: 12, overflow: 'hidden',
+      background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)',
+    }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '12px 14px', background: 'none', border: 0, cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <div>
+          <div className="t-callout" style={{ fontWeight: fw(700), color: 'var(--label-primary)' }}>{title}</div>
+          {subtitle && <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 1 }}>{subtitle}</div>}
+        </div>
+        <span style={{
+          color: accent, fontSize: '0.75rem', flexShrink: 0, marginLeft: 10,
+          transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 200ms',
+        }}>▾</span>
+      </button>
+      {open && (
+        <div style={{ padding: '0 14px 14px' }}>
+          {children}
+        </div>
+      )}
     </div>
   );
 }

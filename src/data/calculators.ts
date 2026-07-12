@@ -47,6 +47,21 @@ export interface CalcResult {
     safetyNote?: string;
     footer?: string;
   };
+  /* Kartu keparahan-gated khusus koreksi hiponatremia (na-correction) —
+     indikasi NaCl 3% ditentukan GEJALA, bukan angka Na (Spasovski 2014).
+     Dikonsumsi oleh NaResultCard, bukan render generik. */
+  naHypoCard?: {
+    severity: 'berat' | 'sedang' | 'ringan';
+    autoHighRisk: boolean;
+    manualHighRisk: boolean;
+    highRiskFinal: boolean;
+    acuteExceptionApplied: boolean;
+    limitLo: number;
+    limitHi: number;
+    onsetLabel: string;
+    primary: { title: string; color: string; rateLabel?: string; bullets: string[] };
+    collapseSlowCorrection: boolean;
+  };
 }
 
 export interface Calculator {
@@ -1685,8 +1700,8 @@ export const CALCULATORS: Calculator[] = [
     short: 'Koreksi Na',
     category: 'Elektrolit',
     tint: C.blue,
-    description: 'Dua metode NaCl 3% (defisit & Adrogué-Madias) + defisit air bebas',
-    source: 'Adrogué & Madias NEJM 2000;342:1493 & 1581; Sterns RH NEJM 2015;372:55; Spasovski G. ERBP/ESE NDT 2014',
+    description: 'Indikasi NaCl 3% berbasis gejala + dua metode koreksi lambat',
+    source: 'Spasovski G. NDT 2014;29(Suppl 2):i1; Verbalis JG. Am J Med 2013;126(10 Suppl 1):S1; Adrogué & Madias NEJM 2000;342:1493 & 1581; Sterns RH NEJM 2015;372:55; Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280',
     fields: [
       { key: 'currentNa', label: 'Natrium saat ini', type: 'number', unit: 'mEq/L', min: 100, max: 180, step: 1, defaultValue: 118 },
       { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 20, max: 200, step: 1, defaultValue: 70 },
@@ -1694,15 +1709,28 @@ export const CALCULATORS: Calculator[] = [
         options: [{ label: 'Laki-laki', value: 'male' }, { label: 'Perempuan', value: 'female' }] },
       { key: 'glucose', label: 'Glukosa (opsional)', type: 'number', unit: 'mg/dL', min: 0, max: 1500, step: 10, defaultValue: 0,
         description: 'Isi bila hiperglikemia — Na dikoreksi dulu (Katz) sebelum dievaluasi' },
+      // Checklist gejala (khusus hiponatremia) — dirender sebagai chip oleh
+      // NaCorrectionFields, BUKAN loop CalcFieldInput generik. Keparahan
+      // ditentukan GEJALA (Spasovski 2014), bukan angka Na.
+      { key: 'sxVomiting',   label: 'Muntah', type: 'checkbox' },
+      { key: 'sxCardioResp', label: 'Distres Kardiorespirasi', type: 'checkbox' },
+      { key: 'sxSeizure',    label: 'Kejang', type: 'checkbox' },
+      { key: 'sxSomnolence', label: 'Kantuk Dalam / Somnolen Abnormal', type: 'checkbox' },
+      { key: 'sxComaGcs8',   label: 'Penurunan Kesadaran / Koma (GCS ≤8)', type: 'checkbox' },
+      { key: 'sxNausea',     label: 'Mual (tanpa muntah)', type: 'checkbox' },
+      { key: 'sxConfusion',  label: 'Bingung / Konfusi', type: 'checkbox' },
+      { key: 'sxHeadache',   label: 'Nyeri Kepala', type: 'checkbox' },
+      { key: 'acuteDrop10', label: 'Penurunan Na akut >10 mEq/L dalam <48 jam', type: 'checkbox',
+        description: 'Berlaku meski gejala saat ini ringan/tidak ada — pengecualian pemberian infus tunggal 3%' },
       { key: 'onset', label: 'Onset (khusus hiponatremia)', type: 'select', defaultValue: 'kronik',
         options: [
           { label: 'Kronik / tidak diketahui', value: 'kronik', description: 'Batas aman: 6–8 mEq/L / 24 jam' },
           { label: 'Akut (< 48 jam)', value: 'akut', description: 'Batas aman: 10–12 mEq/L / 24 jam (risiko ODS jauh lebih rendah)' },
         ] },
       { key: 'targetRise', label: 'Target kenaikan / 24 jam (hiponatremia)', type: 'number', unit: 'mEq/L', min: 1, max: 12, step: 1, defaultValue: 6,
-        description: 'Akan dibatasi otomatis ke batas aman sesuai onset & risiko ODS di bawah' },
-      { key: 'highRisk', label: 'Risiko tinggi ODS', type: 'checkbox',
-        description: 'Na <105, kronik/durasi tak jelas, alkoholisme, malnutrisi, hipokalemia, sirosis, pasca-transplan hati' },
+        description: 'Untuk koreksi lanjutan setelah krisis akut tertangani — dibatasi otomatis ke batas aman di bawah' },
+      { key: 'highRisk', label: 'Faktor Risiko Tambahan ODS', type: 'checkbox',
+        description: 'Hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut/sirosis, pasca-transplan hati (di luar Na≤105 yang terdeteksi otomatis)' },
     ],
     compute: (v) => {
       const na = Number(v.currentNa) || 118;
@@ -1737,13 +1765,79 @@ export const CALCULATORS: Calculator[] = [
 
       if (calcN < 135) {
         // ── HIPONATREMIA ──
+        // Keparahan klinis ditentukan GEJALA, bukan angka Na (Spasovski
+        // 2014 ERBP/ESE/ESICM; Verbalis 2013) — indikasi NaCl 3% (bolus vs
+        // infus tunggal vs tidak rutin) mengikuti kelompok gejala terberat
+        // yang tercentang, dihitung live setiap render (bukan dibekukan).
+        const SEVERE_KEYS = ['sxVomiting', 'sxCardioResp', 'sxSeizure', 'sxSomnolence', 'sxComaGcs8'];
+        const MODERATE_KEYS = ['sxNausea', 'sxConfusion', 'sxHeadache'];
+        const severe = SEVERE_KEYS.some(k => Boolean(v[k]));
+        const moderate = !severe && MODERATE_KEYS.some(k => Boolean(v[k]));
+        const severity: 'berat' | 'sedang' | 'ringan' = severe ? 'berat' : moderate ? 'sedang' : 'ringan';
+        const acuteException = severity === 'ringan' && Boolean(v.acuteDrop10);
+
+        // Flag risiko tinggi ODS: otomatis bila Na ≤105, DITAMBAH faktor
+        // manual (hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut).
+        const autoHighRisk = calcN <= 105;
+        const manualHighRisk = highRisk;
+        const highRiskFinal = autoHighRisk || manualHighRisk;
+
+        // Plafon kecepatan koreksi berlaku di SEMUA mode (bolus/infus
+        // tunggal/lambat) — onset menentukan batas, BUKAN indikasi 3%.
         const limitBase = onset === 'akut' ? { lo: 10, hi: 12 } : { lo: 6, hi: 8 };
-        const limit24 = highRisk ? limitBase.lo : limitBase.hi;
+        const limit24 = highRiskFinal ? limitBase.lo : limitBase.hi;
         const target = Math.min(rawTarget, limit24);
         const capped = rawTarget > limit24;
         const naT = 140;
         const d = Math.max(0, Math.min(target, naT - calcN));
-        const isEmergensi = calcN < 120;
+
+        // Kartu utama tergated-gejala (bolus / infus tunggal / alur-penyebab).
+        let primary: { title: string; color: string; rateLabel?: string; bullets: string[] };
+        if (severity === 'berat') {
+          primary = {
+            title: 'Bolus NaCl 3% — Gejala Berat (Krisis Serebral Akut)',
+            color: C.red,
+            rateLabel: '150 mL / 20 menit (≈450 mL/jam)',
+            bullets: [
+              'Bolus NaCl 3% 150 mL IV dalam 20 menit (alternatif: 100 mL dalam 10 menit).',
+              'Ulangi tiap 20 menit sampai gejala mereda ATAU Na naik ~5 mEq/L dari nilai awal.',
+              'Target kenaikan jam pertama: +4–6 mEq/L — tujuannya menghentikan krisis serebral, BUKAN menormalkan Na.',
+              'Setelah gejala mereda: STOP NaCl hipertonis, lanjutkan sesuai plafon 24 jam (bagian "Koreksi Lanjutan" di bawah).',
+            ],
+          };
+        } else if (severity === 'sedang') {
+          primary = {
+            title: 'Infus Tunggal NaCl 3% — Gejala Sedang',
+            color: C.amber,
+            rateLabel: '150 mL / 20 menit (≈450 mL/jam), satu kali',
+            bullets: [
+              'Infus tunggal NaCl 3% 150 mL dalam 20 menit.',
+              'Cek Na ulang setelah infus, re-evaluasi gejala & rencana lanjutan.',
+              `Target kenaikan: ~5 mEq/L dalam 24 jam (dalam plafon aman ${limitBase.lo}–${limitBase.hi} mEq/L).`,
+            ],
+          };
+        } else if (acuteException) {
+          primary = {
+            title: 'Pengecualian: Penurunan Akut Terdokumentasi >10 mEq/L',
+            color: C.amber,
+            rateLabel: '150 mL / 20 menit (≈450 mL/jam), satu kali',
+            bullets: [
+              'Meski gejala saat ini ringan/tidak ada, penurunan akut >10 mEq/L dalam <48 jam berisiko — pertimbangkan infus tunggal NaCl 3% 150 mL dalam 20 menit.',
+              'Cek Na ulang setelah infus; re-evaluasi kebutuhan lanjutan.',
+            ],
+          };
+        } else {
+          primary = {
+            title: 'NaCl 3% TIDAK Rutin Diindikasikan',
+            color: C.green,
+            bullets: [
+              'Cari & atasi penyebab yang mendasari — bukan berikan NaCl 3% secara rutin.',
+              'Hipovolemik: NaCl 0.9% isotonis.',
+              'Euvolemik (mis. SIADH): restriksi cairan ± terapi penyebab.',
+              'Hipervolemik: restriksi cairan + tata laksana penyakit dasar (gagal jantung/hati/ginjal).',
+            ],
+          };
+        }
 
         // Metode 1 — Defisit: ΔNa × TBW ÷ 513 (NaCl 3% = 513 mEq/L)
         const deficitMeq = d * tbw;
@@ -1766,7 +1860,7 @@ export const CALCULATORS: Calculator[] = [
           tbwStep,
           {
             label: `Langkah 2 — Target kenaikan Na (${onset === 'akut' ? 'akut' : 'kronik'})`,
-            formula: `ΔNa = ${d.toFixed(1)} mEq/L (batas aman ${limitBase.lo}–${limitBase.hi} mEq/L/24j${highRisk ? ', risiko tinggi ODS → pakai batas bawah' : ''})\nTarget Na = ${calcN.toFixed(1)} + ${d.toFixed(1)} = ${(calcN + d).toFixed(1)} mEq/L`,
+            formula: `ΔNa = ${d.toFixed(1)} mEq/L (batas aman ${limitBase.lo}–${limitBase.hi} mEq/L/24j${highRiskFinal ? ', risiko tinggi ODS → pakai batas bawah' : ''})\nTarget Na = ${calcN.toFixed(1)} + ${d.toFixed(1)} = ${(calcN + d).toFixed(1)} mEq/L`,
             note: capped ? `Target diminta ${rawTarget} mEq/L → dibatasi ke ${target} mEq/L (batas aman).` : undefined,
           },
           {
@@ -1789,23 +1883,32 @@ export const CALCULATORS: Calculator[] = [
           },
         ];
 
+        const severityLabel = severity === 'berat' ? 'Gejala Berat' : severity === 'sedang' ? 'Gejala Sedang' : acuteException ? 'Ringan — Penurunan Akut >10' : 'Ringan / Asimtomatik';
+
         return {
-          score: `${rateMin.toFixed(1)}–${rateMax.toFixed(1)} mL/jam`,
-          label: isEmergensi ? `Hiponatremia Berat ${onset === 'akut' ? 'Akut' : 'Kronik'}` : `Koreksi Hiponatremia ${onset === 'akut' ? 'Akut' : 'Kronik'}`,
-          risk: isEmergensi
-            ? 'Na <120 — nilai gejala (kejang/koma); jika bergejala berat, pertimbangkan bolus emergensi (lihat catatan)'
-            : `Target kenaikan ${d.toFixed(1)} mEq/L dalam 24 jam`,
-          color: isEmergensi ? C.red : C.amber,
+          score: primary.rateLabel || 'Tanpa 3% rutin',
+          label: `Hiponatremia ${onset === 'akut' ? 'Akut' : 'Kronik'} — ${severityLabel}`,
+          risk: primary.bullets[0],
+          color: primary.color,
+          naHypoCard: {
+            severity, autoHighRisk, manualHighRisk, highRiskFinal,
+            acuteExceptionApplied: acuteException,
+            limitLo: limitBase.lo, limitHi: limitBase.hi,
+            onsetLabel: onset === 'akut' ? 'Akut' : 'Kronik',
+            primary,
+            collapseSlowCorrection: severity === 'ringan' && !acuteException,
+          },
           targetInfo: {
             title: 'Target Koreksi Aman (Batas 24 Jam)',
             intro: 'Peningkatan maksimal yang direkomendasikan untuk mencegah Osmotic Demyelination Syndrome (ODS):',
             bullets: [
-              `Target Kenaikan Maksimal: ${limitBase.lo}–${limitBase.hi} mEq/L dalam 24 jam${highRisk ? ' (risiko tinggi ODS → pakai batas bawah)' : ''}.`,
+              `Target Kenaikan Maksimal: ${limitBase.lo}–${limitBase.hi} mEq/L dalam 24 jam${highRiskFinal ? ' (risiko tinggi ODS → pakai batas bawah)' : ''}.`,
               `Target Na Sementara: ~${(calcN + d).toFixed(1)} mEq/L (dari ${calcN.toFixed(1)} mEq/L).`,
+              ...(autoHighRisk ? ['⚠ Risiko Tinggi ODS terdeteksi OTOMATIS (Na ≤105 mEq/L) — plafon diturunkan ke batas bawah.'] : []),
             ],
           },
           doseRange: {
-            title: 'Resep NaCl 3% — Estimasi Kebutuhan Volume (Rentang 2 Metode)',
+            title: 'Koreksi Lanjutan — Estimasi Kebutuhan Volume (Rentang 2 Metode)',
             rangeLabel: `${volMin.toFixed(0)} – ${volMax.toFixed(0)} mL`,
             methods: [
               { label: 'Metode Defisit', value: `${volDeficit.toFixed(0)} mL`, rate: `Laju ${rateDeficit.toFixed(1)} mL/jam · 24 jam`, note: 'konservatif (batas bawah)' },
@@ -1874,9 +1977,8 @@ export const CALCULATORS: Calculator[] = [
       };
     },
     notes: [
-      'Hiponatremia bergejala BERAT (kejang, penurunan kesadaran, koma): bolus NaCl 3% 100–150 mL IV dalam 10–20 menit, dapat diulang 2–3× (maksimal naik 4–6 mEq/L), lalu re-evaluasi — target awal menghentikan gejala, bukan menormalkan Na (Spasovski/ERBP-ESE 2014)',
-      'Hiponatremia KRONIK ASIMTOMATIK: lini pertama biasanya atasi penyebab (obat, SIADH, hipovolemia) + restriksi cairan — bukan NaCl 3% secara rutin',
-      'Overcorrection (>8–10 mEq/L/24j): STOP NaCl hipertonis, konsul ICU/nefrologi, pertimbangkan D5W ± desmopresin untuk menurunkan kembali Na (Verbalis JG. Am J Med 2013;126:S1)',
+      'Indikasi NaCl 3% (bolus/infus tunggal/tidak rutin) ditentukan KEPARAHAN GEJALA, bukan angka Na — lihat kartu di atas (Spasovski/ERBP-ESE-ESICM NDT 2014; Verbalis. Am J Med 2013;126:S1)',
+      'Rescue overcorrection (>8–10 mEq/L/24j atau melewati plafon): STOP NaCl hipertonis, konsul ICU/nefrologi, pertimbangkan D5W ± desmopresin (DDAVP) untuk menurunkan kembali Na (Verbalis JG. Am J Med 2013;126:S1)',
       'Hipernatremia: bila ada hipovolemia berat/syok, atasi dulu dengan NaCl 0.9% isotonis hingga stabil, baru berikan defisit air bebas',
       'Batas aman koreksi hiponatremia: ≤ 8 mEq/L/24 jam kronik (≤ 6 risiko tinggi ODS) atau ≤ 12 (≤10 risiko tinggi) akut; ≤ 18 mEq/L/48 jam',
       'Koreksi hipokalemia bersamaan juga menaikkan Na — perhitungkan saat menilai laju kenaikan aktual',
