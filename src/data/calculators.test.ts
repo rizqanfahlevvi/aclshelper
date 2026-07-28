@@ -227,8 +227,32 @@ describe('RSI', () => {
   it('sux kontraindikasi → rokuronil', () => {
     expect(f({ weight: 70, suxContra: true }).label).toMatch(/Rokuronil/);
   });
-  it('dosis rokuronil 1.2 mg/kg (70kg → 84mg)', () => {
-    expect(f({ weight: 70 }).detail).toMatch(/Rokuronil: 84 mg/);
+  it('paralitik selalu dari BB AKTUAL (70kg default → rokuronil 84mg)', () => {
+    expect(f({ weight: 70 }).detail).toMatch(/Rokuronil \(BB aktual\): 84 mg/);
+  });
+  it('BB default 70kg/170cm TIDAK dianggap obesitas (hanya sedikit di atas IBW 66kg, <120%) → agen induksi tetap BB aktual', () => {
+    // IBW(170cm,L)=50+0.91×(170-152.4)=66.0; ambang obesitas=66.0×1.2=79.2; 70<79.2 → bukan obesitas
+    const r = f({ weight: 70 });
+    expect(r.detail).not.toMatch(/IBW dipakai/);
+    expect(r.detail).toMatch(/Fentanyl pretreatment: 210 mcg/); // 3×70=210 (BB aktual)
+  });
+  it('obesitas jelas (150kg, tinggi 160cm, L, >120% IBW) → agen induksi pakai IBW 56.9kg', () => {
+    // IBW=50+0.91×(160-152.4)=56.916; ambang=68.3; 150>68.3 → obesitas
+    const r = f({ weight: 150, height: 160, sex: 'male' });
+    expect(r.detail).toMatch(/IBW dipakai utk agen induksi: 56\.9 kg/);
+    expect(r.detail).toMatch(/Fentanyl pretreatment: 171 mcg/); // 3×56.916=170.7→171
+    expect(r.detail).toMatch(/Suksinilkolin \(BB aktual\): 225 mg/); // 1.5×150=225, TETAP BB aktual
+  });
+  it('BB di bawah IBW (50kg, tinggi 170cm) → agen induksi pakai BB aktual', () => {
+    const r = f({ weight: 50, height: 170, sex: 'male' });
+    expect(r.detail).not.toMatch(/IBW dipakai/);
+    expect(r.detail).toMatch(/Fentanyl pretreatment: 150 mcg/); // 3×50=150 (BB aktual, bukan IBW 66kg)
+  });
+  it('konteks hemodinamik → peringatan shock-dose muncul di detail', () => {
+    expect(f({ weight: 70, context: 'hemodynamic' }).detail).toMatch(/Instabilitas hemodinamik/);
+  });
+  it('konteks rutin → TIDAK ada peringatan shock-dose', () => {
+    expect(f({ weight: 70, context: 'routine' }).detail).not.toMatch(/Instabilitas hemodinamik/);
   });
 });
 

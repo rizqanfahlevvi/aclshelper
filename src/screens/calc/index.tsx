@@ -534,8 +534,17 @@ function AbgResultCard({ result, values }: { result: ReturnType<Calculator['comp
    ============================================================ */
 function RsiResultCard({ values }: { values: Record<string, number | string | boolean> }) {
   const wt = Math.max(10, Math.min(200, Number(values.weight) || 70));
+  const sex = String(values.sex || 'male');
+  const height = Math.max(120, Math.min(220, Number(values.height) || 170));
   const ctx = String(values.context || 'routine');
   const suxContra = Boolean(values.suxContra);
+
+  // IBW (Devine) — dipakai agen pretreatment/induksi bila BB aktual >
+  // ideal (obesitas); paralitik & sugammadex tetap pakai BB aktual.
+  const ibw = Math.max(0, (sex === 'female' ? 45.5 : 50) + 0.91 * (height - 152.4));
+  // Ambang 120% IBW — sama dgn konvensi AdjBW `crcl` di app ini.
+  const isObese = ibw > 0 && wt > ibw * 1.2;
+  const inductionWt = isObese ? ibw : wt;
 
   const inductionRec = ctx === 'hemodynamic' || ctx === 'asthma' ? 'ketamine' : 'etomidate';
   const paralytic = suxContra ? 'rocuronium' : 'succinylcholine';
@@ -548,8 +557,8 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
     }}>{text}</span>
   );
 
-  const dose = (label: string, mgKg: number, unit: string, recommended: boolean, accent: string, note?: string) => {
-    const total = unit === 'mcg' ? Math.round(mgKg * wt) : unit === 'mg/1dp' ? (mgKg * wt).toFixed(1) : Math.round(mgKg * wt);
+  const dose = (label: string, mgKg: number, unit: string, recommended: boolean, accent: string, doseWt: number, note?: string) => {
+    const total = unit === 'mcg' ? Math.round(mgKg * doseWt) : unit === 'mg/1dp' ? (mgKg * doseWt).toFixed(1) : Math.round(mgKg * doseWt);
     return (
       <div style={{
         padding: '10px 14px', borderRadius: 10, marginBottom: 6,
@@ -566,7 +575,8 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
           </div>
         </div>
         <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>
-          {unit === 'mcg' ? `${mgKg} mcg/kg × ${wt} kg` : `${mgKg} mg/kg × ${wt} kg`}{note ? ` · ${note}` : ''}
+          {unit === 'mcg' ? `${mgKg} mcg/kg × ${doseWt.toFixed(1)} kg` : `${mgKg} mg/kg × ${doseWt.toFixed(1)} kg`}
+          {doseWt === wt ? ' (BB aktual)' : ' (IBW)'}{note ? ` · ${note}` : ''}
         </div>
       </div>
     );
@@ -602,10 +612,30 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
           <div style={{ fontSize: '0.625rem', fontWeight: fw(700), color: 'rgba(255,255,255,0.8)', letterSpacing: '0.06em', marginTop: 2 }}>kg</div>
         </div>
         <div className="t-footnote" style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
-          Semua dosis dihitung otomatis berdasarkan berat badan. Sesuaikan dengan kondisi klinis.
+          Pretreatment/induksi dari {isObese ? `IBW ${inductionWt.toFixed(1)} kg` : 'BB aktual'} · paralitik dari BB aktual. Sesuaikan dengan kondisi klinis.
         </div>
       </div>
       </div>
+
+      {isObese && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 12,
+          padding: '10px 12px', borderRadius: 10, background: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}>
+          <span style={{ flexShrink: 0 }}>⚖️</span>
+          <span className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>
+            BB aktual ({wt} kg) &gt; IBW ({ibw.toFixed(1)} kg dari tinggi {height} cm) — dosis pretreatment/induksi di bawah memakai IBW untuk hindari overdose relatif pada obesitas.
+          </span>
+        </div>
+      )}
+
+      {ctx === 'hemodynamic' && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 12,
+          padding: '10px 12px', borderRadius: 10, background: 'color-mix(in srgb, var(--danger) 10%, transparent)' }}>
+          <span style={{ flexShrink: 0 }}>⚠️</span>
+          <span className="t-footnote" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>
+            Instabilitas hemodinamik: pertimbangkan dosis induksi lebih RENDAH dari angka di bawah ("shock dose") dan/atau resusitasi cairan/vasopressor sebelum induksi — kalkulator ini tidak otomatis menurunkan dosis.
+          </span>
+        </div>
+      )}
 
       {section('1. PREOXYGENASI', '#1E8E3E', (
         <div style={{ padding: '10px 14px', borderRadius: 10, background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
@@ -617,28 +647,28 @@ function RsiResultCard({ values }: { values: Record<string, number | string | bo
 
       {section('2. PRETREATMENT (3 mnt sebelum RSI, opsional)', '#0056B3', (
         <>
-          {dose('Fentanyl', 3, 'mcg', true, '#0056B3', 'respon simpatis, TIK')}
-          {ctx === 'icp' && dose('Lidokain', 1.5, 'mg', true, '#003F87', 'TIK — IV lambat 2–3 menit')}
+          {dose('Fentanyl', 3, 'mcg', true, '#0056B3', inductionWt, 'respon simpatis, TIK')}
+          {ctx === 'icp' && dose('Lidokain', 1.5, 'mg', true, '#003F87', inductionWt, 'TIK — IV lambat 2–3 menit')}
         </>
       ))}
 
       {section('3. INDUKSI (pilih 1)', 'var(--warning)', (
         <>
-          {dose('Ketamin', 1.5, 'mg', inductionRec === 'ketamine', '#FFA000',
+          {dose('Ketamin', 1.5, 'mg', inductionRec === 'ketamine', '#FFA000', inductionWt,
             ctx === 'hemodynamic' ? 'hemodinamik instabil, asma' : ctx === 'asthma' ? 'bronkospasme' : 'simpatomimetik')}
-          {dose('Etomidat', 0.3, 'mg/1dp', inductionRec === 'etomidate', '#1E8E3E', 'hemodinamik netral')}
-          {dose('Propofol', 1.5, 'mg', false, '#9333EA', 'awas hipotensi')}
+          {dose('Etomidat', 0.3, 'mg/1dp', inductionRec === 'etomidate', '#1E8E3E', inductionWt, 'hemodinamik netral')}
+          {dose('Propofol', 1.5, 'mg', false, '#9333EA', inductionWt, 'awas hipotensi')}
         </>
       ))}
 
       {section('4. PARALITIK (berikan segera setelah induksi)', 'var(--danger)', (
         <>
-          {!suxContra && dose('Suksinilkolin', 1.5, 'mg', paralytic === 'succinylcholine', '#BA1A1A', 'onset 45–60 dtk, durasi ~10 mnt')}
-          {dose('Rokuronil', 1.2, 'mg', paralytic === 'rocuronium', '#FFA000', 'onset setara sux pada dosis ini')}
+          {!suxContra && dose('Suksinilkolin', 1.5, 'mg', paralytic === 'succinylcholine', '#BA1A1A', wt, 'onset 45–60 dtk, durasi ~10 mnt')}
+          {dose('Rokuronil', 1.2, 'mg', paralytic === 'rocuronium', '#FFA000', wt, 'onset setara sux pada dosis ini')}
           <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.04)', boxShadow: 'inset 0 0 0 0.5px var(--separator)', marginTop: 4 }}>
             <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginBottom: 3 }}>REVERSAL ROKURONIL (emergensi)</div>
             <div className="t-footnote" style={{ color: 'var(--label-primary)' }}>
-              Sugammadex <span style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(700) }}>{Math.round(16 * wt)} mg</span> IV (16 mg/kg) — reversal dalam ~3 menit
+              Sugammadex <span style={{ fontFamily: 'var(--font-mono)', fontWeight: fw(700) }}>{Math.round(16 * wt)} mg</span> IV (16 mg/kg, BB aktual) — reversal dalam ~3 menit
             </div>
           </div>
         </>

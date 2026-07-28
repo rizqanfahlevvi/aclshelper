@@ -698,10 +698,14 @@ export const CALCULATORS: Calculator[] = [
     short: 'RSI',
     category: 'Prosedur',
     tint: C.orange,
-    description: 'Dosis pretreatment, induksi & paralitik berbasis berat badan',
-    source: 'Roberts & Hedges Emergency Medicine; UpToDate RSI 2024',
+    description: 'Dosis pretreatment, induksi & paralitik — IBW utk agen induksi, BB aktual utk paralitik',
+    source: 'Roberts & Hedges Emergency Medicine; UpToDate RSI 2024; Devine BJ. Drug Intell Clin Pharm 1974;8:650 (formula IBW)',
     fields: [
-      { key: 'weight', label: 'Berat Badan', type: 'number', min: 10, max: 200, step: 1, defaultValue: 70, unit: 'kg' },
+      { key: 'weight', label: 'Berat Badan Aktual', type: 'number', min: 10, max: 200, step: 1, defaultValue: 70, unit: 'kg' },
+      { key: 'sex', label: 'Jenis Kelamin', type: 'select', defaultValue: 'male',
+        options: [{ label: 'Laki-laki', value: 'male' }, { label: 'Perempuan', value: 'female' }] },
+      { key: 'height', label: 'Tinggi Badan', type: 'number', min: 120, max: 220, step: 1, defaultValue: 170, unit: 'cm',
+        description: 'Untuk hitung berat ideal (IBW) — dipakai agen pretreatment/induksi pada obesitas, BUKAN suksinilkolin/rokuronil/sugammadex' },
       {
         key: 'context', label: 'Konteks Klinis', type: 'select', defaultValue: 'routine',
         options: [
@@ -718,12 +722,32 @@ export const CALCULATORS: Calculator[] = [
     ],
     compute: (v) => {
       const wt = Math.max(10, Math.min(200, Number(v.weight) || 70));
+      const sex = String(v.sex || 'male');
+      const height = Math.max(120, Math.min(220, Number(v.height) || 170));
       const ctx = String(v.context || 'routine');
       const suxContra = Boolean(v.suxContra);
+
+      // Ideal Body Weight (Devine 1974 — formula sama dgn crcl/vent di app
+      // ini). Dipakai utk agen pretreatment/induksi (fentanyl, lidokain,
+      // ketamin, etomidat, propofol) HANYA bila BB aktual > IBW (obesitas);
+      // paralitik (suksinilkolin/rokuronil) & sugammadex tetap pakai BB
+      // aktual — sesuai notes yang sudah ada sebelumnya (dulu tidak
+      // benar-benar diterapkan di compute(), hanya teks).
+      const ibw = Math.max(0, (sex === 'female' ? 45.5 : 50) + 0.91 * (height - 152.4));
+      // Ambang 120% IBW — sama dgn konvensi AdjBW yang sudah dipakai `crcl`
+      // di app ini ("dipakai bila berat aktual > 120–130% IBW"). BB aktual
+      // sedikit di atas IBW itu NORMAL, bukan obesitas — jangan alihkan ke
+      // IBW kecuali BB aktual jelas melebihi ambang ini.
+      const isObese = ibw > 0 && wt > ibw * 1.2;
+      const inductionWt = isObese ? ibw : wt;
 
       // Recommended induction agent per context
       const inductionRec = ctx === 'hemodynamic' ? 'ketamine' : ctx === 'asthma' ? 'ketamine' : 'etomidate';
       const paralytic = suxContra ? 'rocuronium' : 'succinylcholine';
+
+      const shockWarning = ctx === 'hemodynamic'
+        ? '\n⚠️ Instabilitas hemodinamik: pertimbangkan dosis induksi lebih RENDAH dari dosis rutin di atas ("shock dose") dan/atau resusitasi cairan/vasopressor sebelum induksi — dosis di atas dihitung untuk pasien hemodinamik stabil.'
+        : '';
 
       // Summary for CalcResult (actual detail rendered by RsiResultCard)
       return {
@@ -731,18 +755,20 @@ export const CALCULATORS: Calculator[] = [
         label: `${inductionRec === 'ketamine' ? 'Ketamin' : 'Etomidat'} + ${paralytic === 'rocuronium' ? 'Rokuronil' : 'Suksinilkolin'}`,
         color: C.orange,
         detail: [
-          `Fentanyl pretreatment: ${Math.round(3 * wt)} mcg IV`,
-          `Ketamin: ${Math.round(1.5 * wt)} mg IV`,
-          `Etomidat: ${(0.3 * wt).toFixed(1)} mg IV`,
-          `Propofol: ${Math.round(1.5 * wt)} mg IV`,
-          `Suksinilkolin: ${Math.round(1.5 * wt)} mg IV`,
-          `Rokuronil: ${Math.round(1.2 * wt)} mg IV`,
-          `Sugammadex reversal: ${Math.round(16 * wt)} mg IV`,
-        ].join('\n'),
+          isObese ? `IBW dipakai utk agen induksi: ${inductionWt.toFixed(1)} kg (BB aktual ${wt} kg, tinggi ${height} cm)` : null,
+          `Fentanyl pretreatment: ${Math.round(3 * inductionWt)} mcg IV`,
+          `Ketamin: ${Math.round(1.5 * inductionWt)} mg IV`,
+          `Etomidat: ${(0.3 * inductionWt).toFixed(1)} mg IV`,
+          `Propofol: ${Math.round(1.5 * inductionWt)} mg IV`,
+          `Suksinilkolin (BB aktual): ${Math.round(1.5 * wt)} mg IV`,
+          `Rokuronil (BB aktual): ${Math.round(1.2 * wt)} mg IV`,
+          `Sugammadex reversal (BB aktual): ${Math.round(16 * wt)} mg IV`,
+        ].filter(Boolean).join('\n') + shockWarning,
       };
     },
     notes: [
-      'Dosis disesuaikan ke berat badan ideal pada obesitas untuk agen induksi; gunakan berat aktual untuk suksinilkolin',
+      'Dosis agen pretreatment/induksi (fentanyl, lidokain, ketamin, etomidat, propofol) dihitung dari IBW (Devine) bila BB aktual > ideal; suksinilkolin, rokuronil & sugammadex tetap dari BB AKTUAL',
+      'Instabilitas hemodinamik: pertimbangkan reduksi dosis induksi ("shock dose") sesuai judgment klinis — kalkulator ini TIDAK otomatis menurunkan angka di atas',
       'Rokuronil dosis tinggi (1.2 mg/kg) memiliki onset setara suksinilkolin — pilih bila sux dikontraindikasikan',
       'Sugammadex 16 mg/kg dapat mereversibel rokuronil dalam 3 menit (simpan sebagai "cannot intubate, cannot oxygenate" backup)',
       'Etomidat dikontraindikasikan relatif pada sepsis — pertimbangkan ketamin sebagai alternatif',
