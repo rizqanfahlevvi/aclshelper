@@ -1077,27 +1077,39 @@ export const CALCULATORS: Calculator[] = [
       const wt = Math.max(30, Math.min(200, Number(v.weight) || 70));
       const ind = String(v.indication || 'vte');
 
-      let bolusPerKg: number, bolusCap: number, ratePerKg: number, rateCap: number;
+      // Catatan: protokol VTE (Raschke) TIDAK punya plafon laju infus
+      // mutlak yang dikutip literatur seperti ACS (1000 U/jam) — jadi
+      // TIDAK diinvestasikan angka plafon baru di sini (jangan mengarang
+      // ambang klinis). Sebagai gantinya, tampilkan peringatan eksplisit
+      // agar user tahu laju besar pada BB tinggi TIDAK auto-dibatasi &
+      // wajib diverifikasi ke nomogram institusi — sebelumnya kode diam
+      // memakai rateCap:Infinity tanpa penjelasan apa pun ke user.
+      let bolusPerKg: number, bolusCap: number, ratePerKg: number, rateCap: number | null;
       if (ind === 'acs') {
         bolusPerKg = 60; bolusCap = 4000; ratePerKg = 12; rateCap = 1000;
       } else {
-        bolusPerKg = 80; bolusCap = 10000; ratePerKg = 18; rateCap = Infinity;
+        bolusPerKg = 80; bolusCap = 10000; ratePerKg = 18; rateCap = null;
       }
       const bolus = Math.min(Math.round(bolusPerKg * wt), bolusCap);
-      const rate  = Math.min(Math.round(ratePerKg * wt), rateCap);
+      const rawRate = Math.round(ratePerKg * wt);
+      const rate = rateCap !== null ? Math.min(rawRate, rateCap) : rawRate;
 
       const indLabel = ind === 'acs' ? 'ACS' : 'VTE';
+      const noRateCap = ind === 'vte';
       const detail = [
         `Bolus awal: ${bolus} unit IV (${bolusPerKg} U/kg${bolus === bolusCap ? `, maks ${bolusCap}` : ''})`,
-        `Infus awal: ${rate} unit/jam (${ratePerKg} U/kg/jam${rate === rateCap && rateCap !== Infinity ? `, maks ${rateCap}` : ''})`,
+        `Infus awal: ${rate} unit/jam (${ratePerKg} U/kg/jam${rate === rateCap ? `, maks ${rateCap}` : ''})`,
+        noRateCap
+          ? `⚠️ Protokol VTE TIDAK punya plafon laju infus mutlak (beda dgn ACS: maks ${1000} U/jam) — pada BB besar laju bisa sangat tinggi & TIDAK auto-dibatasi. VERIFIKASI ke nomogram/kebijakan farmasi institusi sebelum infus penuh, terutama bila >2000 U/jam.`
+          : null,
         `Cek aPTT awal dalam 6 jam, lalu titrasi per nomogram`,
         `Target aPTT 1.5–2.5× kontrol (atau anti-Xa 0.3–0.7 IU/mL)`,
-      ].join('\n');
+      ].filter(Boolean).join('\n');
 
       return { score: `${bolus} U`, label: `Bolus + ${rate} U/jam (${indLabel})`, color: C.purple, detail };
     },
     notes: [
-      'Protokol VTE (Raschke): bolus 80 U/kg, infus 18 U/kg/jam',
+      'Protokol VTE (Raschke): bolus 80 U/kg (maks 10000 U), infus 18 U/kg/jam — TIDAK ada plafon laju mutlak yang dikutip literatur; pada BB besar verifikasi ke nomogram institusi',
       'Protokol ACS: bolus 60 U/kg (maks 4000 U), infus 12 U/kg/jam (maks 1000 U/jam)',
       'Titrasi berbasis aPTT setiap 6 jam hingga 2 nilai terapeutik berturut, lalu setiap 24 jam',
       'Pantau trombosit (risiko HIT) pada hari ke-4 hingga ke-14',

@@ -324,6 +324,14 @@ describe('Heparin drip', () => {
   it('ACS bolus dibatasi 4000U pada 70kg (60×70=4200)', () => {
     expect(f({ weight: 70, indication: 'acs' }).detail).toMatch(/4000 unit/);
   });
+  it('VTE BB besar (200kg) → laju TIDAK dibatasi (18×200=3600) TAPI muncul peringatan verifikasi', () => {
+    const r = f({ weight: 200, indication: 'vte' });
+    expect(r.detail).toMatch(/3600 unit\/jam/);
+    expect(r.detail).toMatch(/TIDAK punya plafon laju infus mutlak/);
+  });
+  it('ACS TIDAK menampilkan peringatan "tanpa plafon" (memang ada plafon 1000 U/jam)', () => {
+    expect(f({ weight: 200, indication: 'acs' }).detail).not.toMatch(/TIDAK punya plafon/);
+  });
 });
 
 describe('Resusitasi cairan', () => {
