@@ -336,8 +336,16 @@ describe('Heparin drip', () => {
 
 describe('Resusitasi cairan', () => {
   const f = calc('fluid');
-  it('Parkland 70kg 20% → 5600mL/24j', () => {
-    expect(f({ mode: 'parkland', weight: 70, tbsa: 20 }).score).toBe('5600 mL / 24 jam');
+  it('Parkland 70kg 20%, default (tanpa pilih faktor) → tetap Klasik 4 mL/kg/%TBSA = 5600mL/24j', () => {
+    // Default TIDAK berubah — faktor default harus tetap 'classic' (4), bukan diam-diam pindah ke 2
+    const r = f({ mode: 'parkland', weight: 70, tbsa: 20 });
+    expect(r.score).toBe('5600 mL / 24 jam');
+    expect(r.detail).toMatch(/Faktor dipakai: 4 mL\/kg\/%TBSA \(Klasik\)/);
+  });
+  it('Parkland 70kg 20%, faktor Konsensus Modern (2 mL/kg/%TBSA) → 2800mL/24j', () => {
+    const r = f({ mode: 'parkland', weight: 70, tbsa: 20, parklandFactor: 'modern' });
+    expect(r.score).toBe('2800 mL / 24 jam');
+    expect(r.detail).toMatch(/Faktor dipakai: 2 mL\/kg\/%TBSA \(Konsensus Modern\)/);
   });
   it('sepsis 70kg → 2100mL bolus', () => {
     expect(f({ mode: 'sepsis', weight: 70 }).score).toBe('2100 mL bolus');

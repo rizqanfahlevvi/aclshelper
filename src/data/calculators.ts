@@ -1127,8 +1127,8 @@ export const CALCULATORS: Calculator[] = [
     short: 'Cairan',
     category: 'Kritis',
     tint: C.teal,
-    description: 'Parkland formula, sepsis bolus, dan maintenance pediatrik',
-    source: 'AHA/ATLS/ILCOR Guidelines',
+    description: 'Parkland formula (faktor selectable), sepsis bolus, dan maintenance pediatrik',
+    source: 'Baxter/Parkland (klasik 4 mL/kg/%TBSA); Pruitt AB Jr. J Trauma 2000;49:567 ("fluid creep"); ABA Practice Guidelines (konsensus modern 2 mL/kg/%TBSA sbg titik awal); SSC 2021 (bolus sepsis)',
     fields: [
       {
         key: 'mode',
@@ -1143,14 +1143,21 @@ export const CALCULATORS: Calculator[] = [
       },
       { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 1, max: 200, step: 1, defaultValue: 70 },
       { key: 'tbsa', label: 'Luas Permukaan Bakar (%) — khusus Parkland', type: 'number', unit: '%', min: 1, max: 99, step: 1, defaultValue: 20 },
+      { key: 'parklandFactor', label: 'Faktor Parkland — khusus Parkland', type: 'select', defaultValue: 'classic',
+        description: '2–4 mL/kg/%TBSA sama-sama dipakai secara klinis tergantung institusi — bukan satu angka baku tunggal',
+        options: [
+          { label: 'Klasik (4 mL/kg/%TBSA)', value: 'classic', description: 'Formula Parkland/Baxter tradisional, masih luas diajarkan' },
+          { label: 'Konsensus Modern (2 mL/kg/%TBSA)', value: 'modern', description: 'Titik awal lebih rendah — hindari "fluid creep"/over-resusitasi (ABA); tetap titrasi ke urin output' },
+        ] },
     ],
     compute: (vals) => {
       const mode = String(vals.mode || 'parkland');
       const weight = Number(vals.weight) || 70;
       const tbsa = Number(vals.tbsa) || 20;
+      const parklandFactor = String(vals.parklandFactor || 'classic') === 'modern' ? 2 : 4;
 
       if (mode === 'parkland') {
-        const total24h = 4 * weight * tbsa;
+        const total24h = parklandFactor * weight * tbsa;
         const first8h = total24h / 2;
         const next16h = total24h / 2;
         const rate8h = Math.round(first8h / 8);
@@ -1159,7 +1166,7 @@ export const CALCULATORS: Calculator[] = [
           score: `${total24h} mL / 24 jam`,
           label: 'Ringer Laktat',
           color: C.teal,
-          detail: `8 jam pertama: ${first8h} mL (${rate8h} mL/jam)\n16 jam berikutnya: ${next16h} mL (${rate16h} mL/jam)\nCatatan: Hitung dari waktu cedera, bukan waktu masuk`,
+          detail: `Faktor dipakai: ${parklandFactor} mL/kg/%TBSA (${parklandFactor === 4 ? 'Klasik' : 'Konsensus Modern'})\n8 jam pertama: ${first8h} mL (${rate8h} mL/jam)\n16 jam berikutnya: ${next16h} mL (${rate16h} mL/jam)\n⚠️ Estimasi TITIK AWAL — titrasi ke urin output 0.5–1 mL/kg/jam (dewasa); volume aktual sering lebih rendah dari perhitungan awal ("fluid creep" — Pruitt 2000)\nCatatan: Hitung dari waktu cedera, bukan waktu masuk`,
         };
       }
 
@@ -1191,7 +1198,7 @@ export const CALCULATORS: Calculator[] = [
       };
     },
     notes: [
-      'Parkland: 4 mL × BB × %TBSA Ringer Laktat/24 jam, dihitung dari WAKTU CEDERA — setengah pertama dalam 8 jam. Titrasi ke urin output 0.5–1 mL/kg/jam (dewasa); rumus hanya titik awal',
+      'Parkland: 2–4 mL/kg/%TBSA Ringer Laktat/24 jam SAMA-SAMA dipakai klinis (bukan satu angka baku) — 4 klasik/tradisional, 2 konsensus modern (ABA) untuk hindari "fluid creep"/over-resusitasi (Pruitt 2000). Dihitung dari WAKTU CEDERA, setengah pertama dalam 8 jam. SELALU titrasi ke urin output 0.5–1 mL/kg/jam (dewasa) — angka di atas hanya titik awal, bukan volume final',
       'Sepsis: bolus 30 mL/kg kristaloid (SSC 2021) untuk hipotensi/laktat ≥4, lalu NILAI ULANG responsivitas cairan — hindari kelebihan cairan',
       'Holliday-Segar (4-2-1) untuk MAINTENANCE rumatan anak, bukan resusitasi; tambahkan penggantian defisit & kehilangan berkelanjutan terpisah',
       'Semua rumus adalah estimasi awal — sesuaikan dengan tanda perfusi, produksi urin, dan status volume aktual',
