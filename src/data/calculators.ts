@@ -104,7 +104,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'Fibrilasi Atrium',
     tint: C.blue,
     description: 'Risiko stroke pada fibrilasi atrium non-valvular',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Lip GYH, et al. Chest 2010;137(2):263-72 (derivasi CHA₂DS₂-VASc); 2023 ACC/AHA/ACCP/HRS AF Guideline',
     fields: [
       { key: 'chf',          label: 'Gagal Jantung / Disfungsi LV',                      type: 'checkbox', points: 1 },
       { key: 'hypertension', label: 'Hipertensi',                                         type: 'checkbox', points: 1 },
@@ -161,7 +161,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'Fibrilasi Atrium',
     tint: C.amber,
     description: 'Risiko perdarahan pada terapi antikoagulan',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Pisters R, et al. Chest 2010;138(5):1093-100 (derivasi HAS-BLED)',
     fields: [
       { key: 'hypertension',  label: 'Hipertensi tidak terkontrol (sistolik >160 mmHg)',      type: 'checkbox', points: 1 },
       { key: 'renalLiver',    label: 'Gangguan ginjal atau hati berat',                        type: 'checkbox', points: 1 },
@@ -210,7 +210,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'ACS / Koroner',
     tint: C.red,
     description: 'Risiko MACE pada nyeri dada akut',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Six AJ, et al. Neth Heart J 2008;16(6):191-6 (derivasi HEART); Backus BE, et al. Int J Cardiol 2013;168(3):2153-8 (validasi)',
     fields: [
       {
         key: 'history',
@@ -300,7 +300,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'ACS / Koroner',
     tint: C.purple,
     description: 'Mortalitas di RS pada ACS (STEMI/NSTEMI/UA)',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Granger CB, et al. Arch Intern Med 2003;163(19):2345-53 (GRACE 1.0 — versi original, BUKAN GRACE 2.0 yang kini direkomendasikan ESC)',
     fields: [
       { key: 'age',          label: 'Usia',                          type: 'number',  unit: 'tahun',  min: 18,  max: 110,  defaultValue: 65 },
       { key: 'hr',           label: 'Laju Jantung',                  type: 'number',  unit: 'bpm',    min: 20,  max: 250,  defaultValue: 80 },
@@ -362,7 +362,8 @@ export const CALCULATORS: Calculator[] = [
       return { score, breakdown, label, risk, color };
     },
     notes: [
-      'Berdasarkan GRACE 1.0 — registri multisenter 11.389 pasien ACS',
+      'Berdasarkan GRACE 1.0 — registri multisenter 11.389 pasien ACS (Granger 2003)',
+      'ESC kini merekomendasikan GRACE 2.0 (nomogram kontinu, belum diimplementasikan di kalkulator ini) — GRACE 1.0 tetap dipakai luas & divalidasi baik, tapi bukan versi terbaru',
       'Prediksi mortalitas selama perawatan di rumah sakit pada ACS (STEMI, NSTEMI, UA)',
       'Skor >140: revaskularisasi dalam 24 jam direkomendasikan ACC/AHA',
     ],
@@ -379,7 +380,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'Hemodinamik',
     tint: C.green,
     description: 'Mean Arterial Pressure — perfusi organ',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Formula estimasi standar fisiologi kardiovaskular (bukan dari satu trial spesifik); target klinis MAP ≥65 mmHg — Evans L, et al. Surviving Sepsis Campaign, Crit Care Med 2021;49(11):e1063-143',
     fields: [
       { key: 'sbp', label: 'Tekanan Darah Sistolik',  type: 'number', unit: 'mmHg', min: 40, max: 300, defaultValue: 120 },
       { key: 'dbp', label: 'Tekanan Darah Diastolik', type: 'number', unit: 'mmHg', min: 0,  max: 200, defaultValue: 80  },
@@ -417,7 +418,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'Hemodinamik',
     tint: C.red,
     description: 'Syok Index — keparahan syok hemodinamik',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Allgöwer M, Burri C. Dtsch Med Wochenschr 1967;92(43):1947-50 (deskripsi awal Shock Index)',
     fields: [
       { key: 'hr',  label: 'Laju Jantung',              type: 'number', unit: 'bpm',  min: 20, max: 300, defaultValue: 80  },
       { key: 'sbp', label: 'Tekanan Darah Sistolik',    type: 'number', unit: 'mmHg', min: 40, max: 300, defaultValue: 120 },
@@ -456,7 +457,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'Fungsi Ginjal',
     tint: C.teal,
     description: 'Estimasi klirens kreatinin (Cockcroft-Gault)',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: 'Cockcroft DW, Gault MH. Nephron 1976;16(1):31-41 (derivasi Cockcroft-Gault); Devine BJ. Drug Intell Clin Pharm 1974;8:650 (formula IBW)',
     fields: [
       { key: 'age',        label: 'Usia',              type: 'number',  unit: 'tahun',  min: 18,  max: 110,  defaultValue: 65  },
       { key: 'weight',     label: 'Berat Badan Aktual', type: 'number', unit: 'kg',     min: 20,  max: 300,  defaultValue: 70  },
@@ -519,7 +520,7 @@ export const CALCULATORS: Calculator[] = [
     category: 'ACS / Koroner',
     tint: C.red,
     description: 'Checklist fibrinolisis STEMI',
-    source: 'AHA/ACC Guidelines 2022-2025',
+    source: "O'Gara PT, et al. 2013 ACCF/AHA STEMI Guideline, Circulation 2013;127(4):e362-425; Ibanez B, et al. 2017 ESC STEMI Guideline, Eur Heart J 2018;39(2):119-77",
     fields: [
       // Inclusion criteria
       { key: 'stemiDiagnosis',          label: 'Elevasi ST ≥1mm di ≥2 lead yang berdekatan atau LBBB baru',                    type: 'checkbox' },
