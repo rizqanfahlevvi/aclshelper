@@ -18,6 +18,12 @@ export interface PalsDrug {
   concentration?: string;    // e.g. '0.1 mg/mL (1:10.000)'
   tint: string;              // CSS color
   notes?: string;
+  /* Dosis ke-2 (bila berbeda dari dosis pertama) — dihitung ulang dari
+     berat di PalsScreen, BUKAN teks statis (sebelumnya escalation dosis
+     ke-2 hanya ada di `notes` sbg string tetap, tak pernah ikut berubah
+     saat stepper berat di-ubah). */
+  secondDosePerKg?: number;
+  secondMax?: number;
 }
 
 export const PALS_DRUGS: PalsDrug[] = [
@@ -56,7 +62,9 @@ export const PALS_DRUGS: PalsDrug[] = [
     minMax: 'maks 6 mg (dosis pertama)',
     route: 'IV/IO cepat',
     tint: '#0056B3',
-    notes: 'Dosis kedua: 0.2 mg/kg (max 12 mg). Beri bolus cepat + flush NS.',
+    secondDosePerKg: 0.2,
+    secondMax: 12,
+    notes: 'Beri bolus cepat + flush NS.',
   },
   {
     key: 'atropin',
@@ -113,11 +121,17 @@ export const PALS_DRUGS: PalsDrug[] = [
     indication: 'VF / pVT (irama shockable)',
     dosePerKg: 2,
     doseUnit: 'J/kg',
-    max: 10,
-    minMax: 'energi awal 2 J/kg; maks 10 J/kg atau 200 J',
+    // TIDAK ada `max` di sini dgn sengaja — kejutan PERTAMA (2 J/kg)
+    // tidak dibatasi plafon absolut (konsisten dgn formula defib1 di
+    // PedsScreen). Bug lama: max:10 dipakai seolah 10 J absolut oleh
+    // palsDose(), padahal maksudnya "10 J/kg" — akibatnya kejutan
+    // pertama pada anak ≥5kg salah ditampilkan terpotong ke 10 J
+    // (mis. 20kg harusnya 40 J, tertampil 10 J).
+    minMax: 'energi awal 2 J/kg (tidak dibatasi eksplisit)',
     route: 'Defib',
     tint: '#BA1A1A',
-    notes: 'Kejutan ke-2 dan seterusnya: 4 J/kg (maks 10 J/kg atau 200 J).',
+    secondDosePerKg: 4,
+    notes: 'Kejutan ke-2 dan seterusnya: 4 J/kg, maks 10 J/kg ATAU 360 J (dipilih yang lebih kecil) — dihitung di bawah, bukan teks tetap.',
   },
   {
     key: 'kardioversi',
@@ -125,10 +139,14 @@ export const PALS_DRUGS: PalsDrug[] = [
     indication: 'SVT/takikardi dengan nadi tidak stabil',
     dosePerKg: 0.5,
     doseUnit: 'J/kg',
-    max: 2,
-    minMax: '0.5-1 J/kg; maks 2 J/kg',
+    // Sama dgn defibrilasi di atas: TIDAK ada `max` yang sengaja — bug
+    // lama (max:2) dipakai sbg 2 J absolut, padahal maksudnya "2 J/kg"
+    // (dosis ke-2), menyebabkan dosis PERTAMA (0.5 J/kg) pada anak
+    // >4kg salah ditampilkan terpotong ke 2 J.
+    minMax: '0.5–1 J/kg (dosis pertama, tidak dibatasi eksplisit)',
     route: 'Kardioversi',
     tint: '#FFA000',
+    secondDosePerKg: 2,
     notes: 'Untuk SVT/takikardi dengan nadi tidak stabil. Sedasi jika memungkinkan.',
   },
   {
@@ -650,6 +668,11 @@ export const ROSC_REFERENCES: Array<{ text: string; url?: string }> = [
   { text: 'Nielsen N, et al. Targeted Temperature Management at 33°C versus 36°C after Cardiac Arrest (TTM Trial). N Engl J Med. 2013;369:2197–2206.', url: 'https://doi.org/10.1056/NEJMoa1310519' },
   { text: 'Dankiewicz J, et al. Hypothermia versus Normothermia after Out-of-Hospital Cardiac Arrest (TTM2 Trial). N Engl J Med. 2021;384:2373–2383.', url: 'https://doi.org/10.1056/NEJMoa2100591' },
   { text: 'Ibanez B, et al. 2017 ESC Guidelines for the management of STEMI. Eur Heart J. 2018;39:119–177.', url: 'https://doi.org/10.1093/eurheartj/ehx393' },
+];
+
+export const DEFIB_REFERENCES: Array<{ text: string; url?: string }> = [
+  { text: 'Panchal AR, et al. Part 3: Adult Basic and Advanced Life Support — 2020 AHA Guidelines for CPR and ECC (energi defibrilasi/kardioversi dewasa). Circulation. 2020;142(16_suppl_2):S366–S468.', url: 'https://doi.org/10.1161/CIR.0000000000000916' },
+  { text: 'Topjian AA, et al. Part 4: Pediatric Basic and Advanced Life Support — 2020 AHA Guidelines for CPR and ECC (energi defibrilasi/kardioversi pediatrik). Circulation. 2020;142(16_suppl_2):S469–S523.', url: 'https://doi.org/10.1161/CIR.0000000000000901' },
 ];
 
 export const HS_TS_REFERENCES: Array<{ text: string; url?: string }> = [

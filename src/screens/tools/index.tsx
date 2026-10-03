@@ -3,7 +3,7 @@ import { Icons } from '../../components/base';
 import type { Nav } from '../../types';
 import {
   PALS_DRUGS, PALS_ALGORITHMS, VASOPRESSORS, ROSC_CHECKLIST,
-  PALS_REFERENCES, VASOPRESSOR_REFERENCES, ROSC_REFERENCES,
+  PALS_REFERENCES, VASOPRESSOR_REFERENCES, ROSC_REFERENCES, DEFIB_REFERENCES,
 } from '../../data/tools';
 import type { PalsDrug, Vasopressor } from '../../data/tools';
 import { Disclaimer } from '../../components/clinical';
@@ -164,6 +164,15 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
               const { clamped, isClamped } = calcPals(drug, weight);
               const rawVal = drug.dosePerKg * weight;
               const unit = drug.doseUnit.split('/')[0]; // 'mg', 'J', etc.
+              // Dosis ke-2 (bila ada) — dihitung ulang dari weight saat ini,
+              // bukan teks statis. Defibrilasi punya plafon ganda (maks
+              // 10 J/kg ATAU 360 J, dipilih yang lebih kecil — sama persis
+              // dgn formula defib2 di PedsScreen); drug lain (adenosin,
+              // kardioversi) pakai plafon tunggal via secondMax.
+              const secondRaw = drug.secondDosePerKg !== undefined ? drug.secondDosePerKg * weight : null;
+              const secondClamped = secondRaw === null ? null
+                : drug.key === 'defibrilasi' ? clamp(secondRaw, 0, Math.min(10 * weight, 360))
+                : drug.secondMax !== undefined ? Math.min(drug.secondMax, secondRaw) : secondRaw;
               return (
                 <div key={drug.key} style={{ padding: '12px 14px', borderRadius: 14,
                   background: 'var(--bg-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.07), inset 0 0 0 0.5px var(--separator)' }}>
@@ -193,6 +202,19 @@ export function PalsScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean })
                       </div>
                     )}
                   </div>
+                  {secondClamped !== null && (
+                    <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 10,
+                      background: 'var(--fill-quaternary)', boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <span className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>
+                          Dosis ke-2{drug.key === 'defibrilasi' ? '+' : ''}: {drug.secondDosePerKg} {drug.doseUnit} × {weight} kg
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--label-primary)' }}>
+                          {fmt(secondClamped, unit)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {drug.concentration && (
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 6 }}>
                       Konsentrasi: {drug.concentration}
@@ -253,6 +275,7 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
   const presetsForMethod = (sel?.stockPresets || []).filter(p => p.method === method);
   const activePreset = presetsForMethod[presetIdx] || presetsForMethod[0];
   const usingCustom = customAmount !== null && customVolume !== null && customVolume > 0;
+  const activeIsPekat = !usingCustom && Boolean(activePreset?.label.includes('pekat'));
 
   const amount   = usingCustom ? customAmount!  : (activePreset?.amount ?? 0);
   const volumeMl = usingCustom ? customVolume!  : (activePreset?.volumeMl ?? 1);
@@ -322,16 +345,25 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
         boxShadow: 'inset 0 0 0 0.5px var(--separator)' }}>
         <div className="t-callout" style={{ fontWeight: 600, marginBottom: 8 }}>Konsentrasi Pengenceran</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: presetsForMethod.length ? 8 : 0 }}>
-          {presetsForMethod.map((p, i) => (
-            <button key={p.label} onClick={() => { setPresetIdx(i); setCustomAmount(null); setCustomVolume(null); }}
-              style={{ padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
-                background: !usingCustom && presetIdx === i ? sel.tint + '18' : 'var(--fill-secondary)',
-                boxShadow: !usingCustom && presetIdx === i ? `inset 0 0 0 1px ${sel.tint}55` : 'none',
-                color: !usingCustom && presetIdx === i ? sel.tint : 'var(--label-primary)',
-                fontSize: '0.8125rem', fontWeight: !usingCustom && presetIdx === i ? 700 : 400 }}>
-              {p.label}
-            </button>
-          ))}
+          {presetsForMethod.map((p, i) => {
+            const isPekat = p.label.includes('pekat');
+            return (
+              <button key={p.label} onClick={() => { setPresetIdx(i); setCustomAmount(null); setCustomVolume(null); }}
+                style={{ padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: !usingCustom && presetIdx === i ? sel.tint + '18' : 'var(--fill-secondary)',
+                  boxShadow: !usingCustom && presetIdx === i ? `inset 0 0 0 1px ${sel.tint}55` : 'none',
+                  color: !usingCustom && presetIdx === i ? sel.tint : 'var(--label-primary)',
+                  fontSize: '0.8125rem', fontWeight: !usingCustom && presetIdx === i ? 700 : 400 }}>
+                <span>{p.label}</span>
+                {isPekat && (
+                  <span style={{ flexShrink: 0, fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.04em',
+                    color: 'var(--warning)', background: 'color-mix(in srgb, var(--warning) 15%, transparent)',
+                    borderRadius: 5, padding: '2px 6px' }}>PEKAT</span>
+                )}
+              </button>
+            );
+          })}
           {!presetsForMethod.length && (
             <div className="t-caption-1" style={{ color: 'var(--label-tertiary)' }}>
               Tidak ada preset untuk {method === 'syringe' ? 'syringe pump' : 'infus pump'} — gunakan kustom di bawah.
@@ -353,6 +385,15 @@ function VasoCalcPanel({ vasoPressors }: { vasoPressors: Vasopressor[] }) {
         <div className="t-caption-2" style={{ color: 'var(--label-tertiary)', marginTop: 6 }}>
           Konsentrasi terpakai: <strong style={{ color: sel.tint }}>{concLabel}</strong>. Selalu verifikasi dengan protokol/instruksi apoteker setempat — konsentrasi dapat berbeda antar RS.
         </div>
+        {activeIsPekat && (
+          <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginTop: 8,
+            padding: '8px 10px', borderRadius: 8, background: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}>
+            <span style={{ flexShrink: 0 }}>⚠️</span>
+            <span className="t-caption-1" style={{ color: 'var(--label-secondary)', lineHeight: 1.4 }}>
+              Pengenceran PEKAT (konsentrasi lebih tinggi dari preset standar) — risiko kesalahan laju pompa lebih besar bila salah pilih. Pastikan label spuit/pompa sesuai & lakukan independent double-check sebelum infus.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Dosis */}
@@ -687,8 +728,18 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
   const [tab, setTab] = useState<'defib' | 'cardio'>('defib');
   const [isPeds, setIsPeds] = useState(false);
   const [selectedRhythm, setSelectedRhythm] = useState<string | null>(null);
+  const [pedsWeight, setPedsWeight] = useState(20);
 
   const steps = tab === 'defib' ? DEFIB_STEPS_DEFIB : DEFIB_STEPS_CARDIO;
+
+  // Dosis pediatrik dihitung dari berat aktual (sama dgn formula di
+  // PedsScreen) — sebelumnya layar ini hanya menampilkan teks "2 J/kg"
+  // tanpa input berat sama sekali, jadi tidak pernah benar-benar dihitung.
+  const pedsDefib1 = 2 * pedsWeight;
+  const pedsDefib2 = clamp(4 * pedsWeight, 0, Math.min(10 * pedsWeight, 360));
+  const pedsCardio1Lo = 0.5 * pedsWeight;
+  const pedsCardio1Hi = 1 * pedsWeight;
+  const pedsCardio2 = 2 * pedsWeight;
 
   return (
     <div style={{ paddingBottom: 40 }}>
@@ -762,17 +813,20 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
               </div>
             ) : (
               <div style={{ padding: '14px 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--danger) 7%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--danger) 20%, transparent)', marginBottom: 12 }}>
-                <div className="t-caption-2" style={{ color: '#BA1A1A', marginBottom: 8 }}>DEFIBRILASI PEDIATRIK — ASINKRON</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div className="t-caption-2" style={{ color: '#BA1A1A' }}>DEFIBRILASI PEDIATRIK — ASINKRON</div>
+                  <Stepper value={pedsWeight} onChange={setPedsWeight} min={3} max={80} step={1} unit=" kg"/>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>2 J/kg</div>
-                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Syok pertama</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>{Math.round(pedsDefib1)} J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>2 J/kg × {pedsWeight} kg — syok pertama</div>
                   </div>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>4 J/kg</div>
-                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>Maks 10 J/kg atau dosis dewasa</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#BA1A1A', marginTop: 2 }}>{Math.round(pedsDefib2)} J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>4 J/kg, maks 10 J/kg atau 360 J</div>
                   </div>
                 </div>
                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Bifasik atau monofasik. Gunakan pad pediatrik jika tersedia (&lt;10 kg).</div>
@@ -823,15 +877,20 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
               </div>
             ) : (
               <div style={{ padding: '14px 16px', borderRadius: 14, background: 'color-mix(in srgb, var(--warning) 7%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--warning) 20%, transparent)', marginBottom: 12 }}>
-                <div className="t-caption-2" style={{ color: '#FFA000', marginBottom: 8 }}>KARDIOVERSI PEDIATRIK — SINKRON</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div className="t-caption-2" style={{ color: '#FFA000' }}>KARDIOVERSI PEDIATRIK — SINKRON</div>
+                  <Stepper value={pedsWeight} onChange={setPedsWeight} min={3} max={80} step={1} unit=" kg"/>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 1</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>0.5–1 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>{Math.round(pedsCardio1Lo)}–{Math.round(pedsCardio1Hi)} J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>0.5–1 J/kg × {pedsWeight} kg</div>
                   </div>
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--bg-primary)' }}>
                     <div className="t-caption-2" style={{ color: 'var(--label-secondary)' }}>DOSIS 2+</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>2 J/kg</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.25rem', fontWeight: 700, color: '#FFA000', marginTop: 2 }}>{Math.round(pedsCardio2)} J</div>
+                    <div className="t-caption-2" style={{ color: 'var(--label-secondary)', marginTop: 2 }}>2 J/kg × {pedsWeight} kg</div>
                   </div>
                 </div>
                 <div className="t-caption-1" style={{ color: 'var(--label-secondary)', marginTop: 8 }}>Berlaku untuk semua ritme supraventrikular. Pastikan mode SYNC aktif.</div>
@@ -852,6 +911,8 @@ export function DefibScreen({ nav, isMobile }: { nav?: Nav; isMobile?: boolean }
             </div>
           ))}
         </div>
+
+        <RefList refs={DEFIB_REFERENCES}/>
       </div>
     </div>
   );
