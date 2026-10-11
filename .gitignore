@@ -26,3 +26,7 @@ yarn-error.log*
 
 # Claude Code local settings
 .claude/
+
+# graphify — local knowledge-graph analysis artifacts, not app source
+.graphify_*
+graphify-out/
