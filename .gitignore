@@ -27,6 +27,14 @@ yarn-error.log*
 # Claude Code local settings
 .claude/
 
-# graphify — local knowledge-graph analysis artifacts, not app source
+# graphify — the graph itself is committed so every fresh cloud session can
+# query it without re-running semantic extraction; scratch files and
+# regenerable/machine-bound outputs stay local
 .graphify_*
-graphify-out/
+graphify-out/*
+!graphify-out/graph.json
+!graphify-out/GRAPH_REPORT.md
+!graphify-out/cache/
+graphify-out/cache/stat-index.json
+graphify-out/cache/last_query_stamp
+graphify-out/cache/ast/
