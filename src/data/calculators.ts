@@ -1310,91 +1310,12 @@ export const CALCULATORS: Calculator[] = [
     short: 'Koreksi Ca',
     category: 'Elektrolit',
     tint: C.teal,
-    description: 'Kalsium terkoreksi albumin, estimasi ionized, protokol tata laksana',
-    source: 'Payne RB. BMJ 1973;4:643; Cooper MS. BMJ 2003;326:1424; Bilezikian JP. NEJM 2022;386:1476',
-    fields: [
-      { key: 'ca', label: 'Kalsium total', type: 'number', unit: 'mg/dL', min: 4, max: 16, step: 0.1, defaultValue: 8.5 },
-      { key: 'albumin', label: 'Albumin', type: 'number', unit: 'g/dL', min: 1, max: 6, step: 0.1, defaultValue: 4.0 },
-      { key: 'ph', label: 'pH arteri (opsional)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40,
-        description: 'Biarkan 7.40 bila tidak ada data — tidak mengubah hasil' },
-    ],
-    compute: (v) => {
-      const ca = Number(v.ca) || 8.5;
-      const alb = Number(v.albumin) || 4.0;
-      const ph = Number(v.ph) || 7.40;
-      const hasPh = Math.abs(ph - 7.40) > 0.001;
-
-      const corr = ca + 0.8 * (4.0 - alb);
-      const ionizedBase = corr * 0.125;
-      const ionized = hasPh ? ionizedBase + (7.40 - ph) * 0.5 : ionizedBase;
-
-      const steps: CalcStep[] = [
-        {
-          label: 'Langkah 1 — Kalsium terkoreksi albumin (Payne 1973)',
-          formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${corr.toFixed(2)} mg/dL`,
-          note: 'Pada hipoalbuminemia, Ca total terukur rendah palsu (sebagian besar Ca terikat albumin) — koreksi ini memperkirakan Ca "seolah" albumin normal.',
-        },
-        {
-          label: 'Langkah 2 — Estimasi Ca ionized',
-          formula: `Ca ionized (mmol/L) ≈ Ca terkoreksi (mg/dL) × 0.125\n= ${corr.toFixed(2)} × 0.125 = ${ionizedBase.toFixed(3)} mmol/L`,
-          note: 'Faktor 0.125 ≈ konversi mg/dL→mmol/L (÷4.008) × fraksi ionized (~50%) dari Ca terkoreksi total. Estimasi kasar — pengukuran ionized langsung adalah baku emas, terutama pada sakit kritis.',
-        },
-        ...(hasPh ? [{
-          label: 'Langkah 2b — Penyesuaian efek pH pada ionized',
-          formula: `Ionized (pH-adjusted) = ${ionizedBase.toFixed(3)} + (7.40 − ${ph}) × 0.5\n= ${ionized.toFixed(3)} mmol/L`,
-          note: 'Asidosis mengurangi ikatan Ca-albumin → ionized naik. Koefisien 0.5 diadaptasi dari referensi klinis — belum diverifikasi independen ke sumber primer, gunakan sebagai perkiraan kasar.',
-        }] : []),
-      ];
-
-      if (corr < 8.5 || (hasPh && ionized < 1.12)) {
-        return {
-          score: `${corr.toFixed(1)} mg/dL`,
-          label: 'Hipokalsemia (terkoreksi)',
-          risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
-          color: corr < 7.0 ? C.red : C.amber,
-          targetInfo: {
-            title: 'Pilihan Koreksi Hipokalsemia',
-            bullets: [
-              'Ca Glukonat 10% (perifer/sentral): 1 ampul (10 mL) = 4.65 mEq.',
-              'Emergensi (kejang/tetani): 1–2 ampul IV lambat 5–10 menit + monitor EKG.',
-              'Sedang: 1 ampul dalam 100 mL NS/D5W → infus 30–60 menit.',
-              'Ca Klorida 10% (HANYA via CVC): 1 ampul = 13.6 mEq (3× lebih poten); indikasi syok/henti jantung/transfusi masif.',
-              '⚠️ Jangan campur dengan NaHCO₃/fosfat; hati-hati pada pasien digitalis (risiko toksisitas meningkat).',
-            ],
-          },
-          steps,
-          stepsFooter: 'Ca ionized terukur langsung adalah baku emas bila tersedia — estimasi di atas hanya perkiraan awal.',
-        };
-      }
-      if (corr > 10.5) {
-        return {
-          score: `${corr.toFixed(1)} mg/dL`,
-          label: 'Hiperkalsemia (terkoreksi)',
-          risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`,
-          color: corr > 14 ? C.red : C.amber,
-          targetInfo: {
-            title: 'Protokol Hiperkalsemia (>10.5 mg/dL)',
-            bullets: [
-              'Hidrasi: NaCl 0.9% 200–500 mL/jam (target urin 100–150 mL/jam).',
-              'Furosemide 20–40 mg IV — HANYA setelah euvolemia tercapai.',
-              'Kalsitonin 4–8 IU/kg SC/IM tiap 12 jam (onset cepat).',
-              'Zoledronat 4 mg IV dalam 15 menit (onset lambat ~48 jam).',
-              'Denosumab 120 mg SC bila gagal ginjal (bifosfonat kontraindikasi relatif).',
-            ],
-          },
-          steps,
-          stepsFooter: 'Hiperkalsemia berat/simtomatik: pertimbangkan dialisis bila gagal ginjal berat atau gagal terapi medis.',
-        };
-      }
-      return { score: `${corr.toFixed(1)} mg/dL`, label: 'Kalsium Normal (terkoreksi)', risk: `Ionized ≈ ${ionized.toFixed(2)} mmol/L`, color: C.green, steps };
-    },
-    notes: [
-      'Koreksi Payne hanya perkiraan — Ca ionized terukur langsung adalah baku emas, terutama pada sakit kritis/asidosis-alkalosis',
-      'Estimasi ionized (×0.125) adalah pendekatan kasar, BUKAN pengganti pengukuran ionized langsung bila tersedia',
-      'Ca Klorida HANYA melalui akses vena sentral (sangat mengiritasi vena perifer)',
-      'Hati-hati pemberian Ca pada pasien digitalis — dapat mencetuskan toksisitas/aritmia',
-      'Hiperkalsemia berat/simtomatik: pertimbangkan dialisis bila gagal ginjal berat atau gagal terapi medis',
-    ],
+    description: 'Ca terkoreksi albumin + Ca ion terukur, protokol hipo/hiperkalsemia (SfE 2016)',
+    source: 'Turner J. Endocr Connect 2016;5:G7 · Walsh J. Endocr Connect 2016;5:G9 · Payne RB. BMJ 1973;4:643 · Dickerson RN. JPEN 2004;28:133 · Özdemir E. PLoS One 2026;21:e0354233',
+    // UI & perhitungan di modul tersendiri: src/screens/calc/elektro/ElektroKalsium.tsx
+    // (logika murni src/lib/electrolytes.ts). fields/compute generik tidak dipakai.
+    fields: [],
+    compute: elektroModuleStub,
   },
 
   /* ------------------------------------------------------------------ */

@@ -393,44 +393,7 @@ describe('QTc', () => {
 
 // Koreksi Kalium: dites di src/lib/electrolytes*.test.ts (modul UI tersendiri).
 
-describe('Koreksi Kalsium (albumin, ionized, protokol)', () => {
-  const f = calc('ca-correction');
-
-  it('Ca7.0 albumin2.0 → terkoreksi 8.6 mg/dL (Payne)', () => {
-    // 7.0 + 0.8×(4-2) = 8.6
-    expect(f({ ca: 7.0, albumin: 2.0 }).score).toBe('8.6 mg/dL');
-  });
-
-  it('Ca8.0 albumin4.0 (hipo) → ionized ≈ 1.00 mmol/L (×0.125)', () => {
-    // corr=8.0 (tanpa perubahan albumin); ionized=8.0×0.125=1.0
-    const r = f({ ca: 8.0, albumin: 4.0 });
-    expect(r.label).toBe('Hipokalsemia (terkoreksi)');
-    expect(r.risk).toMatch(/1\.00 mmol\/L/);
-  });
-
-  it('penyesuaian pH pada ionized (asidosis menaikkan ionized)', () => {
-    // ionizedBase=1.0; pH7.20 → +（7.40-7.20)×0.5=+0.1 → 1.10
-    const r = f({ ca: 8.0, albumin: 4.0, ph: 7.20 });
-    const step = r.steps!.find(s => s.label.includes('Langkah 2b'))!;
-    expect(step.formula).toMatch(/1\.000/);
-    expect(step.formula).toMatch(/1\.100/);
-    expect(r.risk).toMatch(/1\.10 mmol\/L/);
-  });
-
-  it('hipokalsemia berat (Ca5.0,alb2.0, corr6.6) → merah', () => {
-    expect(f({ ca: 5.0, albumin: 2.0 }).color).toBe('#BA1A1A');
-  });
-
-  it('hiperkalsemia (Ca12.0,alb4.0) → label & protokol', () => {
-    const r = f({ ca: 12.0, albumin: 4.0 });
-    expect(r.label).toBe('Hiperkalsemia (terkoreksi)');
-    expect(r.targetInfo?.bullets.join(' ')).toMatch(/Kalsitonin/);
-  });
-
-  it('hiperkalsemia berat (Ca15.0) → merah', () => {
-    expect(f({ ca: 15.0, albumin: 4.0 }).color).toBe('#BA1A1A');
-  });
-});
+// Koreksi Kalsium: dites di src/lib/electrolytes*.test.ts (modul UI tersendiri).
 
 describe('Koreksi Magnesium (dosis tetap per keparahan)', () => {
   const f = calc('mg-correction');
