@@ -1328,69 +1328,12 @@ export const CALCULATORS: Calculator[] = [
     short: 'Koreksi Mg',
     category: 'Elektrolit',
     tint: C.green,
-    description: 'Dosis MgSO4 tetap per keparahan + penyesuaian gagal ginjal',
-    source: 'de Baaij JH et al. Physiol Rev 2015;95:1; Huang CL, Kuo E. JASN 2007;18:2649',
-    fields: [
-      { key: 'mg', label: 'Magnesium serum', type: 'number', unit: 'mg/dL', min: 0.5, max: 4, step: 0.1, defaultValue: 1.5 },
-      { key: 'symptomatic', label: 'Gejala berat (aritmia/Torsades/kejang)', type: 'checkbox' },
-      { key: 'egfr', label: 'eGFR/CrCl (opsional)', type: 'number', unit: 'mL/min', min: 0, max: 150, step: 1, defaultValue: 0,
-        description: 'Isi bila ada gangguan ginjal — memicu penyesuaian dosis' },
-    ],
-    compute: (v) => {
-      const mg = Number(v.mg) || 1.5;
-      const symptomatic = Boolean(v.symptomatic);
-      const egfr = Number(v.egfr) || 0;
-      const renalCaution = egfr > 0 && egfr < 30;
-
-      if (mg < 1.7) {
-        const doseAmount = symptomatic ? '2 g IV' : '1–2 g IV';
-        const doseDetail = symptomatic
-          ? 'Bolus lambat 5–10 menit (gejala berat)'
-          : 'Dalam 50–100 mL NS/D5W selama 1 jam';
-        const doseLabel = symptomatic
-          ? 'MgSO4 2 g IV bolus lambat (5–10 menit)'
-          : 'MgSO4 1–2 g IV dalam 50–100 mL NS/D5W selama 1 jam';
-
-        const steps: CalcStep[] = [
-          { label: 'Langkah 1 — Klasifikasi', formula: `Mg ${mg} mg/dL < 1.7 mg/dL → Hipomagnesemia`,
-            note: 'Rentang normal umum 1.7–2.2 mg/dL — bervariasi antar laboratorium/assay.' },
-          { label: `Langkah 2 — Dosis (${symptomatic ? 'gejala berat' : 'asimtomatik/ringan-sedang'})`,
-            formula: doseLabel,
-            note: 'Dosis TETAP berdasarkan keparahan klinis, bukan formula per berat badan — sesuai praktik replacement Mg standar (berbeda dari protokol eklampsia yang punya regimen tersendiri).' },
-          ...(renalCaution ? [{
-            label: 'Langkah 3 — Penyesuaian gagal ginjal',
-            formula: `eGFR ${egfr} mL/min < 30 → turunkan dosis ~50%`,
-            note: 'Pantau ketat: refleks patela tiap 1 jam (hilang bila Mg >4 mg/dL — tanda toksisitas dini), laju napas tiap 30 menit (depresi napas bila Mg >5 mg/dL). Hentikan infus bila salah satu muncul.',
-          }] : []),
-        ];
-
-        return {
-          score: doseAmount,
-          label: symptomatic ? 'Hipomagnesemia — Gejala Berat' : 'Hipomagnesemia',
-          risk: renalCaution ? `${doseDetail} · eGFR <30, pantau ketat` : doseDetail,
-          color: symptomatic ? C.red : C.amber,
-          targetInfo: {
-            title: 'Panduan Dosis & Pemantauan Toksisitas',
-            bullets: [
-              'Asimtomatik/ringan-sedang: 1–2 g IV dalam 50–100 mL NS/D5W selama 1 jam.',
-              'Gejala berat (aritmia/Torsades/kejang): 2 g IV bolus lambat 5–10 menit.',
-              'Toksisitas bertahap: hiporefleksia (>4 mg/dL) → depresi napas (>5 mg/dL) → henti jantung (>10 mg/dL).',
-            ],
-          },
-          steps,
-          stepsFooter: 'Hipomagnesemia sering menyertai hipokalemia refrakter (kebocoran K ginjal) — koreksi Mg dapat memperbaiki K tanpa infus K berlebih.',
-        };
-      }
-
-      return { score: `${mg.toFixed(1)} mg/dL`, label: 'Magnesium Normal', color: C.green,
-        risk: 'Rentang umum 1.7–2.2 mg/dL (bervariasi antar lab)' };
-    },
-    notes: [
-      'Dosis MgSO4 di sini bersifat TETAP per keparahan (bukan per kg BB) — mengikuti pola replacement standar; BERBEDA dari protokol MgSO4 pre-eklampsia/eklampsia (loading + maintenance khusus, tidak dicakup kalkulator ini)',
-      'Toksisitas Mg: hiporefleksia (>4 mg/dL) → depresi napas (>5 mg/dL) → henti jantung (>10 mg/dL); pada gagal ginjal risiko akumulasi meningkat',
-      'Hipomagnesemia adalah penyebab tersering hipokalemia REFRAKTER — selalu periksa Mg bila K sulit dikoreksi',
-      'Kalsium Glukonat 10% harus tersedia sebagai antidot bila terjadi toksisitas Mg berat',
-    ],
+    description: 'Kebutuhan MgSO₄ ke target (ΔMg ÷ 0.15/g), batas 1.5 mEq/kg termasuk bolus darurat',
+    source: 'Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21 · Turner J. Endocr Connect 2016;5:G7',
+    // UI & perhitungan di modul tersendiri: src/screens/calc/elektro/ElektroMagnesium.tsx
+    // (logika murni src/lib/electrolytes.ts). fields/compute generik tidak dipakai.
+    fields: [],
+    compute: elektroModuleStub,
   },
 
   /* ------------------------------------------------------------------ */

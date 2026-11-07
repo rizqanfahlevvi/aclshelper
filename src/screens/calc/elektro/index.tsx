@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { KaliumCalc } from './ElektroKalium';
 import { NatriumCalc } from './ElektroNatrium';
 import { KalsiumCalc } from './ElektroKalsium';
+import { MagnesiumCalc } from './ElektroMagnesium';
 
 /* Kalkulator Koreksi Elektrolit dengan modul UI tersendiri (port ICU Helper).
    Entri di CALCULATORS tetap ada untuk menu/favorit; layar detail merender
@@ -10,6 +11,7 @@ export const ELEKTRO_MODULES: Record<string, ComponentType> = {
   'k-correction': KaliumCalc,
   'na-correction': NatriumCalc,
   'ca-correction': KalsiumCalc,
+  'mg-correction': MagnesiumCalc,
 };
 
 export const isElektroModule = (key: string) => key in ELEKTRO_MODULES;

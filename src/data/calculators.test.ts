@@ -395,37 +395,7 @@ describe('QTc', () => {
 
 // Koreksi Kalsium: dites di src/lib/electrolytes*.test.ts (modul UI tersendiri).
 
-describe('Koreksi Magnesium (dosis tetap per keparahan)', () => {
-  const f = calc('mg-correction');
-
-  it('Mg1.5 asimtomatik → dosis 1–2 g (bukan formula per-kg)', () => {
-    const r = f({ mg: 1.5 });
-    expect(r.score).toBe('1–2 g IV');
-    expect(r.risk).toMatch(/50–100 mL/);
-    expect(r.label).toBe('Hipomagnesemia');
-    expect(r.color).toBe('#FFA000');
-  });
-
-  it('Mg1.2 simtomatik berat → dosis 2g bolus lambat, warna merah', () => {
-    const r = f({ mg: 1.2, symptomatic: true });
-    expect(r.score).toBe('2 g IV');
-    expect(r.risk).toMatch(/[Bb]olus lambat/);
-    expect(r.color).toBe('#BA1A1A');
-  });
-
-  it('eGFR <30 → penyesuaian dosis 50% + monitoring', () => {
-    const r = f({ mg: 1.5, egfr: 20 });
-    const step = r.steps!.find(s => s.label.includes('Langkah 3'))!;
-    expect(step.formula).toMatch(/turunkan dosis ~50%/);
-    expect(r.risk).toMatch(/eGFR <30/);
-  });
-
-  it('Mg normal (2.0) → label Normal', () => {
-    const r = f({ mg: 2.0 });
-    expect(r.label).toBe('Magnesium Normal');
-    expect(r.score).toBe('2.0 mg/dL');
-  });
-});
+// Koreksi Magnesium: dites di src/lib/electrolytes*.test.ts (modul UI tersendiri).
 
 describe('VIS', () => {
   const f = calc('vis');
