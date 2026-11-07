@@ -1,17 +1,17 @@
 # Graph Report - aclshelper  (2026-11-07)
 
 ## Corpus Check
-- 51 files · ~135,862 words
+- 54 files · ~140,507 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: .css 3, (none) 2)
 
 ## Summary
-- 674 nodes · 1407 edges · 60 communities (26 shown, 34 thin omitted)
-- Extraction: 98% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.76)
+- 730 nodes · 1610 edges · 64 communities (31 shown, 33 thin omitted)
+- Extraction: 98% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `af0bf5cd`
+- Built from commit: `d5ee1b67`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -71,75 +71,80 @@
 - sfx — Web Audio synthesized sound effects
 - tsconfig.json compiler config
 - vite-env.d.ts type declarations
-- mobile/index.tsx
+- EKG image naming convention doc
 - conduction.tsx
 - search/index.tsx
-- Icons
+- about/index.tsx
+- ElektroKalium.tsx
+- ElektroUI.tsx
+- base/index.tsx
+- useFavorites
+- sodium.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `App()` - 51 edges
-2. `react` - 26 edges
-3. `TheoryScreen()` - 22 edges
-4. `fw()` - 22 edges
-5. `DesktopTheory()` - 20 edges
-6. `RefBlock()` - 17 edges
-7. `useFavorites()` - 17 edges
-8. `Cite()` - 15 edges
-9. `CalcResultView()` - 14 edges
-10. `compilerOptions` - 14 edges
+2. `fw()` - 36 edges
+3. `react` - 29 edges
+4. `TheoryScreen()` - 22 edges
+5. `HypoK()` - 21 edges
+6. `DesktopTheory()` - 20 edges
+7. `RefBlock()` - 17 edges
+8. `useFavorites()` - 17 edges
+9. `HyperK()` - 15 edges
+10. `DesktopCalcKindPanel()` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Heart Anatomy Illustration — gradient-shaded base layer under animated SA/AV conduction overlay in ConductionDiagram` --shares_data_with--> `ConductionDiagram + CONDUCTION_MAP`  [EXTRACTED]
-  public/heart-anatomy.svg → src/components/acls/index.tsx
-- `Theory image slots README` --references--> `TheoryImage — extension-fallback image slot`  [EXTRACTED]
-  public/theory/README.md → src/screens/theory/index.tsx
 - `index.html entry document` --references--> `App bootstrap (ReactDOM root, SW register)`  [EXTRACTED]
   index.html → src/main.tsx
+- `Theory image slots README` --references--> `TheoryImage — extension-fallback image slot`  [EXTRACTED]
+  public/theory/README.md → src/screens/theory/index.tsx
+- `Heart Anatomy Illustration — gradient-shaded base layer under animated SA/AV conduction overlay in ConductionDiagram` --shares_data_with--> `ConductionDiagram + CONDUCTION_MAP`  [EXTRACTED]
+  public/heart-anatomy.svg → src/components/acls/index.tsx
+- `haptic()` --semantically_similar_to--> `haptic object — named vibration patterns (shock/epi/amio...)`  [INFERRED] [semantically similar]
+  src/lib/settings.ts → src/utils/haptic.ts
 - `ConductionDiagram + CONDUCTION_MAP` --semantically_similar_to--> `EkgConductionPanel()`  [INFERRED] [semantically similar]
-  src/components/acls/index.tsx → src/components/conduction.tsx
-- `RhythmStrip (inline SVG ECG waveform)` --semantically_similar_to--> `EkgConductionPanel()`  [INFERRED] [semantically similar]
   src/components/acls/index.tsx → src/components/conduction.tsx
 
 ## Import Cycles
 - None detected.
 
-## Communities (60 total, 34 thin omitted)
+## Communities (64 total, 33 thin omitted)
 
 ### Community 0 - "desktop/index.tsx"
-Cohesion: 0.15
-Nodes (19): ACLS_CPR_PROMPTS, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_ARREST, ACLS_FLOW_BHJD, ACLS_FLOW_BRADY, ACLS_FLOW_DROWNING, ACLS_FLOW_HYPOTHERMIA, ACLS_FLOW_OPIOID (+11 more)
+Cohesion: 0.12
+Nodes (32): ACLS_ALGORITHMS, ACLS_CPR_PROMPTS, ACLS_DRUGS, ACLS_FLOW_ANAPHYLAXIS, ACLS_FLOW_ARREST, ACLS_FLOW_BHJD, ACLS_FLOW_BRADY, ACLS_FLOW_DROWNING (+24 more)
 
 ### Community 1 - "theory/index.tsx"
 Cohesion: 0.03
 Nodes (69): Antzelevitch C, Burashnikov A (2011) — Overview of basic mechanisms of cardiac arrhythmia, Bers DM (2002) — Cardiac excitation-contraction coupling, Nature, Braunwald E et al. — Heart Disease: A Textbook of Cardiovascular Medicine, 11th ed., Grant AO (2009) — Cardiac ion channels, Guyton & Hall — Textbook of Medical Physiology, 14th ed., Katz AM — Physiology of the Heart, 5th ed., Mines GR (1914) — On circulating excitations in heart muscles, Priori SG et al. (2015) — ESC Guidelines for ventricular arrhythmias (+61 more)
 
 ### Community 2 - "AdminPage.tsx"
-Cohesion: 0.07
-Nodes (38): App (root component), firebase, lucide-react, react-dom, AdminPage(), AdminPageProps, ROLE_OPTIONS, StatusFilter (+30 more)
+Cohesion: 0.06
+Nodes (43): App (root component), firebase, lucide-react, react, react-dom, AdminPage, AdminPage(), AdminPageProps (+35 more)
 
 ### Community 3 - "tools/index.tsx"
-Cohesion: 0.10
-Nodes (40): Disclaimer(), DEFIB_REFERENCES, PALS_ALGORITHMS, PALS_DRUGS, PALS_REFERENCES, PalsAlgo, PalsDrug, ROSC_CHECKLIST (+32 more)
+Cohesion: 0.08
+Nodes (49): doseMath.test.ts suite, vitest, Disclaimer(), DEFIB_REFERENCES, defibrilasi/kardioversi max-clamp bugfix, PALS_ALGORITHMS, PALS_DRUGS, PALS_REFERENCES (+41 more)
 
 ### Community 4 - "calc/index.tsx"
-Cohesion: 0.08
-Nodes (51): calculators.test.ts suite, ACLS_ALGORITHMS catalog, doseMath.test.ts suite, vitest, SearchModal — global search overlay, Accordion(), BreakdownItem, CalcStep (+43 more)
+Cohesion: 0.09
+Nodes (45): calculators.test.ts suite, ACLS_ALGORITHMS catalog, SearchModal — global search overlay, Accordion(), BreakdownItem, CalcStep, CalcSteps(), CalcStepsProps (+37 more)
 
 ### Community 5 - "settings/index.tsx"
 Cohesion: 0.08
-Nodes (44): ICU Helper (MD Kit sibling app), PICNIC Helper (MD Kit sibling app, in development), ResNeo Helper (MD Kit sibling app), react, formatBytes(), getStorageEstimate(), performHardReset(), refreshCacheAndReload() (+36 more)
+Nodes (44): SettingsScreen component, formatBytes(), getStorageEstimate(), performHardReset(), refreshCacheAndReload(), StorageEstimateInfo, FONT_URLS, fontFamilyStack() (+36 more)
 
 ### Community 6 - "App.tsx"
-Cohesion: 0.05
-Nodes (69): SettingsScreen component, ACCENT, AdminPage, App(), AppTopBar(), AppTopBarProps, DesktopTheory, FeedbackModal() (+61 more)
+Cohesion: 0.09
+Nodes (31): ACCENT, App(), AppTopBar(), AppTopBarProps, DesktopTheory, FeedbackModal(), FeedbackModalProps, FeedbackType (+23 more)
 
 ### Community 7 - "package.json"
 Cohesion: 0.06
 Nodes (30): dependencies, firebase, lucide-react, react, react-dom, devDependencies, playwright, @types/react (+22 more)
 
 ### Community 8 - "acls/index.tsx"
-Cohesion: 0.10
-Nodes (22): BottomSheet(), CD_COLORS, CONDUCTION_MAP, ConductionDiagram, ConductionState, FlowConnector, FlowStep, NodeState (+14 more)
+Cohesion: 0.12
+Nodes (18): BottomNav(), BottomSheet(), CD_COLORS, CONDUCTION_MAP, ConductionState, FlowStep, NodeState, CprRhythm (+10 more)
 
 ### Community 9 - "acls/index.tsx"
 Cohesion: 0.11
@@ -190,24 +195,44 @@ Cohesion: 0.67
 Nodes (3): CardiacCycleTab(), SimulationModal(), WiggersDiagramAnimated()
 
 ### Community 32 - "electrolytes.ts"
-Cohesion: 0.08
-Nodes (44): CA_GLUCONATE_ELEMENTAL_MG_PER_ML, caGluconateInfusion(), caMgdlToMmol(), NA_BASE, correctedCalcium(), HyperCaSeverity, hyperCaSeverity(), HyperKSeverity (+36 more)
-
-### Community 55 - "mobile/index.tsx"
 Cohesion: 0.12
-Nodes (14): EKG image naming convention doc, HS_TS_REFERENCES, BeforeInstallPromptEvent, DRUG_FILTERS, DrugCard(), EKG_SEV_FILTERS, EKG_SEV_LABEL, MORPH_FIELDS (+6 more)
+Nodes (29): CA_GLUCONATE_ELEMENTAL_MG_PER_ML, caGluconateInfusion(), caMgdlToMmol(), NA_BASE, correctedCalcium(), glucoseMgdlToMmol(), HyperCaSeverity, hyperCaSeverity() (+21 more)
+
+### Community 55 - "EKG image naming convention doc"
+Cohesion: 0.67
+Nodes (3): EKG image naming convention doc, Theory image slots README, TheoryImage — extension-fallback image slot
 
 ### Community 56 - "conduction.tsx"
-Cohesion: 0.20
-Nodes (11): ConductionDiagram + CONDUCTION_MAP, RhythmStrip (inline SVG ECG waveform), Heart Anatomy Illustration — gradient-shaded base layer under animated SA/AV conduction overlay in ConductionDiagram, BeatDot(), COL, CONDUCTION_MAP, ConductionState, ConductionSVG() (+3 more)
+Cohesion: 0.29
+Nodes (7): BeatDot(), COL, CONDUCTION_MAP, ConductionState, ConductionSVG(), EctopicSite, NodeState
 
 ### Community 57 - "search/index.tsx"
-Cohesion: 0.25
-Nodes (8): ACLS_ALGORITHMS, ACLS_DRUGS, ACLS_RHYTHMS, GROUPS, Result, search(), SearchModal(), SearchModalProps
-
-### Community 58 - "Icons"
 Cohesion: 0.40
-Nodes (4): Icons, NAV_SECTIONS, NavItem, NavSection
+Nodes (5): GROUPS, Result, search(), SearchModal(), SearchModalProps
+
+### Community 58 - "about/index.tsx"
+Cohesion: 0.25
+Nodes (7): ICU Helper (MD Kit sibling app), PICNIC Helper (MD Kit sibling app, in development), ResNeo Helper (MD Kit sibling app), Icons, AboutScreen(), CHANGELOG, MDKIT_APPS
+
+### Community 59 - "ElektroKalium.tsx"
+Cohesion: 0.18
+Nodes (18): rangeWarning(), weightPlausibilityWarning(), K_HYPER_CTX, K_HYPO_CTX, K_MAINT_OPTIONS, K_TARGETS, KaliumCalc(), KaliumInputs() (+10 more)
+
+### Community 60 - "ElektroUI.tsx"
+Cohesion: 0.13
+Nodes (33): HyperK(), HypoK(), KaliumResult(), BigNumber(), Bullets(), CalcButton(), Card(), ChipOption (+25 more)
+
+### Community 61 - "base/index.tsx"
+Cohesion: 0.12
+Nodes (22): FlowConnector, Alert(), GlyphTile(), IconBaseProps, IconProps, LargeTitle(), List(), NavBar() (+14 more)
+
+### Community 62 - "useFavorites"
+Cohesion: 0.16
+Nodes (17): ConductionDiagram + CONDUCTION_MAP, RhythmStrip (inline SVG ECG waveform), Heart Anatomy Illustration — gradient-shaded base layer under animated SA/AV conduction overlay in ConductionDiagram, ConductionDiagram, EkgImage, RhythmStrip, EkgConductionPanel(), DesktopAlgorithm() (+9 more)
+
+### Community 63 - "sodium.ts"
+Cohesion: 0.20
+Nodes (16): adrogueDeltaNaPerLiter(), computeNa(), freeWaterDeficit(), glucoseCorrectedNa(), hypoDaysToNa(), hypoNaRiseLimits(), NA_FLUIDS, NaInput (+8 more)
 
 ## Ambiguous Edges - Review These
 - `CPRTimer()` → `App (root component)`  [AMBIGUOUS]
@@ -218,23 +243,23 @@ Nodes (4): Icons, NAV_SECTIONS, NavItem, NavSection
   src/components/tweaks/index.tsx · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **81 isolated node(s):** `playwright`, `@types/react`, `@types/react-dom`, `typescript`, `RhythmStrip (inline SVG ECG waveform)` (+76 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 309 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **81 isolated node(s):** `playwright`, `@types/react`, `@types/react-dom`, `typescript`, `Antzelevitch C, Burashnikov A (2011) — Overview of basic mechanisms of cardiac arrhythmia` (+76 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 320 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `settings/index.tsx` to `desktop/index.tsx`, `theory/index.tsx`, `AdminPage.tsx`, `tools/index.tsx`, `calc/index.tsx`, `App.tsx`, `package.json`, `acls/index.tsx`, `acls/index.tsx`, `tweaks/index.tsx`, `mobile/index.tsx`, `conduction.tsx`, `search/index.tsx`, `Icons`?**
-  _High betweenness centrality (0.228) - this node is a cross-community bridge._
+- **Why does `react` connect `AdminPage.tsx` to `desktop/index.tsx`, `theory/index.tsx`, `tools/index.tsx`, `calc/index.tsx`, `settings/index.tsx`, `App.tsx`, `package.json`, `acls/index.tsx`, `acls/index.tsx`, `tweaks/index.tsx`, `conduction.tsx`, `search/index.tsx`, `about/index.tsx`, `ElektroKalium.tsx`, `ElektroUI.tsx`, `base/index.tsx`, `useFavorites`?**
+  _High betweenness centrality (0.296) - this node is a cross-community bridge._
 - **What connects `playwright`, `@types/react`, `@types/react-dom` to the rest of the system?**
   _81 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `desktop/index.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.12436974789915967 - nodes in this community are weakly interconnected._
+- **Why does `vitest` connect `tools/index.tsx` to `electrolytes.ts`, `calc/index.tsx`, `sodium.ts`, `package.json`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `theory/index.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.02857142857142857 - nodes in this community are weakly interconnected._
-- **Why does `vitest` connect `calc/index.tsx` to `electrolytes.ts`, `package.json`?**
-  _High betweenness centrality (0.124) - this node is a cross-community bridge._
-- **Should `AdminPage.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07111756168359942 - nodes in this community are weakly interconnected._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._

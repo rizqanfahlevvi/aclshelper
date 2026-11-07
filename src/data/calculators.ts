@@ -92,6 +92,10 @@ const C = {
   gold:   '#F9A825',
 } as const;
 
+/* Kalkulator Koreksi Elektrolit memakai modul UI tersendiri (src/screens/calc/elektro)
+   — compute() generik tidak dipanggil oleh layar; stub ini hanya memenuhi tipe. */
+const elektroModuleStub = (): CalcResult => ({ score: '', label: 'Lihat modul koreksi elektrolit', color: C.blue });
+
 export const CALCULATORS: Calculator[] = [
   /* ------------------------------------------------------------------ */
   /* 1. CHA₂DS₂-VASc                                                      */
@@ -1303,137 +1307,12 @@ export const CALCULATORS: Calculator[] = [
     short: 'Koreksi K',
     category: 'Elektrolit',
     tint: C.amber,
-    description: 'Defisit K, batas laju KCl, dan protokol hiperkalemia',
-    source: 'Cohn JN et al. Arch Intern Med 2000;160:2429; Macdonald JE. Heart 2004;90:1098; UK Kidney Association Hyperkalaemia Guideline 2023',
-    fields: [
-      { key: 'currentK', label: 'Kalium saat ini', type: 'number', unit: 'mEq/L', min: 1.5, max: 8, step: 0.1, defaultValue: 3.0 },
-      { key: 'weight', label: 'Berat Badan', type: 'number', unit: 'kg', min: 20, max: 200, step: 1, defaultValue: 70 },
-      { key: 'ph', label: 'pH arteri (opsional)', type: 'number', min: 6.8, max: 7.8, step: 0.01, defaultValue: 7.40,
-        description: 'Biarkan 7.40 bila tidak ada data — tidak mengubah hasil' },
-      { key: 'gds', label: 'GDS pre-koreksi (opsional, khusus hiperkalemia)', type: 'number', unit: 'mg/dL', min: 0, max: 600, step: 1, defaultValue: 0,
-        description: 'Isi untuk panduan dosis insulin+dekstrosa spesifik' },
-    ],
-    compute: (v) => {
-      const k = Number(v.currentK) || 3.0;
-      const wt = Number(v.weight) || 70;
-      const ph = Number(v.ph) || 7.40;
-      const gds = Number(v.gds) || 0;
-      const hasPh = Math.abs(ph - 7.40) > 0.001;
-      const isAcidosis = hasPh && ph < 7.35;
-
-      // pH-adjustment: asidemia menggeser K keluar sel → K serum tampak
-      // lebih tinggi dari status intrasel/total tubuh sesungguhnya.
-      const kCorr = k + 0.6 * ((ph - 7.40) / 0.1);
-      const phStep: CalcStep | null = hasPh ? {
-        label: 'Penyesuaian efek pH',
-        formula: `K "sebenarnya" pada pH 7.40 ≈ K + 0.6 × ((pH − 7.40)/0.1)\n= ${k} + 0.6 × ((${ph} − 7.40)/0.1) = ${kCorr.toFixed(2)} mEq/L`,
-        note: isAcidosis
-          ? 'PERINGATAN: asidosis menggeser K keluar sel — koreksi asidosis akan MENURUNKAN K serum. Koreksi K harus mendahului/bersamaan koreksi asidosis.'
-          : 'Aturan kasar (~0.6 mEq/L per 0.1 unit pH) — total K tubuh bisa berbeda dari estimasi ini; selalu korelasikan klinis.',
-      } : null;
-
-      if (k < 3.5) {
-        // ── HIPOKALEMIA ──
-        const scale = wt / 70;
-        const defLo = (3.5 - k) * 100 * scale;
-        const defHi = (3.5 - k) * 200 * scale;
-        const hrsLo = defLo / 10; // pada laju maksimal perifer 10 mEq/jam
-        const hrsHi = defHi / 10;
-
-        const steps: CalcStep[] = [
-          {
-            label: 'Langkah 1 — Estimasi defisit total tubuh (kasar)',
-            formula: `Defisit ≈ (3.5 − K) × 100–200 × (BB/70)\n= (3.5 − ${k}) × 100–200 × (${wt}/70) = ${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`,
-            note: 'ESTIMASI KASAR (Cohn et al. 2000) — hubungan K serum ↔ defisit total tubuh TIDAK linear (cadangan intrasel besar). Jangan berikan seluruh defisit sekaligus; nilai ulang K serial.',
-          },
-          {
-            label: 'Langkah 2 — Batas laju infus KCl',
-            formula: `Vena perifer: maks 10 mEq/jam\nVena sentral: maks 20 mEq/jam`,
-            note: `Pada laju maksimal perifer, ${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq membutuhkan ≈ ${hrsLo.toFixed(1)}–${hrsHi.toFixed(1)} jam. Berikan bertahap (~40% dulu), cek K ulang: <2.5 tiap 1–2j, 2.5–3.0 tiap 2–4j.`,
-          },
-          ...(phStep ? [phStep] : []),
-        ];
-
-        return {
-          score: `${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`,
-          label: k < 2.5 ? 'Hipokalemia Berat' : 'Hipokalemia',
-          risk: 'Vena perifer ≤10 mEq/jam · vena sentral ≤20 mEq/jam',
-          color: k < 2.5 ? C.red : C.amber,
-          targetInfo: {
-            title: 'Batas Laju Aman Infus KCl',
-            bullets: [
-              'Vena perifer: maksimal 10 mEq/jam.',
-              'Vena sentral: maksimal 20 mEq/jam.',
-              'Berikan bertahap (~40% dari estimasi dulu), evaluasi ulang sebelum melanjutkan.',
-            ],
-          },
-          doseRange: {
-            title: 'Estimasi Defisit Kalium Total (Kasar)',
-            rangeLabel: `${defLo.toFixed(0)} – ${defHi.toFixed(0)} mEq`,
-            methods: [
-              { label: 'Estimasi Defisit', value: `${defLo.toFixed(0)}–${defHi.toFixed(0)} mEq`, rate: `≈${hrsLo.toFixed(1)}–${hrsHi.toFixed(1)} jam pada laju perifer maks`, note: 'linear kasar — hubungan sebenarnya non-linear (Cohn 2000)' },
-            ],
-            footer: 'Cek K ulang: <2.5 tiap 1–2 jam, 2.5–3.0 tiap 2–4 jam.',
-          },
-          steps,
-          stepsFooter: 'Distribusi K butuh 4–6 jam — jangan berikan seluruh estimasi defisit sekaligus. Bila hipokalemia refrakter meski dikoreksi, periksa Mg (hipomagnesemia menyebabkan kebocoran K ginjal): MgSO4 2 g IV dalam 100 mL NS (20–30 menit).',
-        };
-      }
-
-      if (k > 5.0) {
-        // ── HIPERKALEMIA ──
-        const severe = k > 6.0;
-        const insulinStep: CalcStep = gds > 0
-          ? (gds >= 126
-            ? { label: 'Langkah 2A — Insulin + Dekstrosa (GDS pre-koreksi diketahui)',
-                formula: `GDS = ${gds} mg/dL (≥126)\nInsulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus`,
-                note: 'GDS sudah cukup tinggi — tidak perlu infus dekstrosa lanjutan. Monitor GDS tiap 30 menit.' }
-            : { label: 'Langkah 2A — Insulin + Dekstrosa (GDS pre-koreksi diketahui)',
-                formula: `GDS = ${gds} mg/dL (<126)\nInsulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus\n+ WAJIB Dekstrosa 10% 50 mL/jam selama 5 jam (total 25 g)`,
-                note: 'GDS belum cukup tinggi — risiko hipoglikemia lanjut TINGGI tanpa infus dekstrosa susulan. Monitor GDS tiap 30 menit.' })
-          : { label: 'Langkah 2A — Insulin + Dekstrosa',
-              formula: `Insulin Reguler 10 IU + Dekstrosa 50% 50 mL (atau D40% 25 mL) IV bolus`,
-              note: 'Isi GDS pre-koreksi untuk panduan spesifik apakah perlu dekstrosa lanjutan (protokol UK Kidney Association 2023, diadaptasi — konfirmasi cutoff dgn protokol institusi Anda).' };
-
-        const steps: CalcStep[] = [
-          ...(phStep ? [phStep] : []),
-          { label: 'Langkah 1 — Stabilisasi membran (bila perubahan EKG)',
-            formula: 'Ca Glukonat 10% 10 mL IV (3–5 menit)',
-            note: 'Ulangi bila EKG belum membaik dalam 5–10 menit. Tidak menurunkan K — hanya menstabilkan membran sel jantung sementara.' },
-          insulinStep,
-          { label: 'Langkah 2B — Salbutamol nebulisasi',
-            formula: '10–20 mg (2.5–5 ampul @2.5 mg)',
-            note: 'Onset 15–30 menit, efek sinergis dengan insulin. Tidak efektif sebagai monoterapi pada ~40% pasien.' },
-          { label: 'Langkah 2C — Natrium Bikarbonat',
-            formula: 'NaHCO₃ 8.4% 50 mEq IV — HANYA bila asidosis metabolik pH < 7.2',
-            note: isAcidosis ? 'pH saat ini menunjukkan asidosis — NaHCO₃ dapat dipertimbangkan.' : 'Tidak efektif sebagai monoterapi pada pH normal — jangan berikan rutin.' },
-        ];
-
-        return {
-          score: `${k.toFixed(1)} mEq/L`,
-          label: `Hiperkalemia ${severe ? 'Berat' : 'Sedang'}`,
-          risk: severe ? 'K >6.0 — emergensi, tata laksana segera' : 'K 5.1–6.0 — tata laksana & monitoring ketat',
-          color: severe ? C.red : C.amber,
-          steps,
-          stepsFooter: 'Alternatif ICU: infus insulin kontinu (Reguler 50 IU + NaCl0.9% 48mL = 1 IU/mL; laju 1.5–2 mL/jam × 6 jam; dampingi D10% 50–100 mL/jam bila puasa; STOP bila K<4.5 atau GDS<100).',
-        };
-      }
-
-      // ── NORMAL ──
-      return {
-        score: `${k.toFixed(1)} mEq/L`,
-        label: 'Kalium Normal',
-        color: C.green,
-        steps: phStep ? [phStep] : undefined,
-      };
-    },
-    notes: [
-      'Defisit K adalah ESTIMASI KASAR (Cohn et al. Arch Intern Med 2000) — hubungan serum↔total tubuh tidak linear; jangan menunda tata laksana hiperkalemia bermakna menunggu perhitungan presisi',
-      'Batas laju KCl: vena perifer ≤10 mEq/jam, vena sentral ≤20 mEq/jam (nyeri/flebitis & risiko aritmia bila terlampaui)',
-      'Selalu nilai K bersama pH — asidemia menggeser K keluar sel, menciptakan hiperkalemia semu (Adrogué HJ, Madias NE)',
-      'Hipokalemia refrakter → cek Mg (hipomagnesemia menyebabkan kebocoran K ginjal, Huang CL & Kuo E. JASN 2007;18:2649)',
-      'Protokol insulin+dekstrosa hiperkalemia diadaptasi dari UK Kidney Association Guideline 2023 — konfirmasi cutoff GDS & regimen dekstrosa lanjutan dengan protokol institusi Anda',
-    ],
+    description: 'Defisit K + rumatan, protokol 24 jam vs per sesi, protokol hiperkalemia',
+    source: 'Kardalas E. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Ford S. Aust Prescr 2026;49:194 · Jessen MK. Resuscitation 2025;208:110489 · UK Kidney Association Hyperkalaemia Guideline 2023',
+    // UI & perhitungan di modul tersendiri: src/screens/calc/elektro/ElektroKalium.tsx
+    // (logika murni src/lib/electrolytes.ts). fields/compute generik tidak dipakai.
+    fields: [],
+    compute: elektroModuleStub,
   },
 
   /* ------------------------------------------------------------------ */

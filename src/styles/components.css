@@ -476,3 +476,6 @@ a { color: var(--accent); text-decoration: none; }
   -ms-overflow-style: none;
 }
 .chips-scroll::-webkit-scrollbar { display: none; }
+
+/* Koreksi Elektrolit — baris pertama panel input tanpa garis atas */
+.elektro-input-panel > .elektro-row:first-child { border-top: 0 !important; }

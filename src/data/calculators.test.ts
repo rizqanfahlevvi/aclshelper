@@ -391,62 +391,7 @@ describe('QTc', () => {
   });
 });
 
-describe('Koreksi Kalium (defisit, batas laju, protokol hiperK)', () => {
-  const f = calc('k-correction');
-
-  it('K3.0 70kg → defisit 50–100 mEq (estimasi kasar)', () => {
-    // (3.5-3.0)×100–200×(70/70) = 50–100
-    const r = f({ currentK: 3.0, weight: 70 });
-    expect(r.score).toBe('50–100 mEq');
-    expect(r.risk).toMatch(/perifer ≤10.*sentral ≤20/);
-  });
-
-  it('defisit diskalakan oleh berat badan (140kg → 2×)', () => {
-    const r = f({ currentK: 3.0, weight: 140 });
-    expect(r.score).toBe('100–200 mEq');
-  });
-
-  it('K <2.5 → warna merah (berat)', () => {
-    const r = f({ currentK: 2.0, weight: 70 });
-    expect(r.score).toBe('150–300 mEq');
-    expect(r.color).toBe('#BA1A1A');
-  });
-
-  it('pH-adjustment: asidosis (pH7.20) menurunkan estimasi K sebenarnya', () => {
-    // 4.0 + 0.6×((7.20-7.40)/0.1) = 4.0 - 1.2 = 2.80
-    const r = f({ currentK: 4.0, ph: 7.20 });
-    const step = r.steps!.find(s => s.label.includes('Penyesuaian efek pH'))!;
-    expect(step.formula).toMatch(/2\.80/);
-    expect(step.note).toMatch(/PERINGATAN/);
-  });
-
-  it('hiperkalemia berat (K6.5) → label & warna merah', () => {
-    const r = f({ currentK: 6.5 });
-    expect(r.score).toBe('6.5 mEq/L');
-    expect(r.label).toBe('Hiperkalemia Berat');
-    expect(r.color).toBe('#BA1A1A');
-  });
-
-  it('hiperkalemia GDS≥126 → tanpa dekstrosa lanjutan', () => {
-    const r = f({ currentK: 5.5, gds: 150 });
-    const step = r.steps!.find(s => s.label.includes('Insulin'))!;
-    expect(step.formula).toMatch(/GDS = 150.*≥126/);
-    expect(step.formula).not.toMatch(/WAJIB Dekstrosa/);
-  });
-
-  it('hiperkalemia GDS<126 → WAJIB dekstrosa lanjutan (cegah hipoglikemia)', () => {
-    const r = f({ currentK: 5.5, gds: 90 });
-    const step = r.steps!.find(s => s.label.includes('Insulin'))!;
-    expect(step.formula).toMatch(/GDS = 90.*<126/);
-    expect(step.formula).toMatch(/WAJIB Dekstrosa 10%/);
-  });
-
-  it('K normal (4.0, tanpa pH) → label Normal', () => {
-    const r = f({ currentK: 4.0 });
-    expect(r.label).toBe('Kalium Normal');
-    expect(r.steps).toBeUndefined();
-  });
-});
+// Koreksi Kalium: dites di src/lib/electrolytes*.test.ts (modul UI tersendiri).
 
 describe('Koreksi Kalsium (albumin, ionized, protokol)', () => {
   const f = calc('ca-correction');

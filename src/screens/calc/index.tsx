@@ -7,6 +7,7 @@ import { Disclaimer, CalcSteps, ScoreBreakdown, InfoBullets, DoseRangeCard, Acco
 import { fw } from '../../lib/settings';
 import { useFavorites } from '../../utils/favorites';
 import { VasoScreen, DefibScreen, PedsScreen, RoscScreen } from '../tools';
+import { ElektroModule, isElektroModule } from './elektro';
 
 /* ============================================================
    CalcNumberField — stepper + direct text input
@@ -854,6 +855,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
 
   const isFibrinolytic = calc.key === 'fibrinolytic';
   const isNaCorrection = calc.key === 'na-correction';
+  const isElektro = isElektroModule(calc.key);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -898,7 +900,9 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 40px' }}>
         {/* Fields — diisi dulu sebelum melihat hasil (alur baca alami:
             atas-ke-bawah, hasil menyusul di bawah setelah input) */}
-        {isFibrinolytic ? (
+        {isElektro ? (
+          <ElektroModule key={calc.key} calcKey={calc.key}/>
+        ) : isFibrinolytic ? (
           <FibrNolyticFields calc={calc} values={values} setValues={setValues}/>
         ) : isNaCorrection ? (
           <NaCorrectionFields calc={calc} values={values} setValues={setValues}/>
@@ -916,14 +920,14 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
         )}
 
         {/* Result — tampilan terpadu (jawaban + kontribusi/langkah + disclaimer) */}
-        {result && (
+        {result && !isElektro && (
           <div style={{ marginTop: 16 }}>
             <CalcResultView calc={calc} result={result} values={values}/>
           </div>
         )}
 
         {/* Reset button */}
-        <button
+        {!isElektro && <button
           onClick={() => setValues(initValues)}
           style={{
             marginTop: 16, width: '100%', padding: '12px', borderRadius: 12,
@@ -932,7 +936,7 @@ export function MobileCalcDetail({ nav, id }: { nav: Nav; id: string }) {
           }}
         >
           Reset
-        </button>
+        </button>}
 
         {/* Notes */}
         {calc.notes && calc.notes.length > 0 && (
@@ -1010,6 +1014,7 @@ function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | '
   const result = useMemo(() => calc.compute(values), [calc, values]);
   const isFibrinolytic = calc.key === 'fibrinolytic';
   const isNaCorrection = calc.key === 'na-correction';
+  const isElektro = isElektroModule(calc.key);
   const { isFav: dIsFav, toggle: dToggle } = useFavorites();
 
   return (
@@ -1126,6 +1131,11 @@ function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | '
             </button>
           </div>
 
+          {isElektro ? (
+            <div style={{ maxWidth: 760, marginBottom: 16 }}>
+              <ElektroModule key={calc.key} calcKey={calc.key}/>
+            </div>
+          ) : <>
           <CalcResultView calc={calc} result={result} values={values}/>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
@@ -1154,6 +1164,7 @@ function DesktopCalcKindPanel({ kind, initialId, onPick }: { kind: 'scoring' | '
           >
             Reset
           </button>
+          </>}
 
           {calc.notes && calc.notes.length > 0 && (
             <div style={{
