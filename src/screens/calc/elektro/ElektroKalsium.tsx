@@ -9,6 +9,7 @@ import {
   InputPanel, FieldRow, NumField, TargetField, ToggleList, useToggleSet, CalcButton, StrategyFlow, InfoBox, RefLine,
   Card, Eyebrow, BigNumber, SmallText, MiniBoxes, Steps, SectionTitle, Bullets, InputWarning, ResultStack, fmt, type FlowStep,
 } from './ElektroUI';
+import { ElektroTheory } from './ElektroTheory';
 
 /* Koreksi Kalsium — port dari ICU Helper (ElektroKalsium.tsx, versi final teraudit).
    Angka & rumus identik; logika murni di src/lib/electrolytes.ts.
@@ -93,7 +94,7 @@ export function KalsiumCalc() {
         </ResultStack>
       )}
       {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
-      <div style={{ marginTop: 16 }}><CaTheory /></div>
+      <div style={{ marginTop: 16 }}><ElektroTheory /></div>
     </div>
   );
 }
@@ -258,18 +259,5 @@ function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string; alb: s
       <RefLine>Turner J, Gittoes N, Selby P. SfE Endocrine Emergency Guidance: acute hypocalcaemia. Endocr Connect 2016;5:G7 · Payne RB. BMJ 1973 · Dickerson RN. JPEN 2004;28:133 · Özdemir E. PLoS One 2026;21:e0354233</RefLine>
       <Disclaimer />
     </>
-  );
-}
-
-function CaTheory() {
-  return (
-    <Accordion title="📖 Teori & Referensi: Koreksi Kalsium">
-      <Bullets items={[
-        <><strong>Kalsium:</strong> Ca terkoreksi = Ca + 0.8 × (4.0 − albumin) — hanya perkiraan; gunakan Ca ion bila ada. Berat = &lt;1.9 mmol/L (7.6 mg/dL) dan/atau bergejala → Ca glukonat 10% 10–20 mL/10 menit lalu infus 100 mL/1 L @50–100 mL/jam; koreksi Mg. Hiperkalsemia: NaCl 0.9% 4–6 L/24 jam → bisfosfonat IV; diuretik loop hanya bila overload. <em>(SfE 2016)</em></>,
-      ]} />
-      <div style={{ marginTop: 10 }}>
-        <SmallText italic>📚 Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9 · Dickerson RN. JPEN 2004;28:133 · Özdemir E. PLoS One 2026;21:e0354233</SmallText>
-      </div>
-    </Accordion>
   );
 }

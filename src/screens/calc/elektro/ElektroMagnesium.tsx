@@ -6,6 +6,7 @@ import {
   InputPanel, FieldRow, NumField, TargetField, ToggleList, useToggleSet, CalcButton, StrategyFlow, InfoBox, RefLine,
   Card, Eyebrow, BigNumber, SmallText, MiniBoxes, Steps, SectionTitle, Bullets, InputWarning, ResultStack, fmt, type FlowStep,
 } from './ElektroUI';
+import { ElektroTheory } from './ElektroTheory';
 
 /* Koreksi Magnesium — port dari ICU Helper (ElektroMagnesium.tsx, versi final teraudit).
    Angka & rumus identik; logika murni di src/lib/electrolytes.ts. */
@@ -57,7 +58,7 @@ export function MagnesiumCalc() {
         </ResultStack>
       )}
       {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
-      <div style={{ marginTop: 16 }}><MgTheory /></div>
+      <div style={{ marginTop: 16 }}><ElektroTheory /></div>
     </div>
   );
 }
@@ -172,18 +173,5 @@ function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: string; e
       <RefLine>Hansen BA, Bruserud Ø. Hypomagnesemia in critically ill patients. J Intensive Care 2018;6:21 · Turner J, et al. Endocr Connect 2016;5:G7</RefLine>
       <Disclaimer />
     </>
-  );
-}
-
-function MgTheory() {
-  return (
-    <Accordion title="📖 Teori & Referensi: Koreksi Magnesium">
-      <Bullets items={[
-        <><strong>Magnesium:</strong> Mg serum tidak mencerminkan Mg tubuh total. IV bila &lt;0.5 mmol/L (≈1.2 mg/dL) atau bergejala; 1 g MgSO₄ ≈ +0.15 mEq/L (18–30 jam); maksimal 1.5 mEq/kg; &lt;6 g dalam 8–12 jam. Aritmia tidak stabil: 2 g dalam 2–15 menit. Gangguan ginjal: sesuaikan & pantau. <em>(Hansen 2018)</em></>,
-      ]} />
-      <div style={{ marginTop: 10 }}>
-        <SmallText italic>📚 Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21</SmallText>
-      </div>
-    </Accordion>
   );
 }

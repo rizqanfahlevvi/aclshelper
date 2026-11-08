@@ -8,6 +8,7 @@ import {
   InputPanel, FieldRow, NumField, SelectField, TargetField, ToggleList, useToggleSet, CalcButton, StrategyFlow, InfoBox, WarnTitle, RefLine,
   Card, Eyebrow, BigNumber, SmallText, MiniBoxes, Steps, SectionTitle, Bullets, InputWarning, ResultStack, fmt, type FlowStep,
 } from './ElektroUI';
+import { ElektroTheory } from './ElektroTheory';
 
 /* Koreksi Kalium — port dari ICU Helper (ElektroKalium.tsx, versi final teraudit).
    Angka & rumus identik; logika murni di src/lib/electrolytes.ts. */
@@ -82,7 +83,7 @@ export function KaliumCalc() {
         </ResultStack>
       )}
       {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
-      <div style={{ marginTop: 16 }}><KTheory /></div>
+      <div style={{ marginTop: 16 }}><ElektroTheory /></div>
     </div>
   );
 }
@@ -370,20 +371,5 @@ function HyperK({ s, kv, pv, hasPh, kNorm, gds }: { s: KaliumState; kv: number; 
       <RefLine>Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489 · Geldermann N, et al. Emerg Med J 2026;43:305 · UK Kidney Association Hyperkalaemia Guideline 2023 · Adrogué HJ, Madias NE. Am J Med 1981;71:456</RefLine>
       <Disclaimer />
     </>
-  );
-}
-
-/** Teori & Referensi kalium (dari halaman Koreksi Elektrolit ICU Helper). */
-function KTheory() {
-  return (
-    <Accordion title="📖 Teori & Referensi: Koreksi Kalium">
-      <Bullets items={[
-        <><strong>Kalium — hipokalemia:</strong> Berat &lt;2.5 mEq/L. Tiap turun 1 mEq/L ≈ defisit 200–400 mEq (gambaran, bisa meleset). K 2.5–3.4 tanpa gejala/EKG → oral; &lt;2.5, bergejala, EKG berubah, atau tidak bisa oral → IV dengan monitor EKG. Empiris di ICU: 20 mEq KCl ≈ +0.25 mmol/L. Pelarut NaCl 0.9% (bukan dekstrosa). Koreksi Mg bersamaan. Target: rentang normal 3.5–5.0; IMA mortalitas terendah 3.5–&lt;4.5; pasca-CABG suplementasi hanya bila &lt;3.6. <em>(Kardalas 2018; Kruse 1990; Goyal 2012; TIGHT-K 2024)</em></>,
-        <><strong>Kalium — hiperkalemia:</strong> Verifikasi (pseudohiperkalemia) → Ca glukonat 10% <strong>30 mL</strong> bila EKG berubah/K ≥6.5 → insulin 10 U (5 U pada gangguan ginjal berat) + dekstrosa 25 g (+ D10% 50 mL/jam × 5 jam bila GDS &lt;7 mmol/L) + salbutamol 10–20 mg nebul → keluarkan K (dialisis bila refrakter) → pantau K 1–2 j & 2–4 j, GDS tiap 30 mnt × 2 j lalu tiap jam ≥6 j. NaHCO₃ dan binder oral bukan terapi akut rutin. <em>(Ford 2026; Jessen 2025)</em></>,
-      ]} />
-      <div style={{ marginTop: 10 }}>
-        <SmallText italic>📚 Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489.</SmallText>
-      </div>
-    </Accordion>
   );
 }
