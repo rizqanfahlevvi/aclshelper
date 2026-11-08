@@ -1,7 +1,7 @@
-# Graph Report - aclshelper  (2026-11-07)
+# Graph Report - aclshelper  (2026-11-08)
 
 ## Corpus Check
-- 57 files · ~145,691 words
+- 57 files · ~145,763 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: .css 3, (none) 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `efcb41c7`
+- Built from commit: `6540d25f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -87,8 +87,8 @@
 6. `HypoK()` - 21 edges
 7. `MagnesiumResult()` - 21 edges
 8. `NatriumCalc()` - 21 edges
-9. `DesktopTheory()` - 20 edges
-10. `KalsiumResult()` - 20 edges
+9. `KalsiumResult()` - 20 edges
+10. `HyperNa()` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `index.html entry document` --references--> `App bootstrap (ReactDOM root, SW register)`  [EXTRACTED]

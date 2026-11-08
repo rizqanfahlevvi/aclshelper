@@ -132,9 +132,10 @@ export function NatriumCalc() {
           {res
             ? <NatriumResult r={res} na={na} glu={glu} ureum={ureum} ureaUnit={ureaUnit} sex={sex} age={age} onset={onset} naSeverity={naSeverity} odsFactors={odsFactors} />
             : <InfoBox>Isi berat badan dan Na serum untuk menghitung.</InfoBox>}
-          <NaTheory />
         </ResultStack>
       )}
+      {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
+      <div style={{ marginTop: 16 }}><NaTheory /></div>
     </div>
   );
 }

@@ -79,9 +79,10 @@ export function KaliumCalc() {
         <ResultStack>
           <InputWarning messages={[weightPlausibilityWarning(parseFloat(bw)), rangeWarning(parseFloat(k), 1.5, 9, 'K', ' mEq/L')]} />
           <KaliumResult s={s} k={k} ph={ph} gds={gds} bw={bw} />
-          <KTheory />
         </ResultStack>
       )}
+      {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
+      <div style={{ marginTop: 16 }}><KTheory /></div>
     </div>
   );
 }

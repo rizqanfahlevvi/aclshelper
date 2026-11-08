@@ -90,9 +90,10 @@ export function KalsiumCalc() {
             rangeWarning(parseFloat(alb), 1, 6, 'Albumin', ' g/dL'),
           ]} />
           <KalsiumResult s={s} ca={ca} alb={alb} bw={bw} />
-          <CaTheory />
         </ResultStack>
       )}
+      {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
+      <div style={{ marginTop: 16 }}><CaTheory /></div>
     </div>
   );
 }

@@ -54,9 +54,10 @@ export function MagnesiumCalc() {
         <ResultStack>
           <InputWarning messages={[weightPlausibilityWarning(parseFloat(bw)), rangeWarning(parseFloat(mg), 0.5, 6, 'Mg', ' mg/dL')]} />
           <MagnesiumResult s={s} mg={mg} egfr={egfr} bw={bw} />
-          <MgTheory />
         </ResultStack>
       )}
+      {/* Teori & Referensi selalu tampil (seperti ICU Helper), tidak menunggu "Hitung Koreksi" */}
+      <div style={{ marginTop: 16 }}><MgTheory /></div>
     </div>
   );
 }
